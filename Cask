@@ -5,7 +5,7 @@
 
 (files "zweigtd-newtab.el")
 
-(depends-on "org")
+(depends-on "websocket")
 
 (development
  (depends-on "f")
