@@ -41,6 +41,12 @@
 (defvar zweigtd-newtab-ws-server nil
   "The websocket server for `zweigtd-newtab'.")
 
+(defcustom zweigtd-newtab-ws-port
+  35942
+  "Port to server websocket server on."
+  :type 'integer
+  :group 'zweigtd-newtab)
+
 ;;;###autoload
 (define-minor-mode
   zweigtd-newtab-mode
@@ -54,7 +60,7 @@ This serves the web-build and API over HTTP."
    (zweigtd-newtab-mode
     (setq zweigtd-newtab-ws-server
           (websocket-server
-           35942
+           zweigtd-newtab-ws-port
            :host 'local
            :on-open #'zweigtd-newtab--ws-on-open
            :on-message #'zweigtd-newtab--ws-on-message
