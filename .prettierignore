@@ -1,0 +1,9 @@
+.cache
+.typings
+.netlify
+package-lock.json
+public
+node_modules
+coverage
+__generated__
+.vscode
