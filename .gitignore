@@ -219,10 +219,6 @@ bower_components
 # Output of 'npm pack'
 *.tgz
 
-# gatsby files
-.cache/
-public
-
 # Yarn Integrity file
 .yarn-integrity
 
