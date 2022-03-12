@@ -8,8 +8,8 @@
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
     "importHelpers": true,
-    "jsx": "react",
-    "lib": ["dom", "esnext"],
+    "jsx": "react-jsx",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "module": "esnext",
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
@@ -21,16 +21,18 @@
     "sourceMap": true,
     "strict": true,
     "suppressImplicitAnyIndexErrors": true,
-    "target": "es5",
+    "target": "ESNext",
     "typeRoots": ["./.typings", "./node_modules/@types"],
     "types": ["jest", "@testing-library/react"],
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "noEmit": true,
     "isolatedModules": true,
+    "useDefineForClassFields": true,
     "paths": {
       "components": ["src/components"]
     }
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

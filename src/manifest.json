@@ -1,18 +1,10 @@
 {
 	"name": "zweigtd-newtab",
 	"description": "New tab page linked to Emacs org-agenda.",
-	"version": "0.1",
+	"version": "0.0.1",
 	"manifest_version": 3,
-	"icons": {
-		"16": "logo_16.png",
-		"48": "logo_48.png",
-		"128": "logo_128.png"
-	},
-	"background": {
-		"service_worker": "background.js"
-	},
 	"chrome_url_overrides": {
-		"newtab": "dashboard.html"
+		"newtab": "index.html"
 	},
 	"offline_enabled": true
 }
