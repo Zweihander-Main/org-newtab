@@ -1,0 +1,13 @@
+{
+	"css.validate": false,
+	"less.validate": false,
+	"scss.validate": false,
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"editor.formatOnSave": true,
+	"files.exclude": {
+		"**/.cache": true,
+		"**/node_modules": true,
+		"**/.cask": true
+	},
+	"vim.useSystemClipboard": true
+}
