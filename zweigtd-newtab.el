@@ -91,6 +91,10 @@ This serves the web-build and API over HTTP."
   "Send TEXT to socket."
   (websocket-send-text zweigtd-newtab-ws-socket text))
 
+(defun zweigtd-newtab--send-agenda ()
+	""
+	)
+
 (provide 'zweigtd-newtab)
 
 ;; Local Variables:
