@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import './App.css';
+import './newtab.css';
 
 const OrgClock: React.FC = () => {
 	const [clockedData, setClockedData] = useState(
@@ -13,29 +13,35 @@ const OrgClock: React.FC = () => {
 	return <p>{clockedData}</p>;
 };
 
-// function createWebSocketConnection() {
-// 	if ('WebSocket' in window) {
-// 		chrome.storage.local.get('instance', function (data) {
-// 			connect('wss://' + data.instance + '/ws/demoPushNotifications');
-// 		});
-// 	}
-// }
-
-var websocket;
-function connect(host) {
+let websocket: WebSocket | undefined;
+const connect = (host: string | URL) => {
 	if (websocket === undefined) {
 		websocket = new WebSocket(host);
 	}
 
-	websocket.onopen = function () {
-		websocket.send(JSON.stringify({ msg: 'test' }));
+	websocket.onopen = () => {
+		if (websocket) {
+			websocket.send(JSON.stringify({ msg: 'test' }));
+		}
 	};
 
-	websocket.onmessage = function (event) {
-		console.log(JSON.parse(event.data));
+	websocket.onmessage = (event) => {
+		// eslint-disable-next-line no-console
+		console.log(JSON.parse(event.data as unknown as string));
 	};
+};
+
+function createWebSocketConnection() {
+	if ('WebSocket' in window) {
+		chrome.storage.local.get('instance', (data) => {
+			connect(
+				'wss://' +
+					(data.instance as string) +
+					'/ws/demoPushNotifications'
+			);
+		});
+	}
 }
-
 //Close the websocket connection
 function closeWebSocketConnection() {
 	if (websocket != null || websocket != undefined) {
@@ -43,7 +49,7 @@ function closeWebSocketConnection() {
 		websocket = undefined;
 	}
 }
-function App() {
+const IndexNewtab: React.FC = () => {
 	useEffect(() => {
 		connect('ws://localhost:35942/');
 	}, []);
@@ -55,6 +61,6 @@ function App() {
 			</header>
 		</div>
 	);
-}
+};
 
-export default App;
+export default IndexNewtab;
