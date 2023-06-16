@@ -6,7 +6,7 @@
 ;; Keywords: outlines
 ;; Homepage: https://github.com/Zweihander-Main/zweigtd-newtab
 ;; Version: 0.0.1
-;; Package-Requires: ((emacs "24.1"))
+;; Package-Requires: ((emacs "24.1") (websocket "1.7"))
 
 ;; This file is not part of GNU Emacs.
 

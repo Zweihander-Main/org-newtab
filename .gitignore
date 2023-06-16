@@ -230,3 +230,7 @@ cypress/results/*
 cypress/reports/*
 cypress/screenshots/*
 cypress/videos/*
+
+# Added automatically by ‘eldev init’.
+/.eldev
+/Eldev-local
