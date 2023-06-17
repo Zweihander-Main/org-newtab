@@ -1,63 +1,49 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import useWebSocket, { ReadyState } from 'react-use-websocket';
 import './newtab.css';
 
-const OrgClock: React.FC = () => {
-	const [clockedData, setClockedData] = useState(
-		'No clocked data received from Emacs.'
-	);
-
-	useEffect(() => {
-		// call websocket
-	}, [setClockedData]);
-
-	return <p>{clockedData}</p>;
-};
-
-let websocket: WebSocket | undefined;
-const connect = (host: string | URL) => {
-	if (websocket === undefined) {
-		websocket = new WebSocket(host);
-	}
-
-	websocket.onopen = () => {
-		if (websocket) {
-			websocket.send(JSON.stringify({ msg: 'test' }));
-		}
-	};
-
-	websocket.onmessage = (event) => {
-		// eslint-disable-next-line no-console
-		console.log(JSON.parse(event.data as unknown as string));
-	};
-};
-
-function createWebSocketConnection() {
-	if ('WebSocket' in window) {
-		chrome.storage.local.get('instance', (data) => {
-			connect(
-				'wss://' +
-					(data.instance as string) +
-					'/ws/demoPushNotifications'
-			);
-		});
-	}
-}
-//Close the websocket connection
-function closeWebSocketConnection() {
-	if (websocket != null || websocket != undefined) {
-		websocket.close();
-		websocket = undefined;
-	}
-}
 const IndexNewtab: React.FC = () => {
-	useEffect(() => {
-		connect('ws://localhost:35942/');
-	}, []);
+	// const [messageHistory, setMessageHistory] = useState<
+	// 	Array<MessageEvent<string>>
+	// >([]);
 
+	const {
+		sendMessage,
+		lastMessage: lastRecvMessage,
+		sendJsonMessage,
+		lastJsonMessage: lastRecvJsonMessage,
+		readyState,
+		getWebSocket,
+	} = useWebSocket('ws://localhost:35942/');
+
+	// useEffect(() => {
+	// 	if (lastRecvMessage !== null) {
+	// 		setMessageHistory((prev) => prev.concat(lastRecvMessage));
+	// 	}
+	// }, [lastRecvMessage, setMessageHistory]);
+
+	const handleClickSendMessage = useCallback(() => sendMessage('Hello'), []);
+
+	const connectionStatus = {
+		[ReadyState.CONNECTING]: 'Connecting',
+		[ReadyState.OPEN]: 'Open',
+		[ReadyState.CLOSING]: 'Closing',
+		[ReadyState.CLOSED]: 'Closed',
+		[ReadyState.UNINSTANTIATED]: 'Uninstantiated',
+	}[readyState];
 	return (
 		<div className="app">
 			<header className="app-header">
-				<OrgClock />
+				<button
+					onClick={handleClickSendMessage}
+					disabled={readyState !== ReadyState.OPEN}
+				>
+					Click Me to send &apos;Hello&apos;
+				</button>
+				<p>The WebSocket is currently {connectionStatus}</p>
+				{lastRecvMessage ? (
+					<span>Last message: {lastRecvMessage.data}</span>
+				) : null}
 			</header>
 		</div>
 	);
