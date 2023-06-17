@@ -1,10 +1,10 @@
-;;; zweigtd-newtab-test.el --- Tests for zweigtd-newtab-*-lexical-binding:t-*-
+;;; org-newtab-test.el --- Tests for org-newtab-*-lexical-binding:t-*-
 
 ;; Copyright (C) 2021, Zweihänder <zweidev@zweihander.me>
 ;;
 ;; Author: Zweihänder
 ;; Keywords: org-mode
-;; Homepage: https://github.com/Zweihander-Main/zweigtd-newtab
+;; Homepage: https://github.com/Zweihander-Main/org-newtab
 ;; Version: 0.0.1
 
 ;; This file is not part of GNU Emacs.
@@ -26,12 +26,12 @@
 
 ;;; Commentary:
 
-;; Tests for zweigtd-newtab
+;; Tests for org-newtab
 
 ;;; Code:
 
 (require 'buttercup)
-(require 'zweigtd-newtab)
+(require 'org-newtab)
 
 (describe "Testing"
   (it "works."
@@ -42,4 +42,4 @@
 ;; flycheck-disabled-checkers: 'emacs-lisp-elsa
 ;; End:
 
-;;; zweigtd-newtab-test.el ends here
+;;; org-newtab-test.el ends here

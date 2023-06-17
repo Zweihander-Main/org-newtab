@@ -1,7 +1,6 @@
-# zweigtd-newtab
+# org-newtab
 
 > WIP
-
 
 ## Available for Hire
 
@@ -17,8 +16,8 @@ hi [a+] zweisolutions {●} com
 
 [AGPLv3](./LICENSE)
 
-    zweigtd-newtab
-    Copyright (C) 2021 Zweihänder
+    org-newtab
+    Copyright (C) 2023 Zweihänder
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published

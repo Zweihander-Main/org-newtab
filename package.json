@@ -1,5 +1,5 @@
 {
-	"name": "zweigtd-newtab",
+	"name": "org-newtab",
 	"version": "0.0.1",
 	"description": "> WIP",
 	"main": "index.js",
@@ -8,14 +8,14 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/Zweihander-Main/zweigtd-newtab.git"
+		"url": "git+https://github.com/Zweihander-Main/org-newtab.git"
 	},
 	"author": "Zweihänder",
 	"license": "AGPL-3.0-or-later",
 	"bugs": {
-		"url": "https://github.com/Zweihander-Main/zweigtd-newtab/issues"
+		"url": "https://github.com/Zweihander-Main/org-newtab/issues"
 	},
-	"homepage": "https://github.com/Zweihander-Main/zweigtd-newtab",
+	"homepage": "https://github.com/Zweihander-Main/org-newtab",
 	"scripts": {
 		"dev": "plasmo dev",
 		"build": "plasmo build",
