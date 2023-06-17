@@ -9,8 +9,16 @@ const IndexNewtab: React.FC = () => {
 		readyState,
 	} = useWebSocket('ws://localhost:35942/');
 
-	const handleClickSendMessage = useCallback(
-		() => sendJsonMessage({ data: 'Hello' }),
+	const handleFilterSubmit = useCallback(
+		(event: React.FormEvent<HTMLFormElement>) => {
+			event.preventDefault();
+			const { currentTarget } = event;
+			const data = new FormData(currentTarget);
+			const filter = data.get('filter');
+			if (filter && typeof filter === 'string') {
+				sendJsonMessage({ filter });
+			}
+		},
 		[sendJsonMessage]
 	);
 
@@ -24,12 +32,14 @@ const IndexNewtab: React.FC = () => {
 	return (
 		<div className="app">
 			<header className="app-header">
-				<button
-					onClick={handleClickSendMessage}
-					disabled={readyState !== ReadyState.OPEN}
-				>
-					Click Me to send &apos;Hello&apos;
-				</button>
+				<form method="post" onSubmit={handleFilterSubmit}>
+					<input
+						type="text"
+						name="filter"
+						defaultValue='TODO="TODO"'
+					/>
+					<button type="submit">Pull data</button>
+				</form>
 				<p>The WebSocket is currently {connectionStatus}</p>
 				{lastRecvJsonMessage ? (
 					<>

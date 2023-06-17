@@ -6,7 +6,7 @@
 ;; Keywords: outlines
 ;; Homepage: https://github.com/Zweihander-Main/org-newtab
 ;; Version: 0.0.1
-;; Package-Requires: ((emacs "24.1") (websocket "1.7"))
+;; Package-Requires: ((emacs "24.1") (websocket "1.7") (emacs-async "1.9.4"))
 
 ;; This file is not part of GNU Emacs.
 
@@ -36,10 +36,10 @@
 
 (setq websocket-debug t)
 
-(defvar org-newtab-ws-socket nil
+(defvar org-newtab--ws-socket nil
   "The websocket for `org-newtab'.")
 
-(defvar org-newtab-ws-server nil
+(defvar org-newtab--ws-server nil
   "The websocket server for `org-newtab'.")
 
 (defcustom org-newtab-ws-port
@@ -48,8 +48,8 @@
   :type 'integer
   :group 'org-newtab)
 
-(defcustom org-newtab-agenda-filter "SCHEDULED>=\"<2023-06-01>\""
-  "Filter to generate a list of agenda entries to show in the calendar."
+(defcustom org-newtab-agenda-filter "TODO=\"TODO\""
+  "Default filter for agenda entries. Takes the form of agenda match query."
   :type 'string
   :group 'org-newtab)
 
@@ -64,7 +64,7 @@ This serves the web-build and API over HTTP."
   :init-value nil
   (cond
    (org-newtab-mode
-    (setq org-newtab-ws-server
+    (setq org-newtab--ws-server
           (websocket-server
            org-newtab-ws-port
            :host 'local
@@ -73,24 +73,23 @@ This serves the web-build and API over HTTP."
            :on-close #'org-newtab--ws-on-close
            :on-error #'org-newtab--ws-on-error)))
    (t
-    (websocket-server-close org-newtab-ws-server))))
+    (websocket-server-close org-newtab--ws-server))))
 
 (defun org-newtab--ws-on-open (ws)
   "Open the websocket WS and send initial data."
-  (setq org-newtab-ws-socket ws)
+  (setq org-newtab--ws-socket ws)
   (message "[Server] on-open"))
 
 (defun org-newtab--ws-on-message (ws frame)
   "Take WS and FRAME as arguments when message received."
   (message "[Server] on-message")
   (message "[Server] Received %S from client" (websocket-frame-text frame))
-  (message "[Server] Sending %S to client" (upcase (websocket-frame-text frame)))
-  (websocket-send-text ws (upcase (websocket-frame-text frame))))
-
+  (message "[Server] Sending %S to client" (websocket-frame-text frame))
+  (websocket-send-text ws (websocket-frame-text frame)))
 
 (defun org-newtab--ws-on-close (ws)
   "Perform when WS is closed."
-  (setq org-newtab-ws-socket nil)
+  (setq org-newtab--ws-socket nil)
   (message "[Server] on-close"))
 
 (defun org-newtab--ws-on-error (ws type error)
@@ -99,28 +98,40 @@ This serves the web-build and API over HTTP."
 
 (defun org-newtab--send-text (text)
   "Send TEXT to socket."
-  (websocket-send-text org-newtab-ws-socket text))
+  (websocket-send-text org-newtab--ws-socket text))
 
-(defun org-newtab--get-agenda ()
+(defun org-newtab--process-agenda-item ()
   "Get an org agenda event and transform it into a form that is easily JSONable."
   (let* ((props (org-entry-properties))
          (json-null json-false))
     props))
 
-(defun org-newtab--get-calendar-entries (scope)
+(defun org-newtab--get-entries-from-filter (scope)
   "Get all agenda entries using our filter and `org-mode' SCOPE.
 Return a structure that is JSONable."
-  (org-map-entries #'org-newtab--get-agenda org-newtab-agenda-filter scope))
+  (org-map-entries #'org-newtab--process-agenda-item org-newtab-agenda-filter scope))
 
 (defun org-newtab--encode-agenda ()
   "Encode our agenda to JSON."
   ;; want json-encode-array here in case we get an empty list. then we want "[]"
-  (json-encode-array (org-newtab--get-calendar-entries 'agenda)))
+  (json-encode-array (org-newtab--get-entries-from-filter 'agenda)))
 
 (defun org-newtab--send-agenda ()
   "Get the agenda and send it through to the client."
   (let* ((encoded-agenda (org-newtab--encode-agenda)))
     (org-newtab--send-text encoded-agenda)))
+
+(defun org-newtab--send-agenda-command ()
+  "."
+  (async-start (lambda ()
+                 (require 'org)
+                 (require 'org-agenda)
+                 (with-temp-buffer
+                   (org-agenda "a")
+	           (json-encode-array (org-map-entries #'org-newtab--process-agenda-item t 'file))))
+
+               (lambda (result)
+		 (org-newtab--send-text result))))
 
 (provide 'org-newtab)
 
