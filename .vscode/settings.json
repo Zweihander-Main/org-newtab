@@ -12,6 +12,7 @@
 	"vim.useSystemClipboard": true,
 	"cSpell.words": [
 		"Newtab",
-		"plasmohq"
+		"plasmohq",
+		"UNINSTANTIATED"
 	]
 }

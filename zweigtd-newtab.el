@@ -31,6 +31,7 @@
 ;;
 ;;; Code:
 
+(require 'org)
 (require 'websocket)
 
 (setq websocket-debug t)
@@ -47,10 +48,15 @@
   :type 'integer
   :group 'zweigtd-newtab)
 
+(defcustom zweigtd-newtab-agenda-filter "SCHEDULED>=\"<2023-06-01>\""
+  "Filter to generate a list of agenda entries to show in the calendar."
+  :type 'string
+  :group 'zweigtd-newtab)
+
 ;;;###autoload
 (define-minor-mode
   zweigtd-newtab-mode
-  "Enable `zweigtd-newtab'
+  "Enable `zweigtd-newtab'.
 This serves the web-build and API over HTTP."
   :lighter " zweigtd-newtab"
   :global t
@@ -72,28 +78,49 @@ This serves the web-build and API over HTTP."
 (defun zweigtd-newtab--ws-on-open (ws)
   "Open the websocket WS and send initial data."
   (setq zweigtd-newtab-ws-socket ws)
-  (message "Open"))
+  (message "[Server] on-open"))
 
 (defun zweigtd-newtab--ws-on-message (ws frame)
   "Take WS and FRAME as arguments when message received."
-  (prin1 frame))
+  (message "[Server] on-message")
+  (message "[Server] Received %S from client" (websocket-frame-text frame))
+  (message "[Server] Sending %S to client" (upcase (websocket-frame-text frame)))
+  (websocket-send-text ws (upcase (websocket-frame-text frame))))
+
 
 (defun zweigtd-newtab--ws-on-close (ws)
   "Perform when WS is closed."
   (setq zweigtd-newtab-ws-socket nil)
-  (message "Closed"))
+  (message "[Server] on-close"))
 
 (defun zweigtd-newtab--ws-on-error (ws type error)
   "Handle ERROR of TYPE from WS."
-  (concat (prin1 type) ": " (prin1 error)))
+  (concat "[Server] Error: " (prin1 type) ": " (prin1 error)))
 
 (defun zweigtd-newtab--send-text (text)
   "Send TEXT to socket."
   (websocket-send-text zweigtd-newtab-ws-socket text))
 
+(defun zweigtd-newtab--get-agenda ()
+  "Get an org agenda event and transform it into a form that is easily JSONable."
+  (let* ((props (org-entry-properties))
+         (json-null json-false))
+    props))
+
+(defun zweigtd-newtab--get-calendar-entries (scope)
+  "Get all agenda entries using our filter and `org-mode' SCOPE.
+Return a structure that is JSONable."
+  (org-map-entries #'zweigtd-newtab--get-agenda zweigtd-newtab-agenda-filter scope))
+
+(defun zweigtd-newtab--encode-agenda ()
+  "Encode our agenda to JSON."
+  ;; want json-encode-array here in case we get an empty list. then we want "[]"
+  (json-encode-array (zweigtd-newtab--get-calendar-entries 'agenda)))
+
 (defun zweigtd-newtab--send-agenda ()
-	""
-	)
+  "Get the agenda and send it through to the client."
+  (let* ((encoded-agenda (zweigtd-newtab--encode-agenda)))
+    (zweigtd-newtab--send-text encoded-agenda)))
 
 (provide 'zweigtd-newtab)
 

@@ -1,28 +1,18 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import './newtab.css';
 
 const IndexNewtab: React.FC = () => {
-	// const [messageHistory, setMessageHistory] = useState<
-	// 	Array<MessageEvent<string>>
-	// >([]);
-
 	const {
-		sendMessage,
-		lastMessage: lastRecvMessage,
 		sendJsonMessage,
 		lastJsonMessage: lastRecvJsonMessage,
 		readyState,
-		getWebSocket,
 	} = useWebSocket('ws://localhost:35942/');
 
-	// useEffect(() => {
-	// 	if (lastRecvMessage !== null) {
-	// 		setMessageHistory((prev) => prev.concat(lastRecvMessage));
-	// 	}
-	// }, [lastRecvMessage, setMessageHistory]);
-
-	const handleClickSendMessage = useCallback(() => sendMessage('Hello'), []);
+	const handleClickSendMessage = useCallback(
+		() => sendJsonMessage({ data: 'Hello' }),
+		[sendJsonMessage]
+	);
 
 	const connectionStatus = {
 		[ReadyState.CONNECTING]: 'Connecting',
@@ -41,8 +31,15 @@ const IndexNewtab: React.FC = () => {
 					Click Me to send &apos;Hello&apos;
 				</button>
 				<p>The WebSocket is currently {connectionStatus}</p>
-				{lastRecvMessage ? (
-					<span>Last message: {lastRecvMessage.data}</span>
+				{lastRecvJsonMessage ? (
+					<>
+						Last message:
+						<div>
+							<pre>
+								{JSON.stringify(lastRecvJsonMessage, null, 2)}
+							</pre>
+						</div>
+					</>
 				) : null}
 			</header>
 		</div>

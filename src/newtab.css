@@ -7,24 +7,20 @@ body {
 	-moz-osx-font-smoothing: grayscale;
 }
 
-code {
+code,
+pre {
 	font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
 		monospace;
 }
 
+pre {
+	text-align: left;
+	max-width: 90vw;
+	text-wrap: balance;
+}
+
 .app {
 	text-align: center;
-}
-
-.app-logo {
-	height: 40vmin;
-	pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-	.app-logo {
-		animation: App-logo-spin infinite 20s linear;
-	}
 }
 
 .app-header {
@@ -36,14 +32,4 @@ code {
 	justify-content: center;
 	font-size: calc(10px + 2vmin);
 	color: white;
-}
-
-@keyframes app-logo-spin {
-	from {
-		transform: rotate(0deg);
-	}
-
-	to {
-		transform: rotate(360deg);
-	}
 }
