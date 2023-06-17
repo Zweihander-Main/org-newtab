@@ -96,9 +96,9 @@ This serves the web-build and API over HTTP."
   "Handle ERROR of TYPE from WS."
   (concat "[Server] Error: " (prin1 type) ": " (prin1 error)))
 
-(defun org-newtab--send-text (text)
-  "Send TEXT to socket."
-  (websocket-send-text org-newtab--ws-socket text))
+(defun org-newtab--send-data (data)
+  "Send DATA to socket."
+  (websocket-send-text org-newtab--ws-socket data))
 
 (defun org-newtab--process-agenda-item ()
   "Get an org agenda event and transform it into a form that is easily JSONable."
@@ -119,7 +119,7 @@ Return a structure that is JSONable."
 (defun org-newtab--send-agenda ()
   "Get the agenda and send it through to the client."
   (let* ((encoded-agenda (org-newtab--encode-agenda)))
-    (org-newtab--send-text encoded-agenda)))
+    (org-newtab--send-data encoded-agenda)))
 
 (defun org-newtab--send-agenda-command ()
   "."
@@ -131,7 +131,7 @@ Return a structure that is JSONable."
 	           (json-encode-array (org-map-entries #'org-newtab--process-agenda-item t 'file))))
 
                (lambda (result)
-		 (org-newtab--send-text result))))
+		 (org-newtab--send-data result))))
 
 (provide 'org-newtab)
 
