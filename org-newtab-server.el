@@ -66,7 +66,9 @@ This serves the web-build and API over HTTP."
   (let* ((frame-text (websocket-frame-text frame))
 	 (json-data (org-newtab--decipher-message-from-frame-text frame-text)))
     (message "[Server] Received %S from client" json-data)
-    (org-newtab--determine-action-from-message json-data)))
+    (let ((response (org-newtab--determine-action-from-message json-data)))
+      (when response
+	(org-newtab--send-data response)))))
 
 (defun org-newtab--ws-on-close (_ws)
   "Perform when WS is closed."
