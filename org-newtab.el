@@ -80,7 +80,7 @@ This serves the web-build and API over HTTP."
   (setq org-newtab--ws-socket ws)
   (message "[Server] on-open"))
 
-(defun org-newtab--ws-on-message (ws frame)
+(defun org-newtab--ws-on-message (_ws frame)
   "Take WS and FRAME as arguments when message received."
   (message "[Server] on-message")
   (let* ((frame-text (websocket-frame-text frame))
@@ -88,12 +88,12 @@ This serves the web-build and API over HTTP."
     (message "[Server] Received %S from client" json-data)
     (org-newtab--determine-action-from-message json-data)))
 
-(defun org-newtab--ws-on-close (ws)
+(defun org-newtab--ws-on-close (_ws)
   "Perform when WS is closed."
   (setq org-newtab--ws-socket nil)
   (message "[Server] on-close"))
 
-(defun org-newtab--ws-on-error (ws type error)
+(defun org-newtab--ws-on-error (_ws type error)
   "Handle ERROR of TYPE from WS."
   (concat "[Server] Error: " (prin1 type) ": " (prin1 error)))
 
