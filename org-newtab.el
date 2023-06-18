@@ -6,7 +6,7 @@
 ;; Keywords: outlines
 ;; Homepage: https://github.com/Zweihander-Main/org-newtab
 ;; Version: 0.0.1
-;; Package-Requires: ((emacs "24.1") (websocket "1.7") (emacs-async "1.9.4"))
+;; Package-Requires: ((emacs "25.1") (websocket "1.7") (async "1.9.4"))
 
 ;; This file is not part of GNU Emacs.
 
@@ -83,9 +83,10 @@ This serves the web-build and API over HTTP."
 (defun org-newtab--ws-on-message (ws frame)
   "Take WS and FRAME as arguments when message received."
   (message "[Server] on-message")
-  (message "[Server] Received %S from client" (websocket-frame-text frame))
-  (message "[Server] Sending %S to client" (websocket-frame-text frame))
-  (websocket-send-text ws (websocket-frame-text frame)))
+  (let* ((frame-text (websocket-frame-text frame))
+	 (json-data (org-newtab--decipher-message-from-frame-text frame-text)))
+    (message "[Server] Received %S from client" json-data)
+    (org-newtab--determine-action-from-message json-data)))
 
 (defun org-newtab--ws-on-close (ws)
   "Perform when WS is closed."
@@ -100,26 +101,38 @@ This serves the web-build and API over HTTP."
   "Send DATA to socket."
   (websocket-send-text org-newtab--ws-socket data))
 
+(defun org-newtab--decipher-message-from-frame-text (frame-text)
+  "Decipher FRAME-TEXT and return the message."
+  (let* ((json-object-type 'plist)
+	 (json-array-type 'list)
+	 (json (json-read-from-string frame-text)))
+    json))
+
+(defun org-newtab--determine-action-from-message (recv-json)
+  "Determine what action to take from RECV-JSON."
+  (pcase (plist-get recv-json :action)
+    ("changeFilter" (org-newtab--action-change-filter
+		     (plist-get recv-json :data)))
+    (_ (message "[Server] Unknown action"))))
+
+(defun org-newtab--action-change-filter (filter)
+  "Change the filter to FILTER and send the agenda."
+  (setq org-newtab-agenda-filter filter)
+  (org-newtab--send-agenda-item))
+
 (defun org-newtab--process-agenda-item ()
   "Get an org agenda event and transform it into a form that is easily JSONable."
   (let* ((props (org-entry-properties))
          (json-null json-false))
     props))
 
-(defun org-newtab--get-entries-from-filter (scope)
-  "Get all agenda entries using our filter and `org-mode' SCOPE.
-Return a structure that is JSONable."
-  (org-map-entries #'org-newtab--process-agenda-item org-newtab-agenda-filter scope))
-
-(defun org-newtab--encode-agenda ()
-  "Encode our agenda to JSON."
-  ;; want json-encode-array here in case we get an empty list. then we want "[]"
-  (json-encode-array (org-newtab--get-entries-from-filter 'agenda)))
-
-(defun org-newtab--send-agenda ()
-  "Get the agenda and send it through to the client."
-  (let* ((encoded-agenda (org-newtab--encode-agenda)))
-    (org-newtab--send-data encoded-agenda)))
+(defun org-newtab--send-agenda-item ()
+  "Send first item from agenda using the current `org-newtab-agenda-filter'."
+  (let* ((entries (org-map-entries #'org-newtab--process-agenda-item
+				   org-newtab-agenda-filter 'agenda))
+	 (first-entry (car entries))
+	 (json-entry (json-encode first-entry)))
+    (org-newtab--send-data json-entry)))
 
 (defun org-newtab--send-agenda-command ()
   "."

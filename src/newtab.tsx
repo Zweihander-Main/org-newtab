@@ -16,7 +16,7 @@ const IndexNewtab: React.FC = () => {
 			const data = new FormData(currentTarget);
 			const filter = data.get('filter');
 			if (filter && typeof filter === 'string') {
-				sendJsonMessage({ filter });
+				sendJsonMessage({ action: 'changeFilter', data: filter });
 			}
 		},
 		[sendJsonMessage]
