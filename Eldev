@@ -2,3 +2,5 @@
 
 (eldev-require-version "1.2")
 (eldev-use-package-archive 'melpa)
+(setf eldev-project-main-file "org-newtab.el")
+(setq sentence-end-double-space nil)
