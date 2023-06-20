@@ -32,6 +32,14 @@
 ;;; Code:
 
 (require 'org-newtab)
+(require 'async)
+(require 'websocket) ;; TODO into other file?
+
+(defvar org-newtab--ws-socket nil
+  "The websocket for `org-newtab'.")
+
+(defvar org-newtab--ws-server nil
+  "The websocket server for `org-newtab'.")
 
 ;;;###autoload
 (define-minor-mode
@@ -64,11 +72,43 @@ This serves the web-build and API over HTTP."
   "Take WS and FRAME as arguments when message received."
   (message "[Server] on-message")
   (let* ((frame-text (websocket-frame-text frame))
-	 (json-data (org-newtab--decipher-message-from-frame-text frame-text)))
+	 (json-data (org-newtab--decipher-message-from-frame-text frame-text))
+         (agenda-filter (plist-get json-data :data)))
     (message "[Server] Received %S from client" json-data)
-    (let ((response (org-newtab--determine-action-from-message json-data)))
-      (when response
-	(org-newtab--send-data response)))))
+    (let ((proc
+	   (async-start
+	    `(lambda ()
+               ,(async-inject-variables "\\`org-agenda-files\\'") ;; TODO: if it becomes interactive, it freezes
+               (require 'org)
+	       (require 'json)
+               (defun export-agenda--process-agenda-item ()
+                 "Get an org agenda event and transform it into a form that is easily JSONable."
+                 (let* ((props (org-entry-properties))
+                        (json-null json-false))
+                   props))
+
+               (defun export-agenda--get-one-agenda-item (agenda-filter)
+                 "Return first item from agenda using AGENDA-FILTER."
+                 (let* ((entries (org-map-entries #'export-agenda--process-agenda-item
+				                  agenda-filter 'agenda))
+	                (first-entry (car entries))
+	                (json-entry (json-encode first-entry)))
+                   json-entry))
+	       (export-agenda--get-one-agenda-item ,agenda-filter)))))
+      (let ((to-send (async-get proc)))
+	(message "[Server] Sending %S to client" to-send)
+        (org-newtab--send-data to-send)))))
+;; (let ((proc
+;; 	   (async-start-process
+;; 	    "export-agenda" (executable-find "doomscript")
+;; 	    (lambda (proc)
+;; 	      (message "[Server] Process ended"))
+;; 	    "/home/zwei/dev/misc/emacs/org-newtab/export-agenda")))
+
+
+
+
+;;
 
 (defun org-newtab--ws-on-close (_ws)
   "Perform when WS is closed."
@@ -89,16 +129,6 @@ This serves the web-build and API over HTTP."
 	 (json-array-type 'list)
 	 (json (json-read-from-string frame-text)))
     json))
-
-(defun org-newtab--send-agenda-command ()
-  "."
-  (async-start
-   `(lambda ()
-      (defalias 'org-newtab--send-agenda-item
-        ,(symbol-function 'org-newtab--send-agenda-item)
-        (org-newtab--send-agenda-item)))
-   (lambda (result)
-     (org-newtab--send-data result))))
 
 (provide 'org-newtab-server)
 

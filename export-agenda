@@ -1,0 +1,22 @@
+#!/usr/bin/env doomscript
+
+(defcli! export-agenda (&args agenda-filter)
+  (require 'doom-start)          ; load your user config
+  (require 'org)
+  (export-agenda--get-one-agenda-item "TODO=\"TODO\""))
+
+(defun export-agenda--process-agenda-item ()
+  "Get an org agenda event and transform it into a form that is easily JSONable."
+  (let* ((props (org-entry-properties))
+         (json-null json-false))
+    props))
+
+(defun export-agenda--get-one-agenda-item (agenda-filter)
+  "Return first item from agenda using AGENDA-FILTER."
+  (let* ((entries (org-map-entries #'export-agenda--process-agenda-item
+				   agenda-filter 'agenda))
+	 (first-entry (car entries))
+	 (json-entry (json-encode first-entry)))
+    (print! json-entry)))
+
+(run! "export-agenda" (cdr (member "--" argv)))

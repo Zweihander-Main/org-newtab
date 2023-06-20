@@ -32,8 +32,6 @@
 ;;; Code:
 
 (require 'cl-lib)
-(require 'org)
-(require 'websocket)
 
 (defgroup org-newtab nil
   "A browser new tab page linked to `org-agenda'."
@@ -41,53 +39,17 @@
   :prefix "org-newtab-"
   :link `(url-link :tag "Github" "https://github.com/Zweihander-Main/org-newtab"))
 
-(defvar org-newtab--ws-socket nil
-  "The websocket for `org-newtab'.")
-
-(defvar org-newtab--ws-server nil
-  "The websocket server for `org-newtab'.")
-
 (defcustom org-newtab-ws-port
   35942
   "Port to server websocket server on."
   :type 'integer
   :group 'org-newtab)
 
-(defcustom org-newtab-agenda-filter "TODO=\"TODO\""
-  "Default filter for agenda entries. Takes the form of agenda match query."
-  :type 'string
-  :group 'org-newtab)
-
-(defun org-newtab--determine-action-from-message (recv-json)
-  "Determine what action to take from RECV-JSON."
-  (pcase (plist-get recv-json :action)
-    ("changeFilter" (org-newtab--action-change-filter
-		     (plist-get recv-json :data)))
-    (_ (message "[Server] Unknown action"))))
-
-(defun org-newtab--action-change-filter (filter)
-  "Change the filter to FILTER and send the agenda."
-  (setq org-newtab-agenda-filter filter)
-  (org-newtab--get-one-agenda-item))
-
-(defun org-newtab--process-agenda-item ()
-  "Get an org agenda event and transform it into a form that is easily JSONable."
-  (let* ((props (org-entry-properties))
-         (json-null json-false))
-    props))
-
-(defun org-newtab--get-one-agenda-item ()
-  "Return first item from agenda using the current `org-newtab-agenda-filter'."
-  (let* ((entries (org-map-entries #'org-newtab--process-agenda-item
-				   org-newtab-agenda-filter 'agenda))
-	 (first-entry (car entries))
-	 (json-entry (json-encode first-entry)))
-    json-entry))
-
 (provide 'org-newtab)
 
 (cl-eval-when (load eval)
-  (require 'org-newtab-server))
+  (require 'org-newtab-server)
+  (require 'org-newtab-agenda))
 
 ;; Local Variables:
 ;; coding: utf-8
