@@ -27,7 +27,11 @@
 
 ;;; Commentary:
 ;;
-;; WIP
+;; This file contains the code for interacting with `org-agenda'. It's
+;; deliberately separated from the main file for usage in async processes.
+;; Because of this, file should be kept fairly dependency-free.
+;;
+;; Assumes`org-agenda-files' has been set.
 ;;
 ;;; Code:
 

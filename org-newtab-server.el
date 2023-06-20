@@ -77,14 +77,13 @@ This serves the web-build and API over HTTP."
     (message "[Server] Received %S from client" json-data)
     (async-start
      `(lambda ()
-        ,(async-inject-variables "\\`\\(org-agenda-files\\)\\'") ;; TODO: if it becomes interactive, it freezes
+        ,(async-inject-variables "\\`\\(org-agenda-files\\)\\'") ; TODO: if it becomes interactive (asks for prompt), it freezes
 	(load-file ,(concat (file-name-directory (or load-file-name buffer-file-name)) "org-newtab-agenda.el"))
-		  (require 'org-newtab-agenda)
+	(require 'org-newtab-agenda)
 	(org-newtab--get-one-agenda-item ,agenda-filter))
      (lambda (result)
        (message "[Server] Sending %S to client" result)
-       (org-newtab--send-data result))))) ;; TODO cannot send message to closed websocket
-;; TODO Sending null to client
+       (org-newtab--send-data result)))))
 
 (defun org-newtab--ws-on-close (_ws)
   "Perform when WS is closed."
@@ -96,8 +95,9 @@ This serves the web-build and API over HTTP."
   (concat "[Server] Error: " (prin1 type) ": " (prin1 error)))
 
 (defun org-newtab--send-data (data)
-  "Send DATA to socket."
-  (websocket-send-text org-newtab--ws-socket data))
+  "Send DATA to socket. If socket is nil, drop the data and do nothing."
+  (when org-newtab--ws-socket
+    (websocket-send-text org-newtab--ws-socket data)))
 
 (defun org-newtab--decipher-message-from-frame-text (frame-text)
   "Decipher FRAME-TEXT and return the message."
