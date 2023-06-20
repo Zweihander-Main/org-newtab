@@ -75,40 +75,29 @@ This serves the web-build and API over HTTP."
 	 (json-data (org-newtab--decipher-message-from-frame-text frame-text))
          (agenda-filter (plist-get json-data :data)))
     (message "[Server] Received %S from client" json-data)
-    (let ((proc
-	   (async-start
-	    `(lambda ()
-               ,(async-inject-variables "\\`org-agenda-files\\'") ;; TODO: if it becomes interactive, it freezes
-               (require 'org)
-	       (require 'json)
-               (defun export-agenda--process-agenda-item ()
-                 "Get an org agenda event and transform it into a form that is easily JSONable."
-                 (let* ((props (org-entry-properties))
-                        (json-null json-false))
-                   props))
+    (async-start
+     `(lambda ()
+        ,(async-inject-variables "\\`org-agenda-files\\'") ;; TODO: if it becomes interactive, it freezes
+        (require 'org)
+	(require 'json)
 
-               (defun export-agenda--get-one-agenda-item (agenda-filter)
-                 "Return first item from agenda using AGENDA-FILTER."
-                 (let* ((entries (org-map-entries #'export-agenda--process-agenda-item
-				                  agenda-filter 'agenda))
-	                (first-entry (car entries))
-	                (json-entry (json-encode first-entry)))
-                   json-entry))
-	       (export-agenda--get-one-agenda-item ,agenda-filter)))))
-      (let ((to-send (async-get proc)))
-	(message "[Server] Sending %S to client" to-send)
-        (org-newtab--send-data to-send)))))
-;; (let ((proc
-;; 	   (async-start-process
-;; 	    "export-agenda" (executable-find "doomscript")
-;; 	    (lambda (proc)
-;; 	      (message "[Server] Process ended"))
-;; 	    "/home/zwei/dev/misc/emacs/org-newtab/export-agenda")))
+        (defun export-agenda--process-agenda-item ()
+          "Get an org agenda event and transform it into a form that is easily JSONable."
+          (let* ((props (org-entry-properties))
+                 (json-null json-false))
+            props))
 
-
-
-
-;;
+        (defun export-agenda--get-one-agenda-item (agenda-filter)
+          "Return first item from agenda using AGENDA-FILTER."
+          (let* ((entries (org-map-entries #'export-agenda--process-agenda-item
+				           agenda-filter 'agenda))
+	         (first-entry (car entries))
+	         (json-entry (json-encode first-entry)))
+            json-entry))
+	(export-agenda--get-one-agenda-item ,agenda-filter))
+     (lambda (result)
+       (message "[Server] Sending %S to client" result)
+       (org-newtab--send-data result))))) ;; TODO cannot send message to closed websocket
 
 (defun org-newtab--ws-on-close (_ws)
   "Perform when WS is closed."
