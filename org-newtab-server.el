@@ -77,27 +77,14 @@ This serves the web-build and API over HTTP."
     (message "[Server] Received %S from client" json-data)
     (async-start
      `(lambda ()
-        ,(async-inject-variables "\\`org-agenda-files\\'") ;; TODO: if it becomes interactive, it freezes
-        (require 'org)
-	(require 'json)
-
-        (defun export-agenda--process-agenda-item ()
-          "Get an org agenda event and transform it into a form that is easily JSONable."
-          (let* ((props (org-entry-properties))
-                 (json-null json-false))
-            props))
-
-        (defun export-agenda--get-one-agenda-item (agenda-filter)
-          "Return first item from agenda using AGENDA-FILTER."
-          (let* ((entries (org-map-entries #'export-agenda--process-agenda-item
-				           agenda-filter 'agenda))
-	         (first-entry (car entries))
-	         (json-entry (json-encode first-entry)))
-            json-entry))
-	(export-agenda--get-one-agenda-item ,agenda-filter))
+        ,(async-inject-variables "\\`\\(org-agenda-files\\)\\'") ;; TODO: if it becomes interactive, it freezes
+	(load-file ,(concat (file-name-directory (or load-file-name buffer-file-name)) "org-newtab-agenda.el"))
+		  (require 'org-newtab-agenda)
+	(org-newtab--get-one-agenda-item ,agenda-filter))
      (lambda (result)
        (message "[Server] Sending %S to client" result)
        (org-newtab--send-data result))))) ;; TODO cannot send message to closed websocket
+;; TODO Sending null to client
 
 (defun org-newtab--ws-on-close (_ws)
   "Perform when WS is closed."
