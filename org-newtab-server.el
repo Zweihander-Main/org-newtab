@@ -72,15 +72,14 @@ This serves the web-build and API over HTTP."
   "Take WS and FRAME as arguments when message received."
   (message "[Server] on-message")
   (let* ((frame-text (websocket-frame-text frame))
-	 (json-data (org-newtab--decipher-message-from-frame-text frame-text))
-         (agenda-filter (plist-get json-data :data)))
+	 (json-data (org-newtab--decipher-message-from-frame-text frame-text)))
     (message "[Server] Received %S from client" json-data)
     (async-start
      `(lambda ()
         ,(async-inject-variables "\\`\\(org-agenda-files\\)\\'") ; TODO: if it becomes interactive (asks for prompt), it freezes
 	(load-file ,(concat (file-name-directory (or load-file-name buffer-file-name)) "org-newtab-agenda.el"))
 	(require 'org-newtab-agenda)
-	(org-newtab--get-one-agenda-item ,agenda-filter))
+	(org-newtab--determine-action-from-message ',json-data))
      (lambda (result)
        (message "[Server] Sending %S to client" result)
        (org-newtab--send-data result)))))

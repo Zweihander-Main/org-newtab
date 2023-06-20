@@ -38,12 +38,11 @@
 (require 'org)
 (require 'json)
 
-;; (defun org-newtab--determine-action-from-message (recv-json)
-;;   "Determine what action to take from RECV-JSON."
-;;   (pcase (plist-get recv-json :action)
-;;     ("changeFilter" (org-newtab--action-change-filter
-;; 		     (plist-get recv-json :data)))
-;;     (_ (message "[Server] Unknown action"))))
+(defun org-newtab--determine-action-from-message (recv-json)
+  "Determine what action to take from RECV-JSON."
+  (pcase (plist-get recv-json :action)
+    ("changeFilter" (org-newtab--get-one-agenda-item (plist-get recv-json :data)))
+    (_ (message "[Server] Unknown action"))))
 
 (defun org-newtab--process-agenda-item ()
   "Get an org agenda event and transform it into a form that is easily JSONable."
