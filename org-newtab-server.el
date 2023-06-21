@@ -34,6 +34,8 @@
 (require 'org-newtab)
 (require 'async)
 (require 'websocket) ;; TODO into other file?
+(require 'org-clock)
+(require 'org-newtab-clock)
 
 (defvar org-newtab--ws-socket nil
   "The websocket for `org-newtab'.")
@@ -74,15 +76,16 @@ This serves the web-build and API over HTTP."
   (let* ((frame-text (websocket-frame-text frame))
 	 (json-data (org-newtab--decipher-message-from-frame-text frame-text)))
     (message "[Server] Received %S from client" json-data)
-    (async-start
-     `(lambda ()
-        ,(async-inject-variables "\\`\\(org-agenda-files\\)\\'") ; TODO: if it becomes interactive (asks for prompt), it freezes
-	(load-file ,(concat (file-name-directory (or load-file-name buffer-file-name)) "org-newtab-agenda.el"))
-	(require 'org-newtab-agenda)
-	(org-newtab--determine-action-from-message ',json-data))
-     (lambda (result)
-       (message "[Server] Sending %S to client" result)
-       (org-newtab--send-data result)))))
+    (if (org-clocking-p)
+	(org-newtab--send-data (org-newtab--get-clocked-in-item))
+      (async-start
+       `(lambda ()
+          ,(async-inject-variables "\\`\\(org-agenda-files\\)\\'") ; TODO: if it becomes interactive (asks for prompt), it freezes
+	  (load-file ,(concat (file-name-directory (or load-file-name buffer-file-name)) "org-newtab-agenda.el"))
+	  (require 'org-newtab-agenda)
+	  (org-newtab--determine-action-from-message ',json-data))
+       (lambda (result)
+         (org-newtab--send-data result))))))
 
 (defun org-newtab--ws-on-close (_ws)
   "Perform when WS is closed."
@@ -96,6 +99,7 @@ This serves the web-build and API over HTTP."
 (defun org-newtab--send-data (data)
   "Send DATA to socket. If socket is nil, drop the data and do nothing."
   (when org-newtab--ws-socket
+    (message "[Server] Sending %S to client" data)
     (websocket-send-text org-newtab--ws-socket data)))
 
 (defun org-newtab--decipher-message-from-frame-text (frame-text)

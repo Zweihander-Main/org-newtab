@@ -1,4 +1,4 @@
-;;; org-newtab-agenda.el --- WIP -*-lexical-binding:t-*-
+;;; org-newtab-clock.el --- WIP -*-lexical-binding:t-*-
 
 ;; Copyright (C) 2023, Zweihänder <zweidev@zweihander.me>
 ;;
@@ -27,42 +27,34 @@
 
 ;;; Commentary:
 ;;
-;; This file contains the code for interacting with `org-agenda'. It's
-;; deliberately separated from the main file for usage in async processes.
-;; Because of this, file should be kept fairly dependency-free.
-;;
-;; Assumes`org-agenda-files' has been set.
+;; WIP
 ;;
 ;;; Code:
 
 (require 'org)
-(require 'json)
+(require 'org-clock)
 
+(defun org-newtab--get-clocked-in-item ()
+  "Retrieve the currently clocked-in item in the background with temporary buffers."
+  (when (org-clocking-p)
+    (let* ((marker org-clock-hd-marker)
+           (buffer (marker-buffer marker)))
+      (with-current-buffer buffer
+	(save-excursion
+          (goto-char (marker-position marker))
+          (org-newtab--process-clock-item))))))
 
-(defun org-newtab--determine-action-from-message (recv-json)
-  "Determine what action to take from RECV-JSON."
-  (pcase (plist-get recv-json :action)
-    ("changeFilter" (org-newtab--get-one-agenda-item (plist-get recv-json :data)))
-    (_ (message "[Server] Unknown action"))))
-
-(defun org-newtab--process-agenda-item ()
-  "Get an org agenda event and transform it into a form that is easily JSONable."
+(defun org-newtab--process-clock-item ()
+  "Get an org clock marker and return a JSON string of its properties."
   (let* ((props (org-entry-properties))
          (json-null json-false))
-    props))
+    (setq props (append props `(("CLOCKED_MINUTES" . ,(org-clock-get-clocked-time)))))
+    (json-encode props)))
 
-(defun org-newtab--get-one-agenda-item (filter)
-  "Return first item from agenda using FILTER."
-  (let* ((entries (org-map-entries #'org-newtab--process-agenda-item
-				   filter 'agenda))
-	 (first-entry (car entries))
-	 (json-entry (json-encode first-entry)))
-    json-entry))
-
-(provide 'org-newtab-agenda)
+(provide 'org-newtab-clock)
 
 ;; Local Variables:
 ;; coding: utf-8
 ;; End:
 
-;;; org-newtab-agenda.el ends here
+;;; org-newtab-clock.el ends here
