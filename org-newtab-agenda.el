@@ -54,9 +54,9 @@
 (defun org-newtab--get-one-agenda-item (filter)
   "Return first item from agenda using FILTER."
   (let* ((entries (org-map-entries #'org-newtab--process-agenda-item
-                   filter 'agenda))
-     (first-entry (car entries))
-     (json-entry (json-encode first-entry)))
+                                   filter 'agenda))
+         (first-entry (car entries))
+         (json-entry (json-encode first-entry)))
     json-entry))
 
 (provide 'org-newtab-agenda)
