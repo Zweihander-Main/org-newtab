@@ -40,7 +40,7 @@
     (let* ((marker org-clock-hd-marker)
            (buffer (marker-buffer marker)))
       (with-current-buffer buffer
-	(save-excursion
+        (save-excursion
           (goto-char (marker-position marker))
           (org-newtab--process-clock-item))))))
 
@@ -48,7 +48,8 @@
   "Get an org clock marker and return a JSON string of its properties."
   (let* ((props (org-entry-properties))
          (json-null json-false))
-    (setq props (append props `(("CLOCKED_MINUTES" . ,(org-clock-get-clocked-time)))))
+    (setq props (append props
+                        `(("CLOCKED_MINUTES" . ,(org-clock-get-clocked-time)))))
     (json-encode props)))
 
 (provide 'org-newtab-clock)
