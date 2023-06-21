@@ -35,7 +35,7 @@
 (require 'async)
 (require 'websocket) ;; TODO into other file?
 (require 'org-clock)
-(require 'org-newtab-clock)
+(require 'org-newtab-clock) ;; TODO refactor
 
 (defvar org-newtab--ws-socket nil
   "The websocket for `org-newtab'.")
@@ -76,7 +76,7 @@ This serves the web-build and API over HTTP."
   (let* ((frame-text (websocket-frame-text frame))
      (json-data (org-newtab--decipher-message-from-frame-text frame-text)))
     (message "[Server] Received %S from client" json-data)
-    (if (org-clocking-p)
+    (if (org-clocking-p) ;; TODO refactor
     (org-newtab--send-data (org-newtab--get-clocked-in-item))
       (async-start
        `(lambda ()
@@ -113,7 +113,6 @@ This serves the web-build and API over HTTP."
 
 ;; Local Variables:
 ;; coding: utf-8
-;; flycheck-disabled-checkers: (emacs-lisp-package)
 ;; End:
 
 ;;; org-newtab-server.el ends here

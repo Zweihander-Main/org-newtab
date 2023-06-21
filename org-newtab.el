@@ -48,11 +48,12 @@
 (provide 'org-newtab)
 
 (cl-eval-when (load eval)
-  (require 'org-newtab-server)
-  (require 'org-newtab-agenda))
+  (require 'org-newtab-server))
 
 ;; Local Variables:
 ;; coding: utf-8
+;; flycheck-enabled-checkers: (emacs-lisp-package emacs-lisp-checkdoc elisp-eldev)
+;; flycheck-disabled-checkers: nil
 ;; End:
 
 ;;; org-newtab.el ends here
