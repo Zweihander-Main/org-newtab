@@ -32,10 +32,10 @@
 ;;; Code:
 
 (require 'org-newtab)
-(require 'async)
-(require 'websocket) ;; TODO into other file?
+(require 'org-newtab-agenda)
 (require 'org-clock)
-(require 'org-newtab-clock) ;; TODO refactor
+(require 'async)
+(require 'websocket)
 
 (defvar org-newtab--ws-socket nil
   "The websocket for `org-newtab'.")
@@ -76,18 +76,22 @@ This serves the web-build and API over HTTP."
   (let* ((frame-text (websocket-frame-text frame))
          (json-data (org-newtab--decipher-message-from-frame-text frame-text)))
     (message "[Server] Received %S from client" json-data)
-    (if (org-clocking-p) ;; TODO refactor
-        (org-newtab--send-data (org-newtab--get-clocked-in-item))
-      (async-start
-       `(lambda () ; TODO: if it becomes interactive (asks for prompt), it freezes
-          ,(async-inject-variables "\\`\\(org-agenda-files\\|org-todo-keywords\\)\\'") ; TODO: Major source of bugs: if something doesn't work, it'll be because of this
-          (load-file ,(concat (file-name-directory
-                               (or load-file-name buffer-file-name))
-                              "org-newtab-agenda.el"))
-          (require 'org-newtab-agenda)
-          (org-newtab--determine-action-from-message ',json-data))
-       (lambda (result)
-         (org-newtab--send-data result))))))
+    (let ((action (plist-get json-data :action)))
+      (cond ((string= action "changeFilter")
+             (async-start
+              `(lambda () ; TODO: if it becomes interactive (asks for prompt), it freezes
+                 ,(async-inject-variables "\\`\\(org-agenda-files\\|org-todo-keywords\\)\\'") ; TODO: Major source of bugs: if something doesn't work, it'll be because of this
+                 (load-file ,(concat (file-name-directory
+                                      (or load-file-name buffer-file-name))
+                                     "org-newtab-agenda.el"))
+                 (require 'org-newtab-agenda)
+                 (org-newtab--get-one-agenda-item ',(plist-get json-data :data)))
+              (lambda (result)
+                (org-newtab--send-data result))))
+            ((org-clocking-p)
+             (org-newtab--send-data (org-newtab--get-clocked-in-item)))
+            (t
+             (message "[Server] Unknown action"))))))
 
 (defun org-newtab--ws-on-close (_ws)
   "Perform when WS is closed."

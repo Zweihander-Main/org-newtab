@@ -36,14 +36,8 @@
 ;;; Code:
 
 (require 'org)
+(require 'org-clock)
 (require 'json)
-
-
-(defun org-newtab--determine-action-from-message (recv-json)
-  "Determine what action to take from RECV-JSON."
-  (pcase (plist-get recv-json :action)
-    ("changeFilter" (org-newtab--get-one-agenda-item (plist-get recv-json :data)))
-    (_ (message "[Server] Unknown action"))))
 
 (defun org-newtab--process-agenda-item ()
   "Get an org agenda event and transform it into a form that is easily JSONable."
@@ -58,6 +52,23 @@
          (first-entry (car entries))
          (json-entry (json-encode first-entry)))
     json-entry))
+
+(defun org-newtab--get-clocked-in-item ()
+  "Retrieve the currently clocked-in item in the background with temporary buffers."
+  (let* ((marker org-clock-hd-marker)
+         (buffer (marker-buffer marker)))
+    (with-current-buffer buffer
+      (save-excursion
+        (goto-char (marker-position marker))
+        (org-newtab--process-clock-item)))))
+
+(defun org-newtab--process-clock-item ()
+  "Get an org clock marker and return a JSON string of its properties."
+  (let* ((props (org-entry-properties))
+         (json-null json-false))
+    (setq props (append props
+                        `(("CLOCKED_MINUTES" . ,(org-clock-get-clocked-time)))))
+    (json-encode props)))
 
 (provide 'org-newtab-agenda)
 
