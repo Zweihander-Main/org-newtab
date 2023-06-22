@@ -1,3 +1,7 @@
+:root {
+	--color-bg: #35373b;
+}
+
 body {
 	font-size: 16px;
 	margin: 0;
@@ -21,7 +25,7 @@ pre {
 
 .app {
 	text-align: center;
-	background-color: #282c34;
+	background-color: var(--color-bg);
 	min-height: 100vh;
 	display: flex;
 	flex-direction: column;
