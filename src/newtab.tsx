@@ -3,6 +3,24 @@ import useWebSocket, { ReadyState } from 'react-use-websocket';
 import './newtab.css';
 import type { JsonValue } from 'react-use-websocket/dist/lib/types';
 
+type ConnectionStatusIndicatorProps = {
+	readyState: ReadyState;
+};
+
+const ConnectionStatusIndicator: React.FC<ConnectionStatusIndicatorProps> = ({
+	readyState,
+}) => {
+	const connectionStatus = {
+		[ReadyState.CONNECTING]: 'Connecting',
+		[ReadyState.OPEN]: 'Open',
+		[ReadyState.CLOSING]: 'Closing',
+		[ReadyState.CLOSED]: 'Closed',
+		[ReadyState.UNINSTANTIATED]: 'Uninstantiated',
+	}[readyState];
+
+	return <p className="connection-status">{connectionStatus}</p>;
+};
+
 type OptionsMenuProps = {
 	handleMatchQuerySubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 	lastRecvJsonMessage: JsonValue | null;
@@ -77,20 +95,13 @@ const IndexNewtab: React.FC = () => {
 		[sendJsonMessage]
 	);
 
-	const connectionStatus = {
-		[ReadyState.CONNECTING]: 'Connecting',
-		[ReadyState.OPEN]: 'Open',
-		[ReadyState.CLOSING]: 'Closing',
-		[ReadyState.CLOSED]: 'Closed',
-		[ReadyState.UNINSTANTIATED]: 'Uninstantiated',
-	}[readyState];
 	return (
 		<div className="app">
 			<OptionsMenu
 				handleMatchQuerySubmit={handleMatchQuerySubmit}
 				lastRecvJsonMessage={lastRecvJsonMessage}
 			/>
-			<p>The WebSocket is currently {connectionStatus}</p>
+			<ConnectionStatusIndicator readyState={readyState} />
 		</div>
 	);
 };

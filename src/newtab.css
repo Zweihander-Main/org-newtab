@@ -31,6 +31,13 @@ pre {
 	color: white;
 }
 
+.connection-status {
+	position: absolute;
+	top: 0;
+	margin: 1rem;
+	font-size: 1.5rem;
+}
+
 .options-menu {
 	background: hsl(0deg 0% 75%);
 	height: 100%;
