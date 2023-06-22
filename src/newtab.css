@@ -32,13 +32,13 @@ pre {
 }
 
 .options-menu {
-	background: rgba(255 255 255 / 50%);
+	background: hsl(0deg 0% 75%);
 	height: 100%;
 	position: fixed;
 	left: 0;
 	top: 0;
 	bottom: 0;
-	width: 30vw;
+	width: min(40rem, 75vw);
 	color: black;
 	z-index: 100;
 	transition: all 0.2s ease-in-out;
