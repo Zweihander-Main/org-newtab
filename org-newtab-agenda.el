@@ -39,15 +39,9 @@
 (require 'org-clock)
 (require 'json)
 
-(defun org-newtab--process-agenda-item ()
-  "Get an org agenda event and transform it into a form that is easily JSONable."
-  (let* ((props (org-entry-properties))
-         (json-null json-false))
-    props))
-
 (defun org-newtab--get-one-agenda-item (filter)
   "Return first item from agenda using FILTER."
-  (let* ((entries (org-map-entries #'org-newtab--process-agenda-item
+  (let* ((entries (org-map-entries #'org-newtab--process-org-marker
                                    filter 'agenda))
          (first-entry (car entries))
          (json-entry (json-encode first-entry)))
@@ -60,15 +54,19 @@
     (with-current-buffer buffer
       (save-excursion
         (goto-char (marker-position marker))
-        (org-newtab--process-clock-item)))))
+        (json-encode (org-newtab--process-org-marker t))))))
 
-(defun org-newtab--process-clock-item ()
-  "Get an org clock marker and return a JSON string of its properties."
+(defun org-newtab--process-org-marker (&optional clocked)
+  "Get an org marker and return an JSONable form of its properties.
+Add CLOKED minutes if CLOCKED is non-nil."
   (let* ((props (org-entry-properties))
          (json-null json-false))
-    (setq props (append props
-                        `(("CLOCKED_MINUTES" . ,(org-clock-get-clocked-time)))))
-    (json-encode props)))
+    (message "props: %s" props)
+    (when clocked
+      (setq props
+            (append props
+                    `(("CLOCKED_MINUTES" . ,(org-clock-get-clocked-time))))))
+    props))
 
 (provide 'org-newtab-agenda)
 

@@ -68,6 +68,7 @@ This serves the web-build and API over HTTP."
 (defun org-newtab--ws-on-open (ws)
   "Open the websocket WS and send initial data."
   (setq org-newtab--ws-socket ws)
+
   (message "[Server] on-open"))
 
 (defun org-newtab--ws-on-message (_ws frame)
