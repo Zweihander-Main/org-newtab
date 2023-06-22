@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
+import { usePrevious } from '@react-hookz/web';
 import type { JsonValue } from 'react-use-websocket/dist/lib/types';
 import '@fontsource/public-sans/700.css';
 import './newtab.css';
@@ -23,15 +24,28 @@ const ConnectionStatusIndicator: React.FC<ConnectionStatusIndicatorProps> = ({
 };
 
 type OptionsMenuProps = {
-	handleMatchQuerySubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+	setMatchQuery: (matchQuery: string) => void;
 	lastRecvJsonMessage: JsonValue | null;
 };
 
 const OptionsMenu: React.FC<OptionsMenuProps> = ({
-	handleMatchQuerySubmit,
+	setMatchQuery,
 	lastRecvJsonMessage,
 }) => {
 	const [optionsVisible, setOptionsVisible] = useState(false);
+
+	const handleMatchQuerySubmit = useCallback(
+		(event: React.FormEvent<HTMLFormElement>) => {
+			event.preventDefault();
+			const { currentTarget } = event;
+			const data = new FormData(currentTarget);
+			const matchQuery = data.get('matchQuery');
+			if (matchQuery && typeof matchQuery === 'string') {
+				setMatchQuery(matchQuery);
+			}
+		},
+		[setMatchQuery]
+	);
 
 	const toggleMenu = useCallback(() => {
 		setOptionsVisible(!optionsVisible);
@@ -68,6 +82,7 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
 						Last message:
 						<pre className="options-menu-json">
 							{JSON.stringify(lastRecvJsonMessage, null, 2)}
+							{/*TODO: Display null*/}
 						</pre>
 					</>
 				) : null}
@@ -98,34 +113,26 @@ const IndexNewtab: React.FC = () => {
 	} = useWebSocket<WebSocketRecvMessage>('ws://localhost:35942/');
 
 	const [matchQuery, setMatchQuery] = useState('TODO="TODO"');
-
-	const handleMatchQuerySubmit = useCallback(
-		(event: React.FormEvent<HTMLFormElement>) => {
-			event.preventDefault();
-			const { currentTarget } = event;
-			const data = new FormData(currentTarget);
-			const matchQuery = data.get('matchQuery');
-			if (matchQuery && typeof matchQuery === 'string') {
-				sendJsonMessage({
-					command: 'updateMatchQuery',
-					data: matchQuery,
-				});
-			}
-		},
-		[sendJsonMessage]
-	);
+	const previousMatchQuery = usePrevious(matchQuery);
 
 	useEffect(() => {
-		sendJsonMessage({
-			command: 'getItem',
-			data: matchQuery,
-		});
-	}, [matchQuery, sendJsonMessage]);
+		if (previousMatchQuery !== matchQuery) {
+			sendJsonMessage({
+				command: 'updateMatchQuery',
+				data: matchQuery,
+			});
+		} else {
+			sendJsonMessage({
+				command: 'getItem',
+				data: matchQuery,
+			});
+		}
+	}, [matchQuery, previousMatchQuery, sendJsonMessage]);
 
 	return (
 		<div className="app">
 			<OptionsMenu
-				handleMatchQuerySubmit={handleMatchQuerySubmit}
+				setMatchQuery={setMatchQuery}
 				lastRecvJsonMessage={lastRecvJsonMessage}
 			/>
 			<ConnectionStatusIndicator readyState={readyState} />
