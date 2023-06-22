@@ -1,4 +1,5 @@
 body {
+	font-size: 16px;
 	margin: 0;
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
 		Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -15,21 +16,76 @@ pre {
 
 pre {
 	text-align: left;
-	max-width: 90vw;
 	text-wrap: balance;
 }
 
 .app {
 	text-align: center;
-}
-
-.app-header {
 	background-color: #282c34;
 	min-height: 100vh;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	font-size: calc(10px + 2vmin);
+	font-size: calc(1rem + 2vmin);
 	color: white;
+}
+
+.options-menu {
+	background: rgba(255 255 255 / 50%);
+	height: 100%;
+	position: fixed;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	width: 30vw;
+	color: black;
+	z-index: 100;
+	transition: all 0.2s ease-in-out;
+	transform: translateX(-100%);
+}
+
+.options-menu.active {
+	transform: translateX(0);
+}
+
+.options-menu-json {
+	max-width: 100%;
+	font-size: 1rem;
+	padding: 1rem;
+}
+
+.options-menu-button {
+	position: absolute;
+	top: 0;
+	left: 0;
+	margin: 0rem;
+	padding: 1rem;
+	background-color: transparent;
+	border: none;
+	z-index: 200;
+	cursor: pointer;
+	outline: none;
+}
+
+.options-menu-button-bar1,
+.options-menu-button-bar2,
+.options-menu-button-bar3 {
+	width: 2.5rem;
+	height: 0.2rem;
+	background-color: white;
+	margin: 0.7rem 0;
+	transition: 0.15s;
+}
+
+.options-menu-button.active .options-menu-button-bar1 {
+	transform: translate(0, 0.9rem) rotate(-45deg);
+}
+
+.options-menu-button.active .options-menu-button-bar2 {
+	opacity: 0;
+}
+
+.options-menu-button.active .options-menu-button-bar3 {
+	transform: translate(0, -0.9rem) rotate(45deg);
 }
