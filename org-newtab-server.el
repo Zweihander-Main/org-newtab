@@ -79,8 +79,8 @@ This serves the web-build and API over HTTP."
     (if (org-clocking-p) ;; TODO refactor
         (org-newtab--send-data (org-newtab--get-clocked-in-item))
       (async-start
-       `(lambda ()
-          ,(async-inject-variables "\\`\\(org-agenda-files\\)\\'") ; TODO: if it becomes interactive (asks for prompt), it freezes
+       `(lambda () ; TODO: if it becomes interactive (asks for prompt), it freezes
+          ,(async-inject-variables "\\`\\(org-agenda-files\\|org-todo-keywords\\)\\'") ; TODO: Major source of bugs: if something doesn't work, it'll be because of this
           (load-file ,(concat (file-name-directory
                                (or load-file-name buffer-file-name))
                               "org-newtab-agenda.el"))
@@ -96,7 +96,7 @@ This serves the web-build and API over HTTP."
 
 (defun org-newtab--ws-on-error (_ws type error)
   "Handle ERROR of TYPE from WS."
-  (concat "[Server] Error: " (prin1 type) ": " (prin1 error)))
+  (message "[Server]: Error -- %S : %S" (prin1 type) (prin1 error)))
 
 (defun org-newtab--send-data (data)
   "Send DATA to socket. If socket is nil, drop the data and do nothing."
