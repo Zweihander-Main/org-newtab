@@ -76,8 +76,8 @@ This serves the web-build and API over HTTP."
   (let* ((frame-text (websocket-frame-text frame))
          (json-data (org-newtab--decipher-message-from-frame-text frame-text)))
     (message "[Server] Received %S from client" json-data)
-    (let ((action (plist-get json-data :action)))
-      (cond ((string= action "updateMatchQuery")
+    (let ((command (plist-get json-data :command)))
+      (cond ((string= command "updateMatchQuery")
              (async-start
               `(lambda () ; TODO: if it becomes interactive (asks for prompt), it freezes
                  ,(async-inject-variables "\\`\\(org-agenda-files\\|org-todo-keywords\\)\\'") ; TODO: Major source of bugs: if something doesn't work, it'll be because of this
@@ -91,7 +91,9 @@ This serves the web-build and API over HTTP."
             ((org-clocking-p)
              (org-newtab--send-data (org-newtab--get-clocked-in-item)))
             (t
-             (message "[Server] Unknown action"))))))
+             (message "[Server] Unknown command from extension"))))))
+
+(defun org-newtab--on-msg-)
 
 (defun org-newtab--ws-on-close (_ws)
   "Perform when WS is closed."
