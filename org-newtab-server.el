@@ -78,22 +78,28 @@ This serves the web-build and API over HTTP."
     (message "[Server] Received %S from client" json-data)
     (let ((command (plist-get json-data :command)))
       (cond ((string= command "updateMatchQuery")
-             (async-start
-              `(lambda () ; TODO: if it becomes interactive (asks for prompt), it freezes
-                 ,(async-inject-variables "\\`\\(org-agenda-files\\|org-todo-keywords\\)\\'") ; TODO: Major source of bugs: if something doesn't work, it'll be because of this
-                 (load-file ,(concat (file-name-directory
-                                      (or load-file-name buffer-file-name))
-                                     "org-newtab-agenda.el"))
-                 (require 'org-newtab-agenda)
-                 (org-newtab--get-one-agenda-item ',(plist-get json-data :data)))
-              (lambda (result)
-                (org-newtab--send-data result))))
+             (org-newtab--on-msg-send-match-query (plist-get json-data :data)))
             ((org-clocking-p)
-             (org-newtab--send-data (org-newtab--get-clocked-in-item)))
+             (org-newtab--on-msg-send-clocked-in))
             (t
              (message "[Server] Unknown command from extension"))))))
 
-(defun org-newtab--on-msg-)
+(defun org-newtab--on-msg-send-clocked-in ()
+  "Send the current clocked-in item to the client."
+  (org-newtab--send-data (org-newtab--get-clocked-in-item)))
+
+(defun org-newtab--on-msg-send-match-query (data)
+  "Send the current match for query DATA to the client."
+  (async-start
+   `(lambda () ; TODO: if it becomes interactive (asks for prompt), it freezes
+      ,(async-inject-variables "\\`\\(org-agenda-files\\|org-todo-keywords\\)\\'") ; TODO: Major source of bugs: if something doesn't work, it'll be because of this
+      (load-file ,(concat (file-name-directory
+                           (or load-file-name buffer-file-name))
+                          "org-newtab-agenda.el"))
+      (require 'org-newtab-agenda)
+      (org-newtab--get-one-agenda-item ',data))
+   (lambda (result)
+     (org-newtab--send-data result))))
 
 (defun org-newtab--ws-on-close (_ws)
   "Perform when WS is closed."
