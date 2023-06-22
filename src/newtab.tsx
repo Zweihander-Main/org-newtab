@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import type { JsonValue } from 'react-use-websocket/dist/lib/types';
 import '@fontsource/public-sans/700.css';
@@ -97,6 +97,8 @@ const IndexNewtab: React.FC = () => {
 		readyState,
 	} = useWebSocket<WebSocketRecvMessage>('ws://localhost:35942/');
 
+	const [matchQuery, setMatchQuery] = useState('TODO="TODO"');
+
 	const handleMatchQuerySubmit = useCallback(
 		(event: React.FormEvent<HTMLFormElement>) => {
 			event.preventDefault();
@@ -105,13 +107,20 @@ const IndexNewtab: React.FC = () => {
 			const matchQuery = data.get('matchQuery');
 			if (matchQuery && typeof matchQuery === 'string') {
 				sendJsonMessage({
-					action: 'updateMatchQuery',
+					command: 'updateMatchQuery',
 					data: matchQuery,
 				});
 			}
 		},
 		[sendJsonMessage]
 	);
+
+	useEffect(() => {
+		sendJsonMessage({
+			command: 'getItem',
+			data: matchQuery,
+		});
+	}, [matchQuery, sendJsonMessage]);
 
 	return (
 		<div className="app">

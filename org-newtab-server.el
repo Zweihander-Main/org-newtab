@@ -81,6 +81,8 @@ This serves the web-build and API over HTTP."
              (org-newtab--on-msg-send-match-query (plist-get json-data :data)))
             ((org-clocking-p)
              (org-newtab--on-msg-send-clocked-in))
+            ((string= command "getItem")
+             (org-newtab--on-msg-send-match-query (plist-get json-data :data)))
             (t
              (message "[Server] Unknown command from extension"))))))
 
