@@ -75,12 +75,26 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
 	);
 };
 
+type OrgItemProps = {
+	lastRecvJsonMessage: WebSocketRecvMessage;
+};
+
+const OrgItem: React.FC<OrgItemProps> = ({ lastRecvJsonMessage }) => {
+	const itemText = lastRecvJsonMessage ? lastRecvJsonMessage?.ITEM : null;
+
+	return <>{itemText && <div className="org-item">{itemText}</div>}</>;
+};
+
+type WebSocketRecvMessage = {
+	ITEM: string;
+} | null;
+
 const IndexNewtab: React.FC = () => {
 	const {
 		sendJsonMessage,
 		lastJsonMessage: lastRecvJsonMessage,
 		readyState,
-	} = useWebSocket('ws://localhost:35942/');
+	} = useWebSocket<WebSocketRecvMessage>('ws://localhost:35942/');
 
 	const handleMatchQuerySubmit = useCallback(
 		(event: React.FormEvent<HTMLFormElement>) => {
@@ -102,6 +116,7 @@ const IndexNewtab: React.FC = () => {
 				lastRecvJsonMessage={lastRecvJsonMessage}
 			/>
 			<ConnectionStatusIndicator readyState={readyState} />
+			<OrgItem lastRecvJsonMessage={lastRecvJsonMessage} />
 		</div>
 	);
 };

@@ -1,5 +1,8 @@
 :root {
 	--color-bg: #35373b;
+	--color-item-bg-default: #484848;
+	--color-item-shadow: black;
+	--width-item-stroke: 0.15rem;
 }
 
 body {
@@ -14,7 +17,7 @@ body {
 
 code,
 pre {
-	font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+	font-family: 'Source Code Pro', Menlo, Monaco, Consolas, 'Courier New',
 		monospace;
 }
 
@@ -33,6 +36,23 @@ pre {
 	justify-content: center;
 	font-size: calc(1rem + 2vmin);
 	color: white;
+}
+
+.org-item {
+	max-width: calc(50vw - 6rem);
+	background: var(--color-item-bg-default);
+	padding: 3rem;
+	border-radius: 2rem;
+	border: 0.4rem solid var(--color-item-shadow);
+	box-shadow: 1rem 1rem 0 0 var(--color-item-shadow);
+	text-shadow: calc(var(--width-item-stroke) * -1)
+			calc(var(--width-item-stroke) * -1) 0 var(--color-item-shadow),
+		var(--width-item-stroke) calc(var(--width-item-stroke) * -1) 0
+			var(--color-item-shadow),
+		calc(var(--width-item-stroke) * -1) var(--width-item-stroke) 0
+			var(--color-item-shadow),
+		var(--width-item-stroke) var(--width-item-stroke) 0
+			var(--color-item-shadow);
 }
 
 .connection-status {
