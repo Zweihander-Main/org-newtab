@@ -104,7 +104,10 @@ const IndexNewtab: React.FC = () => {
 			const data = new FormData(currentTarget);
 			const matchQuery = data.get('matchQuery');
 			if (matchQuery && typeof matchQuery === 'string') {
-				sendJsonMessage({ action: 'changeFilter', data: matchQuery });
+				sendJsonMessage({
+					action: 'updateMatchQuery',
+					data: matchQuery,
+				});
 			}
 		},
 		[sendJsonMessage]

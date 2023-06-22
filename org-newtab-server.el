@@ -77,7 +77,7 @@ This serves the web-build and API over HTTP."
          (json-data (org-newtab--decipher-message-from-frame-text frame-text)))
     (message "[Server] Received %S from client" json-data)
     (let ((action (plist-get json-data :action)))
-      (cond ((string= action "changeFilter")
+      (cond ((string= action "updateMatchQuery")
              (async-start
               `(lambda () ; TODO: if it becomes interactive (asks for prompt), it freezes
                  ,(async-inject-variables "\\`\\(org-agenda-files\\|org-todo-keywords\\)\\'") ; TODO: Major source of bugs: if something doesn't work, it'll be because of this
