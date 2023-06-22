@@ -1,7 +1,8 @@
 import { useCallback, useState } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
-import './newtab.css';
 import type { JsonValue } from 'react-use-websocket/dist/lib/types';
+import '@fontsource/public-sans/700.css';
+import './newtab.css';
 
 type ConnectionStatusIndicatorProps = {
 	readyState: ReadyState;

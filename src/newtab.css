@@ -2,6 +2,7 @@
 	--color-bg: #35373b;
 	--color-item-bg-default: #484848;
 	--color-item-shadow: black;
+	--font-item: 'Public Sans', sans-serif;
 	--width-item-stroke: 0.15rem;
 }
 
@@ -45,6 +46,9 @@ pre {
 	border-radius: 2rem;
 	border: 0.4rem solid var(--color-item-shadow);
 	box-shadow: 1rem 1rem 0 0 var(--color-item-shadow);
+	font-size: 2rem;
+	font-weight: 700;
+	font-family: var(--font-item);
 	text-shadow: calc(var(--width-item-stroke) * -1)
 			calc(var(--width-item-stroke) * -1) 0 var(--color-item-shadow),
 		var(--width-item-stroke) calc(var(--width-item-stroke) * -1) 0

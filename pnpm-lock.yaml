@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@fontsource/public-sans':
+    specifier: ^5.0.3
+    version: 5.0.3
   plasmo:
     specifier: 0.76.3
     version: 0.76.3(postcss@8.4.24)(react-dom@18.2.0)(react@18.2.0)
@@ -575,6 +578,10 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       cross-spawn: 7.0.3
+    dev: false
+
+  /@fontsource/public-sans@5.0.3:
+    resolution: {integrity: sha512-qoP6K/rmKIe6TP31kV9ImR73u/R1opPA3sx+4NLH4wQWbxTOQNLbH9nDzKF2PN7IQ9xLpu5e6XnQLgwlPpjeTQ==}
     dev: false
 
   /@humanwhocodes/config-array@0.9.5:
