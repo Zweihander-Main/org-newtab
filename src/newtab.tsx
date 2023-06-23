@@ -102,6 +102,7 @@ const OrgItem: React.FC<OrgItemProps> = ({ lastRecvJsonMessage }) => {
 };
 
 type WebSocketRecvMessage = {
+	type: 'ITEM';
 	ITEM: string;
 } | null;
 

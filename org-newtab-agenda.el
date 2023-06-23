@@ -35,8 +35,10 @@
 ;;
 ;;; Code:
 
+(require 'cl-macs)
 (require 'org)
 (require 'org-clock)
+(require 'color)
 (require 'json)
 
 (defun org-newtab--get-one-agenda-item (filter)
@@ -59,14 +61,31 @@
 (defun org-newtab--process-org-marker (&optional clocked)
   "Get an org marker and return an JSONable form of its properties.
 Add CLOKED minutes if CLOCKED is non-nil."
-  (let* ((props (org-entry-properties))
-         (json-null json-false))
-    (message "props: %s" props)
+  (let ((props (org-entry-properties))
+        (json-null json-false))
     (when clocked
       (setq props
             (append props
                     `(("CLOCKED_MINUTES" . ,(org-clock-get-clocked-time))))))
     props))
+
+(defun org-newtab--get-tag-faces ()
+  "Retrieve `org-tag-faces' variable in JSON."
+  (let ((json-null json-false))
+    (mapcar
+     (lambda (tag-cons)
+       (let ((tag (car tag-cons))
+             (foreground-data (cdr tag-cons)))
+         (cond ((stringp foreground-data)
+                (cons tag foreground-data))
+               ((listp foreground-data)
+                (cons tag (plist-get foreground-data :foreground)))
+               ((symbolp foreground-data)
+                (cons tag
+                      (cl-destructuring-bind (red green blue)
+                          (color-name-to-rgb (face-foreground foreground-data))
+                        (color-rgb-to-hex red green blue 2)))))))
+     (json-encode org-tag-faces))))
 
 (provide 'org-newtab-agenda)
 

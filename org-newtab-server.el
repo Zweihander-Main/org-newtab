@@ -68,8 +68,8 @@ This serves the web-build and API over HTTP."
 (defun org-newtab--ws-on-open (ws)
   "Open the websocket WS and send initial data."
   (setq org-newtab--ws-socket ws)
-
-  (message "[Server] on-open"))
+  (message "[Server] on-open")
+  (org-newtab--on-opn-send-tag-faces))
 
 (defun org-newtab--ws-on-message (_ws frame)
   "Take WS and FRAME as arguments when message received."
@@ -86,6 +86,10 @@ This serves the web-build and API over HTTP."
              (org-newtab--on-msg-send-match-query (plist-get json-data :data)))
             (t
              (message "[Server] Unknown command from extension"))))))
+
+(defun org-newtab--on-opn-send-tag-faces ()
+  "Send the tag faces to the client."
+  (org-newtab--send-data (org-newtab--get-tag-faces)))
 
 (defun org-newtab--on-msg-send-clocked-in ()
   "Send the current clocked-in item to the client."
