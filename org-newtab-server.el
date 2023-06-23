@@ -43,6 +43,9 @@
 (defvar org-newtab--ws-server nil
   "The websocket server for `org-newtab'.")
 
+(defvar org-newtab--debug-mode nil
+  "Whether or not to turn on every debugging tool.")
+
 ;;;###autoload
 (define-minor-mode
   org-newtab-mode
@@ -64,6 +67,15 @@ This serves the web-build and API over HTTP."
            :on-error #'org-newtab--ws-on-error)))
    (t
     (websocket-server-close org-newtab--ws-server))))
+
+(defun org-newtab--debug-mode ()
+  "Turn on every debug setting."
+   (if org-newtab--debug-mode
+	   (setq org-newtab--debug-mode nil)
+	   (setq org-newtab--debug-mode t))
+  (setq debug-on-error org-newtab--debug-mode
+        websocket-callback-debug-on-error org-newtab--debug-mode
+        async-debug org-newtab--debug-mode))
 
 (defun org-newtab--ws-on-open (ws)
   "Open the websocket WS and send initial data."
