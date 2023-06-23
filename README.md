@@ -2,6 +2,27 @@
 
 > WIP
 
+## Dev Notes
+
+### Possible Future Additions
+
+-   [ ] Browser storage
+-   [ ] Persistent default match query
+-   [ ] Mark items as done from browser
+-   [ ] Clock in and out from browser
+-   [ ] Match query builder
+-   [ ] Render heading links
+-   [ ] Open heading links
+-   [ ] Vim keybindings
+-   [ ] Age countdown
+-   [ ] Icons for connection status
+-   [ ] Hooks on Emacs actions (TODO change, clock change, ect.)
+-   [ ] Display clock data
+-   [ ] Deeper agenda integration
+-   [ ] Basic styling as options
+-   [ ] Multiple themes
+-   [ ] Built-out documentation (README or separate site)
+
 ## Available for Hire
 
 I'm available for freelance, contracts, and consulting both remotely and in the Hudson Valley, NY (USA) area. [Some more about me](https://www.zweisolutions.com/about.html) and [what I can do for you](https://www.zweisolutions.com/services.html).
