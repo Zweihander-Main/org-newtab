@@ -89,11 +89,11 @@ This serves the web-build and API over HTTP."
 
 (defun org-newtab--on-opn-send-tag-faces ()
   "Send the tag faces to the client."
-  (org-newtab--send-data (org-newtab--get-tag-faces)))
+  (org-newtab--send-data (json-encode (org-newtab--get-tag-faces))))
 
 (defun org-newtab--on-msg-send-clocked-in ()
   "Send the current clocked-in item to the client."
-  (org-newtab--send-data (org-newtab--get-clocked-in-item)))
+  (org-newtab--send-data (json-encode (org-newtab--get-clocked-in-item))))
 
 (defun org-newtab--on-msg-send-match-query (data)
   "Send the current match for query DATA to the client."
@@ -106,7 +106,7 @@ This serves the web-build and API over HTTP."
       (require 'org-newtab-agenda)
       (org-newtab--get-one-agenda-item ',data))
    (lambda (result)
-     (org-newtab--send-data result))))
+     (org-newtab--send-data (json-encode result)))))
 
 (defun org-newtab--ws-on-close (_ws)
   "Perform when WS is closed."

@@ -42,24 +42,23 @@
 (require 'json)
 
 (defun org-newtab--get-one-agenda-item (filter)
-  "Return first item from agenda using FILTER."
+  "Return first item from agenda using FILTER in JSONable form."
   (let* ((entries (org-map-entries #'org-newtab--process-org-marker
                                    filter 'agenda))
-         (first-entry (car entries))
-         (json-entry (json-encode first-entry)))
-    json-entry))
+         (first-entry (car entries)))
+    first-entry))
 
 (defun org-newtab--get-clocked-in-item ()
-  "Retrieve the currently clocked-in item in the background with temporary buffers."
+  "Retrieve the currently clocked-in item in JSONable form."
   (let* ((marker org-clock-hd-marker)
          (buffer (marker-buffer marker)))
     (with-current-buffer buffer
       (save-excursion
         (goto-char (marker-position marker))
-        (json-encode (org-newtab--process-org-marker t))))))
+        (org-newtab--process-org-marker t)))))
 
 (defun org-newtab--process-org-marker (&optional clocked)
-  "Get an org marker and return an JSONable form of its properties.
+  "Get an org marker and return a JSONable form of its properties.
 Add CLOKED minutes if CLOCKED is non-nil."
   (let ((props (org-entry-properties))
         (json-null json-false))
@@ -85,7 +84,7 @@ Add CLOKED minutes if CLOCKED is non-nil."
                       (cl-destructuring-bind (red green blue)
                           (color-name-to-rgb (face-foreground foreground-data))
                         (color-rgb-to-hex red green blue 2)))))))
-     (json-encode org-tag-faces))))
+     org-tag-faces)))
 
 (provide 'org-newtab-agenda)
 
