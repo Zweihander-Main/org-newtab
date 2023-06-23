@@ -92,19 +92,43 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
 };
 
 type OrgItemProps = {
-	lastRecvJsonMessage: WebSocketRecvMessage;
+	itemText: string | null;
+	foregroundColor?: string;
 };
 
-const OrgItem: React.FC<OrgItemProps> = ({ lastRecvJsonMessage }) => {
-	const itemText = lastRecvJsonMessage ? lastRecvJsonMessage?.ITEM : null;
-
-	return <>{itemText && <div className="org-item">{itemText}</div>}</>;
+const OrgItem: React.FC<OrgItemProps> = ({ itemText, foregroundColor }) => {
+	return (
+		<>
+			{itemText && (
+				<div
+					className="org-item"
+					style={{ backgroundColor: foregroundColor }}
+				>
+					{itemText}
+				</div>
+			)}
+		</>
+	);
 };
 
-type WebSocketRecvMessage = {
+type AllTagsRecv = string | Array<string | number>;
+
+type WebSocketItemMessage = {
 	type: 'ITEM';
-	ITEM: string;
-} | null;
+	data: {
+		ITEM: string;
+		ALLTAGS?: AllTagsRecv;
+	};
+};
+
+type WebSocketTagsMessage = {
+	type: 'TAGS';
+	data: {
+		[key: string]: string;
+	};
+};
+
+type WebSocketRecvMessage = WebSocketItemMessage | WebSocketTagsMessage | null;
 
 const IndexNewtab: React.FC = () => {
 	const {
@@ -115,6 +139,58 @@ const IndexNewtab: React.FC = () => {
 
 	const [matchQuery, setMatchQuery] = useState('TODO="TODO"');
 	const previousMatchQuery = usePrevious(matchQuery);
+	const [itemText, setItemText] = useState<string | null>(null);
+	const [tagsData, setTagsData] = useState<Record<string, string>>({});
+	const [foregroundColor, setForegroundColor] = useState<string | undefined>(
+		undefined
+	);
+
+	const sanitizeTagsAndMatchData = useCallback(
+		(allTagsData?: AllTagsRecv) => {
+			let allTags: Array<string> | string | undefined;
+			if (Array.isArray(allTagsData)) {
+				allTags = allTagsData.filter(
+					(tag): tag is string =>
+						typeof tag === 'string' && tag !== ''
+				);
+			} else {
+				allTags = allTagsData?.split(':').filter((tag) => tag !== '');
+			}
+			const foundTag = allTags
+				?.map((tag) => tag.replace(/^:(.*):$/i, '$1'))
+				?.find((tag) => Object.keys(tagsData).includes(tag));
+			return foundTag || undefined;
+		},
+		[tagsData]
+	);
+
+	useEffect(() => {
+		switch (lastRecvJsonMessage?.type) {
+			case 'ITEM':
+				setItemText(lastRecvJsonMessage?.data?.ITEM || null);
+				setForegroundColor(
+					tagsData[
+						sanitizeTagsAndMatchData(
+							lastRecvJsonMessage?.data?.ALLTAGS
+						) || ''
+					]
+				);
+				break;
+			case 'TAGS':
+				setTagsData(lastRecvJsonMessage?.data || {});
+				break;
+			default:
+				console.error('Unknown message type: ', lastRecvJsonMessage);
+				break;
+		}
+	}, [
+		lastRecvJsonMessage,
+		tagsData,
+		setTagsData,
+		setItemText,
+		setForegroundColor,
+		sanitizeTagsAndMatchData,
+	]);
 
 	useEffect(() => {
 		if (previousMatchQuery !== matchQuery) {
@@ -137,7 +213,7 @@ const IndexNewtab: React.FC = () => {
 				lastRecvJsonMessage={lastRecvJsonMessage}
 			/>
 			<ConnectionStatusIndicator readyState={readyState} />
-			<OrgItem lastRecvJsonMessage={lastRecvJsonMessage} />
+			<OrgItem foregroundColor={foregroundColor} itemText={itemText} />
 		</div>
 	);
 };

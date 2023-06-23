@@ -11,8 +11,10 @@
 	},
 	"vim.useSystemClipboard": true,
 	"cSpell.words": [
+		"ALLTAGS",
 		"Newtab",
 		"plasmohq",
-		"UNINSTANTIATED"
+		"UNINSTANTIATED",
+		"webextensions"
 	]
 }

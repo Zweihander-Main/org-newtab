@@ -89,24 +89,29 @@ This serves the web-build and API over HTTP."
 
 (defun org-newtab--on-opn-send-tag-faces ()
   "Send the tag faces to the client."
-  (org-newtab--send-data (json-encode (org-newtab--get-tag-faces))))
+  (let* ((tags (org-newtab--get-tag-faces))
+         (data-packet (list :type "TAGS" :data tags)))
+    (org-newtab--send-data (json-encode data-packet))))
 
 (defun org-newtab--on-msg-send-clocked-in ()
   "Send the current clocked-in item to the client."
-  (org-newtab--send-data (json-encode (org-newtab--get-clocked-in-item))))
+  (let* ((item (org-newtab--get-clocked-in-item))
+         (data-packet (list :type "ITEM" :data item)))
+    (org-newtab--send-data (json-encode data-packet))))
 
 (defun org-newtab--on-msg-send-match-query (data)
   "Send the current match for query DATA to the client."
   (async-start
    `(lambda () ; TODO: if it becomes interactive (asks for prompt), it freezes
-      ,(async-inject-variables "\\`\\(org-agenda-files\\|org-todo-keywords\\)\\'") ; TODO: Major source of bugs: if something doesn't work, it'll be because of this
+      ,(async-inject-variables "\\`\\(load-path\\|org-agenda-files\\|org-todo-keywords\\)\\'") ; TODO: Major source of bugs: if something doesn't work, it'll be because of this
       (load-file ,(concat (file-name-directory
-                           (or load-file-name buffer-file-name))
+                           (or load-file-name buffer-file-name))  ; TODO: some kind of error occasionally happens here
                           "org-newtab-agenda.el"))
       (require 'org-newtab-agenda)
       (org-newtab--get-one-agenda-item ',data))
    (lambda (result)
-     (org-newtab--send-data (json-encode result)))))
+     (let ((data-packet (list :type "ITEM" :data result)))
+       (org-newtab--send-data (json-encode data-packet))))))
 
 (defun org-newtab--ws-on-close (_ws)
   "Perform when WS is closed."
