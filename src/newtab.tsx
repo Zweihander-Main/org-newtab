@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { usePrevious } from '@react-hookz/web';
 import type { JsonValue } from 'react-use-websocket/dist/lib/types';
+import { Storage } from '@plasmohq/storage';
+import { useStorage } from '@plasmohq/storage/hook';
 import '@fontsource/public-sans/700.css';
 import './newtab.css';
 
@@ -24,11 +26,13 @@ const ConnectionStatusIndicator: React.FC<ConnectionStatusIndicatorProps> = ({
 };
 
 type OptionsMenuProps = {
+	matchQuery: string;
 	setMatchQuery: (matchQuery: string) => void;
 	lastRecvJsonMessage: JsonValue | null;
 };
 
 const OptionsMenu: React.FC<OptionsMenuProps> = ({
+	matchQuery,
 	setMatchQuery,
 	lastRecvJsonMessage,
 }) => {
@@ -39,13 +43,21 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
 			event.preventDefault();
 			const { currentTarget } = event;
 			const data = new FormData(currentTarget);
-			const matchQuery = data.get('matchQuery');
-			if (matchQuery && typeof matchQuery === 'string') {
-				setMatchQuery(matchQuery);
+			const formMatchQuery = data.get('matchQuery');
+			if (formMatchQuery && typeof formMatchQuery === 'string') {
+				setMatchQuery(formMatchQuery);
 			}
 		},
 		[setMatchQuery]
 	);
+
+	const matchQueryInputRef = useRef<HTMLInputElement>(null);
+
+	useEffect(() => {
+		if (matchQueryInputRef.current) {
+			matchQueryInputRef.current.value = matchQuery;
+		}
+	}, [matchQuery, matchQueryInputRef]);
 
 	const toggleMenu = useCallback(() => {
 		setOptionsVisible(!optionsVisible);
@@ -73,7 +85,8 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
 					<input
 						type="text"
 						name="matchQuery"
-						defaultValue='TODO="TODO"'
+						defaultValue={matchQuery}
+						ref={matchQueryInputRef}
 					/>
 					<button type="submit">Pull data</button>
 				</form>
@@ -137,7 +150,16 @@ const IndexNewtab: React.FC = () => {
 		readyState,
 	} = useWebSocket<WebSocketRecvMessage>('ws://localhost:35942/');
 
-	const [matchQuery, setMatchQuery] = useState('TODO="TODO"');
+	// TODO: Storage should be sync for options, local for websocket (or maybe local for all)
+	const [matchQuery, setMatchQuery] = useStorage<string>(
+		{
+			key: 'matchQuery',
+			instance: new Storage({
+				area: 'local',
+			}),
+		},
+		(v) => (v === undefined ? 'TODO="TODO"' : v)
+	);
 	const previousMatchQuery = usePrevious(matchQuery);
 	const [itemText, setItemText] = useState<string | null>(null);
 	const [tagsData, setTagsData] = useState<Record<string, string>>({});
@@ -209,6 +231,7 @@ const IndexNewtab: React.FC = () => {
 	return (
 		<div className="app">
 			<OptionsMenu
+				matchQuery={matchQuery}
 				setMatchQuery={setMatchQuery}
 				lastRecvJsonMessage={lastRecvJsonMessage}
 			/>
