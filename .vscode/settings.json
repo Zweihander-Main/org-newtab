@@ -12,7 +12,11 @@
 	"vim.useSystemClipboard": true,
 	"cSpell.words": [
 		"ALLTAGS",
+		"fontsource",
+		"hookz",
 		"Newtab",
+		"newtabs",
+		"Plasmo",
 		"plasmohq",
 		"UNINSTANTIATED",
 		"webextensions"

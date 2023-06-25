@@ -23,6 +23,7 @@
 	},
 	"dependencies": {
 		"@fontsource/public-sans": "^5.0.3",
+		"@plasmohq/messaging": "^0.4.0",
 		"@plasmohq/storage": "^1.6.1",
 		"@react-hookz/web": "^23.0.1",
 		"plasmo": "0.76.3",

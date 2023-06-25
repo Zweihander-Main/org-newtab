@@ -1,11 +1,14 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable no-console */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { usePrevious } from '@react-hookz/web';
-import type { JsonValue } from 'react-use-websocket/dist/lib/types';
 import { Storage } from '@plasmohq/storage';
 import { useStorage } from '@plasmohq/storage/hook';
+import { usePort } from '@plasmohq/messaging/hook';
 import '@fontsource/public-sans/700.css';
 import './newtab.css';
+import type { JsonValue } from 'react-use-websocket/dist/lib/types';
 
 type ConnectionStatusIndicatorProps = {
 	readyState: ReadyState;
@@ -150,13 +153,41 @@ const IndexNewtab: React.FC = () => {
 		readyState,
 	} = useWebSocket<WebSocketRecvMessage>('ws://localhost:35942/');
 
-	// TODO: Storage should be sync for options, local for websocket (or maybe local for all)
+	// One tab is the master and the others talk to it
+	// The master tab is the one that has the websocket connection
+	// The master tab is the one that sends the data to the other tabs
+	// If master tab is killed, a new websocket connection is established
+	// ^ This will work, as Emacs is erroring out with MULTIPLE websocket connections
+	// As long as you maintain only one connection, it doesn't matter if you
+	// establish multiple opens
+	// Idea here is that the port messaging will work to keep talking between
+	// all the newtabs even if the bg dies (possibly false assumption)
+
+	const { send, listen } = usePort('ws');
+
+	const handleMessage = useCallback((message: string) => {
+		console.log('Data recv on newtab end: ', message);
+	}, []);
+
+	const isInitialRender = useRef(true);
+
+	const sendPortData = useCallback(() => {
+		send({ data: 'Hello from newtab!' });
+	}, [send]);
+
+	useEffect(() => {
+		if (isInitialRender.current) {
+			listen(handleMessage);
+			sendPortData();
+			isInitialRender.current = false;
+		}
+	}, [listen, handleMessage, sendPortData]);
+
+	const storageInstanceRef = useRef<Storage>(new Storage({ area: 'local' }));
 	const [matchQuery, setMatchQuery] = useStorage<string>(
 		{
 			key: 'matchQuery',
-			instance: new Storage({
-				area: 'local',
-			}),
+			instance: storageInstanceRef.current,
 		},
 		(v) => (v === undefined ? 'TODO="TODO"' : v)
 	);
