@@ -22,6 +22,11 @@
 		}
 	},
 	"baseUrl": ".",
-	"include": [".plasmo/index.d.ts", "src/**/*"],
+	"include": [
+		".plasmo/index.d.ts",
+		".plasmo/**/*",
+		"./**/*.ts",
+		"./**/*.tsx"
+	],
 	"exclude": ["node_modules"]
 }
