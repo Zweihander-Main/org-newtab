@@ -5,7 +5,6 @@ import useWebSocket, { ReadyState } from 'react-use-websocket';
 import { usePrevious } from '@react-hookz/web';
 import { Storage } from '@plasmohq/storage';
 import { useStorage } from '@plasmohq/storage/hook';
-import { usePort } from '@plasmohq/messaging/hook';
 import '@fontsource/public-sans/700.css';
 import './newtab.css';
 import type { JsonValue } from 'react-use-websocket/dist/lib/types';
@@ -163,25 +162,28 @@ const IndexNewtab: React.FC = () => {
 	// Idea here is that the port messaging will work to keep talking between
 	// all the newtabs even if the bg dies (possibly false assumption)
 
-	const { send, listen } = usePort('ws');
+	// NEXT: Background won't work this way as Plasmo only allows for handlers
+	// The Port API is still the way to go, have to implement it manually without
+	// bg ideally, then see if it works in firefox or options therein
 
+	// Also should figure out a way to identify this failure in Emacs
+
+	const port = useRef(chrome.runtime.connect());
+	const isInitialRender = useRef(true);
 	const handleMessage = useCallback((message: string) => {
 		console.log('Data recv on newtab end: ', message);
 	}, []);
 
-	const isInitialRender = useRef(true);
-
-	const sendPortData = useCallback(() => {
-		send({ data: 'Hello from newtab!' });
-	}, [send]);
-
 	useEffect(() => {
 		if (isInitialRender.current) {
-			listen(handleMessage);
-			sendPortData();
+			port.current.postMessage('Hello from newtab!');
+			port.current.onMessage.addListener(handleMessage);
 			isInitialRender.current = false;
 		}
-	}, [listen, handleMessage, sendPortData]);
+	}, [handleMessage]);
+
+	//////////////////////////////////////////////////////////////////////
+	// const { send, listen } = usePort('ws');
 
 	const storageInstanceRef = useRef<Storage>(new Storage({ area: 'local' }));
 	const [matchQuery, setMatchQuery] = useStorage<string>(

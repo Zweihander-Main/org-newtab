@@ -21,6 +21,7 @@
 			"~*": ["./src/*"]
 		}
 	},
+	"baseUrl": ".",
 	"include": [".plasmo/index.d.ts", "src/**/*"],
 	"exclude": ["node_modules"]
 }
