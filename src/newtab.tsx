@@ -1,13 +1,18 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable no-console */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import useWebSocket, { ReadyState } from 'react-use-websocket';
+import { ReadyState } from 'react-use-websocket';
 import { usePrevious } from '@react-hookz/web';
 import { Storage } from '@plasmohq/storage';
 import { useStorage } from '@plasmohq/storage/hook';
 import '@fontsource/public-sans/700.css';
 import './newtab.css';
 import type { JsonValue } from 'react-use-websocket/dist/lib/types';
+import {
+	useWSContext,
+	type AllTagsRecv,
+	WSProvider,
+} from 'contexts/AppContext';
 
 type ConnectionStatusIndicatorProps = {
 	readyState: ReadyState;
@@ -126,65 +131,20 @@ const OrgItem: React.FC<OrgItemProps> = ({ itemText, foregroundColor }) => {
 	);
 };
 
-type AllTagsRecv = string | Array<string | number>;
+// One tab is the master and the others talk to it
+// The master tab is the one that has the websocket connection
+// The master tab is the one that sends the data to the other tabs
+// If master tab is killed, a new websocket connection is established
+// ^ This will work, as Emacs is erroring out with MULTIPLE websocket connections
+// As long as you maintain only one connection, it doesn't matter if you
+// establish multiple opens
+// Idea here is that the port messaging will work to keep talking between
+// all the newtabs even if the bg dies (possibly false assumption)
 
-type WebSocketItemMessage = {
-	type: 'ITEM';
-	data: {
-		ITEM: string;
-		ALLTAGS?: AllTagsRecv;
-	};
-};
-
-type WebSocketTagsMessage = {
-	type: 'TAGS';
-	data: {
-		[key: string]: string;
-	};
-};
-
-type WebSocketRecvMessage = WebSocketItemMessage | WebSocketTagsMessage | null;
+// Also should figure out a way to identify this failure in Emacs
 
 const IndexNewtab: React.FC = () => {
-	const {
-		sendJsonMessage,
-		lastJsonMessage: lastRecvJsonMessage,
-		readyState,
-	} = useWebSocket<WebSocketRecvMessage>('ws://localhost:35942/');
-
-	// One tab is the master and the others talk to it
-	// The master tab is the one that has the websocket connection
-	// The master tab is the one that sends the data to the other tabs
-	// If master tab is killed, a new websocket connection is established
-	// ^ This will work, as Emacs is erroring out with MULTIPLE websocket connections
-	// As long as you maintain only one connection, it doesn't matter if you
-	// establish multiple opens
-	// Idea here is that the port messaging will work to keep talking between
-	// all the newtabs even if the bg dies (possibly false assumption)
-
-	// NEXT: Background won't work this way as Plasmo only allows for handlers
-	// The Port API is still the way to go, have to implement it manually without
-	// bg ideally, then see if it works in firefox or options therein
-
-	// Also should figure out a way to identify this failure in Emacs
-
-	const port = useRef(chrome.runtime.connect());
-	const isInitialRender = useRef(true);
-	const handleMessage = useCallback((message: string) => {
-		console.log('Data recv on newtab end: ', message);
-	}, []);
-
-	useEffect(() => {
-		if (isInitialRender.current) {
-			port.current.postMessage('Hello from newtab!');
-			port.current.onMessage.addListener(handleMessage);
-			isInitialRender.current = false;
-		}
-	}, [handleMessage]);
-
-	//////////////////////////////////////////////////////////////////////
-	// const { send, listen } = usePort('ws');
-
+	const { sendJsonMessage, lastRecvJsonMessage, readyState } = useWSContext();
 	const storageInstanceRef = useRef<Storage>(new Storage({ area: 'local' }));
 	const [matchQuery, setMatchQuery] = useStorage<string>(
 		{
@@ -274,4 +234,12 @@ const IndexNewtab: React.FC = () => {
 	);
 };
 
-export default IndexNewtab;
+const RootContextWrapper: React.FC = () => {
+	return (
+		<WSProvider>
+			<IndexNewtab />
+		</WSProvider>
+	);
+};
+
+export default RootContextWrapper;
