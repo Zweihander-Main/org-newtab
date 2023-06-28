@@ -1,5 +1,5 @@
 import { createContext, type ReactNode } from 'react';
-import type { WSCommonProps, WebSocketRecvMessage } from './AppContext';
+import type { WSCommonProps, WebSocketRecvMessage } from './WSContext';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 
 const WSMasterContext = createContext<WSCommonProps>({

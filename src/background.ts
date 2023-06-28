@@ -1,4 +1,19 @@
 /* eslint-disable no-console */
+import { Storage } from '@plasmohq/storage';
+
+/**
+ * Some notes about this background script:
+ * 1. It was written when the Manifest V3 spec was still being fixed up. In
+ *    particular, it assumes there's no way to have a persistent background
+ *    websocket connection. Therefore, it can be unloaded by the browser at any
+ *    time and has to attempt to persist app state using storage.
+ * 2. Because the websocket can't live here, the background script has to act as
+ *    a message broker between the different new tabs, attempting to keep no
+ *    more than one websocket connection alive at any given time.
+ * 3. It was written when the Manifest v3 spec still had odd edge cases. Hence
+ *    the very over the top management of listeners and ports.
+ * 4. It uses ports to receive communications and tab message flow to send them.
+ */
 
 export enum MsgNewTabToBGSWType {
 	QUERY_STATUS_OF_WS = 1,
@@ -20,136 +35,192 @@ export type MsgBGSWToNewTab = {
 	type: MsgBGSWToNewTabType;
 };
 
-const connectedTabsById: Record<string, chrome.runtime.Port> = {};
+const storage = new Storage({ area: 'local' });
+const connectedTabsByPort: Record<string, chrome.runtime.Port> = {};
+const connectedTabIds: Set<number> = new Set([]);
 const MAX_WAIT_TIME_FOR_ALL_CLIENT_REPLIES = 2000;
-let masterWs: chrome.runtime.Port | null = null;
+let masterWSTabId: number | null = null;
 
-const clientIdentifyPromises = () =>
-	Object.values(connectedTabsById).map((tabConnectionPort) => {
-		return new Promise<void>((resolve) => {
-			const identifyAsClientListener = (message: MsgBGSWToNewTab) => {
-				if (message.type === MsgBGSWToNewTabType.YOU_ARE_CLIENT_WS) {
-					console.log('[BSGW] Identified as client');
-					resolve();
-				}
-				tabConnectionPort.onMessage.removeListener(
-					identifyAsClientListener
-				);
-				return true;
-			};
-			tabConnectionPort.onMessage.addListener(identifyAsClientListener);
+const errorSendingCatch = (err: unknown) => {
+	console.error('[BSGW] Error sending message from background:', err);
+};
 
-			tabConnectionPort.postMessage({
-				type: MsgBGSWToNewTabType.CONFIRM_IF_MASTER_WS,
-			} as MsgBGSWToNewTab);
-		});
+const clientIdentifyPromises = () => {
+	const returnPromises: Array<Promise<void>> = [];
+	connectedTabIds.forEach((connectedTabId) => {
+		const connectedTabPort = connectedTabsByPort[connectedTabId];
+		if (connectedTabPort) {
+			returnPromises.push(
+				new Promise<void>((resolve) => {
+					const identifyAsClientListener = (
+						message: MsgBGSWToNewTab
+					) => {
+						if (
+							message.type ===
+							MsgBGSWToNewTabType.YOU_ARE_CLIENT_WS
+						) {
+							console.log('[BSGW] Identified as client');
+							resolve();
+						}
+						connectedTabPort.onMessage.removeListener(
+							identifyAsClientListener
+						);
+						return true;
+					};
+					connectedTabPort.onMessage.addListener(
+						identifyAsClientListener
+					);
+					chrome.tabs
+						.sendMessage(connectedTabId, {
+							type: MsgBGSWToNewTabType.CONFIRM_IF_MASTER_WS,
+						} as MsgBGSWToNewTab)
+						.catch(errorSendingCatch);
+				})
+			);
+		} else {
+			console.log(
+				'[BSGW] No connected tab id port found to identify as client'
+			);
+			returnPromises.push(Promise.resolve());
+		}
 	});
+	return returnPromises;
+};
 
 // Listen for messages from the new tab page
 const onMessage = (message: MsgNewTabToBGSW, port: chrome.runtime.Port) => {
-	console.log('[BSGW] Data recv on bg end:', message.type);
-	console.log('[BSGW] Connections:', connectedTabsById);
-
-	switch (message.type) {
-		case MsgNewTabToBGSWType.QUERY_STATUS_OF_WS: {
-			// TODO use masterWs to check if it's still connected
-			// First connection, this is master
-			if (Object.keys(connectedTabsById).length === 1) {
-				chrome.tabs
-					.sendMessage(
-						parseInt(Object.keys(connectedTabsById)[0], 10),
-						{
-							message: 'Hello from your new tab page!',
-						}
-					)
-					.then((response) => {
-						console.log('Response from background:', response);
-					})
-					.catch((err: unknown) => {
+	storage
+		.get<Array<number>>('connectedTabIds')
+		.then((connectedTabIdsFromStorage) => {
+			console.log(
+				'[BSGW] connectedTabIdsFromStorage:',
+				connectedTabIdsFromStorage
+			);
+			connectedTabIdsFromStorage.forEach((connectedTabId) =>
+				connectedTabIds.add(connectedTabId)
+			);
+			if (port?.sender?.tab?.id) {
+				const portTabId = port.sender.tab.id;
+				console.log('[BSGW] Data recv on bg end:', message.type);
+				connectedTabIds.add(portTabId);
+				storage
+					.set('connectedTabIds', Array.from(connectedTabIds))
+					.catch((err) => {
 						console.error(
-							'Error sending message to background:',
+							'[BSGW] Error saving connectedTabIds:',
 							err
 						);
 					});
-
-				console.log('[BSGW] First connection, assuming master');
-				masterWs = port;
-				port.postMessage({
-					type: MsgBGSWToNewTabType.YOU_ARE_MASTER_WS,
-				} as MsgBGSWToNewTab);
-			} else {
-				// Ask other tabs to identify themselves
-				console.log(
-					'[BSGW] Asking other tabs to identify themselves, num connections:',
-					Object.keys(connectedTabsById).length
-				);
-
-				Promise.race([
-					Promise.all(clientIdentifyPromises()),
-					new Promise<void>((resolve) =>
-						setTimeout(() => {
-							console.log('[BSGW] Timeout occurred');
-							resolve();
-						}, MAX_WAIT_TIME_FOR_ALL_CLIENT_REPLIES)
-					),
-				])
-					.then(() => {
-						// All client tabs replied or the timeout occurred
-						if (masterWs === null) {
-							// No master WebSocket identified, so make this connection the master
-							masterWs = port;
-							port.postMessage({
-								type: MsgBGSWToNewTabType.YOU_ARE_MASTER_WS,
-							} as MsgBGSWToNewTab);
-						}
-					})
-					.catch(() => {
-						console.error('[BSGW] Timeout occurred');
-						return;
-					});
-			}
-
-			break;
-		}
-		case MsgNewTabToBGSWType.IDENTIFY_AS_MASTER_WS: {
-			// Tell all other tabs they're clients
-			Object.values(connectedTabsById).forEach((tabConnectionPort) => {
-				if (tabConnectionPort !== port) {
-					tabConnectionPort.postMessage({
-						type: MsgBGSWToNewTabType.YOU_ARE_CLIENT_WS,
-					} as MsgBGSWToNewTab);
+				if (!connectedTabsByPort[portTabId]) {
+					connectedTabsByPort[portTabId] = port;
 				}
-			});
-			break;
-		}
-	}
+			}
+			console.log('[BSGW] Connections:', connectedTabIds);
+
+			switch (message.type) {
+				case MsgNewTabToBGSWType.QUERY_STATUS_OF_WS: {
+					// TODO use masterWs to check if it's still connected
+					// First connection, this is master
+					if (connectedTabIds.size === 1) {
+						console.log('[BSGW] First connection, assuming master');
+						masterWSTabId = connectedTabIds.values().next()
+							.value as number;
+						chrome.tabs
+							.sendMessage(masterWSTabId, {
+								type: MsgBGSWToNewTabType.YOU_ARE_MASTER_WS,
+							} as MsgBGSWToNewTab)
+							.catch(errorSendingCatch);
+					} else {
+						// Ask other tabs to identify themselves
+						console.log(
+							'[BSGW] Asking other tabs to identify themselves, num connections:',
+							connectedTabIds.size
+						);
+
+						Promise.race([
+							Promise.all(clientIdentifyPromises()),
+							new Promise<void>((resolve) =>
+								setTimeout(() => {
+									console.log('[BSGW] Timeout occurred');
+									resolve();
+								}, MAX_WAIT_TIME_FOR_ALL_CLIENT_REPLIES)
+							),
+						])
+							.then(() => {
+								// All client tabs replied or the timeout occurred
+								if (
+									masterWSTabId === null &&
+									port?.sender?.tab?.id
+								) {
+									// No master WebSocket identified, so make this connection the master
+									masterWSTabId = port.sender.tab.id;
+									chrome.tabs
+										.sendMessage(masterWSTabId, {
+											type: MsgBGSWToNewTabType.YOU_ARE_MASTER_WS,
+										} as MsgBGSWToNewTab)
+										.catch(errorSendingCatch);
+								}
+							})
+							.catch(() => {
+								console.error('[BSGW] Timeout occurred');
+								return;
+							});
+					}
+
+					break;
+				}
+				case MsgNewTabToBGSWType.IDENTIFY_AS_MASTER_WS: {
+					// Tell all other tabs they're clients
+					connectedTabIds.forEach((connectedTabId) => {
+						if (connectedTabId !== port?.sender?.tab?.id) {
+							chrome.tabs
+								.sendMessage(connectedTabId, {
+									type: MsgBGSWToNewTabType.YOU_ARE_CLIENT_WS,
+								} as MsgBGSWToNewTab)
+								.catch(errorSendingCatch);
+						}
+					});
+					break;
+				}
+			}
+		})
+		.catch((err) => {
+			console.error('[BSGW] Error getting connectedTabIds:', err);
+		});
 	return true;
 };
 
 // Remove the connection when the new tab page is closed
 const onDisconnect = (port: chrome.runtime.Port) => {
-	console.log('[BGSW] Disconnecting port:', port, port.sender);
-	console.dir(port);
+	console.log('[BGSW] Disconnecting port:', port?.sender?.tab?.id);
 	port.onDisconnect.removeListener(onDisconnect);
 	if (port?.sender?.tab?.id) {
-		connectedTabsById[port.sender.tab.id].onDisconnect.removeListener(
+		connectedTabIds.delete(port.sender.tab.id);
+		storage
+			.set('connectedTabIds', Array.from(connectedTabIds))
+			.catch((err) => {
+				console.error('[BSGW] Error saving connectedTabIds:', err);
+			});
+		connectedTabsByPort[port.sender.tab.id].onDisconnect.removeListener(
 			onDisconnect
 		);
-		delete connectedTabsById[port.sender.tab.id];
+		delete connectedTabsByPort[port.sender.tab.id];
 	}
 };
 
 // Extra checking to make sure we're only listening once due to Chrome MW3 bug
 const onConnect = (port: chrome.runtime.Port) => {
-	if (port.name === 'ws') {
-		if (port?.sender?.tab?.id && !connectedTabsById[port.sender.tab.id]) {
-			connectedTabsById[port.sender.tab.id] = port;
-			if (!port.onMessage.hasListener(onMessage)) {
-				port.onMessage.addListener(onMessage);
-			}
-			if (!port.onDisconnect.hasListener(onDisconnect)) {
-				port.onDisconnect.addListener(onDisconnect);
-			}
+	if (
+		port.name === 'ws' &&
+		port?.sender?.tab?.id &&
+		!connectedTabsByPort[port.sender.tab.id]
+	) {
+		console.log('[BSGW] Connecting port:', port?.sender?.tab?.id);
+		if (!port.onMessage.hasListener(onMessage)) {
+			port.onMessage.addListener(onMessage);
+		}
+		if (!port.onDisconnect.hasListener(onDisconnect)) {
+			port.onDisconnect.addListener(onDisconnect);
 		}
 	}
 	return true;
@@ -158,5 +229,3 @@ const onConnect = (port: chrome.runtime.Port) => {
 if (!chrome.runtime.onConnect.hasListener(onConnect)) {
 	chrome.runtime.onConnect.addListener(onConnect);
 }
-
-export {};

@@ -102,17 +102,12 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 
 	useEffect(() => {
 		if (isInitialRender.current) {
-			port.current.onMessage.addListener(handleMessage);
+			chrome.runtime.onMessage.addListener(handleMessage);
 			// 1. Ask if any master web sockets exist
 			port.current.postMessage({
 				type: MsgNewTabToBGSWType.QUERY_STATUS_OF_WS,
 			} as MsgNewTabToBGSW);
 			isInitialRender.current = false;
-			chrome.runtime.onMessage.addListener(
-				(request, sender, sendResponse) => {
-					console.log('[NewTab] request: ', request);
-				}
-			);
 		}
 	}, [handleMessage]);
 

@@ -8,11 +8,7 @@ import { useStorage } from '@plasmohq/storage/hook';
 import '@fontsource/public-sans/700.css';
 import './newtab.css';
 import type { JsonValue } from 'react-use-websocket/dist/lib/types';
-import {
-	useWSContext,
-	type AllTagsRecv,
-	WSProvider,
-} from 'contexts/AppContext';
+import { useWSContext, type AllTagsRecv, WSProvider } from 'contexts/WSContext';
 
 type ConnectionStatusIndicatorProps = {
 	readyState: ReadyState;
