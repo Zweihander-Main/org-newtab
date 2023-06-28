@@ -12,6 +12,8 @@
 	"vim.useSystemClipboard": true,
 	"cSpell.words": [
 		"ALLTAGS",
+		"BGSW",
+		"BSGW",
 		"fontsource",
 		"hookz",
 		"Newtab",
