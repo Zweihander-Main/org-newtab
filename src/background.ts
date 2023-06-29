@@ -64,7 +64,7 @@ const sendMsgToTab = (type: MsgBGSWToNewTabType, tabId: number) => {
 		.catch(errorSendingCatch);
 };
 
-const handleQueryFlowCaseSingleTabConnection = async (
+const handleQueryFlowCaseSingleConnectionBecomesMaster = async (
 	singleRequestingPort: chrome.runtime.Port
 ) => {
 	masterWSTabId = singleRequestingPort?.sender?.tab?.id as number;
@@ -149,7 +149,7 @@ const handleQueryFlow = async (requestingPort: chrome.runtime.Port) => {
 	// TODO use masterWs to check if it's still connected
 	console.log('[BSGW] connectedPorts: ', connectedPorts);
 	if (connectedPorts.size === 1) {
-		await handleQueryFlowCaseSingleTabConnection(requestingPort);
+		await handleQueryFlowCaseSingleConnectionBecomesMaster(requestingPort);
 	} else {
 		await handleQueryFlowCaseFindMaster(requestingPort);
 	}
@@ -189,6 +189,31 @@ const handlePortDisconnect = (port: chrome.runtime.Port) => {
 	console.log('[BGSW] Disconnecting port:', port?.sender?.tab?.id);
 	port.onDisconnect.removeListener(handlePortDisconnect);
 	removePort(port);
+	if (port?.sender?.tab?.id === masterWSTabId) {
+		masterWSTabId = null;
+		if (connectedPorts.size >= 1) {
+			const newRequestingPort = Array.from(connectedPorts)[0];
+			if (connectedPorts.size === 1) {
+				handleQueryFlowCaseSingleConnectionBecomesMaster(
+					newRequestingPort
+				).catch((err) => {
+					console.error(
+						'[BSGW] Error handling single tab connection:',
+						err
+					);
+				});
+			} else if (connectedPorts.size > 1) {
+				handleQueryFlowCaseFindMaster(newRequestingPort).catch(
+					(err) => {
+						console.error(
+							'[BSGW] Error handling selecting new master:',
+							err
+						);
+					}
+				);
+			}
+		}
+	}
 };
 
 const handlePortConnect = (port: chrome.runtime.Port) => {
