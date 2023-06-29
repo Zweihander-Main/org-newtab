@@ -18,8 +18,8 @@ import {
  *    more than one websocket connection alive at any given time.
  * 3. It was written when the Manifest v3 spec still had odd edge cases. Hence
  *    the very over the top management of listeners and ports.
- * 4. It avoid using ports due to bugs that pop up with multiple simultaneous
- *    connections.
+ * 4. It uses ports to communicate most queries from new tabs to the background,
+ *    regular messages back and forth for the master websocket query flow.
  */
 
 const storage = new Storage({ area: 'local' });
@@ -100,6 +100,17 @@ const handleQueryFlowIdentifiedClient = (clientPort: chrome.runtime.Port) => {
 	);
 };
 
+const handleQueryFlowRequestBecomesMaster = async (
+	requestingPort: chrome.runtime.Port
+) => {
+	masterWSTabId = requestingPort?.sender?.tab?.id as number;
+	console.log(
+		'[BSGW] No master identified, letting %d be master',
+		masterWSTabId
+	);
+	await sendMsgToTab(MsgBGSWToNewTabType.YOU_ARE_MASTER_WS, masterWSTabId);
+};
+
 const handleQueryFlowCaseFindMaster = async (
 	requestingPort: chrome.runtime.Port
 ) => {
@@ -110,6 +121,11 @@ const handleQueryFlowCaseFindMaster = async (
 				MsgBGSWToNewTabType.CONFIRM_IF_MASTER_WS,
 				connectedPort?.sender?.tab?.id as number
 			).then((response: MsgNewTabToBGSW) => {
+				console.log(
+					'[BSGW] Got response from %d: %d',
+					connectedPort?.sender?.tab?.id,
+					response.type
+				);
 				switch (response.type) {
 					case MsgNewTabToBGSWType.IDENTIFY_AS_MASTER_WS:
 						handleQueryFlowIdentifiedMaster(connectedPort);
@@ -124,11 +140,7 @@ const handleQueryFlowCaseFindMaster = async (
 	);
 	// If all of them think they're clients, set the original requestor as master
 	if (masterWSTabId === null) {
-		masterWSTabId = requestingPort?.sender?.tab?.id as number;
-		console.log(
-			'[BSGW] No master identified, letting %d be master',
-			masterWSTabId
-		);
+		await handleQueryFlowRequestBecomesMaster(requestingPort);
 	}
 	await handleQueryFlowCaseTellOthersTheyAreClients(answeredPorts);
 };
@@ -149,7 +161,7 @@ const handlePortMessage = (
 ) => {
 	if (!isMsgExpected(message, port?.sender)) return;
 	console.log(
-		'[BSGW] handleMessage -- data recv from %d: %d',
+		'[BSGW] handlePortMessage -- data recv from %d: %d',
 		port?.sender?.tab?.id as number,
 		message.type
 	);

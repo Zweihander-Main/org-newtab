@@ -14,7 +14,10 @@ import {
 	type MsgBGSWToNewTab,
 	MsgBGSWToNewTabType,
 	MsgNewTabToBGSWType,
+	type MsgNewTabToBGSW,
 } from '../types';
+
+type SendResponseType = (message: MsgNewTabToBGSW) => unknown;
 
 export type WSContextProps = {
 	amMasterWS: boolean;
@@ -38,12 +41,22 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	const isInitialRender = useRef(true);
 	const port = useRef(chrome.runtime.connect({ name: 'ws' }));
 
-	const sendMsgToBGSW = useCallback((type: MsgNewTabToBGSWType) => {
+	const sendMsgToBGSWPort = useCallback((type: MsgNewTabToBGSWType) => {
 		port.current.postMessage({
 			type,
 			direction: MsgDirection.TO_BGSW,
 		});
 	}, []);
+
+	const sendMsgAsResponse = useCallback(
+		(type: MsgNewTabToBGSWType, sendResponse: SendResponseType) => {
+			sendResponse({
+				type,
+				direction: MsgDirection.TO_BGSW,
+			});
+		},
+		[]
+	);
 
 	const handleSetAsMaster = useCallback(() => {
 		if (amMasterWS === false) {
@@ -57,16 +70,29 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 		}
 	}, [amMasterWS, setAmMasterWS]);
 
-	const handleConfirmation = useCallback(() => {
-		if (amMasterWS) {
-			sendMsgToBGSW(MsgNewTabToBGSWType.IDENTIFY_AS_MASTER_WS);
-		} else {
-			sendMsgToBGSW(MsgNewTabToBGSWType.IDENTIFY_AS_WS_CLIENT);
-		}
-	}, [amMasterWS, sendMsgToBGSW]);
+	const handleConfirmation = useCallback(
+		(sendResponse: SendResponseType) => {
+			if (amMasterWS) {
+				sendMsgAsResponse(
+					MsgNewTabToBGSWType.IDENTIFY_AS_MASTER_WS,
+					sendResponse
+				);
+			} else {
+				sendMsgAsResponse(
+					MsgNewTabToBGSWType.IDENTIFY_AS_WS_CLIENT,
+					sendResponse
+				);
+			}
+		},
+		[amMasterWS, sendMsgToBGSWPort]
+	);
 
 	const handleMessage = useCallback(
-		(message: MsgBGSWToNewTab) => {
+		(
+			message: MsgBGSWToNewTab,
+			_sender: chrome.runtime.MessageSender,
+			sendResponse: SendResponseType
+		) => {
 			if (message.direction !== MsgDirection.TO_NEWTAB) {
 				return;
 			}
@@ -76,7 +102,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 			);
 			switch (message.type) {
 				case MsgBGSWToNewTabType.CONFIRM_IF_MASTER_WS:
-					handleConfirmation();
+					handleConfirmation(sendResponse);
 					break;
 				case MsgBGSWToNewTabType.YOU_ARE_MASTER_WS:
 					handleSetAsMaster();
@@ -99,10 +125,10 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	useEffect(() => {
 		if (isInitialRender.current) {
 			// 1. Ask if any master web sockets exist
-			sendMsgToBGSW(MsgNewTabToBGSWType.QUERY_STATUS_OF_WS);
+			sendMsgToBGSWPort(MsgNewTabToBGSWType.QUERY_STATUS_OF_WS);
 			isInitialRender.current = false;
 		}
-	}, [sendMsgToBGSW]);
+	}, [sendMsgToBGSWPort]);
 
 	return (
 		<WSContext.Provider value={{ amMasterWS, setAmMasterWS }}>
