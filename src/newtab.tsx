@@ -26,7 +26,14 @@ const ConnectionStatusIndicator: React.FC<ConnectionStatusIndicatorProps> = ({
 		[ReadyState.UNINSTANTIATED]: 'Uninstantiated',
 	}[readyState];
 
-	return <p className="connection-status">{connectionStatus}</p>;
+	const { amMasterWS } = useWSContext();
+	const masterStatus = amMasterWS ? 'Master' : 'Client';
+
+	return (
+		<p className="connection-status">
+			{connectionStatus} - {masterStatus}
+		</p>
+	);
 };
 
 type OptionsMenuProps = {

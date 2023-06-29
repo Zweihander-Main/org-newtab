@@ -147,5 +147,5 @@ export const useWSContext = () => {
 	const { amMasterWS } = useContext(WSContext);
 	const contextToUse = amMasterWS ? WSMasterContext : WSClientContext;
 
-	return useContext(contextToUse);
+	return { ...useContext(contextToUse), amMasterWS };
 };
