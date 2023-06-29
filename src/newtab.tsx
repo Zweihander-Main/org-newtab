@@ -31,7 +31,7 @@ const ConnectionStatusIndicator: React.FC<ConnectionStatusIndicatorProps> = ({
 
 type OptionsMenuProps = {
 	matchQuery: string;
-	setMatchQuery: (matchQuery: string) => void;
+	setMatchQuery: (value: ((v?: string) => string) | string) => Promise<void>;
 	lastRecvJsonMessage: JsonValue | null;
 };
 
@@ -49,7 +49,9 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
 			const data = new FormData(currentTarget);
 			const formMatchQuery = data.get('matchQuery');
 			if (formMatchQuery && typeof formMatchQuery === 'string') {
-				setMatchQuery(formMatchQuery);
+				setMatchQuery(formMatchQuery).catch((err) => {
+					console.error('[NewTab] Erro setting storage:', err);
+				});
 			}
 		},
 		[setMatchQuery]
