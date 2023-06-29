@@ -7,48 +7,18 @@ import {
 	useRef,
 	useState,
 } from 'react';
-import type { SendJsonMessage } from 'react-use-websocket/dist/lib/types';
-import { ReadyState } from 'react-use-websocket';
 import WSClientContext, { WSClientProvider } from './WSClientContext';
 import WSMasterContext, { WSMasterProvider } from './WSMasterContext';
 import {
-	MsgBGSWToNewTabType,
+	MsgDirection,
 	type MsgBGSWToNewTab,
+	MsgBGSWToNewTabType,
 	MsgNewTabToBGSWType,
-	type MsgNewTabToBGSW,
-} from '../background';
-
-export type AllTagsRecv = string | Array<string | number>;
-
-export type WebSocketItemMessage = {
-	type: 'ITEM';
-	data: {
-		ITEM: string;
-		ALLTAGS?: AllTagsRecv;
-	};
-};
-
-export type WebSocketTagsMessage = {
-	type: 'TAGS';
-	data: {
-		[key: string]: string;
-	};
-};
-
-export type WebSocketRecvMessage =
-	| WebSocketItemMessage
-	| WebSocketTagsMessage
-	| null;
+} from '../types';
 
 export type WSContextProps = {
 	amMasterWS: boolean;
 	setAmMasterWS: (amMasterWS: boolean) => void;
-};
-
-export type WSCommonProps = {
-	sendJsonMessage: SendJsonMessage;
-	lastRecvJsonMessage: WebSocketRecvMessage;
-	readyState: ReadyState;
 };
 
 const WSContext = createContext<WSContextProps>({
@@ -67,49 +37,72 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 
 	const isInitialRender = useRef(true);
 	const port = useRef(chrome.runtime.connect({ name: 'ws' }));
+
+	const sendMsgToBGSW = useCallback((type: MsgNewTabToBGSWType) => {
+		port.current.postMessage({
+			type,
+			direction: MsgDirection.TO_BGSW,
+		});
+	}, []);
+
+	const handleSetAsMaster = useCallback(() => {
+		if (amMasterWS === false) {
+			setAmMasterWS(true);
+		}
+	}, [amMasterWS, setAmMasterWS]);
+
+	const handleSetAsClient = useCallback(() => {
+		if (amMasterWS === true) {
+			setAmMasterWS(false);
+		}
+	}, [amMasterWS, setAmMasterWS]);
+
+	const handleConfirmation = useCallback(() => {
+		if (amMasterWS) {
+			sendMsgToBGSW(MsgNewTabToBGSWType.IDENTIFY_AS_MASTER_WS);
+		} else {
+			sendMsgToBGSW(MsgNewTabToBGSWType.IDENTIFY_AS_WS_CLIENT);
+		}
+	}, [amMasterWS, sendMsgToBGSW]);
+
 	const handleMessage = useCallback(
 		(message: MsgBGSWToNewTab) => {
+			if (message.direction !== MsgDirection.TO_NEWTAB) {
+				return;
+			}
 			console.log(
-				'[NewTab] NewTab received message from BGSW: ',
+				'[NewTab] handleMessage -- data recv: %d',
 				message.type
 			);
 			switch (message.type) {
 				case MsgBGSWToNewTabType.CONFIRM_IF_MASTER_WS:
-					if (amMasterWS) {
-						port.current.postMessage({
-							type: MsgNewTabToBGSWType.IDENTIFY_AS_MASTER_WS,
-						} as MsgNewTabToBGSW);
-					} else {
-						port.current.postMessage({
-							type: MsgNewTabToBGSWType.IDENTIFY_AS_WS_CLIENT,
-						} as MsgNewTabToBGSW);
-					}
-					break;
-				case MsgBGSWToNewTabType.YOU_ARE_CLIENT_WS:
-					if (amMasterWS) {
-						setAmMasterWS(false);
-					}
+					handleConfirmation();
 					break;
 				case MsgBGSWToNewTabType.YOU_ARE_MASTER_WS:
-					if (!amMasterWS) {
-						setAmMasterWS(true);
-					}
+					handleSetAsMaster();
+					break;
+				case MsgBGSWToNewTabType.YOU_ARE_CLIENT_WS:
+					handleSetAsClient();
 					break;
 			}
 		},
-		[amMasterWS, setAmMasterWS]
+		[handleSetAsMaster, handleSetAsClient, handleConfirmation]
 	);
 
 	useEffect(() => {
+		chrome.runtime.onMessage.addListener(handleMessage);
+		return () => {
+			chrome.runtime.onMessage.removeListener(handleMessage);
+		};
+	}, [amMasterWS, handleMessage]);
+
+	useEffect(() => {
 		if (isInitialRender.current) {
-			chrome.runtime.onMessage.addListener(handleMessage);
 			// 1. Ask if any master web sockets exist
-			port.current.postMessage({
-				type: MsgNewTabToBGSWType.QUERY_STATUS_OF_WS,
-			} as MsgNewTabToBGSW);
+			sendMsgToBGSW(MsgNewTabToBGSWType.QUERY_STATUS_OF_WS);
 			isInitialRender.current = false;
 		}
-	}, [handleMessage]);
+	}, [sendMsgToBGSW]);
 
 	return (
 		<WSContext.Provider value={{ amMasterWS, setAmMasterWS }}>
@@ -122,7 +115,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	);
 };
 
-export const { Consumer: AppConsumer } = WSContext;
+export const { Consumer: WSConsumer } = WSContext;
 
 export const useWSContext = () => {
 	const { amMasterWS } = useContext(WSContext);

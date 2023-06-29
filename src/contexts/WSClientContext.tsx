@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 import { createContext, type ReactNode } from 'react';
-import type { WSCommonProps, WebSocketRecvMessage } from './WSContext';
 import { ReadyState } from 'react-use-websocket';
 import type { SendJsonMessage } from 'react-use-websocket/dist/lib/types';
+import type { WebSocketRecvMessage, WSCommonProps } from '../types';
 
 const WSClientContext = createContext<WSCommonProps>({
 	sendJsonMessage: () => {

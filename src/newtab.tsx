@@ -5,10 +5,11 @@ import { ReadyState } from 'react-use-websocket';
 import { usePrevious } from '@react-hookz/web';
 import { Storage } from '@plasmohq/storage';
 import { useStorage } from '@plasmohq/storage/hook';
+import { useWSContext, WSProvider } from 'contexts/WSContext';
 import '@fontsource/public-sans/700.css';
 import './newtab.css';
 import type { JsonValue } from 'react-use-websocket/dist/lib/types';
-import { useWSContext, type AllTagsRecv, WSProvider } from 'contexts/WSContext';
+import type { AllTagsRecv } from './types';
 
 type ConnectionStatusIndicatorProps = {
 	readyState: ReadyState;
