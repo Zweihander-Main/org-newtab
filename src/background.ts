@@ -3,7 +3,6 @@ import { Storage } from '@plasmohq/storage';
 import {
 	MsgNewTabToBGSWType,
 	type MsgNewTabToBGSW,
-	type MsgBGSWToNewTab,
 	MsgBGSWToNewTabType,
 	MsgDirection,
 } from './types';
@@ -28,129 +27,6 @@ const connectedTabIds: Set<number> = new Set([]);
 const connectedPorts: Set<chrome.runtime.Port> = new Set([]);
 const MAX_WAIT_TIME_FOR_ALL_CLIENT_REPLIES = 2000;
 let masterWSTabId: number | null = null;
-
-const clientIdentifyPromises = () => {
-	return Array.from(connectedTabIds).map((connectedTabId) => {
-		return new Promise<void>((resolve) => {
-			chrome.tabs
-				.sendMessage(connectedTabId, {
-					type: MsgBGSWToNewTabType.CONFIRM_IF_MASTER_WS,
-				} as MsgBGSWToNewTab)
-				.then((response: MsgNewTabToBGSW) => {
-					switch (response.type) {
-						case MsgNewTabToBGSWType.IDENTIFY_AS_MASTER_WS: {
-							console.log('[BSGW] Identified master websocket');
-							masterWSTabId = connectedTabId;
-							// Tell all other tabs they're clients
-							connectedTabIds.forEach((savedTabId) => {
-								if (savedTabId !== connectedTabId) {
-									chrome.tabs
-										.sendMessage(savedTabId, {
-											type: MsgBGSWToNewTabType.YOU_ARE_CLIENT_WS,
-										} as MsgBGSWToNewTab)
-										.catch(errorSendingCatch);
-								}
-							});
-							break;
-						}
-						case MsgNewTabToBGSWType.IDENTIFY_AS_WS_CLIENT: {
-							console.log('[BSGW] Identified client');
-							break;
-						}
-					}
-					resolve();
-				})
-				.catch(errorSendingCatch);
-		});
-	});
-};
-
-// Listen for messages from the new tab page
-// const onMessage = (message: MsgNewTabToBGSW, sender: chrome.runtime.MessageSender) => {
-// 	storage
-// 		.get<Array<number>>('connectedTabIds')
-// 		.then((connectedTabIdsFromStorage) => {
-// 			console.log(
-// 				'[BSGW] connectedTabIdsFromStorage:',
-// 				connectedTabIdsFromStorage
-// 			);
-// 			connectedTabIdsFromStorage.forEach((connectedTabId) =>
-// 				connectedTabIds.add(connectedTabId)
-// 			);
-// 			if (sender?.tab?.id) {
-// 				const portTabId = port.sender.tab.id;
-// 				console.log('[BSGW] Data recv on bg end:', message.type);
-// 				connectedTabIds.add(portTabId);
-// 				storage
-// 					.set('connectedTabIds', Array.from(connectedTabIds))
-// 					.catch((err) => {
-// 						console.error(
-// 							'[BSGW] Error saving connectedTabIds:',
-// 							err
-// 						);
-// 					});
-// 			}
-// 			console.log('[BSGW] Connections:', connectedTabIds);
-
-// 			switch (message.type) {
-// 				case MsgNewTabToBGSWType.QUERY_STATUS_OF_WS: {
-// 					// TODO use masterWs to check if it's still connected
-// 					// First connection, this is master
-// 					if (connectedTabIds.size === 1) {
-// 						console.log('[BSGW] First connection, assuming master');
-// 						masterWSTabId = connectedTabIds.values().next()
-// 							.value as number;
-// 						chrome.tabs
-// 							.sendMessage(masterWSTabId, {
-// 								type: MsgBGSWToNewTabType.YOU_ARE_MASTER_WS,
-// 							} as MsgBGSWToNewTab)
-// 							.catch(errorSendingCatch);
-// 					} else {
-// 						// Ask other tabs to identify themselves
-// 						console.log(
-// 							'[BSGW] Asking other tabs to identify themselves, num connections:',
-// 							connectedTabIds.size
-// 						);
-
-// 						Promise.race([
-// 							Promise.all(clientIdentifyPromises()),
-// 							new Promise<void>((resolve) =>
-// 								setTimeout(() => {
-// 									console.log('[BSGW] Timeout occurred');
-// 									resolve();
-// 								}, MAX_WAIT_TIME_FOR_ALL_CLIENT_REPLIES)
-// 							),
-// 						])
-// 							.then(() => {
-// 								// All client tabs replied or the timeout occurred
-// 								if (
-// 									masterWSTabId === null &&
-// 									port?.sender?.tab?.id
-// 								) {
-// 									// No master WebSocket identified, so make this connection the master
-// 									masterWSTabId = port.sender.tab.id;
-// 									chrome.tabs
-// 										.sendMessage(masterWSTabId, {
-// 											type: MsgBGSWToNewTabType.YOU_ARE_MASTER_WS,
-// 										} as MsgBGSWToNewTab)
-// 										.catch(errorSendingCatch);
-// 								}
-// 							})
-// 							.catch(() => {
-// 								console.error('[BSGW] Timeout occurred');
-// 								return;
-// 							});
-// 					}
-
-// 					break;
-// 				}
-// 			}
-// 		})
-// 		.catch((err) => {
-// 			console.error('[BSGW] Error getting connectedTabIds:', err);
-// 		});
-// 	return true;
-// };
 
 const errorSendingCatch = (err: unknown) => {
 	console.error('[BSGW] Error sending message from background:', err);
@@ -189,52 +65,81 @@ const sendMsgToTab = (type: MsgBGSWToNewTabType, tabId: number) => {
 };
 
 const handleQueryFlowCaseSingleTabConnection = async (
-	port: chrome.runtime.Port
+	singleRequestingPort: chrome.runtime.Port
 ) => {
-	masterWSTabId = port?.sender?.tab?.id as number;
+	masterWSTabId = singleRequestingPort?.sender?.tab?.id as number;
 	console.log('[BSGW] First connection, assuming %d master', masterWSTabId);
 	await sendMsgToTab(MsgBGSWToNewTabType.YOU_ARE_MASTER_WS, masterWSTabId);
 };
 
-const handleQueryFlowCaseFindMaster = async (port: chrome.runtime.Port) => {
+const handleQueryFlowCaseTellOthersTheyAreClients = async (
+	portsInvolved: Array<chrome.runtime.Port>
+) => {
+	const portsToInform = portsInvolved.filter(
+		(port) => port?.sender?.tab?.id !== masterWSTabId
+	);
 	await Promise.all(
+		portsToInform.map((port) =>
+			sendMsgToTab(
+				MsgBGSWToNewTabType.YOU_ARE_CLIENT_WS,
+				port?.sender?.tab?.id as number
+			)
+		)
+	);
+};
+
+const handleQueryFlowIdentifiedMaster = (masterPort: chrome.runtime.Port) => {
+	masterWSTabId = masterPort?.sender?.tab?.id as number;
+	console.log('[BSGW] Identified master WS as %d', masterWSTabId);
+};
+
+const handleQueryFlowIdentifiedClient = (clientPort: chrome.runtime.Port) => {
+	console.log(
+		'[BSGW] Identified client to WS as %d',
+		clientPort?.sender?.tab?.id as number
+	);
+};
+
+const handleQueryFlowCaseFindMaster = async (
+	requestingPort: chrome.runtime.Port
+) => {
+	masterWSTabId = null; // Will be set if one identifies as master
+	const answeredPorts = await Promise.all(
 		Array.from(connectedPorts).map((connectedPort) => {
 			return sendMsgToTab(
 				MsgBGSWToNewTabType.CONFIRM_IF_MASTER_WS,
 				connectedPort?.sender?.tab?.id as number
-			).then((response) => {
-				if (response === MsgNewTabToBGSWType.IDENTIFY_AS_MASTER_WS) {
-					masterWSTabId = connectedPort?.sender?.tab?.id as number;
-					console.log(
-						'[BSGW] Identified master WS as %d',
-						masterWSTabId
-					);
-				} else if (
-					response === MsgNewTabToBGSWType.IDENTIFY_AS_WS_CLIENT
-				) {
-					console.log(
-						'[BSGW] Identified client to WS as %d',
-						connectedPort?.sender?.tab?.id as number
-					);
-					return;
+			).then((response: MsgNewTabToBGSW) => {
+				switch (response.type) {
+					case MsgNewTabToBGSWType.IDENTIFY_AS_MASTER_WS:
+						handleQueryFlowIdentifiedMaster(connectedPort);
+						break;
+					case MsgNewTabToBGSWType.IDENTIFY_AS_WS_CLIENT:
+						handleQueryFlowIdentifiedClient(connectedPort);
+						break;
 				}
+				return connectedPort;
 			});
 		})
 	);
-	// TODO NEXT: If all of them think they're clients, set the original as master
-	// TODO You sure this is working -- responses coming from the non-port method?
+	// If all of them think they're clients, set the original requestor as master
+	if (masterWSTabId === null) {
+		masterWSTabId = requestingPort?.sender?.tab?.id as number;
+		console.log(
+			'[BSGW] No master identified, letting %d be master',
+			masterWSTabId
+		);
+	}
+	await handleQueryFlowCaseTellOthersTheyAreClients(answeredPorts);
 };
 
-const handleQueryFlow = async (
-	message: MsgNewTabToBGSW,
-	port: chrome.runtime.Port
-) => {
+const handleQueryFlow = async (requestingPort: chrome.runtime.Port) => {
 	// TODO use masterWs to check if it's still connected
 	console.log('[BSGW] connectedPorts: ', connectedPorts);
 	if (connectedPorts.size === 1) {
-		await handleQueryFlowCaseSingleTabConnection(port);
+		await handleQueryFlowCaseSingleTabConnection(requestingPort);
 	} else {
-		await handleQueryFlowCaseFindMaster(port);
+		await handleQueryFlowCaseFindMaster(requestingPort);
 	}
 };
 
@@ -250,7 +155,7 @@ const handlePortMessage = (
 	);
 	switch (message.type) {
 		case MsgNewTabToBGSWType.QUERY_STATUS_OF_WS: {
-			handleQueryFlow(message, port).catch((err) => {
+			handleQueryFlow(port).catch((err) => {
 				console.error('[BSGW] Error handling query flow:', err);
 			});
 			break;
