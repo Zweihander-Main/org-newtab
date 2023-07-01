@@ -1,3 +1,4 @@
+/* eslint-disable no-empty-pattern */
 import { test as base, chromium, type BrowserContext } from '@playwright/test';
 import path from 'path';
 

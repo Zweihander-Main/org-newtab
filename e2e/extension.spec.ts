@@ -1,4 +1,3 @@
-import exp from 'constants';
 import { test, expect } from './fixture';
 
 const MASTER_MESSAGE = 'Closed - Master';
@@ -9,7 +8,7 @@ test('newtab page', async ({ page, extensionId }) => {
 	await expect(page.locator('.connection-status')).toHaveText(MASTER_MESSAGE);
 });
 
-test('multiple tabs', async ({ page, extensionId, context }) => {
+test('multiple tabs', async ({ extensionId, context }) => {
 	const tab1 = await context.newPage();
 	const tab2 = await context.newPage();
 	await tab1.goto(`chrome-extension://${extensionId}/newtab.html`);
