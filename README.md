@@ -4,10 +4,20 @@
 
 ## Dev Notes
 
+### Technologies used:
+
+-   Emacs:
+    -   Buttercup for testing
+    -   websocket and async
+-   Plasmo Chrome Extension framework
+    -   React
+    -   TypeScript
+    -   Playwright for E2E integration testing
+
 ### Possible Future Additions
 
 -   [ ] Browser storage
--   [ ] Persistent default match query
+-   [x] Persistent default match query
 -   [ ] Mark items as done from browser
 -   [ ] Clock in and out from browser
 -   [ ] Match query builder
