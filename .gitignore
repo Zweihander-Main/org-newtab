@@ -267,3 +267,9 @@ keys.json
 
 # typescript
 .tsbuildinfo
+/test-results/
+/playwright-report/
+/playwright/.cache/
+/test-results/
+/playwright-report/
+/playwright/.cache/
