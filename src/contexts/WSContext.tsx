@@ -84,7 +84,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 				);
 			}
 		},
-		[amMasterWS, sendMsgToBGSWPort]
+		[amMasterWS, sendMsgAsResponse]
 	);
 
 	const handleMessage = useCallback(
