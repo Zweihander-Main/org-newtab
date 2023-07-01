@@ -1,6 +1,6 @@
 # org-newtab
 
-> WIP
+> 🗃️ Supercharge Your Browser's New Tab with Org-Agenda
 
 ## Dev Notes
 
