@@ -57,7 +57,7 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
 			const formMatchQuery = data.get('matchQuery');
 			if (formMatchQuery && typeof formMatchQuery === 'string') {
 				setMatchQuery(formMatchQuery).catch((err) => {
-					console.error('[NewTab] Erro setting storage:', err);
+					console.error('[NewTab] Error setting storage:', err);
 				});
 			}
 		},
