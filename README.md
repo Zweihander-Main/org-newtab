@@ -13,6 +13,7 @@
     -   React
     -   TypeScript
     -   Playwright for E2E integration testing
+-   pnpm, eslint, prettier, stylelint
 
 ### Possible Future Additions
 
