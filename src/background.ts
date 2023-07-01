@@ -22,6 +22,11 @@ import {
  *    regular messages back and forth for the master websocket query flow.
  */
 
+//NEXT: confirm tab exists before sending message
+//NEXT: confirm tab exists when using masterWSTabId
+//NEXT: store tabids in storage
+//NEXT: store masterWSTabId in storage
+
 const storage = new Storage({ area: 'local' });
 const connectedTabIds: Set<number> = new Set([]);
 const connectedPorts: Set<chrome.runtime.Port> = new Set([]);
@@ -65,45 +70,37 @@ const sendMsgToTab = (type: MsgBGSWToNewTabType, tabId: number) => {
 };
 
 const handleQueryFlowCaseSingleConnectionBecomesMaster = async (
-	singleRequestingPort: chrome.runtime.Port
+	singleRequestingTabId: number
 ) => {
-	masterWSTabId = singleRequestingPort?.sender?.tab?.id as number;
+	masterWSTabId = singleRequestingTabId;
 	console.log('[BSGW] First connection, assuming %d master', masterWSTabId);
 	await sendMsgToTab(MsgBGSWToNewTabType.YOU_ARE_MASTER_WS, masterWSTabId);
 };
 
 const handleQueryFlowCaseTellOthersTheyAreClients = async (
-	portsInvolved: Array<chrome.runtime.Port>
+	tabIdsInvolved: Array<number>
 ) => {
-	const portsToInform = portsInvolved.filter(
-		(port) => port?.sender?.tab?.id !== masterWSTabId
+	const tabIdsToInform = tabIdsInvolved.filter(
+		(tabId) => tabId !== masterWSTabId
 	);
 	await Promise.all(
-		portsToInform.map((port) =>
-			sendMsgToTab(
-				MsgBGSWToNewTabType.YOU_ARE_CLIENT_WS,
-				port?.sender?.tab?.id as number
-			)
+		tabIdsToInform.map((tabId) =>
+			sendMsgToTab(MsgBGSWToNewTabType.YOU_ARE_CLIENT_WS, tabId)
 		)
 	);
 };
 
-const handleQueryFlowIdentifiedMaster = (masterPort: chrome.runtime.Port) => {
-	masterWSTabId = masterPort?.sender?.tab?.id as number;
+const handleQueryFlowIdentifiedMaster = (masterTabId: number) => {
+	masterWSTabId = masterTabId;
 	console.log('[BSGW] Identified master WS as %d', masterWSTabId);
 };
 
-const handleQueryFlowIdentifiedClient = (clientPort: chrome.runtime.Port) => {
-	console.log(
-		'[BSGW] Identified client to WS as %d',
-		clientPort?.sender?.tab?.id as number
-	);
+const handleQueryFlowIdentifiedClient = (clientTabId: number) => {
+	console.log('[BSGW] Identified client to WS as %d', clientTabId);
 };
 
-const handleQueryFlowRequestBecomesMaster = async (
-	requestingPort: chrome.runtime.Port
-) => {
-	masterWSTabId = requestingPort?.sender?.tab?.id as number;
+const handleQueryFlowRequestBecomesMaster = async (requestingTabId: number) => {
+	masterWSTabId = requestingTabId;
 	console.log(
 		'[BSGW] No master identified, letting %d be master',
 		masterWSTabId
@@ -111,47 +108,44 @@ const handleQueryFlowRequestBecomesMaster = async (
 	await sendMsgToTab(MsgBGSWToNewTabType.YOU_ARE_MASTER_WS, masterWSTabId);
 };
 
-const handleQueryFlowCaseFindMaster = async (
-	requestingPort: chrome.runtime.Port
-) => {
+const handleQueryFlowCaseFindMaster = async (requestingTabId: number) => {
 	masterWSTabId = null; // Will be set if one identifies as master
 	const answeredPorts = await Promise.all(
-		Array.from(connectedPorts).map((connectedPort) => {
+		Array.from(connectedTabIds).map((connectedTabId) => {
 			return sendMsgToTab(
 				MsgBGSWToNewTabType.CONFIRM_IF_MASTER_WS,
-				connectedPort?.sender?.tab?.id as number
+				connectedTabId
 			).then((response: MsgNewTabToBGSW) => {
 				console.log(
 					'[BSGW] Got response from %d: %d',
-					connectedPort?.sender?.tab?.id,
+					connectedTabId,
 					response.type
 				);
 				switch (response.type) {
 					case MsgNewTabToBGSWType.IDENTIFY_AS_MASTER_WS:
-						handleQueryFlowIdentifiedMaster(connectedPort);
+						handleQueryFlowIdentifiedMaster(connectedTabId);
 						break;
 					case MsgNewTabToBGSWType.IDENTIFY_AS_WS_CLIENT:
-						handleQueryFlowIdentifiedClient(connectedPort);
+						handleQueryFlowIdentifiedClient(connectedTabId);
 						break;
 				}
-				return connectedPort;
+				return connectedTabId;
 			});
 		})
 	);
 	// If all of them think they're clients, set the original requestor as master
 	if (masterWSTabId === null) {
-		await handleQueryFlowRequestBecomesMaster(requestingPort);
+		await handleQueryFlowRequestBecomesMaster(requestingTabId);
 	}
 	await handleQueryFlowCaseTellOthersTheyAreClients(answeredPorts);
 };
 
-const handleQueryFlow = async (requestingPort: chrome.runtime.Port) => {
-	// TODO use masterWs to check if it's still connected
-	console.log('[BSGW] connectedPorts: ', connectedPorts);
-	if (connectedPorts.size === 1) {
-		await handleQueryFlowCaseSingleConnectionBecomesMaster(requestingPort);
+const handleQueryFlow = async (requestingTabId: number) => {
+	console.log('[BSGW] connectedTabIds: ', connectedTabIds);
+	if (connectedTabIds.size === 1) {
+		await handleQueryFlowCaseSingleConnectionBecomesMaster(requestingTabId);
 	} else {
-		await handleQueryFlowCaseFindMaster(requestingPort);
+		await handleQueryFlowCaseFindMaster(requestingTabId);
 	}
 };
 
@@ -160,14 +154,15 @@ const handlePortMessage = (
 	port: chrome.runtime.Port
 ) => {
 	if (!isMsgExpected(message, port?.sender)) return;
+	const tabId = port?.sender?.tab?.id as number;
 	console.log(
 		'[BSGW] handlePortMessage -- data recv from %d: %d',
-		port?.sender?.tab?.id as number,
+		tabId,
 		message.type
 	);
 	switch (message.type) {
 		case MsgNewTabToBGSWType.QUERY_STATUS_OF_WS: {
-			handleQueryFlow(port).catch((err) => {
+			handleQueryFlow(tabId).catch((err) => {
 				console.error('[BSGW] Error handling query flow:', err);
 			});
 			break;
@@ -191,19 +186,19 @@ const handlePortDisconnect = (port: chrome.runtime.Port) => {
 	removePort(port);
 	if (port?.sender?.tab?.id === masterWSTabId) {
 		masterWSTabId = null;
-		if (connectedPorts.size >= 1) {
-			const newRequestingPort = Array.from(connectedPorts)[0];
-			if (connectedPorts.size === 1) {
+		if (connectedTabIds.size >= 1) {
+			const newRequestingTabId = Array.from(connectedTabIds)[0];
+			if (connectedTabIds.size === 1) {
 				handleQueryFlowCaseSingleConnectionBecomesMaster(
-					newRequestingPort
+					newRequestingTabId
 				).catch((err) => {
 					console.error(
 						'[BSGW] Error handling single tab connection:',
 						err
 					);
 				});
-			} else if (connectedPorts.size > 1) {
-				handleQueryFlowCaseFindMaster(newRequestingPort).catch(
+			} else if (connectedTabIds.size > 1) {
+				handleQueryFlowCaseFindMaster(newRequestingTabId).catch(
 					(err) => {
 						console.error(
 							'[BSGW] Error handling selecting new master:',
