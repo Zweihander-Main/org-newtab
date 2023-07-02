@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable no-console */
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { ReadyState } from 'react-use-websocket';
 import { usePrevious } from '@react-hookz/web';
 import StorageContext, { StorageProvider } from 'contexts/StorageContext';
 import { useWSContext, WSProvider } from 'contexts/WSContext';
@@ -9,31 +8,7 @@ import '@fontsource/public-sans/700.css';
 import './newtab.css';
 import type { JsonValue } from 'react-use-websocket/dist/lib/types';
 import type { AllTagsRecv } from './types';
-
-type ConnectionStatusIndicatorProps = {
-	readyState: ReadyState;
-};
-
-const ConnectionStatusIndicator: React.FC<ConnectionStatusIndicatorProps> = ({
-	readyState,
-}) => {
-	const connectionStatus = {
-		[ReadyState.CONNECTING]: 'Connecting',
-		[ReadyState.OPEN]: 'Open',
-		[ReadyState.CLOSING]: 'Closing',
-		[ReadyState.CLOSED]: 'Closed',
-		[ReadyState.UNINSTANTIATED]: 'Uninstantiated',
-	}[readyState];
-
-	const { amMasterWS } = useWSContext();
-	const masterStatus = amMasterWS ? 'Master' : 'Client';
-
-	return (
-		<p className="connection-status">
-			{connectionStatus} - {masterStatus}
-		</p>
-	);
-};
+import ConnectionStatusIndicator from 'components/ConnectionStatusIndicator';
 
 type OptionsMenuProps = {
 	matchQuery: string | undefined;
@@ -135,7 +110,7 @@ const OrgItem: React.FC<OrgItemProps> = ({ itemText, foregroundColor }) => {
 };
 
 const IndexNewtab: React.FC = () => {
-	const { sendJsonMessage, lastRecvJsonMessage, readyState } = useWSContext();
+	const { sendJsonMessage, lastRecvJsonMessage } = useWSContext();
 	const { matchQuery, setMatchQuery } = useContext(StorageContext);
 	const previousMatchQuery = usePrevious(matchQuery);
 	console.log(
@@ -222,7 +197,7 @@ const IndexNewtab: React.FC = () => {
 				setMatchQuery={setMatchQuery}
 				lastRecvJsonMessage={lastRecvJsonMessage}
 			/>
-			<ConnectionStatusIndicator readyState={readyState} />
+			<ConnectionStatusIndicator />
 			<OrgItem foregroundColor={foregroundColor} itemText={itemText} />
 		</div>
 	);
