@@ -7,7 +7,6 @@ import {
 	useMemo,
 	useRef,
 	useState,
-	memo,
 } from 'react';
 import WSClientContext, { WSClientProvider } from './WSClientContext';
 import WSMasterContext, { WSMasterProvider } from './WSMasterContext';
@@ -17,20 +16,24 @@ import {
 	MsgBGSWToNewTabType,
 	MsgNewTabToBGSWType,
 	type MsgNewTabToBGSW,
+	type WSCommonProps,
+	type WebSocketRecvMessage,
 } from '../types';
+import { ReadyState } from 'react-use-websocket';
 
 type SendResponseType = (message: MsgNewTabToBGSW) => unknown;
 
 export type WSContextProps = {
 	amMasterWS: boolean;
-	setAmMasterWS: (amMasterWS: boolean) => void;
-};
+} & WSCommonProps;
 
 const WSContext = createContext<WSContextProps>({
 	amMasterWS: false,
-	setAmMasterWS: () => {
+	sendJsonMessage: () => {
 		return;
 	},
+	lastRecvJsonMessage: null,
+	readyState: ReadyState.UNINSTANTIATED,
 });
 
 export default WSContext;
@@ -39,6 +42,12 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	children,
 }) => {
 	const [amMasterWS, setAmMasterWS] = useState(false);
+	const [lastRecvJsonMessage, setLastRecvJsonMessage] =
+		useState<WebSocketRecvMessage>(null);
+	const [readyState, setReadyState] = useState(ReadyState.UNINSTANTIATED);
+	const sendJsonMessage = useCallback(() => {
+		return;
+	}, []);
 
 	const isInitialRender = useRef(true);
 	const port = useRef(chrome.runtime.connect({ name: 'ws' }));
@@ -140,17 +149,17 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	}, [amMasterWS]);
 
 	return (
-		<WSContext.Provider value={{ amMasterWS, setAmMasterWS }}>
-			<ContextToUse>{children}</ContextToUse>
+		<WSContext.Provider
+			value={{
+				amMasterWS,
+				sendJsonMessage,
+				lastRecvJsonMessage,
+				readyState,
+			}}
+		>
+			{children}
 		</WSContext.Provider>
 	);
 };
 
 export const { Consumer: WSConsumer } = WSContext;
-
-export const useWSContext = () => {
-	const { amMasterWS } = useContext(WSContext);
-	const contextToUse = amMasterWS ? WSMasterContext : WSClientContext;
-
-	return { ...useContext(contextToUse), amMasterWS };
-};

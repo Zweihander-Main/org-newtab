@@ -2,7 +2,7 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { usePrevious } from '@react-hookz/web';
 import StorageContext, { StorageProvider } from 'contexts/StorageContext';
-import { useWSContext, WSProvider } from 'contexts/WSContext';
+import WSContext, { WSProvider } from 'contexts/WSContext';
 import '@fontsource/public-sans/700.css';
 import './newtab.css';
 import type { AllTagsRecv } from './types';
@@ -11,7 +11,7 @@ import OptionsMenu from 'components/OptionsMenu';
 import OrgItem from 'components/OrgItem';
 
 const IndexNewtab: React.FC = () => {
-	const { sendJsonMessage, lastRecvJsonMessage } = useWSContext();
+	const { sendJsonMessage, lastRecvJsonMessage } = useContext(WSContext);
 	const { matchQuery } = useContext(StorageContext);
 	const previousMatchQuery = usePrevious(matchQuery);
 	const [itemText, setItemText] = useState<string | null>(null);
@@ -93,6 +93,11 @@ const IndexNewtab: React.FC = () => {
 		</div>
 	);
 };
+
+// NEXT: This all gets remounted every time the WS switches which is not what we want.
+// There's got to be a way to achieve this -- the ws should not surround the indexnewtab page. You need to put the interface
+// in a component that's to the side of it that talks to the parent and the parent holds the state.
+// Therefore, move the state into WSContext and have the two contexts interact with it using props. Render them next to the index.
 
 const RootContextWrapper: React.FC = () => {
 	return (
