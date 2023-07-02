@@ -1,11 +1,11 @@
 import * as styles from './style.module.css';
 import StorageContext from 'contexts/StorageContext';
-import { useWSContext } from 'contexts/WSContext';
+import WSContext from 'contexts/WSContext';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 const OptionsMenu: React.FC = () => {
 	const { matchQuery, setMatchQuery } = useContext(StorageContext);
-	const { lastRecvJsonMessage } = useWSContext();
+	const { lastRecvJsonMessage } = useContext(WSContext);
 	const [optionsVisible, setOptionsVisible] = useState(false);
 
 	const handleMatchQuerySubmit = useCallback(

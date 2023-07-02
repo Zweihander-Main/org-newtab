@@ -1,9 +1,10 @@
 import * as styles from './style.module.css';
-import { useWSContext } from 'contexts/WSContext';
+import WSContext from 'contexts/WSContext';
+import { useContext } from 'react';
 import { ReadyState } from 'react-use-websocket';
 
 const ConnectionStatusIndicator: React.FC = () => {
-	const { amMasterWS, readyState } = useWSContext();
+	const { amMasterWS, readyState } = useContext(WSContext);
 	const connectionStatus = {
 		[ReadyState.CONNECTING]: 'Connecting',
 		[ReadyState.OPEN]: 'Open',
