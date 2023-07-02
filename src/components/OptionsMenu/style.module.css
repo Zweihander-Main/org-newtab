@@ -1,0 +1,58 @@
+.menu {
+	background: hsl(0deg 0% 75%);
+	height: 100%;
+	position: fixed;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	width: min(40rem, 75vw);
+	color: black;
+	z-index: 100;
+	transition: all 0.2s ease-in-out;
+	transform: translateX(-100%);
+}
+
+.menu.active {
+	transform: translateX(0);
+}
+
+.json {
+	max-width: 100%;
+	font-size: 1rem;
+	padding: 1rem;
+}
+
+.button {
+	position: absolute;
+	top: 0;
+	left: 0;
+	margin: 0;
+	padding: 0.75rem 1.5rem;
+	background-color: transparent;
+	border: none;
+	z-index: 200;
+	cursor: pointer;
+	outline: none;
+}
+
+.button-bar1,
+.button-bar2,
+.button-bar3 {
+	width: 2.5rem;
+	height: 0.2rem;
+	background-color: white;
+	margin: 0.7rem 0;
+	transition: 0.15s;
+}
+
+.button.active .button-bar1 {
+	transform: translate(0, 0.9rem) rotate(-45deg);
+}
+
+.button.active .button-bar2 {
+	opacity: 0;
+}
+
+.button.active .button-bar3 {
+	transform: translate(0, -0.9rem) rotate(45deg);
+}

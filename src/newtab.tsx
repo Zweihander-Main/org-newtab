@@ -1,93 +1,14 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable no-console */
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { usePrevious } from '@react-hookz/web';
 import StorageContext, { StorageProvider } from 'contexts/StorageContext';
 import { useWSContext, WSProvider } from 'contexts/WSContext';
 import '@fontsource/public-sans/700.css';
 import './newtab.css';
-import type { JsonValue } from 'react-use-websocket/dist/lib/types';
 import type { AllTagsRecv } from './types';
 import ConnectionStatusIndicator from 'components/ConnectionStatusIndicator';
-
-type OptionsMenuProps = {
-	matchQuery: string | undefined;
-	setMatchQuery: (newValue?: string | undefined) => void;
-	lastRecvJsonMessage: JsonValue | null;
-};
-
-const OptionsMenu: React.FC<OptionsMenuProps> = ({
-	matchQuery,
-	setMatchQuery,
-	lastRecvJsonMessage,
-}) => {
-	const [optionsVisible, setOptionsVisible] = useState(false);
-
-	const handleMatchQuerySubmit = useCallback(
-		(event: React.FormEvent<HTMLFormElement>) => {
-			event.preventDefault();
-			const { currentTarget } = event;
-			const data = new FormData(currentTarget);
-			const formMatchQuery = data.get('matchQuery');
-			if (formMatchQuery && typeof formMatchQuery === 'string') {
-				setMatchQuery(formMatchQuery);
-			}
-		},
-		[setMatchQuery]
-	);
-
-	const matchQueryInputRef = useRef<HTMLInputElement>(null);
-
-	useEffect(() => {
-		if (matchQueryInputRef.current && matchQuery !== undefined) {
-			matchQueryInputRef.current.value = matchQuery;
-		}
-	}, [matchQuery, matchQueryInputRef]);
-
-	const toggleMenu = useCallback(() => {
-		setOptionsVisible(!optionsVisible);
-	}, [optionsVisible]);
-
-	const optionsMenuButtonClass = [
-		'options-menu-button',
-		optionsVisible ? 'active' : '',
-	].join(' ');
-
-	const optionsMenuClass = [
-		'options-menu',
-		optionsVisible ? 'active' : '',
-	].join(' ');
-
-	return (
-		<>
-			<button className={optionsMenuButtonClass} onClick={toggleMenu}>
-				<div className="options-menu-button-bar1"></div>
-				<div className="options-menu-button-bar2"></div>
-				<div className="options-menu-button-bar3"></div>
-			</button>
-			<nav className={optionsMenuClass}>
-				<form method="post" onSubmit={handleMatchQuerySubmit}>
-					<input
-						type="text"
-						name="matchQuery"
-						defaultValue={matchQuery}
-						ref={matchQueryInputRef}
-					/>
-					<button type="submit">Pull data</button>
-				</form>
-				{lastRecvJsonMessage ? (
-					<>
-						Last message:
-						<pre className="options-menu-json">
-							{JSON.stringify(lastRecvJsonMessage, null, 2)}
-							{/*TODO: Display null*/}
-						</pre>
-					</>
-				) : null}
-			</nav>
-		</>
-	);
-};
+import OptionsMenu from 'components/OptionsMenu';
 
 type OrgItemProps = {
 	itemText: string | null;
@@ -111,7 +32,7 @@ const OrgItem: React.FC<OrgItemProps> = ({ itemText, foregroundColor }) => {
 
 const IndexNewtab: React.FC = () => {
 	const { sendJsonMessage, lastRecvJsonMessage } = useWSContext();
-	const { matchQuery, setMatchQuery } = useContext(StorageContext);
+	const { matchQuery } = useContext(StorageContext);
 	const previousMatchQuery = usePrevious(matchQuery);
 	console.log(
 		'[NewTab] matchQuery:',
@@ -192,11 +113,7 @@ const IndexNewtab: React.FC = () => {
 
 	return (
 		<div className="app">
-			<OptionsMenu
-				matchQuery={matchQuery}
-				setMatchQuery={setMatchQuery}
-				lastRecvJsonMessage={lastRecvJsonMessage}
-			/>
+			<OptionsMenu />
 			<ConnectionStatusIndicator />
 			<OrgItem foregroundColor={foregroundColor} itemText={itemText} />
 		</div>
