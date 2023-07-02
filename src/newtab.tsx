@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable no-console */
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { ReadyState } from 'react-use-websocket';
 import { usePrevious } from '@react-hookz/web';
-import { Storage } from '@plasmohq/storage';
-import { useStorage } from '@plasmohq/storage/hook';
+import StorageContext, { StorageProvider } from 'contexts/StorageContext';
 import { useWSContext, WSProvider } from 'contexts/WSContext';
 import '@fontsource/public-sans/700.css';
 import './newtab.css';
@@ -37,8 +36,8 @@ const ConnectionStatusIndicator: React.FC<ConnectionStatusIndicatorProps> = ({
 };
 
 type OptionsMenuProps = {
-	matchQuery: string;
-	setMatchQuery: (value: ((v?: string) => string) | string) => Promise<void>;
+	matchQuery: string | undefined;
+	setMatchQuery: (newValue?: string | undefined) => void;
 	lastRecvJsonMessage: JsonValue | null;
 };
 
@@ -56,9 +55,7 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
 			const data = new FormData(currentTarget);
 			const formMatchQuery = data.get('matchQuery');
 			if (formMatchQuery && typeof formMatchQuery === 'string') {
-				setMatchQuery(formMatchQuery).catch((err) => {
-					console.error('[NewTab] Error setting storage:', err);
-				});
+				setMatchQuery(formMatchQuery);
 			}
 		},
 		[setMatchQuery]
@@ -67,7 +64,7 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({
 	const matchQueryInputRef = useRef<HTMLInputElement>(null);
 
 	useEffect(() => {
-		if (matchQueryInputRef.current) {
+		if (matchQueryInputRef.current && matchQuery !== undefined) {
 			matchQueryInputRef.current.value = matchQuery;
 		}
 	}, [matchQuery, matchQueryInputRef]);
@@ -137,29 +134,16 @@ const OrgItem: React.FC<OrgItemProps> = ({ itemText, foregroundColor }) => {
 	);
 };
 
-// One tab is the master and the others talk to it
-// The master tab is the one that has the websocket connection
-// The master tab is the one that sends the data to the other tabs
-// If master tab is killed, a new websocket connection is established
-// ^ This will work, as Emacs is erroring out with MULTIPLE websocket connections
-// As long as you maintain only one connection, it doesn't matter if you
-// establish multiple opens
-// Idea here is that the port messaging will work to keep talking between
-// all the newtabs even if the bg dies (possibly false assumption)
-
-// Also should figure out a way to identify this failure in Emacs
-
 const IndexNewtab: React.FC = () => {
 	const { sendJsonMessage, lastRecvJsonMessage, readyState } = useWSContext();
-	const storageInstanceRef = useRef<Storage>(new Storage({ area: 'local' }));
-	const [matchQuery, setMatchQuery] = useStorage<string>(
-		{
-			key: 'matchQuery',
-			instance: storageInstanceRef.current,
-		},
-		(v) => (v === undefined ? 'TODO="TODO"' : v)
-	);
+	const { matchQuery, setMatchQuery } = useContext(StorageContext);
 	const previousMatchQuery = usePrevious(matchQuery);
+	console.log(
+		'[NewTab] matchQuery:',
+		matchQuery,
+		'previous:',
+		previousMatchQuery
+	);
 	const [itemText, setItemText] = useState<string | null>(null);
 	const [tagsData, setTagsData] = useState<Record<string, string>>({});
 	const [foregroundColor, setForegroundColor] = useState<string | undefined>(
@@ -214,7 +198,11 @@ const IndexNewtab: React.FC = () => {
 	]);
 
 	useEffect(() => {
-		if (previousMatchQuery !== matchQuery) {
+		if (
+			matchQuery &&
+			previousMatchQuery &&
+			previousMatchQuery !== matchQuery
+		) {
 			sendJsonMessage({
 				command: 'updateMatchQuery',
 				data: matchQuery,
@@ -242,9 +230,11 @@ const IndexNewtab: React.FC = () => {
 
 const RootContextWrapper: React.FC = () => {
 	return (
-		<WSProvider>
-			<IndexNewtab />
-		</WSProvider>
+		<StorageProvider>
+			<WSProvider>
+				<IndexNewtab />
+			</WSProvider>
+		</StorageProvider>
 	);
 };
 

@@ -26,6 +26,7 @@ import {
 //NEXT: confirm tab exists when using masterWSTabId
 //NEXT: store tabids in storage
 //NEXT: store masterWSTabId in storage
+//NEXT: Delete max wait time for all client replies if not needed
 
 const storage = new Storage({ area: 'local' });
 const connectedTabIds: Set<number> = new Set([]);
