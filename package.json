@@ -1,184 +1,189 @@
 {
-  "name": "org-newtab",
-  "version": "0.0.1",
-  "description": "> WIP",
-  "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Zweihander-Main/org-newtab.git"
-  },
-  "author": "Zweihänder",
-  "license": "AGPL-3.0-or-later",
-  "bugs": {
-    "url": "https://github.com/Zweihander-Main/org-newtab/issues"
-  },
-  "homepage": "https://github.com/Zweihander-Main/org-newtab",
-  "scripts": {
-    "dev": "plasmo dev",
-    "build": "plasmo build",
-    "package": "plasmo package"
-  },
-  "dependencies": {
-    "@fontsource/public-sans": "^5.0.3",
-    "@plasmohq/messaging": "^0.5.0",
-    "@plasmohq/storage": "^1.6.2",
-    "@react-hookz/web": "^23.0.1",
-    "plasmo": "0.77.5",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "react-use-websocket": "^4.3.1"
-  },
-  "devDependencies": {
-    "@plasmohq/prettier-plugin-sort-imports": "3.6.4",
-    "@playwright/test": "^1.35.1",
-    "@types/chrome": "0.0.239",
-    "@types/node": "20.3.2",
-    "@types/react": "18.2.14",
-    "@types/react-dom": "18.2.6",
-    "@typescript-eslint/eslint-plugin": "^5.60.1",
-    "@typescript-eslint/parser": "^5.60.1",
-    "eslint": "^8.43.0",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-jsx-a11y": "^6.7.1",
-    "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-react": "^7.32.2",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "prettier": "2.8.8",
-    "stylelint": "^15.9.0",
-    "stylelint-config-prettier": "^9.0.5",
-    "stylelint-config-standard": "^33.0.0",
-    "typescript": "5.1.6"
-  },
-  "eslintConfig": {
-    "settings": {
-      "react": {
-        "version": "detect"
-      }
-    },
-    "env": {
-      "browser": true,
-      "es6": true,
-      "node": true,
-      "webextensions": true
-    },
-    "parser": "@typescript-eslint/parser",
-    "parserOptions": {
-      "project": "tsconfig.json",
-      "ecmaVersion": 2021,
-      "ecmaFeatures": {
-        "jsx": true
-      },
-      "useJSXTextNode": true
-    },
-    "plugins": [
-      "@typescript-eslint",
-      "react"
-    ],
-    "extends": [
-      "eslint:recommended",
-      "plugin:@typescript-eslint/eslint-recommended",
-      "plugin:@typescript-eslint/recommended",
-      "plugin:@typescript-eslint/recommended-requiring-type-checking",
-      "plugin:react/recommended",
-      "plugin:react/jsx-runtime",
-      "plugin:react-hooks/recommended",
-      "plugin:jsx-a11y/recommended",
-      "prettier"
-    ],
-    "rules": {
-      "quotes": [
-        "error",
-        "single"
-      ],
-      "semi": [
-        "error",
-        "always"
-      ],
-      "no-console": [
-        "error",
-        {
-          "allow": [
-            "warn",
-            "error",
-            "debug"
-          ]
-        }
-      ],
-      "no-mixed-spaces-and-tabs": [
-        "error",
-        "smart-tabs"
-      ],
-      "react/prop-types": 0,
-      "@typescript-eslint/unbound-method": [
-        "error",
-        {
-          "ignoreStatic": true
-        }
-      ]
-    }
-  },
-  "eslintIgnore": [
-    "/*.js",
-    "test",
-    "cypress"
-  ],
-  "prettier": {
-    "singleQuote": true,
-    "trailingComma": "es5",
-    "tabWidth": 4,
-    "useTabs": true,
-    "arrowParens": "always"
-  },
-  "stylelint": {
-    "extends": [
-      "stylelint-config-standard",
-      "stylelint-config-prettier"
-    ],
-    "rules": {
-      "indentation": [
-        "tab",
-        {
-          "ignore": "value"
-        }
-      ],
-      "max-empty-lines": 2,
-      "comment-whitespace-inside": null,
-      "declaration-block-no-shorthand-property-overrides": true,
-      "declaration-colon-newline-after": null,
-      "no-descending-specificity": null,
-      "value-keyword-case": null,
-      "selector-pseudo-class-no-unknown": [
-        true,
-        {
-          "ignorePseudoClasses": [
-            "global"
-          ]
-        }
-      ]
-    }
-  },
-  "browserslist": {
-    "production": [
-      "> 0.2%",
-      "Firefox ESR",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "manifest": {
-    "host_permissions": [
-      "https://*/*"
-    ],
-    "permissions": [
-      "tabs"
-    ]
-  }
+	"name": "org-newtab",
+	"version": "0.0.1",
+	"description": "> WIP",
+	"main": "index.js",
+	"directories": {
+		"test": "test"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Zweihander-Main/org-newtab.git"
+	},
+	"author": "Zweihänder",
+	"license": "AGPL-3.0-or-later",
+	"bugs": {
+		"url": "https://github.com/Zweihander-Main/org-newtab/issues"
+	},
+	"homepage": "https://github.com/Zweihander-Main/org-newtab",
+	"scripts": {
+		"dev": "plasmo dev",
+		"build": "plasmo build",
+		"package": "plasmo package",
+		"gen:css": "tcm src",
+		"gen:css:watch": "tcm src -w"
+	},
+	"dependencies": {
+		"@fontsource/public-sans": "^5.0.3",
+		"@plasmohq/messaging": "^0.5.0",
+		"@plasmohq/storage": "^1.6.2",
+		"@react-hookz/web": "^23.0.1",
+		"plasmo": "0.77.5",
+		"react": "18.2.0",
+		"react-dom": "18.2.0",
+		"react-use-websocket": "^4.3.1"
+	},
+	"devDependencies": {
+		"@plasmohq/prettier-plugin-sort-imports": "3.6.4",
+		"@playwright/test": "^1.35.1",
+		"@types/chrome": "0.0.239",
+		"@types/node": "20.3.2",
+		"@types/react": "18.2.14",
+		"@types/react-dom": "18.2.6",
+		"@typescript-eslint/eslint-plugin": "^5.60.1",
+		"@typescript-eslint/parser": "^5.60.1",
+		"eslint": "^8.43.0",
+		"eslint-config-prettier": "^8.8.0",
+		"eslint-plugin-jsx-a11y": "^6.7.1",
+		"eslint-plugin-prettier": "^4.2.1",
+		"eslint-plugin-react": "^7.32.2",
+		"eslint-plugin-react-hooks": "^4.6.0",
+		"prettier": "2.8.8",
+		"stylelint": "^15.9.0",
+		"stylelint-config-prettier": "^9.0.5",
+		"stylelint-config-standard": "^33.0.0",
+		"typed-css-modules": "^0.7.2",
+		"typescript": "5.1.6",
+		"typescript-plugin-css-modules": "^5.0.1"
+	},
+	"eslintConfig": {
+		"settings": {
+			"react": {
+				"version": "detect"
+			}
+		},
+		"env": {
+			"browser": true,
+			"es6": true,
+			"node": true,
+			"webextensions": true
+		},
+		"parser": "@typescript-eslint/parser",
+		"parserOptions": {
+			"project": "tsconfig.json",
+			"ecmaVersion": 2021,
+			"ecmaFeatures": {
+				"jsx": true
+			},
+			"useJSXTextNode": true
+		},
+		"plugins": [
+			"@typescript-eslint",
+			"react"
+		],
+		"extends": [
+			"eslint:recommended",
+			"plugin:@typescript-eslint/eslint-recommended",
+			"plugin:@typescript-eslint/recommended",
+			"plugin:@typescript-eslint/recommended-requiring-type-checking",
+			"plugin:react/recommended",
+			"plugin:react/jsx-runtime",
+			"plugin:react-hooks/recommended",
+			"plugin:jsx-a11y/recommended",
+			"prettier"
+		],
+		"rules": {
+			"quotes": [
+				"error",
+				"single"
+			],
+			"semi": [
+				"error",
+				"always"
+			],
+			"no-console": [
+				"error",
+				{
+					"allow": [
+						"warn",
+						"error",
+						"debug"
+					]
+				}
+			],
+			"no-mixed-spaces-and-tabs": [
+				"error",
+				"smart-tabs"
+			],
+			"react/prop-types": 0,
+			"@typescript-eslint/unbound-method": [
+				"error",
+				{
+					"ignoreStatic": true
+				}
+			]
+		}
+	},
+	"eslintIgnore": [
+		"*.css.d.ts",
+		"/*.js",
+		"test",
+		"cypress"
+	],
+	"prettier": {
+		"singleQuote": true,
+		"trailingComma": "es5",
+		"tabWidth": 4,
+		"useTabs": true,
+		"arrowParens": "always"
+	},
+	"stylelint": {
+		"extends": [
+			"stylelint-config-standard",
+			"stylelint-config-prettier"
+		],
+		"rules": {
+			"indentation": [
+				"tab",
+				{
+					"ignore": "value"
+				}
+			],
+			"max-empty-lines": 2,
+			"comment-whitespace-inside": null,
+			"declaration-block-no-shorthand-property-overrides": true,
+			"declaration-colon-newline-after": null,
+			"no-descending-specificity": null,
+			"value-keyword-case": null,
+			"selector-pseudo-class-no-unknown": [
+				true,
+				{
+					"ignorePseudoClasses": [
+						"global"
+					]
+				}
+			]
+		}
+	},
+	"browserslist": {
+		"production": [
+			"> 0.2%",
+			"Firefox ESR",
+			"not dead",
+			"not op_mini all"
+		],
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version"
+		]
+	},
+	"manifest": {
+		"host_permissions": [
+			"https://*/*"
+		],
+		"permissions": [
+			"tabs"
+		]
+	}
 }

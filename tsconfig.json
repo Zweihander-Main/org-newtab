@@ -11,6 +11,11 @@
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"outDir": "dist",
+		"plugins": [
+			{
+				"name": "typescript-plugin-css-modules"
+			}
+		],
 		"rootDir": ".",
 		"sourceMap": true,
 		"strict": true,
@@ -22,11 +27,6 @@
 		}
 	},
 	"baseUrl": ".",
-	"include": [
-		".plasmo/index.d.ts",
-		".plasmo/**/*",
-		"./**/*.ts",
-		"./**/*.tsx"
-	],
+	"include": [".plasmo/index.d.ts", "./**/*.ts", "./**/*.tsx"],
 	"exclude": ["node_modules"]
 }
