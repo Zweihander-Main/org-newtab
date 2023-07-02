@@ -4,8 +4,10 @@ import {
 	useCallback,
 	useContext,
 	useEffect,
+	useMemo,
 	useRef,
 	useState,
+	memo,
 } from 'react';
 import WSClientContext, { WSClientProvider } from './WSClientContext';
 import WSMasterContext, { WSMasterProvider } from './WSMasterContext';
@@ -130,13 +132,16 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 		}
 	}, [sendMsgToBGSWPort]);
 
+	const ContextToUse = useMemo(() => {
+		if (amMasterWS) {
+			return WSMasterProvider;
+		}
+		return WSClientProvider;
+	}, [amMasterWS]);
+
 	return (
 		<WSContext.Provider value={{ amMasterWS, setAmMasterWS }}>
-			{amMasterWS ? (
-				<WSMasterProvider>{children}</WSMasterProvider>
-			) : (
-				<WSClientProvider>{children}</WSClientProvider>
-			)}
+			<ContextToUse>{children}</ContextToUse>
 		</WSContext.Provider>
 	);
 };
