@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable no-console */
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { usePrevious } from '@react-hookz/web';
@@ -9,37 +8,12 @@ import './newtab.css';
 import type { AllTagsRecv } from './types';
 import ConnectionStatusIndicator from 'components/ConnectionStatusIndicator';
 import OptionsMenu from 'components/OptionsMenu';
-
-type OrgItemProps = {
-	itemText: string | null;
-	foregroundColor?: string;
-};
-
-const OrgItem: React.FC<OrgItemProps> = ({ itemText, foregroundColor }) => {
-	return (
-		<>
-			{itemText && (
-				<div
-					className="org-item"
-					style={{ backgroundColor: foregroundColor }}
-				>
-					{itemText}
-				</div>
-			)}
-		</>
-	);
-};
+import OrgItem from 'components/OrgItem';
 
 const IndexNewtab: React.FC = () => {
 	const { sendJsonMessage, lastRecvJsonMessage } = useWSContext();
 	const { matchQuery } = useContext(StorageContext);
 	const previousMatchQuery = usePrevious(matchQuery);
-	console.log(
-		'[NewTab] matchQuery:',
-		matchQuery,
-		'previous:',
-		previousMatchQuery
-	);
 	const [itemText, setItemText] = useState<string | null>(null);
 	const [tagsData, setTagsData] = useState<Record<string, string>>({});
 	const [foregroundColor, setForegroundColor] = useState<string | undefined>(
