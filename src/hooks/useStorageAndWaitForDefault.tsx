@@ -1,5 +1,5 @@
+import type { BaseStorage } from '@plasmohq/storage';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Storage } from '@plasmohq/storage';
 
 /**
  * Simplified storage hook that returns undefined until a value is retrieved
@@ -10,13 +10,15 @@ import { Storage } from '@plasmohq/storage';
  * @returns
  */
 
-const useStorageAndWaitForDefault = (key: string, defaultValue?: string) => {
+const useStorageAndWaitForDefault = (
+	key: string,
+	storageRef: React.MutableRefObject<BaseStorage>,
+	defaultValue?: string
+) => {
 	const isInitialRender = useRef(true);
 	const [renderValue, setRenderValue] = useState<string | undefined>(
 		undefined
 	);
-
-	const storageRef = useRef(new Storage({ area: 'local' }));
 
 	const getStoreValue = useCallback(async () => {
 		const value = await storageRef.current.get(key);
@@ -24,7 +26,7 @@ const useStorageAndWaitForDefault = (key: string, defaultValue?: string) => {
 			return defaultValue;
 		}
 		return value;
-	}, [defaultValue, key]);
+	}, [defaultValue, key, storageRef]);
 
 	useEffect(() => {
 		if (isInitialRender.current) {
@@ -52,7 +54,7 @@ const useStorageAndWaitForDefault = (key: string, defaultValue?: string) => {
 				);
 			});
 		},
-		[key]
+		[key, storageRef]
 	);
 
 	return [renderValue, setStoreValue] as const;

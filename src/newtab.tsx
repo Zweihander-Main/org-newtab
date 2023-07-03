@@ -12,10 +12,9 @@ import OrgItem from 'components/OrgItem';
 
 const IndexNewtab: React.FC = () => {
 	const { sendJsonMessage, lastRecvJsonMessage } = useContext(WSContext);
-	const { matchQuery } = useContext(StorageContext);
+	const { matchQuery, tagsData, setTagsData } = useContext(StorageContext);
 	const previousMatchQuery = usePrevious(matchQuery);
 	const [itemText, setItemText] = useState<string | null>(null);
-	const [tagsData, setTagsData] = useState<Record<string, string>>({});
 	const [foregroundColor, setForegroundColor] = useState<string | undefined>(
 		undefined
 	);
@@ -60,10 +59,18 @@ const IndexNewtab: React.FC = () => {
 				);
 				break;
 			case 'TAGS':
-				setTagsData(lastRecvJsonMessage?.data || {});
+				setTagsData(lastRecvJsonMessage?.data || {}).catch((err) => {
+					console.error(
+						'[NewTab] Error setting tags data in storage: ',
+						err
+					);
+				});
 				break;
 			default:
-				console.error('Unknown message type: ', lastRecvJsonMessage);
+				console.error(
+					'[NewTab] Unknown message type: ',
+					lastRecvJsonMessage
+				);
 				break;
 		}
 	}, [
