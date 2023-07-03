@@ -1,15 +1,5 @@
 /* eslint-disable no-console */
-import {
-	createContext,
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
-import WSClientContext, { WSClientProvider } from './WSClientContext';
-import WSMasterContext, { WSMasterProvider } from './WSMasterContext';
+import { createContext, useCallback, useEffect, useRef, useState } from 'react';
 import {
 	MsgDirection,
 	type MsgBGSWToNewTab,
@@ -17,9 +7,9 @@ import {
 	MsgNewTabToBGSWType,
 	type MsgNewTabToBGSW,
 	type WSCommonProps,
-	type WebSocketRecvMessage,
 } from '../types';
 import { ReadyState } from 'react-use-websocket';
+import useSingleWebsocket from 'hooks/useSingleWebsocket';
 
 type SendResponseType = (message: MsgNewTabToBGSW) => unknown;
 
@@ -42,12 +32,8 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	children,
 }) => {
 	const [amMasterWS, setAmMasterWS] = useState(false);
-	const [lastRecvJsonMessage, setLastRecvJsonMessage] =
-		useState<WebSocketRecvMessage>(null);
-	const [readyState, setReadyState] = useState(ReadyState.UNINSTANTIATED);
-	const sendJsonMessage = useCallback(() => {
-		return;
-	}, []);
+	const { sendJsonMessage, lastRecvJsonMessage, readyState } =
+		useSingleWebsocket(amMasterWS);
 
 	const isInitialRender = useRef(true);
 	const port = useRef(chrome.runtime.connect({ name: 'ws' }));
@@ -140,13 +126,6 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 			isInitialRender.current = false;
 		}
 	}, [sendMsgToBGSWPort]);
-
-	const ContextToUse = useMemo(() => {
-		if (amMasterWS) {
-			return WSMasterProvider;
-		}
-		return WSClientProvider;
-	}, [amMasterWS]);
 
 	return (
 		<WSContext.Provider
