@@ -16,7 +16,7 @@ const ConnectionStatusIndicator: React.FC = () => {
 	const masterStatus = amMasterWS ? 'Master' : 'Client';
 
 	return (
-		<p className={styles.status}>
+		<p data-testid="connection-status" className={styles.status}>
 			{connectionStatus} - {masterStatus}
 		</p>
 	);
