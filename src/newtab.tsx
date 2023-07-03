@@ -24,10 +24,18 @@ const IndexNewtab: React.FC = () => {
 		(allTagsData?: AllTagsRecv) => {
 			let allTags: Array<string> | string | undefined;
 			if (Array.isArray(allTagsData)) {
-				allTags = allTagsData.filter(
-					(tag): tag is string =>
-						typeof tag === 'string' && tag !== ''
-				);
+				allTags = [];
+				allTagsData
+					.filter(
+						(tag): tag is string =>
+							typeof tag === 'string' && tag !== ''
+					)
+					.forEach((tag) => {
+						const splitTags = tag
+							.split(':')
+							.filter((tag) => tag !== '');
+						(allTags as Array<string>).push(...splitTags);
+					});
 			} else {
 				allTags = allTagsData?.split(':').filter((tag) => tag !== '');
 			}
