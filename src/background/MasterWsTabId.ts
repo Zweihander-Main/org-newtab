@@ -1,4 +1,7 @@
+/* eslint-disable no-console */
 import type { BaseStorage } from '@plasmohq/storage';
+import { sendMsgToTab, confirmTabIdAlive } from './messaging';
+import { MsgBGSWToNewTabType } from '../types';
 
 type masterWSTabId = number | null;
 
@@ -29,5 +32,29 @@ export default class MasterWSTabId {
 	public async set(val: masterWSTabId) {
 		this._value = val;
 		await this._storage.set('masterWSTabId', val);
+	}
+
+	public async loadFromStorage() {
+		const loadedMasterWSTabId = await this._storage.get<number>(
+			'masterWSTabId'
+		);
+		if (loadedMasterWSTabId) {
+			const isAlive = await confirmTabIdAlive(loadedMasterWSTabId);
+			if (
+				isAlive &&
+				typeof loadedMasterWSTabId === 'number' &&
+				!isNaN(loadedMasterWSTabId)
+			) {
+				await this.set(loadedMasterWSTabId);
+				await sendMsgToTab(
+					MsgBGSWToNewTabType.YOU_ARE_MASTER_WS,
+					loadedMasterWSTabId
+				);
+				console.log(
+					'[BSGW] Confirmed alive from storage re-add for master tab %d',
+					loadedMasterWSTabId
+				);
+			}
+		}
 	}
 }
