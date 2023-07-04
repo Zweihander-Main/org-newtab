@@ -23,10 +23,6 @@ import {
  *    regular messages back and forth for the master websocket query flow.
  */
 
-//NEXT: confirm tab exists when using masterWSTabId
-//NEXT: store masterWSTabId in storage
-//NEXT: more consistent async await catch style
-
 const storage = new Storage({ area: 'local' });
 const connectedTabIds: Set<number> = new Set([]);
 const connectedPorts: Set<chrome.runtime.Port> = new Set([]);
@@ -55,46 +51,32 @@ const isMsgExpected = (
 	return true;
 };
 
-const sendMsgToTab = (type: MsgBGSWToNewTabType, tabId: number) => {
-	return chrome.tabs
-		.sendMessage<MsgBGSWToNewTab, MsgNewTabToBGSW>(tabId, {
-			direction: MsgDirection.TO_NEWTAB,
-			type,
-		})
-		.then((response) => {
-			if (response) {
-				if (response.direction !== MsgDirection.TO_BGSW) {
-					throw new Error(
-						'Invalid response direction',
-						response.direction
-					);
-				}
-				if (!response.type) {
-					throw new Error('Invalid response type', response.type);
-				}
-				console.log(
-					'[BSGW] Got response from %d: %d',
-					tabId,
-					response.type
-				);
-				return response;
-			}
-			return;
-		})
-		.catch((err) => {
-			console.error(
-				'[BSGW] Error sending message to tab %d:',
-				tabId,
-				err
-			);
-		});
+const sendMsgToTab = async (type: MsgBGSWToNewTabType, tabId: number) => {
+	const response = await chrome.tabs.sendMessage<
+		MsgBGSWToNewTab,
+		MsgNewTabToBGSW
+	>(tabId, {
+		direction: MsgDirection.TO_NEWTAB,
+		type,
+	});
+	if (response) {
+		if (response.direction !== MsgDirection.TO_BGSW) {
+			throw new Error('Invalid response direction', response.direction);
+		}
+		if (!response.type) {
+			throw new Error('Invalid response type', response.type);
+		}
+		console.log('[BSGW] Got response from %d: %d', tabId, response.type);
+		return response;
+	}
+	return;
 };
 
 const handleQueryFlowCaseSingleConnectionBecomesMaster = async (
 	singleRequestingTabId: number
 ) => {
 	masterWSTabId = singleRequestingTabId;
-	saveMasterWsTabId();
+	await saveMasterWsTabId();
 	console.log('[BSGW] First connection, assuming %d master', masterWSTabId);
 	await sendMsgToTab(MsgBGSWToNewTabType.YOU_ARE_MASTER_WS, masterWSTabId);
 };
@@ -112,9 +94,9 @@ const handleQueryFlowCaseTellOthersTheyAreClients = async (
 	);
 };
 
-const handleQueryFlowIdentifiedMaster = (masterTabId: number) => {
+const handleQueryFlowIdentifiedMaster = async (masterTabId: number) => {
 	masterWSTabId = masterTabId;
-	saveMasterWsTabId();
+	await saveMasterWsTabId();
 	console.log('[BSGW] Identified master WS as %d', masterWSTabId);
 };
 
@@ -124,7 +106,7 @@ const handleQueryFlowIdentifiedClient = (clientTabId: number) => {
 
 const handleQueryFlowRequestBecomesMaster = async (requestingTabId: number) => {
 	masterWSTabId = requestingTabId;
-	saveMasterWsTabId();
+	await saveMasterWsTabId();
 	console.log(
 		'[BSGW] No master identified, letting %d be master',
 		masterWSTabId
@@ -134,26 +116,25 @@ const handleQueryFlowRequestBecomesMaster = async (requestingTabId: number) => {
 
 const handleQueryFlowCaseFindMaster = async (requestingTabId: number) => {
 	masterWSTabId = null; // Will be set if one identifies as master
-	saveMasterWsTabId();
+	await saveMasterWsTabId();
 	const answeredTabIds = await Promise.all(
-		Array.from(connectedTabIds).map((connectedTabId) => {
-			return sendMsgToTab(
+		Array.from(connectedTabIds).map(async (connectedTabId) => {
+			const response = await sendMsgToTab(
 				MsgBGSWToNewTabType.CONFIRM_IF_MASTER_WS,
 				connectedTabId
-			).then((response) => {
-				if (response) {
-					switch (response.type) {
-						case MsgNewTabToBGSWType.IDENTIFY_AS_MASTER_WS:
-							handleQueryFlowIdentifiedMaster(connectedTabId);
-							break;
-						case MsgNewTabToBGSWType.IDENTIFY_AS_WS_CLIENT:
-							handleQueryFlowIdentifiedClient(connectedTabId);
-							break;
-					}
-					return connectedTabId;
+			);
+			if (response) {
+				switch (response.type) {
+					case MsgNewTabToBGSWType.IDENTIFY_AS_MASTER_WS:
+						await handleQueryFlowIdentifiedMaster(connectedTabId);
+						break;
+					case MsgNewTabToBGSWType.IDENTIFY_AS_WS_CLIENT:
+						handleQueryFlowIdentifiedClient(connectedTabId);
+						break;
 				}
-				return null;
-			});
+				return connectedTabId;
+			}
+			return null;
 		})
 	);
 	const aliveAnsweredTabIds = answeredTabIds.filter(
@@ -190,158 +171,143 @@ const handleConfirmAliveFlow = async (tabId: number) => {
 	return false;
 };
 
-const handlePortMessage = (
-	message: MsgNewTabToBGSW,
-	port: chrome.runtime.Port
-) => {
-	if (!isMsgExpected(message, port?.sender)) return;
-	const tabId = port?.sender?.tab?.id as number;
-	console.log(
-		'[BSGW] handlePortMessage -- data recv from %d: %d',
-		tabId,
-		message.type
-	);
-	switch (message.type) {
-		case MsgNewTabToBGSWType.QUERY_STATUS_OF_WS: {
-			handleQueryFlow(tabId).catch((err) => {
-				console.error('[BSGW] Error handling query flow:', err);
-			});
-			break;
-		}
-	}
-};
-
-const addPort = (port: chrome.runtime.Port) => {
+const addPort = async (port: chrome.runtime.Port) => {
 	connectedPorts.add(port);
 	connectedTabIds.add(port?.sender?.tab?.id as number);
-	saveConnectedTabIds();
+	await saveConnectedTabIds();
 };
 
-const removePort = (port: chrome.runtime.Port) => {
+const removePort = async (port: chrome.runtime.Port) => {
 	connectedPorts.delete(port);
 	connectedTabIds.delete(port?.sender?.tab?.id as number);
-	saveConnectedTabIds();
+	await saveConnectedTabIds();
 };
 
-const saveConnectedTabIds = () => {
-	storage.set('connectedTabIds', Array.from(connectedTabIds)).catch((err) => {
-		console.error('[BSGW] Error saving connectedTabIds:', err);
-	});
+const saveConnectedTabIds = async () => {
+	await storage.set('connectedTabIds', Array.from(connectedTabIds));
 };
 
-const loadConnectedTabIds = () => {
-	storage
-		.get('connectedTabIds')
-		.then((loadedConnectedTabIds) => {
-			if (loadedConnectedTabIds && Array.isArray(loadedConnectedTabIds)) {
-				loadedConnectedTabIds.forEach((tabId: number) => {
-					handleConfirmAliveFlow(tabId)
-						.then((isAlive) => {
-							if (isAlive) {
-								connectedTabIds.add(tabId);
-								console.log(
-									'[BSGW] Confirmed alive from storage re-add for tab %d',
-									tabId
-								);
-							}
-						})
-						.catch((err) => {
-							console.error(
-								'[BSGW] Error confirming alive from storage flow:',
-								err
-							);
-						});
-				});
-			}
-		})
-		.catch((err) => {
-			console.error('[BSGW] Error loading connectedTabIds:', err);
-		});
-};
-
-const loadMasterWsTabId = () => {
-	storage
-		.get('masterWSTabId')
-		.then((loadedMasterWSTabId) => {
-			if (loadedMasterWSTabId) {
-				handleConfirmAliveFlow(parseInt(loadedMasterWSTabId, 10))
-					.then((isAlive) => {
-						if (
-							isAlive &&
-							typeof loadedMasterWSTabId === 'number' &&
-							!isNaN(loadedMasterWSTabId)
-						) {
-							masterWSTabId = loadedMasterWSTabId;
-							console.log(
-								'[BSGW] Confirmed alive from storage re-add for master tab %d',
-								loadedMasterWSTabId
-							);
-						}
-					})
-					.catch((err) => {
-						console.error(
-							'[BSGW] Error confirming alive from storage flow:',
-							err
-						);
-					});
-			}
-		})
-		.catch((err) => {
-			console.error('[BSGW] Error loading masterWSTabId:', err);
-		});
-};
-
-const saveMasterWsTabId = () => {
-	storage.set('masterWSTabId', masterWSTabId).catch((err) => {
-		console.error('[BSGW] Error saving masterWSTabId:', err);
-	});
-};
-
-const handlePortDisconnect = (port: chrome.runtime.Port) => {
-	console.log('[BGSW] Disconnecting port:', port?.sender?.tab?.id);
-	port.onDisconnect.removeListener(handlePortDisconnect);
-	removePort(port);
-	if (port?.sender?.tab?.id === masterWSTabId) {
-		masterWSTabId = null;
-		if (connectedTabIds.size >= 1) {
-			const newRequestingTabId = Array.from(connectedTabIds)[0];
-			if (connectedTabIds.size === 1) {
-				handleQueryFlowCaseSingleConnectionBecomesMaster(
-					newRequestingTabId
-				).catch((err) => {
-					console.error(
-						'[BSGW] Error handling single tab connection:',
-						err
-					);
-				});
-			} else if (connectedTabIds.size > 1) {
-				handleQueryFlowCaseFindMaster(newRequestingTabId).catch(
-					(err) => {
-						console.error(
-							'[BSGW] Error handling selecting new master:',
-							err
-						);
-					}
+const loadConnectedTabIds = async () => {
+	const loadedConnectedTabIds = await storage.get<Array<number>>(
+		'connectedTabIds'
+	);
+	if (loadedConnectedTabIds && Array.isArray(loadedConnectedTabIds)) {
+		for (const tabId of loadedConnectedTabIds) {
+			const isAlive = await handleConfirmAliveFlow(tabId);
+			if (isAlive) {
+				connectedTabIds.add(tabId);
+				console.log(
+					'[BSGW] Confirmed alive from storage re-add for tab %d',
+					tabId
 				);
 			}
 		}
 	}
 };
 
-const handlePortConnect = (port: chrome.runtime.Port) => {
-	if (
-		port.name === 'ws' &&
-		port?.sender?.tab?.id &&
-		!connectedPorts.has(port) &&
-		!connectedTabIds.has(port.sender.tab.id)
-	) {
-		console.log('[BSGW] Connecting port:', port.sender.tab.id);
-		addPort(port);
-		if (!port.onMessage.hasListener(handlePortMessage)) {
-			port.onMessage.addListener(handlePortMessage);
-			port.onDisconnect.addListener(handlePortDisconnect);
+const loadMasterWsTabId = async () => {
+	const loadedMasterWSTabId = await storage.get<number>('masterWSTabId');
+	if (loadedMasterWSTabId) {
+		const isAlive = await handleConfirmAliveFlow(loadedMasterWSTabId);
+		if (
+			isAlive &&
+			typeof loadedMasterWSTabId === 'number' &&
+			!isNaN(loadedMasterWSTabId)
+		) {
+			await handleQueryFlowRequestBecomesMaster(loadedMasterWSTabId);
+			console.log(
+				'[BSGW] Confirmed alive from storage re-add for master tab %d',
+				loadedMasterWSTabId
+			);
 		}
 	}
+};
+
+const saveMasterWsTabId = async () => {
+	await storage.set('masterWSTabId', masterWSTabId);
+};
+
+const handlePortMessage = (
+	message: MsgNewTabToBGSW,
+	port: chrome.runtime.Port
+) => {
+	(async () => {
+		if (!isMsgExpected(message, port?.sender)) return;
+		const tabId = port?.sender?.tab?.id as number;
+		console.log(
+			'[BSGW] handlePortMessage -- data recv from %d: %d',
+			tabId,
+			message.type
+		);
+		switch (message.type) {
+			case MsgNewTabToBGSWType.QUERY_STATUS_OF_WS: {
+				await handleQueryFlow(tabId);
+				break;
+			}
+		}
+	})().catch((err) => {
+		console.error(
+			'[BSGW] Error handling port message %o from port %o (tabId: %s):',
+			message,
+			port,
+			port?.sender?.tab?.id,
+			err
+		);
+	});
+};
+
+const handlePortDisconnect = (port: chrome.runtime.Port) => {
+	(async () => {
+		console.log('[BGSW] Disconnecting port:', port?.sender?.tab?.id);
+		port.onDisconnect.removeListener(handlePortDisconnect);
+		await removePort(port);
+		if (port?.sender?.tab?.id === masterWSTabId) {
+			masterWSTabId = null;
+			await saveMasterWsTabId();
+			if (connectedTabIds.size >= 1) {
+				const newRequestingTabId = Array.from(connectedTabIds)[0];
+				if (connectedTabIds.size === 1) {
+					await handleQueryFlowCaseSingleConnectionBecomesMaster(
+						newRequestingTabId
+					);
+				} else if (connectedTabIds.size > 1) {
+					await handleQueryFlowCaseFindMaster(newRequestingTabId);
+				}
+			}
+		}
+	})().catch((err) => {
+		console.error(
+			'[BSGW] Error handling port disconnect %o (tabId: %s):',
+			port,
+			port?.sender?.tab?.id,
+			err
+		);
+	});
+};
+
+const handlePortConnect = (port: chrome.runtime.Port) => {
+	(async () => {
+		if (
+			port.name === 'ws' &&
+			port?.sender?.tab?.id &&
+			!connectedPorts.has(port) &&
+			!connectedTabIds.has(port.sender.tab.id)
+		) {
+			console.log('[BSGW] Connecting port:', port.sender.tab.id);
+			await addPort(port);
+			if (!port.onMessage.hasListener(handlePortMessage)) {
+				port.onMessage.addListener(handlePortMessage);
+				port.onDisconnect.addListener(handlePortDisconnect);
+			}
+		}
+	})().catch((err) => {
+		console.error(
+			'[BSGW] Error handling port connect %o (tabId: %s):',
+			port,
+			port?.sender?.tab?.id,
+			err
+		);
+	});
 	return true;
 };
 
@@ -350,5 +316,5 @@ if (!chrome.runtime.onConnect.hasListener(handlePortConnect)) {
 }
 
 // Load connectedTabIds from storage, should be run if the BGSW is reloaded
-loadConnectedTabIds();
-loadMasterWsTabId();
+void loadConnectedTabIds();
+void loadMasterWsTabId();
