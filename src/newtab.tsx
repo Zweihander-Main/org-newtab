@@ -47,6 +47,9 @@ const IndexNewtab: React.FC = () => {
 	);
 
 	useEffect(() => {
+		if (lastRecvJsonMessage === null) {
+			return;
+		}
 		switch (lastRecvJsonMessage?.type) {
 			case 'ITEM':
 				setItemText(lastRecvJsonMessage?.data?.ITEM || null);
@@ -68,7 +71,7 @@ const IndexNewtab: React.FC = () => {
 				break;
 			default:
 				console.error(
-					'[NewTab] Unknown message type: ',
+					'[NewTab] Unknown message: ',
 					lastRecvJsonMessage
 				);
 				break;

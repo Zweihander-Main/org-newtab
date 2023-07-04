@@ -65,7 +65,6 @@ const OptionsMenu: React.FC = () => {
 						Last message:
 						<pre className={styles.json}>
 							{JSON.stringify(lastRecvJsonMessage, null, 2)}
-							{/*TODO: Display null*/}
 						</pre>
 					</>
 				) : null}
