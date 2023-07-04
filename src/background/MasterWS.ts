@@ -54,6 +54,8 @@ export default class MasterWS {
 					'[BSGW] Confirmed alive from storage re-add for master tab %d',
 					loadedMasterWSTabId
 				);
+			} else {
+				this._value = null;
 			}
 		}
 	}

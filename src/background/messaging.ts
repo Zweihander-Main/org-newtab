@@ -5,6 +5,8 @@ import {
 	MsgBGSWToNewTabType,
 	MsgDirection,
 	type MsgBGSWToNewTab,
+	getMsgBGSWToNewType,
+	getMsgNewTabToBGSWType,
 } from '../types';
 
 export const isMsgExpected = (
@@ -27,7 +29,11 @@ export const isMsgExpected = (
 	if (message.direction !== MsgDirection.TO_BGSW) {
 		return false;
 	}
-	console.log('[BSGW] <= Data recv from %d: %d', sender.tab.id, message.type);
+	console.log(
+		'[BSGW] <= Data recv from %d: %s',
+		sender.tab.id,
+		MsgNewTabToBGSWType[message.type as MsgNewTabToBGSWType]
+	);
 	return true;
 };
 
@@ -35,7 +41,11 @@ export const sendMsgToTab = async (
 	type: MsgBGSWToNewTabType,
 	tabId: number
 ) => {
-	console.log('[BSGW] => Sending message to %d: %d', tabId, type);
+	console.log(
+		'[BSGW] => Sending message to %d: %s',
+		tabId,
+		getMsgBGSWToNewType(type)
+	);
 	const response = await chrome.tabs.sendMessage<
 		MsgBGSWToNewTab,
 		MsgNewTabToBGSW
@@ -54,9 +64,9 @@ export const sendMsgToTab = async (
 			throw new Error('[BGSW] <= Invalid response type', response.type);
 		}
 		console.log(
-			'[BSGW] <= Recv response from %d: %d',
+			'[BSGW] <= Recv response from %d: %s',
 			tabId,
-			response.type
+			getMsgNewTabToBGSWType(response.type)
 		);
 		return response;
 	}

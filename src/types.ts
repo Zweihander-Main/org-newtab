@@ -8,12 +8,19 @@ export enum MsgNewTabToBGSWType {
 	CONFIRMED_ALIVE = 4,
 }
 
+export const getMsgNewTabToBGSWType = (type: MsgNewTabToBGSWType) => {
+	return MsgNewTabToBGSWType[type];
+};
+
 export enum MsgBGSWToNewTabType {
 	CONFIRM_IF_MASTER_WS = 1,
 	YOU_ARE_MASTER_WS = 2,
 	YOU_ARE_CLIENT_WS = 3,
 	CONFIRM_IF_ALIVE = 4,
 }
+export const getMsgBGSWToNewType = (type: MsgBGSWToNewTabType) => {
+	return MsgBGSWToNewTabType[type];
+};
 
 export enum MsgDirection {
 	TO_BGSW = 1,

@@ -53,6 +53,15 @@ export default class Connections {
 		);
 	}
 
+	private findPortByTabId(tabId: number) {
+		for (const port of this._connectedPorts) {
+			if (port?.sender?.tab?.id === tabId) {
+				return port;
+			}
+		}
+		return false;
+	}
+
 	public async loadFromStorage() {
 		const loadedConnectedTabIds = await this._storage.get<Array<number>>(
 			'connectedTabIds'
@@ -66,6 +75,12 @@ export default class Connections {
 						'[BSGW] Confirmed alive from storage re-add for tab %d',
 						tabId
 					);
+				} else {
+					this._connectedTabIds.delete(tabId);
+					const portToDelete = this.findPortByTabId(tabId);
+					if (portToDelete) {
+						this._connectedPorts.delete(portToDelete);
+					}
 				}
 			}
 		}
