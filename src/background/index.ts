@@ -28,9 +28,7 @@ const storage = new Storage({ area: 'local' });
 const connections = Connections.getInstance(storage);
 const masterWSTabId = MasterWS.getInstance(storage);
 
-const handleQueryFlowCaseSingleConnectionBecomesMaster = async (
-	singleRequestingTabId: number
-) => {
+const firstConnectionBecomesMaster = async (singleRequestingTabId: number) => {
 	await masterWSTabId.set(singleRequestingTabId);
 	console.log(
 		'[BSGW] First connection, assuming %d master',
@@ -42,9 +40,7 @@ const handleQueryFlowCaseSingleConnectionBecomesMaster = async (
 	);
 };
 
-const handleQueryFlowCaseTellOthersTheyAreClients = async (
-	tabIdsInvolved: Array<number>
-) => {
+const confirmClients = async (tabIdsInvolved: Array<number>) => {
 	const tabIdsToInform = tabIdsInvolved.filter(
 		(tabId) => tabId !== masterWSTabId.val
 	);
@@ -55,16 +51,16 @@ const handleQueryFlowCaseTellOthersTheyAreClients = async (
 	);
 };
 
-const handleQueryFlowIdentifiedMaster = async (masterTabId: number) => {
+const identifiedMaster = async (masterTabId: number) => {
 	await masterWSTabId.set(masterTabId);
 	console.log('[BSGW] Identified master WS as %d', masterWSTabId);
 };
 
-const handleQueryFlowIdentifiedClient = (clientTabId: number) => {
+const identifiedClient = (clientTabId: number) => {
 	console.log('[BSGW] Identified client to WS as %d', clientTabId);
 };
 
-const handleQueryFlowRequestBecomesMaster = async (requestingTabId: number) => {
+const confirmMaster = async (requestingTabId: number) => {
 	await masterWSTabId.set(requestingTabId);
 	console.log(
 		'[BSGW] No master identified, letting %d be master',
@@ -73,7 +69,7 @@ const handleQueryFlowRequestBecomesMaster = async (requestingTabId: number) => {
 	await sendMsgToTab(MsgBGSWToNewTabType.YOU_ARE_MASTER_WS, requestingTabId);
 };
 
-const handleQueryFlowCaseFindMaster = async (requestingTabId: number) => {
+const searchAndFindMaster = async (requestingTabId: number) => {
 	await masterWSTabId.set(null); // Will be set if one identifies as master
 	const answeredTabIds = await Promise.all(
 		connections.tabIds.map(async (connectedTabId) => {
@@ -84,10 +80,10 @@ const handleQueryFlowCaseFindMaster = async (requestingTabId: number) => {
 			if (response) {
 				switch (response.type) {
 					case MsgNewTabToBGSWType.IDENTIFY_AS_MASTER_WS:
-						await handleQueryFlowIdentifiedMaster(connectedTabId);
+						await identifiedMaster(connectedTabId);
 						break;
 					case MsgNewTabToBGSWType.IDENTIFY_AS_WS_CLIENT:
-						handleQueryFlowIdentifiedClient(connectedTabId);
+						identifiedClient(connectedTabId);
 						break;
 				}
 				return connectedTabId;
@@ -100,17 +96,17 @@ const handleQueryFlowCaseFindMaster = async (requestingTabId: number) => {
 	);
 	// If all of them think they're clients, set the original requestor as master
 	if (masterWSTabId === null) {
-		await handleQueryFlowRequestBecomesMaster(requestingTabId);
+		await confirmMaster(requestingTabId);
 	}
-	await handleQueryFlowCaseTellOthersTheyAreClients(aliveAnsweredTabIds);
+	await confirmClients(aliveAnsweredTabIds);
 };
 
-const handleQueryFlow = async (requestingTabId: number) => {
+const figureOutMaster = async (requestingTabId: number) => {
 	console.log('[BSGW] connectedTabIds: ', connections.tabIds);
 	if (connections.size === 1) {
-		await handleQueryFlowCaseSingleConnectionBecomesMaster(requestingTabId);
+		await firstConnectionBecomesMaster(requestingTabId);
 	} else {
-		await handleQueryFlowCaseFindMaster(requestingTabId);
+		await searchAndFindMaster(requestingTabId);
 	}
 };
 
@@ -128,7 +124,7 @@ const handlePortMessage = (
 		);
 		switch (message.type) {
 			case MsgNewTabToBGSWType.QUERY_STATUS_OF_WS: {
-				await handleQueryFlow(tabId);
+				await figureOutMaster(tabId);
 				break;
 			}
 		}
@@ -153,11 +149,9 @@ const handlePortDisconnect = (port: chrome.runtime.Port) => {
 			if (connections.size >= 1) {
 				const newRequestingTabId = connections.tabIds[0];
 				if (connections.size === 1) {
-					await handleQueryFlowCaseSingleConnectionBecomesMaster(
-						newRequestingTabId
-					);
+					await firstConnectionBecomesMaster(newRequestingTabId);
 				} else if (connections.size > 1) {
-					await handleQueryFlowCaseFindMaster(newRequestingTabId);
+					await searchAndFindMaster(newRequestingTabId);
 				}
 			}
 		}
