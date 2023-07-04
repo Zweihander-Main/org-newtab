@@ -61,24 +61,24 @@ const sendMsgToTab = (type: MsgBGSWToNewTabType, tabId: number) => {
 			type,
 		})
 		.then((response) => {
-			if (!response) {
-				throw new Error('No response from tab');
-			}
-			if (response.direction !== MsgDirection.TO_BGSW) {
-				throw new Error(
-					'Invalid response direction',
-					response.direction
+			if (response) {
+				if (response.direction !== MsgDirection.TO_BGSW) {
+					throw new Error(
+						'Invalid response direction',
+						response.direction
+					);
+				}
+				if (!response.type) {
+					throw new Error('Invalid response type', response.type);
+				}
+				console.log(
+					'[BSGW] Got response from %d: %d',
+					tabId,
+					response.type
 				);
+				return response;
 			}
-			if (!response.type) {
-				throw new Error('Invalid response type', response.type);
-			}
-			console.log(
-				'[BSGW] Got response from %d: %d',
-				tabId,
-				response.type
-			);
-			return response;
+			return;
 		})
 		.catch((err) => {
 			console.error(
@@ -234,11 +234,15 @@ const loadConnectedTabIds = () => {
 						.then((isAlive) => {
 							if (isAlive) {
 								connectedTabIds.add(tabId);
+								console.log(
+									'[BSGW] Confirmed alive from storage re-add for tab %d',
+									tabId
+								);
 							}
 						})
 						.catch((err) => {
 							console.error(
-								'[BSGW] Error confirming alive flow:',
+								'[BSGW] Error confirming alive from storage flow:',
 								err
 							);
 						});
