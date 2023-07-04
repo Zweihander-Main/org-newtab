@@ -6,7 +6,7 @@ import {
 	MsgBGSWToNewTabType,
 } from '../types';
 import { isMsgExpected, sendMsgToTab } from './messaging';
-import MasterWSTabId from './MasterWsTabId';
+import MasterWS from './MasterWs';
 import Connections from './Connections';
 
 /**
@@ -26,13 +26,16 @@ import Connections from './Connections';
 
 const storage = new Storage({ area: 'local' });
 const connections = Connections.getInstance(storage);
-const masterWSTabId = MasterWSTabId.getInstance(storage);
+const masterWSTabId = MasterWS.getInstance(storage);
 
 const handleQueryFlowCaseSingleConnectionBecomesMaster = async (
 	singleRequestingTabId: number
 ) => {
 	await masterWSTabId.set(singleRequestingTabId);
-	console.log('[BSGW] First connection, assuming %d master', masterWSTabId);
+	console.log(
+		'[BSGW] First connection, assuming %d master',
+		masterWSTabId.val
+	);
 	await sendMsgToTab(
 		MsgBGSWToNewTabType.YOU_ARE_MASTER_WS,
 		singleRequestingTabId
@@ -43,7 +46,7 @@ const handleQueryFlowCaseTellOthersTheyAreClients = async (
 	tabIdsInvolved: Array<number>
 ) => {
 	const tabIdsToInform = tabIdsInvolved.filter(
-		(tabId) => tabId !== masterWSTabId.get()
+		(tabId) => tabId !== masterWSTabId.val
 	);
 	await Promise.all(
 		tabIdsToInform.map((tabId) =>
@@ -145,7 +148,7 @@ const handlePortDisconnect = (port: chrome.runtime.Port) => {
 		console.log('[BGSW] Disconnecting port:', port?.sender?.tab?.id);
 		port.onDisconnect.removeListener(handlePortDisconnect);
 		await connections.remove(port);
-		if (port?.sender?.tab?.id === masterWSTabId.get()) {
+		if (port?.sender?.tab?.id === masterWSTabId.val) {
 			await masterWSTabId.set(null);
 			if (connections.size >= 1) {
 				const newRequestingTabId = connections.tabIds[0];

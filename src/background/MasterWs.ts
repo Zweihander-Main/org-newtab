@@ -3,20 +3,20 @@ import type { BaseStorage } from '@plasmohq/storage';
 import { sendMsgToTab, confirmTabIdAlive } from './messaging';
 import { MsgBGSWToNewTabType } from '../types';
 
-type masterWSTabId = number | null;
+type masterWS = number | null;
 
-export default class MasterWSTabId {
-	private static _instance: MasterWSTabId;
-	private _value: masterWSTabId;
+export default class MasterWS {
+	private static _instance: MasterWS;
+	private _value: masterWS;
 	private _storage: BaseStorage;
 
 	private constructor(storage: BaseStorage) {
-		if (MasterWSTabId._instance) {
+		if (MasterWS._instance) {
 			throw new Error(
 				'[BSGW] Use MasterWSTabId.Instance() instead of new.'
 			);
 		}
-		MasterWSTabId._instance = this;
+		MasterWS._instance = this;
 		this._value = null;
 		this._storage = storage;
 	}
@@ -25,11 +25,11 @@ export default class MasterWSTabId {
 		return this._instance || (this._instance = new this(storage));
 	}
 
-	public get() {
+	public get val() {
 		return this._value;
 	}
 
-	public async set(val: masterWSTabId) {
+	public async set(val: masterWS) {
 		this._value = val;
 		await this._storage.set('masterWSTabId', val);
 	}
