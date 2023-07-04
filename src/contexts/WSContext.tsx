@@ -67,7 +67,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 		}
 	}, [amMasterWS, setAmMasterWS]);
 
-	const handleConfirmation = useCallback(
+	const handleMasterQueryConfirmation = useCallback(
 		(sendResponse: SendResponseType) => {
 			if (amMasterWS) {
 				sendMsgAsResponse(
@@ -82,6 +82,16 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 			}
 		},
 		[amMasterWS, sendMsgAsResponse]
+	);
+
+	const handleConfirmingAlive = useCallback(
+		(sendResponse: SendResponseType) => {
+			sendMsgAsResponse(
+				MsgNewTabToBGSWType.CONFIRMED_ALIVE,
+				sendResponse
+			);
+		},
+		[sendMsgAsResponse]
 	);
 
 	const handleMessage = useCallback(
@@ -99,7 +109,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 			);
 			switch (message.type) {
 				case MsgBGSWToNewTabType.CONFIRM_IF_MASTER_WS:
-					handleConfirmation(sendResponse);
+					handleMasterQueryConfirmation(sendResponse);
 					break;
 				case MsgBGSWToNewTabType.YOU_ARE_MASTER_WS:
 					handleSetAsMaster();
@@ -107,9 +117,17 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 				case MsgBGSWToNewTabType.YOU_ARE_CLIENT_WS:
 					handleSetAsClient();
 					break;
+				case MsgBGSWToNewTabType.CONFIRM_IF_ALIVE:
+					handleConfirmingAlive(sendResponse);
+					break;
 			}
 		},
-		[handleSetAsMaster, handleSetAsClient, handleConfirmation]
+		[
+			handleSetAsMaster,
+			handleSetAsClient,
+			handleMasterQueryConfirmation,
+			handleConfirmingAlive,
+		]
 	);
 
 	useEffect(() => {

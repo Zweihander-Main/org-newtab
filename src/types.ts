@@ -5,12 +5,14 @@ export enum MsgNewTabToBGSWType {
 	QUERY_STATUS_OF_WS = 1,
 	IDENTIFY_AS_MASTER_WS = 2,
 	IDENTIFY_AS_WS_CLIENT = 3,
+	CONFIRMED_ALIVE = 4,
 }
 
 export enum MsgBGSWToNewTabType {
 	CONFIRM_IF_MASTER_WS = 1,
 	YOU_ARE_MASTER_WS = 2,
 	YOU_ARE_CLIENT_WS = 3,
+	CONFIRM_IF_ALIVE = 4,
 }
 
 export enum MsgDirection {
