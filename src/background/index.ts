@@ -6,7 +6,7 @@ import {
 	MsgBGSWToNewTabType,
 } from '../types';
 import { isMsgExpected, sendMsgToTab } from './messaging';
-import MasterWS from './MasterWs';
+import MasterWS from './MasterWS';
 import Connections from './Connections';
 
 /**
