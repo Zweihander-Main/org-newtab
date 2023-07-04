@@ -7,6 +7,7 @@ import {
 	MsgDirection,
 	type MsgBGSWToNewTab,
 } from '../types';
+import MasterWSTabId from './MasterWsTabId';
 
 /**
  * Some notes about this background script:
@@ -26,7 +27,7 @@ import {
 const storage = new Storage({ area: 'local' });
 const connectedTabIds: Set<number> = new Set([]);
 const connectedPorts: Set<chrome.runtime.Port> = new Set([]);
-let masterWSTabId: number | null = null;
+const masterWSTabId = MasterWSTabId.getInstance(storage);
 
 const isMsgExpected = (
 	message: MsgNewTabToBGSW | unknown,
@@ -75,17 +76,19 @@ const sendMsgToTab = async (type: MsgBGSWToNewTabType, tabId: number) => {
 const handleQueryFlowCaseSingleConnectionBecomesMaster = async (
 	singleRequestingTabId: number
 ) => {
-	masterWSTabId = singleRequestingTabId;
-	await saveMasterWsTabId();
+	await masterWSTabId.set(singleRequestingTabId);
 	console.log('[BSGW] First connection, assuming %d master', masterWSTabId);
-	await sendMsgToTab(MsgBGSWToNewTabType.YOU_ARE_MASTER_WS, masterWSTabId);
+	await sendMsgToTab(
+		MsgBGSWToNewTabType.YOU_ARE_MASTER_WS,
+		singleRequestingTabId
+	);
 };
 
 const handleQueryFlowCaseTellOthersTheyAreClients = async (
 	tabIdsInvolved: Array<number>
 ) => {
 	const tabIdsToInform = tabIdsInvolved.filter(
-		(tabId) => tabId !== masterWSTabId
+		(tabId) => tabId !== masterWSTabId.get()
 	);
 	await Promise.all(
 		tabIdsToInform.map((tabId) =>
@@ -95,8 +98,7 @@ const handleQueryFlowCaseTellOthersTheyAreClients = async (
 };
 
 const handleQueryFlowIdentifiedMaster = async (masterTabId: number) => {
-	masterWSTabId = masterTabId;
-	await saveMasterWsTabId();
+	await masterWSTabId.set(masterTabId);
 	console.log('[BSGW] Identified master WS as %d', masterWSTabId);
 };
 
@@ -105,18 +107,16 @@ const handleQueryFlowIdentifiedClient = (clientTabId: number) => {
 };
 
 const handleQueryFlowRequestBecomesMaster = async (requestingTabId: number) => {
-	masterWSTabId = requestingTabId;
-	await saveMasterWsTabId();
+	await masterWSTabId.set(requestingTabId);
 	console.log(
 		'[BSGW] No master identified, letting %d be master',
 		masterWSTabId
 	);
-	await sendMsgToTab(MsgBGSWToNewTabType.YOU_ARE_MASTER_WS, masterWSTabId);
+	await sendMsgToTab(MsgBGSWToNewTabType.YOU_ARE_MASTER_WS, requestingTabId);
 };
 
 const handleQueryFlowCaseFindMaster = async (requestingTabId: number) => {
-	masterWSTabId = null; // Will be set if one identifies as master
-	await saveMasterWsTabId();
+	await masterWSTabId.set(null); // Will be set if one identifies as master
 	const answeredTabIds = await Promise.all(
 		Array.from(connectedTabIds).map(async (connectedTabId) => {
 			const response = await sendMsgToTab(
@@ -223,10 +223,6 @@ const loadMasterWsTabId = async () => {
 	}
 };
 
-const saveMasterWsTabId = async () => {
-	await storage.set('masterWSTabId', masterWSTabId);
-};
-
 const handlePortMessage = (
 	message: MsgNewTabToBGSW,
 	port: chrome.runtime.Port
@@ -261,9 +257,8 @@ const handlePortDisconnect = (port: chrome.runtime.Port) => {
 		console.log('[BGSW] Disconnecting port:', port?.sender?.tab?.id);
 		port.onDisconnect.removeListener(handlePortDisconnect);
 		await removePort(port);
-		if (port?.sender?.tab?.id === masterWSTabId) {
-			masterWSTabId = null;
-			await saveMasterWsTabId();
+		if (port?.sender?.tab?.id === masterWSTabId.get()) {
+			await masterWSTabId.set(null);
 			if (connectedTabIds.size >= 1) {
 				const newRequestingTabId = Array.from(connectedTabIds)[0];
 				if (connectedTabIds.size === 1) {
