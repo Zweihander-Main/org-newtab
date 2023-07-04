@@ -39,6 +39,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	const port = useRef(chrome.runtime.connect({ name: 'ws' }));
 
 	const sendMsgToBGSWPort = useCallback((type: MsgNewTabToBGSWType) => {
+		console.log('[NewTab] => Sending message to BGSW port: %d', type);
 		port.current.postMessage({
 			type,
 			direction: MsgDirection.TO_BGSW,
@@ -47,6 +48,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 
 	const sendMsgAsResponse = useCallback(
 		(type: MsgNewTabToBGSWType, sendResponse: SendResponseType) => {
+			console.log('[NewTab] => Sending response to BGSW msg: %d', type);
 			sendResponse({
 				type,
 				direction: MsgDirection.TO_BGSW,
@@ -103,10 +105,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 			if (message.direction !== MsgDirection.TO_NEWTAB) {
 				return;
 			}
-			console.log(
-				'[NewTab] handleMessage -- data recv: %d',
-				message.type
-			);
+			console.log('[NewTab] <= Data recv from BGSW: %d', message.type);
 			switch (message.type) {
 				case MsgBGSWToNewTabType.CONFIRM_IF_MASTER_WS:
 					handleMasterQueryConfirmation(sendResponse);

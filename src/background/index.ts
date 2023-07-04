@@ -117,11 +117,6 @@ const handlePortMessage = (
 	(async () => {
 		if (!isMsgExpected(message, port?.sender)) return;
 		const tabId = port?.sender?.tab?.id as number;
-		console.log(
-			'[BSGW] handlePortMessage -- data recv from %d: %d',
-			tabId,
-			message.type
-		);
 		switch (message.type) {
 			case MsgNewTabToBGSWType.QUERY_STATUS_OF_WS: {
 				await figureOutMaster(tabId);
@@ -130,7 +125,7 @@ const handlePortMessage = (
 		}
 	})().catch((err) => {
 		console.error(
-			'[BSGW] Error handling port message %o from port %o (tabId: %s):',
+			'[BSGW] <= Error handling port message %o from port %o (tabId: %s):',
 			message,
 			port,
 			port?.sender?.tab?.id,
