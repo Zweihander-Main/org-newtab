@@ -25,6 +25,7 @@ import {
 
 //NEXT: confirm tab exists when using masterWSTabId
 //NEXT: store masterWSTabId in storage
+//NEXT: more consistent async await catch style
 
 const storage = new Storage({ area: 'local' });
 const connectedTabIds: Set<number> = new Set([]);
@@ -93,6 +94,7 @@ const handleQueryFlowCaseSingleConnectionBecomesMaster = async (
 	singleRequestingTabId: number
 ) => {
 	masterWSTabId = singleRequestingTabId;
+	saveMasterWsTabId();
 	console.log('[BSGW] First connection, assuming %d master', masterWSTabId);
 	await sendMsgToTab(MsgBGSWToNewTabType.YOU_ARE_MASTER_WS, masterWSTabId);
 };
@@ -112,6 +114,7 @@ const handleQueryFlowCaseTellOthersTheyAreClients = async (
 
 const handleQueryFlowIdentifiedMaster = (masterTabId: number) => {
 	masterWSTabId = masterTabId;
+	saveMasterWsTabId();
 	console.log('[BSGW] Identified master WS as %d', masterWSTabId);
 };
 
@@ -121,6 +124,7 @@ const handleQueryFlowIdentifiedClient = (clientTabId: number) => {
 
 const handleQueryFlowRequestBecomesMaster = async (requestingTabId: number) => {
 	masterWSTabId = requestingTabId;
+	saveMasterWsTabId();
 	console.log(
 		'[BSGW] No master identified, letting %d be master',
 		masterWSTabId
@@ -130,6 +134,7 @@ const handleQueryFlowRequestBecomesMaster = async (requestingTabId: number) => {
 
 const handleQueryFlowCaseFindMaster = async (requestingTabId: number) => {
 	masterWSTabId = null; // Will be set if one identifies as master
+	saveMasterWsTabId();
 	const answeredTabIds = await Promise.all(
 		Array.from(connectedTabIds).map((connectedTabId) => {
 			return sendMsgToTab(
@@ -254,6 +259,44 @@ const loadConnectedTabIds = () => {
 		});
 };
 
+const loadMasterWsTabId = () => {
+	storage
+		.get('masterWSTabId')
+		.then((loadedMasterWSTabId) => {
+			if (loadedMasterWSTabId) {
+				handleConfirmAliveFlow(parseInt(loadedMasterWSTabId, 10))
+					.then((isAlive) => {
+						if (
+							isAlive &&
+							typeof loadedMasterWSTabId === 'number' &&
+							!isNaN(loadedMasterWSTabId)
+						) {
+							masterWSTabId = loadedMasterWSTabId;
+							console.log(
+								'[BSGW] Confirmed alive from storage re-add for master tab %d',
+								loadedMasterWSTabId
+							);
+						}
+					})
+					.catch((err) => {
+						console.error(
+							'[BSGW] Error confirming alive from storage flow:',
+							err
+						);
+					});
+			}
+		})
+		.catch((err) => {
+			console.error('[BSGW] Error loading masterWSTabId:', err);
+		});
+};
+
+const saveMasterWsTabId = () => {
+	storage.set('masterWSTabId', masterWSTabId).catch((err) => {
+		console.error('[BSGW] Error saving masterWSTabId:', err);
+	});
+};
+
 const handlePortDisconnect = (port: chrome.runtime.Port) => {
 	console.log('[BGSW] Disconnecting port:', port?.sender?.tab?.id);
 	port.onDisconnect.removeListener(handlePortDisconnect);
@@ -308,3 +351,4 @@ if (!chrome.runtime.onConnect.hasListener(handlePortConnect)) {
 
 // Load connectedTabIds from storage, should be run if the BGSW is reloaded
 loadConnectedTabIds();
+loadMasterWsTabId();
