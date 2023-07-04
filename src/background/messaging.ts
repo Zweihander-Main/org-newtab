@@ -9,6 +9,8 @@ import {
 	getMsgNewTabToBGSWType,
 } from '../types';
 
+const TIME_TO_WAIT_FOR_TAB_ALIVE_RESPONSE = 500;
+
 export const isMsgExpected = (
 	message: MsgNewTabToBGSW | unknown,
 	sender?: chrome.runtime.MessageSender
@@ -75,12 +77,26 @@ export const sendMsgToTab = async (
 
 export const confirmTabIdAlive = async (tabId: number) => {
 	try {
-		const response = await sendMsgToTab(
-			MsgBGSWToNewTabType.CONFIRM_IF_ALIVE,
-			tabId
-		);
-		if (response && response.type === MsgNewTabToBGSWType.CONFIRMED_ALIVE) {
-			return true;
+		const tab = await chrome.tabs.get(tabId);
+		if (tab.active && !tab.discarded && tab.status === 'complete') {
+			const response = await Promise.race([
+				new Promise((resolve) =>
+					setTimeout(resolve, TIME_TO_WAIT_FOR_TAB_ALIVE_RESPONSE)
+				),
+				(async () => {
+					return await sendMsgToTab(
+						MsgBGSWToNewTabType.CONFIRM_IF_ALIVE,
+						tabId
+					);
+				})(),
+			]);
+			if (
+				response &&
+				(response as MsgNewTabToBGSW)?.type ===
+					MsgNewTabToBGSWType.CONFIRMED_ALIVE
+			) {
+				return true;
+			}
 		}
 	} catch (err) {
 		return false;

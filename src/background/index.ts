@@ -53,7 +53,7 @@ const confirmClients = async (tabIdsInvolved: Array<number>) => {
 
 const identifiedMaster = async (masterTabId: number) => {
 	await masterWSTabId.set(masterTabId);
-	console.log('[BSGW] Identified master WS as %d', masterWSTabId);
+	console.log('[BSGW] Identified master WS as %d', masterWSTabId.val);
 };
 
 const identifiedClient = (clientTabId: number) => {
@@ -102,7 +102,10 @@ const searchAndFindMaster = async (requestingTabId: number) => {
 };
 
 const figureOutMaster = async (requestingTabId: number) => {
-	console.log('[BSGW] connectedTabIds: ', connections.tabIds);
+	console.log(
+		'[BSGW] Figuring out master, current connections: ',
+		connections.tabIds
+	);
 	if (connections.size === 1) {
 		await firstConnectionBecomesMaster(requestingTabId);
 	} else {
@@ -135,9 +138,10 @@ const handlePortMessage = (
 };
 
 const handlePortDisconnect = (port: chrome.runtime.Port) => {
+	console.log('[BGSW] Disconnecting port:', port?.sender?.tab?.id);
+	port.onMessage.removeListener(handlePortMessage);
+	port.onDisconnect.removeListener(handlePortDisconnect);
 	(async () => {
-		console.log('[BGSW] Disconnecting port:', port?.sender?.tab?.id);
-		port.onDisconnect.removeListener(handlePortDisconnect);
 		await connections.remove(port);
 		if (port?.sender?.tab?.id === masterWSTabId.val) {
 			await masterWSTabId.set(null);
@@ -146,6 +150,7 @@ const handlePortDisconnect = (port: chrome.runtime.Port) => {
 				if (connections.size === 1) {
 					await firstConnectionBecomesMaster(newRequestingTabId);
 				} else if (connections.size > 1) {
+					// TODO is this right? Master was just killed
 					await searchAndFindMaster(newRequestingTabId);
 				}
 			}
@@ -161,27 +166,14 @@ const handlePortDisconnect = (port: chrome.runtime.Port) => {
 };
 
 const handlePortConnect = (port: chrome.runtime.Port) => {
-	(async () => {
-		if (
-			port.name === 'ws' &&
-			port?.sender?.tab?.id &&
-			!connections.has(port)
-		) {
-			console.log('[BSGW] Connecting port:', port.sender.tab.id);
-			await connections.add(port);
-			if (!port.onMessage.hasListener(handlePortMessage)) {
-				port.onMessage.addListener(handlePortMessage);
-				port.onDisconnect.addListener(handlePortDisconnect);
-			}
+	if (port.name === 'ws' && port?.sender?.tab?.id && !connections.has(port)) {
+		console.log('[BSGW] Connecting port:', port.sender.tab.id);
+		if (!port.onMessage.hasListener(handlePortMessage)) {
+			port.onMessage.addListener(handlePortMessage);
+			port.onDisconnect.addListener(handlePortDisconnect);
 		}
-	})().catch((err) => {
-		console.error(
-			'[BSGW] Error handling port connect %o (tabId: %s):',
-			port,
-			port?.sender?.tab?.id,
-			err
-		);
-	});
+		void connections.add(port);
+	}
 	return true;
 };
 
@@ -189,6 +181,6 @@ if (!chrome.runtime.onConnect.hasListener(handlePortConnect)) {
 	chrome.runtime.onConnect.addListener(handlePortConnect);
 }
 
-// Load connectedTabIds from storage, should be run if the BGSW is reloaded
+// Load connections from storage, should be run if the BGSW is reloaded
 void connections.loadFromStorage();
 void masterWSTabId.loadFromStorage();
