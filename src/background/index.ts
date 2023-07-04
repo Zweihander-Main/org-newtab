@@ -5,8 +5,9 @@ import {
 	type MsgNewTabToBGSW,
 	MsgBGSWToNewTabType,
 } from '../types';
-import { isMsgExpected, sendMsgToTab, confirmTabIdAlive } from './messaging';
+import { isMsgExpected, sendMsgToTab } from './messaging';
 import MasterWSTabId from './MasterWsTabId';
+import Connections from './Connections';
 
 /**
  * Some notes about this background script:
@@ -24,8 +25,7 @@ import MasterWSTabId from './MasterWsTabId';
  */
 
 const storage = new Storage({ area: 'local' });
-const connectedTabIds: Set<number> = new Set([]);
-const connectedPorts: Set<chrome.runtime.Port> = new Set([]);
+const connections = Connections.getInstance(storage);
 const masterWSTabId = MasterWSTabId.getInstance(storage);
 
 const handleQueryFlowCaseSingleConnectionBecomesMaster = async (
@@ -73,7 +73,7 @@ const handleQueryFlowRequestBecomesMaster = async (requestingTabId: number) => {
 const handleQueryFlowCaseFindMaster = async (requestingTabId: number) => {
 	await masterWSTabId.set(null); // Will be set if one identifies as master
 	const answeredTabIds = await Promise.all(
-		Array.from(connectedTabIds).map(async (connectedTabId) => {
+		connections.tabIds.map(async (connectedTabId) => {
 			const response = await sendMsgToTab(
 				MsgBGSWToNewTabType.CONFIRM_IF_MASTER_WS,
 				connectedTabId
@@ -103,45 +103,11 @@ const handleQueryFlowCaseFindMaster = async (requestingTabId: number) => {
 };
 
 const handleQueryFlow = async (requestingTabId: number) => {
-	console.log('[BSGW] connectedTabIds: ', connectedTabIds);
-	if (connectedTabIds.size === 1) {
+	console.log('[BSGW] connectedTabIds: ', connections.tabIds);
+	if (connections.size === 1) {
 		await handleQueryFlowCaseSingleConnectionBecomesMaster(requestingTabId);
 	} else {
 		await handleQueryFlowCaseFindMaster(requestingTabId);
-	}
-};
-
-const addPort = async (port: chrome.runtime.Port) => {
-	connectedPorts.add(port);
-	connectedTabIds.add(port?.sender?.tab?.id as number);
-	await saveConnectedTabIds();
-};
-
-const removePort = async (port: chrome.runtime.Port) => {
-	connectedPorts.delete(port);
-	connectedTabIds.delete(port?.sender?.tab?.id as number);
-	await saveConnectedTabIds();
-};
-
-const saveConnectedTabIds = async () => {
-	await storage.set('connectedTabIds', Array.from(connectedTabIds));
-};
-
-const loadConnectedTabIds = async () => {
-	const loadedConnectedTabIds = await storage.get<Array<number>>(
-		'connectedTabIds'
-	);
-	if (loadedConnectedTabIds && Array.isArray(loadedConnectedTabIds)) {
-		for (const tabId of loadedConnectedTabIds) {
-			const isAlive = await confirmTabIdAlive(tabId);
-			if (isAlive) {
-				connectedTabIds.add(tabId);
-				console.log(
-					'[BSGW] Confirmed alive from storage re-add for tab %d',
-					tabId
-				);
-			}
-		}
 	}
 };
 
@@ -178,16 +144,16 @@ const handlePortDisconnect = (port: chrome.runtime.Port) => {
 	(async () => {
 		console.log('[BGSW] Disconnecting port:', port?.sender?.tab?.id);
 		port.onDisconnect.removeListener(handlePortDisconnect);
-		await removePort(port);
+		await connections.remove(port);
 		if (port?.sender?.tab?.id === masterWSTabId.get()) {
 			await masterWSTabId.set(null);
-			if (connectedTabIds.size >= 1) {
-				const newRequestingTabId = Array.from(connectedTabIds)[0];
-				if (connectedTabIds.size === 1) {
+			if (connections.size >= 1) {
+				const newRequestingTabId = connections.tabIds[0];
+				if (connections.size === 1) {
 					await handleQueryFlowCaseSingleConnectionBecomesMaster(
 						newRequestingTabId
 					);
-				} else if (connectedTabIds.size > 1) {
+				} else if (connections.size > 1) {
 					await handleQueryFlowCaseFindMaster(newRequestingTabId);
 				}
 			}
@@ -207,11 +173,10 @@ const handlePortConnect = (port: chrome.runtime.Port) => {
 		if (
 			port.name === 'ws' &&
 			port?.sender?.tab?.id &&
-			!connectedPorts.has(port) &&
-			!connectedTabIds.has(port.sender.tab.id)
+			!connections.has(port)
 		) {
 			console.log('[BSGW] Connecting port:', port.sender.tab.id);
-			await addPort(port);
+			await connections.add(port);
 			if (!port.onMessage.hasListener(handlePortMessage)) {
 				port.onMessage.addListener(handlePortMessage);
 				port.onDisconnect.addListener(handlePortDisconnect);
@@ -233,5 +198,5 @@ if (!chrome.runtime.onConnect.hasListener(handlePortConnect)) {
 }
 
 // Load connectedTabIds from storage, should be run if the BGSW is reloaded
-void loadConnectedTabIds();
+void connections.loadFromStorage();
 void masterWSTabId.loadFromStorage();
