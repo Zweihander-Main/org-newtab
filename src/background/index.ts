@@ -6,7 +6,7 @@ import {
 	MsgBGSWToNewTabType,
 	MsgDirection,
 	type MsgBGSWToNewTab,
-} from './types';
+} from '../types';
 
 /**
  * Some notes about this background script:
