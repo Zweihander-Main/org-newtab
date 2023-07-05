@@ -65,7 +65,14 @@ const figureOutMaster = async (requestingTabId: number) => {
 		'[BGSW] Figuring out master, current connections: ',
 		connections.tabIds
 	);
-	if (connections.size === 1) {
+	/**
+	 * If masterWs is null, either it fired onDisconnect or the background
+	 * script was reloaded and it didn't answer as alive when loaded from
+	 * storage.
+	 */
+	if (masterWs.val) {
+		setAsMaster(masterWs.val);
+	} else if (connections.size === 1) {
 		setAsMaster(requestingTabId);
 	} else {
 		await searchAndFindMaster(requestingTabId);
