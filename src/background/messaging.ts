@@ -8,6 +8,8 @@ import {
 	getMsgBGSWToNewType,
 	getMsgNewTabToBGSWType,
 } from '../types';
+import connections from './Connections';
+import masterWs from './MasterWS';
 
 const TIME_TO_WAIT_FOR_TAB_ALIVE_RESPONSE = 500;
 
@@ -83,12 +85,7 @@ export const confirmTabIdAlive = async (tabId: number) => {
 				new Promise((resolve) =>
 					setTimeout(resolve, TIME_TO_WAIT_FOR_TAB_ALIVE_RESPONSE)
 				),
-				(async () => {
-					return await sendMsgToTab(
-						MsgBGSWToNewTabType.CONFIRM_IF_ALIVE,
-						tabId
-					);
-				})(),
+				sendMsgToTab(MsgBGSWToNewTabType.CONFIRM_IF_ALIVE, tabId),
 			]);
 			if (
 				response &&
@@ -102,4 +99,24 @@ export const confirmTabIdAlive = async (tabId: number) => {
 		return false;
 	}
 	return false;
+};
+
+const setAsClients = async (clientTabIds: Array<number>) => {
+	await Promise.all(
+		clientTabIds.map((tabId) =>
+			sendMsgToTab(MsgBGSWToNewTabType.YOU_ARE_CLIENT_WS, tabId)
+		)
+	);
+};
+
+export const setAsMaster = (masterTabId: number) => {
+	console.log('[BGSW] Setting %d as master websocket', masterTabId);
+	const clientTabs = connections.tabIds.filter(
+		(tabId) => tabId !== masterTabId
+	);
+	void Promise.all([
+		masterWs.set(masterTabId),
+		sendMsgToTab(MsgBGSWToNewTabType.YOU_ARE_MASTER_WS, masterTabId),
+		setAsClients(clientTabs),
+	]);
 };

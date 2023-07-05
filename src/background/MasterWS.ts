@@ -2,10 +2,11 @@
 import type { BaseStorage } from '@plasmohq/storage';
 import { sendMsgToTab, confirmTabIdAlive } from './messaging';
 import { MsgBGSWToNewTabType } from '../types';
+import Storage from './Storage';
 
 type masterWS = number | null;
 
-export default class MasterWS {
+class MasterWS {
 	private static _instance: MasterWS;
 	private _value: masterWS;
 	private _storage: BaseStorage;
@@ -13,7 +14,7 @@ export default class MasterWS {
 	private constructor(storage: BaseStorage) {
 		if (MasterWS._instance) {
 			throw new Error(
-				'[BGSW] Use MasterWSTabId.Instance() instead of new.'
+				'[BSGW] Use MasterWSTabId.getInstance() instead of new.'
 			);
 		}
 		MasterWS._instance = this;
@@ -51,7 +52,7 @@ export default class MasterWS {
 					loadedMasterWSTabId
 				);
 				console.log(
-					'[BGSW] Confirmed alive from storage re-add for master tab %d',
+					'[BSGW] Confirmed alive from storage re-add for master tab %d',
 					loadedMasterWSTabId
 				);
 			} else {
@@ -60,3 +61,5 @@ export default class MasterWS {
 		}
 	}
 }
+
+export default MasterWS.getInstance(Storage);

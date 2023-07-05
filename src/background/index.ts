@@ -1,13 +1,12 @@
 /* eslint-disable no-console */
-import { Storage } from '@plasmohq/storage';
 import {
 	MsgNewTabToBGSWType,
 	type MsgNewTabToBGSW,
 	MsgBGSWToNewTabType,
 } from '../types';
-import { isMsgExpected, sendMsgToTab } from './messaging';
-import MasterWS from './MasterWS';
-import Connections from './Connections';
+import { isMsgExpected, sendMsgToTab, setAsMaster } from './messaging';
+import connections from './Connections';
+import masterWs from './MasterWS';
 
 /**
  * Some notes about this background script:
@@ -24,54 +23,10 @@ import Connections from './Connections';
  *    regular messages back and forth for the master websocket query flow.
  */
 
-const storage = new Storage({ area: 'local' });
-const connections = Connections.getInstance(storage);
-const masterWSTabId = MasterWS.getInstance(storage);
-
-const firstConnectionBecomesMaster = async (singleRequestingTabId: number) => {
-	await masterWSTabId.set(singleRequestingTabId);
-	console.log(
-		'[BGSW] First connection, assuming %d master',
-		masterWSTabId.val
-	);
-	await sendMsgToTab(
-		MsgBGSWToNewTabType.YOU_ARE_MASTER_WS,
-		singleRequestingTabId
-	);
-};
-
-const confirmClients = async (tabIdsInvolved: Array<number>) => {
-	const tabIdsToInform = tabIdsInvolved.filter(
-		(tabId) => tabId !== masterWSTabId.val
-	);
-	await Promise.all(
-		tabIdsToInform.map((tabId) =>
-			sendMsgToTab(MsgBGSWToNewTabType.YOU_ARE_CLIENT_WS, tabId)
-		)
-	);
-};
-
-const identifiedMaster = async (masterTabId: number) => {
-	await masterWSTabId.set(masterTabId);
-	console.log('[BGSW] Identified master WS as %d', masterWSTabId.val);
-};
-
-const identifiedClient = (clientTabId: number) => {
-	console.log('[BGSW] Identified client to WS as %d', clientTabId);
-};
-
-const confirmMaster = async (requestingTabId: number) => {
-	await masterWSTabId.set(requestingTabId);
-	console.log(
-		'[BGSW] No master identified, letting %d be master',
-		masterWSTabId
-	);
-	await sendMsgToTab(MsgBGSWToNewTabType.YOU_ARE_MASTER_WS, requestingTabId);
-};
-
 const searchAndFindMaster = async (requestingTabId: number) => {
-	await masterWSTabId.set(null); // Will be set if one identifies as master
-	const answeredTabIds = await Promise.all(
+	await masterWs.set(null);
+	let alreadyExistingMaster;
+	await Promise.all(
 		connections.tabIds.map(async (connectedTabId) => {
 			const response = await sendMsgToTab(
 				MsgBGSWToNewTabType.CONFIRM_IF_MASTER_WS,
@@ -80,10 +35,17 @@ const searchAndFindMaster = async (requestingTabId: number) => {
 			if (response) {
 				switch (response.type) {
 					case MsgNewTabToBGSWType.IDENTIFY_AS_MASTER_WS:
-						await identifiedMaster(connectedTabId);
+						alreadyExistingMaster = connectedTabId;
+						console.log(
+							'[BGSW] Identified master WS as %d',
+							alreadyExistingMaster
+						);
 						break;
 					case MsgNewTabToBGSWType.IDENTIFY_AS_WS_CLIENT:
-						identifiedClient(connectedTabId);
+						console.log(
+							'[BGSW] Identified client to WS as %d',
+							connectedTabId
+						);
 						break;
 				}
 				return connectedTabId;
@@ -91,14 +53,11 @@ const searchAndFindMaster = async (requestingTabId: number) => {
 			return null;
 		})
 	);
-	const aliveAnsweredTabIds = answeredTabIds.filter(
-		(tabId): tabId is number => tabId !== null
-	);
-	// If all of them think they're clients, set the original requestor as master
-	if (masterWSTabId === null) {
-		await confirmMaster(requestingTabId);
+	if (alreadyExistingMaster) {
+		setAsMaster(alreadyExistingMaster);
+	} else {
+		setAsMaster(requestingTabId);
 	}
-	await confirmClients(aliveAnsweredTabIds);
 };
 
 const figureOutMaster = async (requestingTabId: number) => {
@@ -107,7 +66,7 @@ const figureOutMaster = async (requestingTabId: number) => {
 		connections.tabIds
 	);
 	if (connections.size === 1) {
-		await firstConnectionBecomesMaster(requestingTabId);
+		setAsMaster(requestingTabId);
 	} else {
 		await searchAndFindMaster(requestingTabId);
 	}
@@ -132,16 +91,11 @@ const handlePortDisconnect = (port: chrome.runtime.Port) => {
 	port.onMessage.removeListener(handlePortMessage);
 	port.onDisconnect.removeListener(handlePortDisconnect);
 	void connections.remove(port);
-	if (port?.sender?.tab?.id === masterWSTabId.val) {
-		void masterWSTabId.set(null);
+	if (port?.sender?.tab?.id === masterWs.val) {
+		void masterWs.set(null);
 		if (connections.size >= 1) {
 			const newRequestingTabId = connections.tabIds[0];
-			if (connections.size === 1) {
-				void firstConnectionBecomesMaster(newRequestingTabId);
-			} else if (connections.size > 1) {
-				// TODO is this right? Master was just killed
-				void searchAndFindMaster(newRequestingTabId);
-			}
+			void setAsMaster(newRequestingTabId);
 		}
 	}
 };
@@ -166,4 +120,4 @@ if (!chrome.runtime.onConnect.hasListener(handlePortConnect)) {
 
 // Load connections from storage, should be run if the BGSW is reloaded
 void connections.loadFromStorage();
-void masterWSTabId.loadFromStorage();
+void masterWs.loadFromStorage();

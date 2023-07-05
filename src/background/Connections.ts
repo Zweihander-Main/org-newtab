@@ -1,10 +1,11 @@
 /* eslint-disable no-console */
 import type { BaseStorage } from '@plasmohq/storage';
 import { confirmTabIdAlive } from './messaging';
+import Storage from './Storage';
 
 type connectedTabIds = Set<number>;
 
-export default class Connections {
+class Connections {
 	private static _instance: Connections;
 	private _storage: BaseStorage;
 	private _connectedTabIds: connectedTabIds;
@@ -35,10 +36,6 @@ export default class Connections {
 	}
 
 	public has(port: chrome.runtime.Port) {
-		console.log(
-			'========================',
-			this._connectedTabIds.has(port?.sender?.tab?.id as number)
-		);
 		return this._connectedTabIds.has(port?.sender?.tab?.id as number);
 	}
 
@@ -78,3 +75,5 @@ export default class Connections {
 		return this._connectedTabIds.size;
 	}
 }
+
+export default Connections.getInstance(Storage);
