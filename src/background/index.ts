@@ -31,7 +31,7 @@ const masterWSTabId = MasterWS.getInstance(storage);
 const firstConnectionBecomesMaster = async (singleRequestingTabId: number) => {
 	await masterWSTabId.set(singleRequestingTabId);
 	console.log(
-		'[BSGW] First connection, assuming %d master',
+		'[BGSW] First connection, assuming %d master',
 		masterWSTabId.val
 	);
 	await sendMsgToTab(
@@ -53,17 +53,17 @@ const confirmClients = async (tabIdsInvolved: Array<number>) => {
 
 const identifiedMaster = async (masterTabId: number) => {
 	await masterWSTabId.set(masterTabId);
-	console.log('[BSGW] Identified master WS as %d', masterWSTabId.val);
+	console.log('[BGSW] Identified master WS as %d', masterWSTabId.val);
 };
 
 const identifiedClient = (clientTabId: number) => {
-	console.log('[BSGW] Identified client to WS as %d', clientTabId);
+	console.log('[BGSW] Identified client to WS as %d', clientTabId);
 };
 
 const confirmMaster = async (requestingTabId: number) => {
 	await masterWSTabId.set(requestingTabId);
 	console.log(
-		'[BSGW] No master identified, letting %d be master',
+		'[BGSW] No master identified, letting %d be master',
 		masterWSTabId
 	);
 	await sendMsgToTab(MsgBGSWToNewTabType.YOU_ARE_MASTER_WS, requestingTabId);
@@ -103,7 +103,7 @@ const searchAndFindMaster = async (requestingTabId: number) => {
 
 const figureOutMaster = async (requestingTabId: number) => {
 	console.log(
-		'[BSGW] Figuring out master, current connections: ',
+		'[BGSW] Figuring out master, current connections: ',
 		connections.tabIds
 	);
 	if (connections.size === 1) {
@@ -128,7 +128,7 @@ const handlePortMessage = (
 		}
 	})().catch((err) => {
 		console.error(
-			'[BSGW] <= Error handling port message %o from port %o (tabId: %s):',
+			'[BGSW] <= Error handling port message %o from port %o (tabId: %s):',
 			message,
 			port,
 			port?.sender?.tab?.id,
@@ -157,7 +157,7 @@ const handlePortDisconnect = (port: chrome.runtime.Port) => {
 		}
 	})().catch((err) => {
 		console.error(
-			'[BSGW] Error handling port disconnect %o (tabId: %s):',
+			'[BGSW] Error handling port disconnect %o (tabId: %s):',
 			port,
 			port?.sender?.tab?.id,
 			err
@@ -166,10 +166,17 @@ const handlePortDisconnect = (port: chrome.runtime.Port) => {
 };
 
 const handlePortConnect = (port: chrome.runtime.Port) => {
+	console.log('test');
 	if (port.name === 'ws' && port?.sender?.tab?.id && !connections.has(port)) {
-		console.log('[BSGW] Connecting port:', port.sender.tab.id);
+		console.log('[BGSW] Connecting port:', port.sender.tab.id);
+		console.log(
+			'[BGSW] Connection has connection:',
+			port.onDisconnect.hasListener(handlePortDisconnect)
+		);
 		if (!port.onMessage.hasListener(handlePortMessage)) {
 			port.onMessage.addListener(handlePortMessage);
+		}
+		if (!port.onDisconnect.hasListener(handlePortDisconnect)) {
 			port.onDisconnect.addListener(handlePortDisconnect);
 		}
 		void connections.add(port);

@@ -14,7 +14,7 @@ export default class Connections {
 	private constructor(storage: BaseStorage) {
 		if (Connections._instance) {
 			throw new Error(
-				'[BSGW] Use MasterWSTabId.Instance() instead of new.'
+				'[BGSW] Use MasterWSTabId.Instance() instead of new.'
 			);
 		}
 		Connections._instance = this;
@@ -72,7 +72,7 @@ export default class Connections {
 				if (isAlive) {
 					this._connectedTabIds.add(tabId);
 					console.log(
-						'[BSGW] Confirmed alive from storage re-add for tab %d',
+						'[BGSW] Confirmed alive from storage re-add for tab %d',
 						tabId
 					);
 				} else {

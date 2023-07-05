@@ -16,7 +16,7 @@ export const isMsgExpected = (
 	sender?: chrome.runtime.MessageSender
 ): message is MsgNewTabToBGSW => {
 	if (!sender?.tab?.id) {
-		console.error('[BSGW] <= No tab ID found in message');
+		console.error('[BGSW] <= No tab ID found in message');
 		return false;
 	}
 	if (
@@ -25,14 +25,14 @@ export const isMsgExpected = (
 		!('direction' in message) ||
 		!('type' in message)
 	) {
-		console.error('[BSGW] <= Invalid message recv:', message);
+		console.error('[BGSW] <= Invalid message recv:', message);
 		return false;
 	}
 	if (message.direction !== MsgDirection.TO_BGSW) {
 		return false;
 	}
 	console.log(
-		'[BSGW] <= Data recv from %d: %s',
+		'[BGSW] <= Data recv from %d: %s',
 		sender.tab.id,
 		MsgNewTabToBGSWType[message.type as MsgNewTabToBGSWType]
 	);
@@ -44,7 +44,7 @@ export const sendMsgToTab = async (
 	tabId: number
 ) => {
 	console.log(
-		'[BSGW] => Sending message to %d: %s',
+		'[BGSW] => Sending message to %d: %s',
 		tabId,
 		getMsgBGSWToNewType(type)
 	);
@@ -66,7 +66,7 @@ export const sendMsgToTab = async (
 			throw new Error('[BGSW] <= Invalid response type', response.type);
 		}
 		console.log(
-			'[BSGW] <= Recv response from %d: %s',
+			'[BGSW] <= Recv response from %d: %s',
 			tabId,
 			getMsgNewTabToBGSWType(response.type)
 		);

@@ -13,7 +13,7 @@ export default class MasterWS {
 	private constructor(storage: BaseStorage) {
 		if (MasterWS._instance) {
 			throw new Error(
-				'[BSGW] Use MasterWSTabId.Instance() instead of new.'
+				'[BGSW] Use MasterWSTabId.Instance() instead of new.'
 			);
 		}
 		MasterWS._instance = this;
@@ -51,7 +51,7 @@ export default class MasterWS {
 					loadedMasterWSTabId
 				);
 				console.log(
-					'[BSGW] Confirmed alive from storage re-add for master tab %d',
+					'[BGSW] Confirmed alive from storage re-add for master tab %d',
 					loadedMasterWSTabId
 				);
 			} else {
