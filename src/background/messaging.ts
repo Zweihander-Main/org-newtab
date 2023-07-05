@@ -77,20 +77,29 @@ export const sendMsgToTab = async (
 	return;
 };
 
+const waitForTimeout = (tabId: number) => {
+	return new Promise<null>((resolve) => {
+		setTimeout(() => {
+			console.log(
+				'[BGSW] Timed out waiting for %d alive response',
+				tabId
+			);
+			resolve(null);
+		}, TIME_TO_WAIT_FOR_TAB_ALIVE_RESPONSE);
+	});
+};
+
 export const confirmTabIdAlive = async (tabId: number) => {
 	try {
 		const tab = await chrome.tabs.get(tabId);
 		if (tab.active && !tab.discarded && tab.status === 'complete') {
 			const response = await Promise.race([
-				new Promise((resolve) =>
-					setTimeout(resolve, TIME_TO_WAIT_FOR_TAB_ALIVE_RESPONSE)
-				),
+				waitForTimeout(tabId),
 				sendMsgToTab(MsgBGSWToNewTabType.CONFIRM_IF_ALIVE, tabId),
 			]);
 			if (
 				response &&
-				(response as MsgNewTabToBGSW)?.type ===
-					MsgNewTabToBGSWType.CONFIRMED_ALIVE
+				response?.type === MsgNewTabToBGSWType.CONFIRMED_ALIVE
 			) {
 				return true;
 			}
