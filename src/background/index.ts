@@ -117,62 +117,38 @@ const handlePortMessage = (
 	message: MsgNewTabToBGSW,
 	port: chrome.runtime.Port
 ) => {
-	(async () => {
-		if (!isMsgExpected(message, port?.sender)) return;
-		const tabId = port?.sender?.tab?.id as number;
-		switch (message.type) {
-			case MsgNewTabToBGSWType.QUERY_STATUS_OF_WS: {
-				await figureOutMaster(tabId);
-				break;
-			}
+	if (!isMsgExpected(message, port?.sender)) return;
+	const tabId = port?.sender?.tab?.id as number;
+	switch (message.type) {
+		case MsgNewTabToBGSWType.QUERY_STATUS_OF_WS: {
+			void figureOutMaster(tabId);
+			break;
 		}
-	})().catch((err) => {
-		console.error(
-			'[BGSW] <= Error handling port message %o from port %o (tabId: %s):',
-			message,
-			port,
-			port?.sender?.tab?.id,
-			err
-		);
-	});
+	}
 };
 
 const handlePortDisconnect = (port: chrome.runtime.Port) => {
 	console.log('[BGSW] Disconnecting port:', port?.sender?.tab?.id);
 	port.onMessage.removeListener(handlePortMessage);
 	port.onDisconnect.removeListener(handlePortDisconnect);
-	(async () => {
-		await connections.remove(port);
-		if (port?.sender?.tab?.id === masterWSTabId.val) {
-			await masterWSTabId.set(null);
-			if (connections.size >= 1) {
-				const newRequestingTabId = connections.tabIds[0];
-				if (connections.size === 1) {
-					await firstConnectionBecomesMaster(newRequestingTabId);
-				} else if (connections.size > 1) {
-					// TODO is this right? Master was just killed
-					await searchAndFindMaster(newRequestingTabId);
-				}
+	void connections.remove(port);
+	if (port?.sender?.tab?.id === masterWSTabId.val) {
+		void masterWSTabId.set(null);
+		if (connections.size >= 1) {
+			const newRequestingTabId = connections.tabIds[0];
+			if (connections.size === 1) {
+				void firstConnectionBecomesMaster(newRequestingTabId);
+			} else if (connections.size > 1) {
+				// TODO is this right? Master was just killed
+				void searchAndFindMaster(newRequestingTabId);
 			}
 		}
-	})().catch((err) => {
-		console.error(
-			'[BGSW] Error handling port disconnect %o (tabId: %s):',
-			port,
-			port?.sender?.tab?.id,
-			err
-		);
-	});
+	}
 };
 
 const handlePortConnect = (port: chrome.runtime.Port) => {
-	console.log('test');
 	if (port.name === 'ws' && port?.sender?.tab?.id && !connections.has(port)) {
 		console.log('[BGSW] Connecting port:', port.sender.tab.id);
-		console.log(
-			'[BGSW] Connection has connection:',
-			port.onDisconnect.hasListener(handlePortDisconnect)
-		);
 		if (!port.onMessage.hasListener(handlePortMessage)) {
 			port.onMessage.addListener(handlePortMessage);
 		}

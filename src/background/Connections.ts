@@ -3,13 +3,11 @@ import type { BaseStorage } from '@plasmohq/storage';
 import { confirmTabIdAlive } from './messaging';
 
 type connectedTabIds = Set<number>;
-type connectedPorts = Set<chrome.runtime.Port>;
 
 export default class Connections {
 	private static _instance: Connections;
 	private _storage: BaseStorage;
 	private _connectedTabIds: connectedTabIds;
-	private _connectedPorts: connectedPorts;
 
 	private constructor(storage: BaseStorage) {
 		if (Connections._instance) {
@@ -20,7 +18,6 @@ export default class Connections {
 		Connections._instance = this;
 		this._storage = storage;
 		this._connectedTabIds = new Set([]);
-		this._connectedPorts = new Set([]);
 	}
 
 	public static getInstance(storage: BaseStorage) {
@@ -28,22 +25,21 @@ export default class Connections {
 	}
 
 	public async add(port: chrome.runtime.Port) {
-		this._connectedPorts.add(port);
 		this._connectedTabIds.add(port?.sender?.tab?.id as number);
 		await this.saveToStorage();
 	}
 
 	public async remove(port: chrome.runtime.Port) {
-		this._connectedPorts.delete(port);
 		this._connectedTabIds.delete(port?.sender?.tab?.id as number);
 		await this.saveToStorage();
 	}
 
 	public has(port: chrome.runtime.Port) {
-		return (
-			this._connectedPorts.has(port) &&
+		console.log(
+			'========================',
 			this._connectedTabIds.has(port?.sender?.tab?.id as number)
 		);
+		return this._connectedTabIds.has(port?.sender?.tab?.id as number);
 	}
 
 	private async saveToStorage() {
@@ -51,15 +47,6 @@ export default class Connections {
 			'connectedTabIds',
 			Array.from(this._connectedTabIds)
 		);
-	}
-
-	private findPortByTabId(tabId: number) {
-		for (const port of this._connectedPorts) {
-			if (port?.sender?.tab?.id === tabId) {
-				return port;
-			}
-		}
-		return false;
 	}
 
 	public async loadFromStorage() {
@@ -77,12 +64,9 @@ export default class Connections {
 					);
 				} else {
 					this._connectedTabIds.delete(tabId);
-					const portToDelete = this.findPortByTabId(tabId);
-					if (portToDelete) {
-						this._connectedPorts.delete(portToDelete);
-					}
 				}
 			}
+			await this.saveToStorage();
 		}
 	}
 
