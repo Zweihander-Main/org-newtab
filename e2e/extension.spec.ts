@@ -107,9 +107,10 @@ test('tab query flow stopping and starting', async ({
 		MASTER_MESSAGE
 	);
 	await tab4.close();
-	await tab4.goto(`chrome-extension://${extensionId}/newtab.html`);
-	await expect(tab4.getByTestId(STATUS_LOCATOR)).toContainText(
+	const tab5 = await context.newPage();
+	await tab5.goto(`chrome-extension://${extensionId}/newtab.html`);
+	await expect(tab5.getByTestId(STATUS_LOCATOR)).toContainText(
 		MASTER_MESSAGE
 	);
-	await tab4.close();
+	await tab5.close();
 });
