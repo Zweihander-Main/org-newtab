@@ -17,7 +17,7 @@
 
 ### Possible Future Additions
 
--   [ ] Browser storage
+-   [x] Browser storage
 -   [x] Persistent default match query
 -   [ ] Mark items as done from browser
 -   [ ] Clock in and out from browser

@@ -8,18 +8,12 @@ import type { AllTagsRecv } from './types';
 import ConnectionStatusIndicator from 'components/ConnectionStatusIndicator';
 import OptionsMenu from 'components/OptionsMenu';
 import OrgItem from 'components/OrgItem';
-import { useChromeStorageLocal } from 'use-chrome-storage';
-import type { State } from 'storage/state';
+import useValue from 'hooks/useValue';
 
 const IndexNewtab: React.FC = () => {
 	const { sendJsonMessage, lastRecvJsonMessage } = useContext(WSContext);
-	const [matchQuery, setMatchQuery] = useChromeStorageLocal<
-		State['matchQuery']
-	>('matchQuery', 'TODO="TODO"');
-	const [tagsData, setTagsData] = useChromeStorageLocal<State['tagsData']>(
-		'tagsData',
-		{}
-	);
+	const [matchQuery] = useValue('matchQuery');
+	const [tagsData, setTagsData] = useValue('tagsData');
 	const previousMatchQuery = usePrevious(matchQuery);
 	const [itemText, setItemText] = useState<string | null>(null);
 	const [foregroundColor, setForegroundColor] = useState<string | undefined>(
@@ -107,10 +101,7 @@ const IndexNewtab: React.FC = () => {
 
 	return (
 		<div className="app">
-			<OptionsMenu
-				matchQuery={matchQuery}
-				setMatchQuery={setMatchQuery}
-			/>
+			<OptionsMenu />
 			<ConnectionStatusIndicator />
 			<OrgItem foregroundColor={foregroundColor} itemText={itemText} />
 		</div>
