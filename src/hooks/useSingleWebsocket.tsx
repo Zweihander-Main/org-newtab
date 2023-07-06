@@ -2,6 +2,7 @@ import useWebSocket from 'react-use-websocket';
 import type { SendJsonMessage } from 'react-use-websocket/dist/lib/types';
 import type { WSCommonProps, WSRecvMsg } from 'types';
 import { ReadyState } from 'react-use-websocket';
+import { useChromeStorageLocal } from 'use-chrome-storage';
 
 type useSingleWebsocket = (amMasterWS: boolean) => WSCommonProps;
 
@@ -10,7 +11,10 @@ const useSingleWebsocket: useSingleWebsocket = (amMasterWS: boolean) => {
 		return;
 	};
 	let lastRecvJsonMessage: WSRecvMsg = null;
-	let readyState: ReadyState = ReadyState.UNINSTANTIATED;
+	const [readyState, setReadyState] = useChromeStorageLocal(
+		'readyState',
+		ReadyState.UNINSTANTIATED
+	);
 
 	const {
 		sendJsonMessage: sendJsonMessageMaster,
@@ -21,8 +25,9 @@ const useSingleWebsocket: useSingleWebsocket = (amMasterWS: boolean) => {
 	if (amMasterWS) {
 		sendJsonMessage = sendJsonMessageMaster;
 		lastRecvJsonMessage = lastRecvJsonMessageMaster;
-		readyState = readyStateMaster;
+		setReadyState(readyStateMaster);
 	}
+
 	return { sendJsonMessage, lastRecvJsonMessage, readyState };
 };
 

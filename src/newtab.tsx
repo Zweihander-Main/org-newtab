@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { usePrevious } from '@react-hookz/web';
-import StorageContext, { StorageProvider } from 'contexts/StorageContext';
 import WSContext, { WSProvider } from 'contexts/WSContext';
 import '@fontsource/public-sans/700.css';
 import './newtab.css';
@@ -9,10 +8,18 @@ import type { AllTagsRecv } from './types';
 import ConnectionStatusIndicator from 'components/ConnectionStatusIndicator';
 import OptionsMenu from 'components/OptionsMenu';
 import OrgItem from 'components/OrgItem';
+import { useChromeStorageLocal } from 'use-chrome-storage';
+import type { State } from 'storage/state';
 
 const IndexNewtab: React.FC = () => {
 	const { sendJsonMessage, lastRecvJsonMessage } = useContext(WSContext);
-	const { matchQuery, tagsData, setTagsData } = useContext(StorageContext);
+	const [matchQuery, setMatchQuery] = useChromeStorageLocal<
+		State['matchQuery']
+	>('matchQuery', 'TODO="TODO"');
+	const [tagsData, setTagsData] = useChromeStorageLocal<State['tagsData']>(
+		'tagsData',
+		{}
+	);
 	const previousMatchQuery = usePrevious(matchQuery);
 	const [itemText, setItemText] = useState<string | null>(null);
 	const [foregroundColor, setForegroundColor] = useState<string | undefined>(
@@ -62,12 +69,7 @@ const IndexNewtab: React.FC = () => {
 				);
 				break;
 			case 'TAGS':
-				setTagsData(lastRecvJsonMessage?.data || {}).catch((err) => {
-					console.error(
-						'[NewTab] Error setting tags data in storage: ',
-						err
-					);
-				});
+				setTagsData(lastRecvJsonMessage?.data || {});
 				break;
 			default:
 				console.error(
@@ -105,7 +107,10 @@ const IndexNewtab: React.FC = () => {
 
 	return (
 		<div className="app">
-			<OptionsMenu />
+			<OptionsMenu
+				matchQuery={matchQuery}
+				setMatchQuery={setMatchQuery}
+			/>
 			<ConnectionStatusIndicator />
 			<OrgItem foregroundColor={foregroundColor} itemText={itemText} />
 		</div>
@@ -114,11 +119,9 @@ const IndexNewtab: React.FC = () => {
 
 const RootContextWrapper: React.FC = () => {
 	return (
-		<StorageProvider>
-			<WSProvider>
-				<IndexNewtab />
-			</WSProvider>
-		</StorageProvider>
+		<WSProvider>
+			<IndexNewtab />
+		</WSProvider>
 	);
 };
 

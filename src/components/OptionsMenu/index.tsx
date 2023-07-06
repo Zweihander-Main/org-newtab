@@ -1,10 +1,17 @@
 import * as styles from './style.module.css';
-import StorageContext from 'contexts/StorageContext';
 import WSContext from 'contexts/WSContext';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import type { State } from 'storage/state';
 
-const OptionsMenu: React.FC = () => {
-	const { matchQuery, setMatchQuery } = useContext(StorageContext);
+type OptionsMenuProps = {
+	matchQuery: State['matchQuery'];
+	setMatchQuery: React.Dispatch<React.SetStateAction<State['matchQuery']>>;
+};
+
+const OptionsMenu: React.FC<OptionsMenuProps> = ({
+	matchQuery,
+	setMatchQuery,
+}) => {
 	const { lastRecvJsonMessage } = useContext(WSContext);
 	const [optionsVisible, setOptionsVisible] = useState(false);
 
