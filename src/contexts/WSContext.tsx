@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import { createContext, useCallback, useEffect, useRef, useState } from 'react';
+import { ReadyState } from 'react-use-websocket';
 import {
 	MsgDirection,
 	type MsgBGSWToNewTab,
@@ -10,7 +11,6 @@ import {
 	getMsgNewTabToBGSWType,
 	getMsgBGSWToNewType,
 } from '../types';
-import { ReadyState } from 'react-use-websocket';
 import useSingleWebsocket from 'hooks/useSingleWebsocket';
 
 type SendResponseType = (message: MsgNewTabToBGSW) => unknown;
@@ -52,16 +52,19 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 		};
 	}, [port]);
 
-	const sendMsgToBGSWPort = useCallback((type: MsgNewTabToBGSWType) => {
-		console.log(
-			'[NewTab] => Sending message to BGSW port: %s',
-			getMsgNewTabToBGSWType(type)
-		);
-		port.current.postMessage({
-			type,
-			direction: MsgDirection.TO_BGSW,
-		});
-	}, []);
+	const sendMsgToBGSWPort = useCallback(
+		(type: MsgNewTabToBGSWType) => {
+			console.log(
+				'[NewTab] => Sending message to BGSW port: %s',
+				getMsgNewTabToBGSWType(type)
+			);
+			port.postMessage({
+				type,
+				direction: MsgDirection.TO_BGSW,
+			});
+		},
+		[port]
+	);
 
 	const sendMsgAsResponse = useCallback(
 		(type: MsgNewTabToBGSWType, sendResponse: SendResponseType) => {
@@ -77,13 +80,13 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 		[]
 	);
 
-	const handleSetAsMaster = useCallback(() => {
+	const setAsMaster = useCallback(() => {
 		if (amMasterWS === false) {
 			setAmMasterWS(true);
 		}
 	}, [amMasterWS, setAmMasterWS]);
 
-	const handleSetAsClient = useCallback(() => {
+	const setAsClient = useCallback(() => {
 		if (amMasterWS === true) {
 			setAmMasterWS(false);
 		}
@@ -134,10 +137,10 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 					handleMasterQueryConfirmation(sendResponse);
 					break;
 				case MsgBGSWToNewTabType.YOU_ARE_MASTER_WS:
-					handleSetAsMaster();
+					setAsMaster();
 					break;
 				case MsgBGSWToNewTabType.YOU_ARE_CLIENT_WS:
-					handleSetAsClient();
+					setAsClient();
 					break;
 				case MsgBGSWToNewTabType.CONFIRM_IF_ALIVE:
 					handleConfirmingAlive(sendResponse);
@@ -145,8 +148,8 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 			}
 		},
 		[
-			handleSetAsMaster,
-			handleSetAsClient,
+			setAsMaster,
+			setAsClient,
 			handleMasterQueryConfirmation,
 			handleConfirmingAlive,
 		]
