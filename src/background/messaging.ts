@@ -1,12 +1,12 @@
 /* eslint-disable no-console */
 import {
-	MsgNewTabToBGSWType,
-	type MsgNewTabToBGSW,
-	MsgBGSWToNewTabType,
+	MsgToBGSWType,
+	type MsgToBGSW,
+	MsgToTabType,
 	MsgDirection,
-	type MsgBGSWToNewTab,
-	getMsgBGSWToNewType,
-	getMsgNewTabToBGSWType,
+	type MsgToTab,
+	getMsgToTabType,
+	getMsgToBGSWType,
 } from '../types';
 import connections from './Connections';
 import masterWs from './MasterWS';
@@ -14,9 +14,9 @@ import masterWs from './MasterWS';
 const TIME_TO_WAIT_FOR_TAB_ALIVE_RESPONSE = 500;
 
 export const isMsgExpected = (
-	message: MsgNewTabToBGSW | unknown,
+	message: MsgToBGSW | unknown,
 	sender?: chrome.runtime.MessageSender
-): message is MsgNewTabToBGSW => {
+): message is MsgToBGSW => {
 	if (!sender?.tab?.id) {
 		console.error('[BGSW] <= No tab ID found in message');
 		return false;
@@ -36,24 +36,18 @@ export const isMsgExpected = (
 	console.log(
 		'[BGSW] <= Data recv from %d: %s',
 		sender.tab.id,
-		MsgNewTabToBGSWType[message.type as MsgNewTabToBGSWType]
+		MsgToBGSWType[message.type as MsgToBGSWType]
 	);
 	return true;
 };
 
-export const sendMsgToTab = async (
-	type: MsgBGSWToNewTabType,
-	tabId: number
-) => {
+export const sendMsgToTab = async (type: MsgToTabType, tabId: number) => {
 	console.log(
 		'[BGSW] => Sending message to %d: %s',
 		tabId,
-		getMsgBGSWToNewType(type)
+		getMsgToTabType(type)
 	);
-	const response = await chrome.tabs.sendMessage<
-		MsgBGSWToNewTab,
-		MsgNewTabToBGSW
-	>(tabId, {
+	const response = await chrome.tabs.sendMessage<MsgToTab, MsgToBGSW>(tabId, {
 		direction: MsgDirection.TO_NEWTAB,
 		type,
 	});
@@ -70,7 +64,7 @@ export const sendMsgToTab = async (
 		console.log(
 			'[BGSW] <= Recv response from %d: %s',
 			tabId,
-			getMsgNewTabToBGSWType(response.type)
+			getMsgToBGSWType(response.type)
 		);
 		return response;
 	}
@@ -95,12 +89,9 @@ export const confirmTabIdAlive = async (tabId: number) => {
 		if (tab.active && !tab.discarded && tab.status === 'complete') {
 			const response = await Promise.race([
 				waitForTimeout(tabId),
-				sendMsgToTab(MsgBGSWToNewTabType.CONFIRM_IF_ALIVE, tabId),
+				sendMsgToTab(MsgToTabType.CONFIRM_IF_ALIVE, tabId),
 			]);
-			if (
-				response &&
-				response?.type === MsgNewTabToBGSWType.CONFIRMED_ALIVE
-			) {
+			if (response && response?.type === MsgToBGSWType.CONFIRMED_ALIVE) {
 				return true;
 			}
 		}
@@ -111,14 +102,14 @@ export const confirmTabIdAlive = async (tabId: number) => {
 };
 
 export const sendToGivenTabs = async (
-	type: MsgBGSWToNewTabType,
+	type: MsgToTabType,
 	tabIds: Array<number>
 ) => {
 	await Promise.allSettled(tabIds.map((tabId) => sendMsgToTab(type, tabId)));
 };
 
 const setAsClients = async (clientTabIds: Array<number>) => {
-	await sendToGivenTabs(MsgBGSWToNewTabType.YOU_ARE_CLIENT_WS, clientTabIds);
+	await sendToGivenTabs(MsgToTabType.YOU_ARE_CLIENT_WS, clientTabIds);
 };
 
 export const setAsMaster = (masterTabId: number) => {
@@ -128,7 +119,7 @@ export const setAsMaster = (masterTabId: number) => {
 	);
 	void Promise.all([
 		masterWs.set(masterTabId),
-		sendMsgToTab(MsgBGSWToNewTabType.YOU_ARE_MASTER_WS, masterTabId),
+		sendMsgToTab(MsgToTabType.YOU_ARE_MASTER_WS, masterTabId),
 		setAsClients(clientTabs),
 	]);
 };

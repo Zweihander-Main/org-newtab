@@ -1,9 +1,5 @@
 /* eslint-disable no-console */
-import {
-	MsgNewTabToBGSWType,
-	type MsgNewTabToBGSW,
-	MsgBGSWToNewTabType,
-} from '../types';
+import { MsgToBGSWType, type MsgToBGSW, MsgToTabType } from '../types';
 import { isMsgExpected, sendMsgToTab, setAsMaster } from './messaging';
 import connections from './Connections';
 import masterWs from './MasterWS';
@@ -29,19 +25,19 @@ const searchAndFindMaster = async (requestingTabId: number) => {
 	await Promise.allSettled(
 		connections.tabIds.map(async (connectedTabId) => {
 			const response = await sendMsgToTab(
-				MsgBGSWToNewTabType.CONFIRM_IF_MASTER_WS,
+				MsgToTabType.CONFIRM_IF_MASTER_WS,
 				connectedTabId
 			);
 			if (response) {
 				switch (response.type) {
-					case MsgNewTabToBGSWType.IDENTIFY_AS_MASTER_WS:
+					case MsgToBGSWType.IDENTIFY_AS_MASTER_WS:
 						alreadyExistingMaster = connectedTabId;
 						console.log(
 							'[BGSW] Identified master WS as %d',
 							alreadyExistingMaster
 						);
 						break;
-					case MsgNewTabToBGSWType.IDENTIFY_AS_WS_CLIENT:
+					case MsgToBGSWType.IDENTIFY_AS_WS_CLIENT:
 						console.log(
 							'[BGSW] Identified client to WS as %d',
 							connectedTabId
@@ -79,14 +75,11 @@ const figureOutMaster = async (requestingTabId: number) => {
 	}
 };
 
-const handlePortMessage = (
-	message: MsgNewTabToBGSW,
-	port: chrome.runtime.Port
-) => {
+const handlePortMessage = (message: MsgToBGSW, port: chrome.runtime.Port) => {
 	if (!isMsgExpected(message, port?.sender)) return;
 	const tabId = port?.sender?.tab?.id as number;
 	switch (message.type) {
-		case MsgNewTabToBGSWType.QUERY_STATUS_OF_WS: {
+		case MsgToBGSWType.QUERY_STATUS_OF_WS: {
 			void figureOutMaster(tabId);
 			break;
 		}

@@ -3,17 +3,17 @@ import { createContext, useCallback, useEffect, useRef, useState } from 'react';
 import { ReadyState } from 'react-use-websocket';
 import {
 	MsgDirection,
-	type MsgBGSWToNewTab,
-	MsgBGSWToNewTabType,
-	MsgNewTabToBGSWType,
-	type MsgNewTabToBGSW,
+	type MsgToTab,
+	MsgToTabType,
+	MsgToBGSWType,
+	type MsgToBGSW,
 	type WSCommonProps,
-	getMsgNewTabToBGSWType,
-	getMsgBGSWToNewType,
+	getMsgToBGSWType,
+	getMsgToTabType,
 } from '../types';
 import useSingleWebsocket from 'hooks/useSingleWebsocket';
 
-type SendResponseType = (message: MsgNewTabToBGSW) => unknown;
+type SendResponseType = (message: MsgToBGSW) => unknown;
 
 export type WSContextProps = {
 	amMasterWS: boolean;
@@ -53,10 +53,10 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	}, [port]);
 
 	const sendMsgToBGSWPort = useCallback(
-		(type: MsgNewTabToBGSWType) => {
+		(type: MsgToBGSWType) => {
 			console.log(
 				'[NewTab] => Sending message to BGSW port: %s',
-				getMsgNewTabToBGSWType(type)
+				getMsgToBGSWType(type)
 			);
 			port.postMessage({
 				type,
@@ -67,10 +67,10 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	);
 
 	const sendMsgAsResponse = useCallback(
-		(type: MsgNewTabToBGSWType, sendResponse: SendResponseType) => {
+		(type: MsgToBGSWType, sendResponse: SendResponseType) => {
 			console.log(
 				'[NewTab] => Sending response to BGSW msg: %s',
-				getMsgNewTabToBGSWType(type)
+				getMsgToBGSWType(type)
 			);
 			sendResponse({
 				type,
@@ -96,12 +96,12 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 		(sendResponse: SendResponseType) => {
 			if (amMasterWS) {
 				sendMsgAsResponse(
-					MsgNewTabToBGSWType.IDENTIFY_AS_MASTER_WS,
+					MsgToBGSWType.IDENTIFY_AS_MASTER_WS,
 					sendResponse
 				);
 			} else {
 				sendMsgAsResponse(
-					MsgNewTabToBGSWType.IDENTIFY_AS_WS_CLIENT,
+					MsgToBGSWType.IDENTIFY_AS_WS_CLIENT,
 					sendResponse
 				);
 			}
@@ -111,17 +111,14 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 
 	const handleConfirmingAlive = useCallback(
 		(sendResponse: SendResponseType) => {
-			sendMsgAsResponse(
-				MsgNewTabToBGSWType.CONFIRMED_ALIVE,
-				sendResponse
-			);
+			sendMsgAsResponse(MsgToBGSWType.CONFIRMED_ALIVE, sendResponse);
 		},
 		[sendMsgAsResponse]
 	);
 
 	const handleMessage = useCallback(
 		(
-			message: MsgBGSWToNewTab,
+			message: MsgToTab,
 			_sender: chrome.runtime.MessageSender,
 			sendResponse: SendResponseType
 		) => {
@@ -130,19 +127,19 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 			}
 			console.log(
 				'[NewTab] <= Data recv from BGSW: %s',
-				getMsgBGSWToNewType(message.type)
+				getMsgToTabType(message.type)
 			);
 			switch (message.type) {
-				case MsgBGSWToNewTabType.CONFIRM_IF_MASTER_WS:
+				case MsgToTabType.CONFIRM_IF_MASTER_WS:
 					handleMasterQueryConfirmation(sendResponse);
 					break;
-				case MsgBGSWToNewTabType.YOU_ARE_MASTER_WS:
+				case MsgToTabType.YOU_ARE_MASTER_WS:
 					setAsMaster();
 					break;
-				case MsgBGSWToNewTabType.YOU_ARE_CLIENT_WS:
+				case MsgToTabType.YOU_ARE_CLIENT_WS:
 					setAsClient();
 					break;
-				case MsgBGSWToNewTabType.CONFIRM_IF_ALIVE:
+				case MsgToTabType.CONFIRM_IF_ALIVE:
 					handleConfirmingAlive(sendResponse);
 					break;
 			}
@@ -165,7 +162,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	useEffect(() => {
 		if (isInitialRender.current) {
 			// 1. Ask if any master web sockets exist
-			sendMsgToBGSWPort(MsgNewTabToBGSWType.QUERY_STATUS_OF_WS);
+			sendMsgToBGSWPort(MsgToBGSWType.QUERY_STATUS_OF_WS);
 			isInitialRender.current = false;
 		}
 	}, [sendMsgToBGSWPort]);

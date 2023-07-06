@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import type { BaseStorage } from '@plasmohq/storage';
 import { sendMsgToTab, confirmTabIdAlive } from './messaging';
-import { MsgBGSWToNewTabType } from '../types';
+import { MsgToTabType } from '../types';
 import Storage from './Storage';
 
 type masterWS = number | null;
@@ -48,7 +48,7 @@ class MasterWS {
 			) {
 				await this.set(loadedMasterWSTabId);
 				await sendMsgToTab(
-					MsgBGSWToNewTabType.YOU_ARE_MASTER_WS,
+					MsgToTabType.YOU_ARE_MASTER_WS,
 					loadedMasterWSTabId
 				);
 				console.log(

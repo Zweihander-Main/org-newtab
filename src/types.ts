@@ -1,25 +1,25 @@
 import type { SendJsonMessage } from 'react-use-websocket/dist/lib/types';
 import type { ReadyState } from 'react-use-websocket';
 
-export enum MsgNewTabToBGSWType {
+export enum MsgToBGSWType {
 	QUERY_STATUS_OF_WS = 1,
 	IDENTIFY_AS_MASTER_WS = 2,
 	IDENTIFY_AS_WS_CLIENT = 3,
 	CONFIRMED_ALIVE = 4,
 }
 
-export const getMsgNewTabToBGSWType = (type: MsgNewTabToBGSWType) => {
-	return MsgNewTabToBGSWType[type];
+export const getMsgToBGSWType = (type: MsgToBGSWType) => {
+	return MsgToBGSWType[type];
 };
 
-export enum MsgBGSWToNewTabType {
+export enum MsgToTabType {
 	CONFIRM_IF_MASTER_WS = 1,
 	YOU_ARE_MASTER_WS = 2,
 	YOU_ARE_CLIENT_WS = 3,
 	CONFIRM_IF_ALIVE = 4,
 }
-export const getMsgBGSWToNewType = (type: MsgBGSWToNewTabType) => {
-	return MsgBGSWToNewTabType[type];
+export const getMsgToTabType = (type: MsgToTabType) => {
+	return MsgToTabType[type];
 };
 
 export enum MsgDirection {
@@ -27,19 +27,19 @@ export enum MsgDirection {
 	TO_NEWTAB = 2,
 }
 
-export type MsgNewTabToBGSW = {
+export type MsgToBGSW = {
 	direction: MsgDirection.TO_BGSW;
-	type: MsgNewTabToBGSWType;
+	type: MsgToBGSWType;
 };
 
-export type MsgBGSWToNewTab = {
+export type MsgToTab = {
 	direction: MsgDirection.TO_NEWTAB;
-	type: MsgBGSWToNewTabType;
+	type: MsgToTabType;
 };
 
 export type AllTagsRecv = string | Array<string | number>;
 
-export type WebSocketItemMessage = {
+export type WsItemMsg = {
 	type: 'ITEM';
 	data: {
 		ITEM: string;
@@ -47,20 +47,17 @@ export type WebSocketItemMessage = {
 	};
 };
 
-export type WebSocketTagsMessage = {
+export type WSTagsMsg = {
 	type: 'TAGS';
 	data: {
 		[key: string]: string;
 	};
 };
 
-export type WebSocketRecvMessage =
-	| WebSocketItemMessage
-	| WebSocketTagsMessage
-	| null;
+export type WSRecvMsg = WsItemMsg | WSTagsMsg | null;
 
 export type WSCommonProps = {
 	sendJsonMessage: SendJsonMessage;
-	lastRecvJsonMessage: WebSocketRecvMessage;
+	lastRecvJsonMessage: WSRecvMsg;
 	readyState: ReadyState;
 };
