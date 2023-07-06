@@ -110,12 +110,15 @@ export const confirmTabIdAlive = async (tabId: number) => {
 	return false;
 };
 
+export const sendToGivenTabs = async (
+	type: MsgBGSWToNewTabType,
+	tabIds: Array<number>
+) => {
+	await Promise.allSettled(tabIds.map((tabId) => sendMsgToTab(type, tabId)));
+};
+
 const setAsClients = async (clientTabIds: Array<number>) => {
-	await Promise.all(
-		clientTabIds.map((tabId) =>
-			sendMsgToTab(MsgBGSWToNewTabType.YOU_ARE_CLIENT_WS, tabId)
-		)
-	);
+	await sendToGivenTabs(MsgBGSWToNewTabType.YOU_ARE_CLIENT_WS, clientTabIds);
 };
 
 export const setAsMaster = (masterTabId: number) => {

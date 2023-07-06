@@ -26,7 +26,7 @@ import masterWs from './MasterWS';
 const searchAndFindMaster = async (requestingTabId: number) => {
 	await masterWs.set(null);
 	let alreadyExistingMaster;
-	await Promise.all(
+	await Promise.allSettled(
 		connections.tabIds.map(async (connectedTabId) => {
 			const response = await sendMsgToTab(
 				MsgBGSWToNewTabType.CONFIRM_IF_MASTER_WS,
