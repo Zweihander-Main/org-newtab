@@ -38,7 +38,19 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 		useSingleWebsocket(amMasterWS);
 
 	const isInitialRender = useRef(true);
-	const port = useRef(chrome.runtime.connect({ name: 'ws' }));
+	const [port, setPort] = useState<chrome.runtime.Port>(
+		chrome.runtime.connect({ name: 'ws' })
+	);
+
+	useEffect(() => {
+		port.onDisconnect.addListener(() => {
+			console.log('[NewTab] Port disconnected, reconnecting...');
+			setPort(chrome.runtime.connect({ name: 'ws' }));
+		});
+		return () => {
+			port.disconnect();
+		};
+	}, [port]);
 
 	const sendMsgToBGSWPort = useCallback((type: MsgNewTabToBGSWType) => {
 		console.log(
