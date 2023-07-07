@@ -33,6 +33,7 @@
 -   [ ] Basic styling as options
 -   [ ] Multiple themes
 -   [ ] Built-out documentation (README or separate site)
+-   [ ] Provide sorting beyond what match query provides
 
 ### Misc
 
