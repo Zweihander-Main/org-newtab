@@ -41,7 +41,10 @@ const OrgItem: React.FC = () => {
 	useEffect(() => {
 		const allTags = orgItem?.ALLTAGS || '';
 		const foundTag = sanitizeTagsAndMatchData(allTags);
-		setForegroundColor(foundTag);
+		if (foundTag) {
+			const tagColor = tagsData?.[foundTag];
+			tagColor && setForegroundColor(tagColor);
+		}
 	}, [sanitizeTagsAndMatchData, orgItem, tagsData]);
 
 	return (
