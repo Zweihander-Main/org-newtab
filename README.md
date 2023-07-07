@@ -1,6 +1,6 @@
 # org-newtab
 
-> 🗃️ Supercharge Your Browser's New Tab with Org-Agenda
+> 🗃️ Supercharge your browser's New Tab with Org-Agenda
 
 ## Dev Notes
 
@@ -19,6 +19,7 @@
 
 -   [x] Browser storage
 -   [x] Persistent default match query
+-   [ ] Display priority and clock status in browser
 -   [ ] Mark items as done from browser
 -   [ ] Clock in and out from browser
 -   [ ] Match query builder
@@ -28,12 +29,12 @@
 -   [ ] Age countdown
 -   [ ] Icons for connection status
 -   [ ] Hooks on Emacs actions (TODO change, clock change, ect.)
--   [ ] Display clock data
 -   [ ] Deeper agenda integration
 -   [ ] Basic styling as options
 -   [ ] Multiple themes
 -   [ ] Built-out documentation (README or separate site)
 -   [ ] Provide sorting beyond what match query provides
+-   [ ] Firefox compatibility
 
 ### Misc
 
