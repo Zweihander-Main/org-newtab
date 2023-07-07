@@ -70,9 +70,9 @@ This serves the web-build and API over HTTP."
 
 (defun org-newtab--debug-mode ()
   "Turn on every debug setting."
-   (if org-newtab--debug-mode
-	   (setq org-newtab--debug-mode nil)
-	   (setq org-newtab--debug-mode t))
+  (if org-newtab--debug-mode
+      (setq org-newtab--debug-mode nil)
+    (setq org-newtab--debug-mode t))
   (setq debug-on-error org-newtab--debug-mode
         websocket-callback-debug-on-error org-newtab--debug-mode
         async-debug org-newtab--debug-mode))
@@ -138,7 +138,9 @@ This serves the web-build and API over HTTP."
   "Send DATA to socket. If socket is nil, drop the data and do nothing."
   (when org-newtab--ws-socket
     (message "[Server] Sending %S to client" data)
-    (websocket-send-text org-newtab--ws-socket data)))
+    (condition-case err
+        (websocket-send-text org-newtab--ws-socket data)
+      (error (message "[Server] Error sending data: %S" err)))))
 
 (defun org-newtab--decipher-message-from-frame-text (frame-text)
   "Decipher FRAME-TEXT and return the message."
