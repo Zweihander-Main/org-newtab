@@ -39,7 +39,7 @@ export type MsgToTab = {
 
 export type AllTagsRecv = string | Array<string | number>;
 
-export type WsItemMsg = {
+export type EmacsItemMsg = {
 	type: 'ITEM';
 	data: {
 		ITEM: string;
@@ -47,17 +47,17 @@ export type WsItemMsg = {
 	};
 };
 
-export type WSTagsMsg = {
+export type EmacsTagsMsg = {
 	type: 'TAGS';
 	data: {
 		[key: string]: string;
 	};
 };
 
-export type WSRecvMsg = WsItemMsg | WSTagsMsg | null;
+export type EmacsRecvMsg = EmacsItemMsg | EmacsTagsMsg | null;
 
 export type WSCommonProps = {
 	sendJsonMessage: SendJsonMessage;
-	lastRecvJsonMessage: WSRecvMsg;
+	lastRecvJsonMessage: EmacsRecvMsg;
 	readyState: ReadyState;
 };

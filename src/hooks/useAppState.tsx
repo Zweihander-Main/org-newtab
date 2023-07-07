@@ -1,18 +1,19 @@
 import { createChromeStorageStateHookLocal } from 'use-chrome-storage';
 import { ReadyState } from 'react-use-websocket';
+import type { EmacsItemMsg } from 'types';
 
 const STATE_KEY = 'appState';
 const INITIAL_VALUE = {
-	matchQuery: undefined,
+	matchQuery: 'TODO="TODO"',
 	tagsData: {},
-	itemText: null,
+	orgItem: null,
 	readyState: ReadyState.UNINSTANTIATED,
 };
 
 export interface AppState {
 	matchQuery: string | undefined;
 	tagsData: { [key: string]: string };
-	itemText: string | null;
+	orgItem: EmacsItemMsg['data'] | null;
 	readyState: ReadyState;
 }
 
