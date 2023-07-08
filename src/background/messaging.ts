@@ -7,7 +7,7 @@ import {
 	type MsgToTab,
 	getMsgToTabType,
 	getMsgToBGSWType,
-} from '../types';
+} from '../util/types';
 import connections from './Connections';
 import masterWs from './MasterWS';
 

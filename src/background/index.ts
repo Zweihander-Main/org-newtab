@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { MsgToBGSWType, type MsgToBGSW, MsgToTabType } from '../types';
+import { MsgToBGSWType, type MsgToBGSW, MsgToTabType } from '../util/types';
 import { isMsgExpected, sendMsgToTab, setAsMaster } from './messaging';
 import connections from './Connections';
 import masterWs from './MasterWS';

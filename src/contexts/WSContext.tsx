@@ -10,7 +10,7 @@ import {
 	type WSCommonProps,
 	getMsgToBGSWType,
 	getMsgToTabType,
-} from '../types';
+} from '../util/types';
 import useSingleWebsocket from 'hooks/useSingleWebsocket';
 
 type SendResponseType = (message: MsgToBGSW) => unknown;

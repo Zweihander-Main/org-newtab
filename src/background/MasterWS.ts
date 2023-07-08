@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import type { BaseStorage } from '@plasmohq/storage';
 import { sendMsgToTab, confirmTabIdAlive } from './messaging';
-import { MsgToTabType } from '../types';
+import { MsgToTabType } from '../util/types';
 import Storage from './Storage';
 
 type masterWS = number | null;

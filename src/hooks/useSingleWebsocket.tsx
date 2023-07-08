@@ -1,6 +1,6 @@
 import useWebSocket from 'react-use-websocket';
 import type { SendJsonMessage } from 'react-use-websocket/dist/lib/types';
-import type { WSCommonProps, EmacsRecvMsg } from 'types';
+import type { WSCommonProps, EmacsRecvMsg } from '../util/types';
 import { ReadyState } from 'react-use-websocket';
 import { useChromeStorageLocal } from 'use-chrome-storage';
 

@@ -23,6 +23,7 @@
 -   [ ] Mark items as done from browser
 -   [ ] Clock in and out from browser
 -   [ ] Match query builder
+-   [ ] Multiple match queries
 -   [ ] Render heading links
 -   [ ] Open heading links
 -   [ ] Vim keybindings
