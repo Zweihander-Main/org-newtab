@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import * as styles from './style.module.css';
 import useValue from 'hooks/useValue';
 import type { AllTagsRecv } from 'types';
+import logo from 'data-base64:~assets/icon-1024x1024.png';
 
 const OrgItem: React.FC = () => {
 	const [tagsData] = useValue('tagsData');
@@ -49,13 +50,15 @@ const OrgItem: React.FC = () => {
 
 	return (
 		<>
-			{itemText && (
+			{itemText ? (
 				<div
 					className={styles.item}
 					style={{ backgroundColor: foregroundColor }}
 				>
 					{itemText}
 				</div>
+			) : (
+				<img src={logo} className={styles.logo} alt="logo" />
 			)}
 		</>
 	);

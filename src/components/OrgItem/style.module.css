@@ -16,4 +16,15 @@
 			var(--color-item-shadow),
 		var(--width-item-stroke) var(--width-item-stroke) 0
 			var(--color-item-shadow);
+	z-index: 10;
+}
+
+.logo {
+	position: absolute;
+	z-index: 5;
+	mix-blend-mode: lighten;
+	filter: opacity(0.15) grayscale(1);
+	max-width: min(50vw, 25rem);
+	height: auto;
+	width: auto;
 }
