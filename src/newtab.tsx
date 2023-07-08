@@ -9,12 +9,13 @@ import OrgItem from 'components/OrgItem';
 import useValue from 'hooks/useValue';
 
 const IndexNewtab: React.FC = () => {
-	const { sendJsonMessage, lastRecvJsonMessage } = useContext(WSContext);
+	const { sendJsonMessage, lastRecvJsonMessage, amMasterWS } =
+		useContext(WSContext);
 	const [matchQuery] = useValue('matchQuery');
 	const [tagsData, setTagsData] = useValue('tagsData');
 	const previousMatchQuery = usePrevious(matchQuery);
 	const [, setOrgItem] = useValue('orgItem');
-	const isInitialRender = useRef(true);
+	const hasSentInitialQuery = useRef(false);
 	useEffect(() => {
 		if (lastRecvJsonMessage === null) {
 			return;
@@ -49,13 +50,15 @@ const IndexNewtab: React.FC = () => {
 	}, [matchQuery, previousMatchQuery, sendJsonMessage]);
 
 	useEffect(() => {
-		if (isInitialRender.current) {
+		// NEXT: sendJsonMessage is undefined
+		if (!hasSentInitialQuery.current && amMasterWS) {
 			sendJsonMessage({
 				command: 'getItem',
+				data: matchQuery,
 			});
-			isInitialRender.current = false;
+			hasSentInitialQuery.current = true;
 		}
-	}, [sendJsonMessage]);
+	}, [sendJsonMessage, matchQuery, amMasterWS]);
 
 	return (
 		<div className="app">

@@ -146,7 +146,7 @@ This serves the web-build and API over HTTP."
   "Decipher FRAME-TEXT and return the message."
   (let* ((json-object-type 'plist)
          (json-array-type 'list)
-         (json (json-read-from-string frame-text)))
+         (json (json-read-from-string frame-text))) ;; TODO: error handling for "\261R\30\7", missing data, command, etc.
     json))
 
 (provide 'org-newtab-server)
