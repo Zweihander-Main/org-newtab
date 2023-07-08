@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { usePrevious } from '@react-hookz/web';
 import WSContext, { WSProvider } from 'contexts/WSContext';
 import '@fontsource/public-sans/700.css';
@@ -14,6 +14,7 @@ const IndexNewtab: React.FC = () => {
 	const [tagsData, setTagsData] = useValue('tagsData');
 	const previousMatchQuery = usePrevious(matchQuery);
 	const [, setOrgItem] = useValue('orgItem');
+	const isInitialRender = useRef(true);
 	useEffect(() => {
 		if (lastRecvJsonMessage === null) {
 			return;
@@ -44,13 +45,17 @@ const IndexNewtab: React.FC = () => {
 				command: 'updateMatchQuery',
 				data: matchQuery,
 			});
-		} else {
-			sendJsonMessage({
-				command: 'getItem',
-				data: matchQuery,
-			});
 		}
 	}, [matchQuery, previousMatchQuery, sendJsonMessage]);
+
+	useEffect(() => {
+		if (isInitialRender.current) {
+			sendJsonMessage({
+				command: 'getItem',
+			});
+			isInitialRender.current = false;
+		}
+	}, [sendJsonMessage]);
 
 	return (
 		<div className="app">
