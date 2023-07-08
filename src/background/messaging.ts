@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import {
 	MsgToBGSWType,
 	type MsgToBGSW,
@@ -8,6 +7,7 @@ import {
 	getMsgToTabType,
 	getMsgToBGSWType,
 } from '../util/types';
+import { LogLoc, LogMsgDir, logMsg, log, logMsgErr } from 'util/logging';
 import connections from './Connections';
 import masterWs from './MasterWS';
 
@@ -18,7 +18,7 @@ export const isMsgExpected = (
 	sender?: chrome.runtime.MessageSender
 ): message is MsgToBGSW => {
 	if (!sender?.tab?.id) {
-		console.error('[BGSW] <= No tab ID found in message');
+		logMsgErr(LogLoc.BGSW, LogMsgDir.RECV, 'No tab ID found in message');
 		return false;
 	}
 	if (
@@ -27,23 +27,32 @@ export const isMsgExpected = (
 		!('direction' in message) ||
 		!('type' in message)
 	) {
-		console.error('[BGSW] <= Invalid message recv:', message);
+		logMsgErr(
+			LogLoc.BGSW,
+			LogMsgDir.RECV,
+			'Invalid message recv:',
+			message
+		);
 		return false;
 	}
 	if (message.direction !== MsgDirection.TO_BGSW) {
 		return false;
 	}
-	console.log(
-		'[BGSW] <= Data recv from %d: %s',
+	logMsg(
+		LogLoc.BGSW,
+		LogMsgDir.RECV,
+		'Data recv from',
 		sender.tab.id,
-		MsgToBGSWType[message.type as MsgToBGSWType]
+		getMsgToBGSWType(message.type as MsgToBGSWType)
 	);
 	return true;
 };
 
 export const sendMsgToTab = async (type: MsgToTabType, tabId: number) => {
-	console.log(
-		'[BGSW] => Sending message to %d: %s',
+	logMsg(
+		LogLoc.BGSW,
+		LogMsgDir.SEND,
+		'Sending message to ',
 		tabId,
 		getMsgToTabType(type)
 	);
@@ -61,8 +70,10 @@ export const sendMsgToTab = async (type: MsgToTabType, tabId: number) => {
 		if (!response.type) {
 			throw new Error('[BGSW] <= Invalid response type', response.type);
 		}
-		console.log(
-			'[BGSW] <= Recv response from %d: %s',
+		logMsg(
+			LogLoc.BGSW,
+			LogMsgDir.RECV,
+			'Response recv from ',
 			tabId,
 			getMsgToBGSWType(response.type)
 		);
@@ -74,8 +85,9 @@ export const sendMsgToTab = async (type: MsgToTabType, tabId: number) => {
 const waitForTimeout = (tabId: number) => {
 	return new Promise<null>((resolve) => {
 		setTimeout(() => {
-			console.log(
-				'[BGSW] Timed out waiting for %d alive response',
+			log(
+				LogLoc.BGSW,
+				'Timed out waiting for alive response from',
 				tabId
 			);
 			resolve(null);
@@ -113,7 +125,7 @@ const setAsClients = async (clientTabIds: Array<number>) => {
 };
 
 export const setAsMaster = (masterTabId: number) => {
-	console.log('[BGSW] Setting %d as master websocket', masterTabId);
+	log(LogLoc.BGSW, 'Setting master websocket:', masterTabId);
 	const clientTabs = connections.tabIds.filter(
 		(tabId) => tabId !== masterTabId
 	);

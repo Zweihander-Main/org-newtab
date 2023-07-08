@@ -1,8 +1,8 @@
-/* eslint-disable no-console */
 import type { BaseStorage } from '@plasmohq/storage';
 import { sendMsgToTab, confirmTabIdAlive } from './messaging';
 import { MsgToTabType } from '../util/types';
 import Storage from './Storage';
+import { LogLoc, log } from 'util/logging';
 
 type masterWS = number | null;
 
@@ -51,8 +51,9 @@ class MasterWS {
 					MsgToTabType.YOU_ARE_MASTER_WS,
 					loadedMasterWSTabId
 				);
-				console.log(
-					'[BSGW] Confirmed alive from storage re-add for master tab %d',
+				log(
+					LogLoc.BGSW,
+					'Confirmed alive from storage re-add for master tab',
 					loadedMasterWSTabId
 				);
 			} else {

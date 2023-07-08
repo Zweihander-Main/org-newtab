@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { useContext, useEffect } from 'react';
 import { usePrevious } from '@react-hookz/web';
 import WSContext, { WSProvider } from 'contexts/WSContext';

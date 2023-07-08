@@ -1,7 +1,7 @@
-/* eslint-disable no-console */
 import type { BaseStorage } from '@plasmohq/storage';
 import { confirmTabIdAlive } from './messaging';
 import Storage from './Storage';
+import { LogLoc, log } from 'util/logging';
 
 type connectedTabIds = Set<number>;
 
@@ -55,8 +55,9 @@ class Connections {
 				const isAlive = await confirmTabIdAlive(tabId);
 				if (isAlive) {
 					this._connectedTabIds.add(tabId);
-					console.log(
-						'[BGSW] Confirmed alive from storage re-add for tab %d',
+					log(
+						LogLoc.BGSW,
+						'Confirmed alive from storage re-add for tab',
 						tabId
 					);
 				} else {

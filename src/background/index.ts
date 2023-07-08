@@ -1,8 +1,8 @@
-/* eslint-disable no-console */
 import { MsgToBGSWType, type MsgToBGSW, MsgToTabType } from '../util/types';
 import { isMsgExpected, sendMsgToTab, setAsMaster } from './messaging';
 import connections from './Connections';
 import masterWs from './MasterWS';
+import { log, LogLoc } from 'util/logging';
 
 /**
  * Some notes about this background script:
@@ -32,16 +32,10 @@ const searchAndFindMaster = async (requestingTabId: number) => {
 				switch (response.type) {
 					case MsgToBGSWType.IDENTIFY_AS_MASTER_WS:
 						alreadyExistingMaster = connectedTabId;
-						console.log(
-							'[BGSW] Identified master WS as %d',
-							alreadyExistingMaster
-						);
+						log(LogLoc.BGSW, 'Found master WS as', connectedTabId);
 						break;
 					case MsgToBGSWType.IDENTIFY_AS_WS_CLIENT:
-						console.log(
-							'[BGSW] Identified client to WS as %d',
-							connectedTabId
-						);
+						log(LogLoc.BGSW, 'Found client WS as', connectedTabId);
 						break;
 				}
 				return connectedTabId;
@@ -57,8 +51,9 @@ const searchAndFindMaster = async (requestingTabId: number) => {
 };
 
 const figureOutMaster = async (requestingTabId: number) => {
-	console.log(
-		'[BGSW] Figuring out master, current connections: ',
+	log(
+		LogLoc.BGSW,
+		'Figuring out master, current connections:',
 		connections.tabIds
 	);
 	/**
@@ -87,7 +82,7 @@ const handlePortMessage = (message: MsgToBGSW, port: chrome.runtime.Port) => {
 };
 
 const handlePortDisconnect = (port: chrome.runtime.Port) => {
-	console.log('[BGSW] Disconnecting port:', port?.sender?.tab?.id);
+	log(LogLoc.BGSW, 'Disconnecting port:', port?.sender?.tab?.id);
 	port.onMessage.removeListener(handlePortMessage);
 	port.onDisconnect.removeListener(handlePortDisconnect);
 	void connections.remove(port);
@@ -102,7 +97,7 @@ const handlePortDisconnect = (port: chrome.runtime.Port) => {
 
 const handlePortConnect = (port: chrome.runtime.Port) => {
 	if (port.name === 'ws' && port?.sender?.tab?.id && !connections.has(port)) {
-		console.log('[BGSW] Connecting port:', port.sender.tab.id);
+		log(LogLoc.BGSW, 'Connecting port:', port.sender.tab.id);
 		if (!port.onMessage.hasListener(handlePortMessage)) {
 			port.onMessage.addListener(handlePortMessage);
 		}

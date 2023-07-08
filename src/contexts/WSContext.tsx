@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { createContext, useCallback, useEffect, useRef, useState } from 'react';
 import { ReadyState } from 'react-use-websocket';
 import {
@@ -12,6 +11,7 @@ import {
 	getMsgToTabType,
 } from '../util/types';
 import useSingleWebsocket from 'hooks/useSingleWebsocket';
+import { LogLoc, LogMsgDir, log, logMsg } from 'util/logging';
 
 type SendResponseType = (message: MsgToBGSW) => unknown;
 
@@ -44,7 +44,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 
 	useEffect(() => {
 		port.onDisconnect.addListener(() => {
-			console.log('[NewTab] Port disconnected, reconnecting...');
+			log(LogLoc.NEWTAB, 'Port disconnected, reconnecting...');
 			setPort(chrome.runtime.connect({ name: 'ws' }));
 		});
 		return () => {
@@ -54,8 +54,10 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 
 	const sendMsgToBGSWPort = useCallback(
 		(type: MsgToBGSWType) => {
-			console.log(
-				'[NewTab] => Sending message to BGSW port: %s',
+			logMsg(
+				LogLoc.NEWTAB,
+				LogMsgDir.SEND,
+				'Sending message to BGSW port',
 				getMsgToBGSWType(type)
 			);
 			port.postMessage({
@@ -68,8 +70,10 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 
 	const sendMsgAsResponse = useCallback(
 		(type: MsgToBGSWType, sendResponse: SendResponseType) => {
-			console.log(
-				'[NewTab] => Sending response to BGSW msg: %s',
+			logMsg(
+				LogLoc.NEWTAB,
+				LogMsgDir.SEND,
+				'Sending response to BGSW msg',
 				getMsgToBGSWType(type)
 			);
 			sendResponse({
@@ -125,8 +129,10 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 			if (message.direction !== MsgDirection.TO_NEWTAB) {
 				return;
 			}
-			console.log(
-				'[NewTab] <= Data recv from BGSW: %s',
+			logMsg(
+				LogLoc.NEWTAB,
+				LogMsgDir.RECV,
+				'Data recv from BGSW: ',
 				getMsgToTabType(message.type)
 			);
 			switch (message.type) {
