@@ -1,7 +1,7 @@
 .item {
 	max-width: calc(50vw - 6rem);
 	background: var(--color-item-bg-default);
-	padding: 3rem;
+	padding: 2.8rem;
 	border-radius: 2rem;
 	border: 0.4rem solid var(--color-item-shadow);
 	box-shadow: 1rem 1rem 0 0 var(--color-item-shadow);
@@ -17,6 +17,8 @@
 		var(--width-item-stroke) var(--width-item-stroke) 0
 			var(--color-item-shadow);
 	z-index: 10;
+	line-height: 1.25;
+	letter-spacing: 0.0125em;
 }
 
 .logo {

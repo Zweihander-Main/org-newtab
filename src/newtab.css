@@ -3,7 +3,7 @@
 	--color-item-bg-default: #484848;
 	--color-item-shadow: black;
 	--font-item: 'Public Sans', sans-serif;
-	--width-item-stroke: 0.15rem;
+	--width-item-stroke: 0.13rem;
 }
 
 body {
@@ -14,6 +14,8 @@ body {
 		sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+	font-feature-settings: 'kern', 'liga', 'clig', 'calt', 'tnum';
+	font-kerning: normal;
 }
 
 code,
