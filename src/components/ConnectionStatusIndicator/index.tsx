@@ -6,10 +6,10 @@ const ConnectionStatusIndicator: React.FC = () => {
 	const [readyState] = useValue('readyState');
 	const connectionStatus = {
 		[ReadyState.CONNECTING]: 'Connecting',
-		[ReadyState.OPEN]: 'Open',
+		[ReadyState.OPEN]: 'Connected',
 		[ReadyState.CLOSING]: 'Closing',
-		[ReadyState.CLOSED]: 'Closed',
-		[ReadyState.UNINSTANTIATED]: 'Uninstantiated',
+		[ReadyState.CLOSED]: 'Not Connected',
+		[ReadyState.UNINSTANTIATED]: 'Initializing',
 	}[readyState];
 
 	return (
