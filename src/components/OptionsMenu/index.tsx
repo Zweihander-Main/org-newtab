@@ -5,8 +5,10 @@ import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 const OptionsMenu: React.FC = () => {
 	const [matchQuery, setMatchQuery] = useValue('matchQuery');
-	const { lastRecvJsonMessage } = useContext(WSContext);
+	const { lastRecvJsonMessage, amMasterWS } = useContext(WSContext);
 	const [optionsVisible, setOptionsVisible] = useState(false);
+
+	const masterStatus = amMasterWS ? 'Master' : 'Client';
 
 	const handleMatchQuerySubmit = useCallback(
 		(event: React.FormEvent<HTMLFormElement>) => {
@@ -68,6 +70,12 @@ const OptionsMenu: React.FC = () => {
 						</pre>
 					</>
 				) : null}
+				<div
+					data-testid="websocket-status"
+					className={styles['websocket-status']}
+				>
+					WebSocket Status: {masterStatus}
+				</div>
 			</nav>
 		</>
 	);

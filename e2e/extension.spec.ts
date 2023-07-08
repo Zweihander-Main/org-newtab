@@ -2,7 +2,7 @@ import { test, expect } from './fixture';
 
 const MASTER_MESSAGE = 'Master';
 const CLIENT_MESSAGE = 'Client';
-const STATUS_LOCATOR = 'connection-status';
+const STATUS_LOCATOR = 'websocket-status';
 
 test('newtab page', async ({ page, extensionId }) => {
 	await page.goto(`chrome-extension://${extensionId}/newtab.html`);

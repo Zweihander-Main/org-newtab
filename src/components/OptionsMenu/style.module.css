@@ -56,3 +56,9 @@
 .button.active .button-bar3 {
 	transform: translate(0, -0.9rem) rotate(45deg);
 }
+
+.websocket-status {
+	font-size: 1rem;
+	position: absolute;
+	bottom: 0;
+}

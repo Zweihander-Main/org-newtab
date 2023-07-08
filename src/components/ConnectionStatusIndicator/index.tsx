@@ -1,10 +1,9 @@
 import * as styles from './style.module.css';
-import WSContext from 'contexts/WSContext';
-import { useContext } from 'react';
+import useValue from 'hooks/useValue';
 import { ReadyState } from 'react-use-websocket';
 
 const ConnectionStatusIndicator: React.FC = () => {
-	const { amMasterWS, readyState } = useContext(WSContext);
+	const [readyState] = useValue('readyState');
 	const connectionStatus = {
 		[ReadyState.CONNECTING]: 'Connecting',
 		[ReadyState.OPEN]: 'Open',
@@ -13,11 +12,9 @@ const ConnectionStatusIndicator: React.FC = () => {
 		[ReadyState.UNINSTANTIATED]: 'Uninstantiated',
 	}[readyState];
 
-	const masterStatus = amMasterWS ? 'Master' : 'Client';
-
 	return (
 		<p data-testid="connection-status" className={styles.status}>
-			{connectionStatus} - {masterStatus}
+			{connectionStatus}
 		</p>
 	);
 };
