@@ -1,8 +1,7 @@
 import useWebSocket from 'react-use-websocket';
 import type { SendJsonMessage } from 'react-use-websocket/dist/lib/types';
 import type { WSCommonProps, EmacsRecvMsg } from '../util/types';
-import { ReadyState } from 'react-use-websocket';
-import { useChromeStorageLocal } from 'use-chrome-storage';
+import useValue from './useValue';
 
 type useSingleWebsocket = (amMasterWS: boolean) => WSCommonProps;
 
@@ -11,10 +10,7 @@ const useSingleWebsocket: useSingleWebsocket = (amMasterWS: boolean) => {
 		return;
 	};
 	let lastRecvJsonMessage: EmacsRecvMsg = null;
-	const [readyState, setReadyState] = useChromeStorageLocal(
-		'readyState',
-		ReadyState.UNINSTANTIATED
-	);
+	const [readyState, setReadyState] = useValue('readyState');
 
 	const {
 		sendJsonMessage: sendJsonMessageMaster,
