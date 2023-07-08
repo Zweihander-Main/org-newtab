@@ -38,10 +38,10 @@
 (require 'websocket)
 
 (defvar org-newtab--ws-socket nil
-  "The websocket for `org-newtab'.")
+  "The WebSocket for `org-newtab'.")
 
 (defvar org-newtab--ws-server nil
-  "The websocket server for `org-newtab'.")
+  "The WebSocket server for `org-newtab'.")
 
 (defvar org-newtab--debug-mode nil
   "Whether or not to turn on every debugging tool.")
@@ -78,17 +78,17 @@ This serves the web-build and API over HTTP."
         async-debug org-newtab--debug-mode))
 
 (defun org-newtab--ws-on-open (ws)
-  "Open the websocket WS and send initial data."
+  "Open the WebSocket WS and send initial data."
   (setq org-newtab--ws-socket ws)
-  (message "[Server] on-open")
+  (org-newtab--log "[Server] %s" "on-open")
   (org-newtab--on-opn-send-tag-faces))
 
 (defun org-newtab--ws-on-message (_ws frame)
   "Take WS and FRAME as arguments when message received."
-  (message "[Server] on-message")
+  (org-newtab--log "[Server] %s" "on-message")
   (let* ((frame-text (websocket-frame-text frame))
          (json-data (org-newtab--decipher-message-from-frame-text frame-text)))
-    (message "[Server] Received %S from client" json-data)
+    (org-newtab--log "[Server] Received %S from client" json-data)
     (let ((command (plist-get json-data :command)))
       (cond ((string= command "updateMatchQuery")
              (org-newtab--on-msg-send-match-query (plist-get json-data :data)))
@@ -97,7 +97,7 @@ This serves the web-build and API over HTTP."
             ((string= command "getItem")
              (org-newtab--on-msg-send-match-query (plist-get json-data :data)))
             (t
-             (message "[Server] Unknown command from extension"))))))
+             (org-newtab--log "[Server] %s" "Unknown command from client"))))))
 
 (defun org-newtab--on-opn-send-tag-faces ()
   "Send the tag faces to the client."
@@ -128,19 +128,19 @@ This serves the web-build and API over HTTP."
 (defun org-newtab--ws-on-close (_ws)
   "Perform when WS is closed."
   (setq org-newtab--ws-socket nil)
-  (message "[Server] on-close"))
+  (org-newtab--log "[Server] %s" "on-close"))
 
 (defun org-newtab--ws-on-error (_ws type error)
   "Handle ERROR of TYPE from WS."
-  (message "[Server]: Error -- %S : %S" (prin1 type) (prin1 error)))
+  (org-newtab--log "[Server] Error: %S : %S" (prin1 type) (prin1 error)))
 
 (defun org-newtab--send-data (data)
   "Send DATA to socket. If socket is nil, drop the data and do nothing."
   (when org-newtab--ws-socket
-    (message "[Server] Sending %S to client" data)
+    (org-newtab--log "[Server] Sending %S to client" data)
     (condition-case err
         (websocket-send-text org-newtab--ws-socket data)
-      (error (message "[Server] Error sending data: %S" err)))))
+      (error (org-newtab--log "[Server] Error sending data to client: %S" err)))))
 
 (defun org-newtab--decipher-message-from-frame-text (frame-text)
   "Decipher FRAME-TEXT and return the message."
