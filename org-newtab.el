@@ -48,13 +48,17 @@
 (defun org-newtab--log (format-string &rest args)
   "Log FORMAT-STRING and ARGS to `org-newtab-log-buffer'."
   (with-current-buffer (get-buffer-create "*org-newtab-log*")
-	(goto-char (point-max))
-	(insert (apply #'format format-string args))
-	(insert "\n")))
+    (goto-char (point-max))
+    (insert (apply #'format format-string args))
+    (insert "\n")))
 
 (provide 'org-newtab)
 
 (cl-eval-when (load eval)
+  (let ((dir (expand-file-name default-directory)))
+    (if (not (memq dir load-path))
+        (add-to-list 'load-path dir))) ; TODO: Remove for packaging?
+  (require 'org-newtab-agenda)
   (require 'org-newtab-server))
 
 ;; Local Variables:

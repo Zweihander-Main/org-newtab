@@ -115,10 +115,9 @@ This serves the web-build and API over HTTP."
   "Send the current match for query DATA to the client."
   (async-start
    `(lambda () ; TODO: if it becomes interactive (asks for prompt), it freezes
-      ,(async-inject-variables "\\`\\(load-path\\|org-agenda-files\\|org-todo-keywords\\)\\'") ; TODO: Major source of bugs: if something doesn't work, it'll be because of this
-      (load-file ,(concat (file-name-directory
-                           (or load-file-name buffer-file-name))  ; TODO: some kind of error occasionally happens here
-                          "org-newtab-agenda.el"))
+      ,(async-inject-variables "\\`load-path\\'") ;  TODO: Reliant on load path being set to agenda dir
+      ,(async-inject-variables "\\`org-agenda-files\\'")
+      ,(async-inject-variables "\\`org-todo-keywords\\'")
       (require 'org-newtab-agenda)
       (org-newtab--get-one-agenda-item ',data))
    (lambda (result)
