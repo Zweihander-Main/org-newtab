@@ -4,7 +4,7 @@ import useValue from 'hooks/useValue';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 const OptionsMenu: React.FC = () => {
-	const [matchQuery, setMatchQuery] = useValue('matchQuery');
+	const [matchQuery, setMatchQuery, matchQuerySaved] = useValue('matchQuery');
 	const { lastRecvJsonMessage, amMasterWS } = useContext(WSContext);
 	const [optionsVisible, setOptionsVisible] = useState(false);
 
@@ -26,10 +26,14 @@ const OptionsMenu: React.FC = () => {
 	const matchQueryInputRef = useRef<HTMLInputElement>(null);
 
 	useEffect(() => {
-		if (matchQueryInputRef.current && matchQuery !== undefined) {
+		if (
+			matchQueryInputRef.current &&
+			matchQuerySaved &&
+			matchQuery !== undefined
+		) {
 			matchQueryInputRef.current.value = matchQuery;
 		}
-	}, [matchQuery, matchQueryInputRef]);
+	}, [matchQuery, matchQueryInputRef, matchQuerySaved]);
 
 	const toggleMenu = useCallback(() => {
 		setOptionsVisible(!optionsVisible);

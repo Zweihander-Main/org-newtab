@@ -11,7 +11,7 @@ import useValue from 'hooks/useValue';
 const IndexNewtab: React.FC = () => {
 	const { sendJsonMessage, lastRecvJsonMessage, amMasterWS } =
 		useContext(WSContext);
-	const [matchQuery, , isInitialStateResolved] = useValue('matchQuery');
+	const [matchQuery, , , isInitialStateResolved] = useValue('matchQuery');
 	const [tagsData, setTagsData] = useValue('tagsData');
 	const previousMatchQuery = usePrevious(matchQuery);
 	const [, setOrgItem] = useValue('orgItem');
