@@ -19,6 +19,7 @@
 	z-index: 10;
 	line-height: 1.25;
 	letter-spacing: 0.0125em;
+	overflow-wrap: break-word;
 }
 
 .logo {
