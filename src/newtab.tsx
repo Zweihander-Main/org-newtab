@@ -11,7 +11,7 @@ import useValue from 'hooks/useValue';
 const IndexNewtab: React.FC = () => {
 	const { sendJsonMessage, lastRecvJsonMessage, amMasterWS } =
 		useContext(WSContext);
-	const [matchQuery] = useValue('matchQuery');
+	const [matchQuery, , isInitialStateResolved] = useValue('matchQuery');
 	const [tagsData, setTagsData] = useValue('tagsData');
 	const previousMatchQuery = usePrevious(matchQuery);
 	const [, setOrgItem] = useValue('orgItem');
@@ -40,25 +40,34 @@ const IndexNewtab: React.FC = () => {
 		if (
 			matchQuery &&
 			previousMatchQuery &&
-			previousMatchQuery !== matchQuery
+			matchQuery !== previousMatchQuery &&
+			isInitialStateResolved
 		) {
 			sendJsonMessage({
 				command: 'updateMatchQuery',
 				data: matchQuery,
 			});
 		}
-	}, [matchQuery, previousMatchQuery, sendJsonMessage]);
+	}, [
+		matchQuery,
+		previousMatchQuery,
+		sendJsonMessage,
+		isInitialStateResolved,
+	]);
 
 	useEffect(() => {
-		// NEXT: sendJsonMessage is undefined
-		if (!hasSentInitialQuery.current && amMasterWS) {
+		if (
+			!hasSentInitialQuery.current &&
+			amMasterWS &&
+			isInitialStateResolved
+		) {
 			sendJsonMessage({
 				command: 'getItem',
 				data: matchQuery,
 			});
 			hasSentInitialQuery.current = true;
 		}
-	}, [sendJsonMessage, matchQuery, amMasterWS]);
+	}, [sendJsonMessage, matchQuery, amMasterWS, isInitialStateResolved]);
 
 	return (
 		<div className="app">
