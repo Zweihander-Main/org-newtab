@@ -12,7 +12,7 @@ const INITIAL_VALUE = {
 
 export interface AppState {
 	matchQuery: string | undefined;
-	tagsData: { [key: string]: string };
+	tagsData: { [key: string]: string | null };
 	orgItem: EmacsItemMsg['data'] | null;
 	readyState: ReadyState;
 }
