@@ -37,6 +37,60 @@
   (it "works."
     (expect t :to-equal t)))
 
+(describe "Converting colors"
+  (it "works with hex provided colors"
+    (expect (org-newtab--string-color-to-hex "#0000FF") :to-equal "#0000FF"))
+  (it "works with named provided colors"
+    (expect (org-newtab--string-color-to-hex "blue") :to-equal "#0000ff"))
+  (it "works with nil"
+    (expect (org-newtab--string-color-to-hex nil) :to-equal nil)))
+
+(describe "Fetching tags"
+  (it "works with default faces"
+    (let ((org-tag-faces '(("1#A" . diary)
+                           ("2#B" . org-warning))))
+      (expect (org-newtab--get-tag-faces) :to-equal
+              '(("1#A") ;; Face-foreground has term frame in buttercup test
+                ("2#B")))))
+
+  (it "works with hex provided colors"
+    (let ((org-tag-faces '(("1#A" . "#0000FF")
+                           ("2#B" . "#f0c674"))))
+      (expect (org-newtab--get-tag-faces) :to-equal
+              '(("1#A" . "#0000FF")
+                ("2#B" . "#f0c674")))))
+
+  (it "works with named provided colors"
+    (let ((org-tag-faces '(("1#A" . "blue")
+                           ("2#B" . "yellow1"))))
+      (expect (org-newtab--get-tag-faces) :to-equal
+              '(("1#A" . "#0000ff")
+                ("2#B" . "#ffff00")))))
+
+  (it "works with hex foreground faces"
+    (let ((org-tag-faces '(("1#A" :foreground "#42A5F5" :weight bold :italic t)
+                           ("2#B" :foreground "#CC2200" :weight bold :underline t))))
+      (expect (org-newtab--get-tag-faces) :to-equal
+              '(("1#A" . "#42A5F5")
+                ("2#B" . "#CC2200")))))
+
+  (it "works with named provided colors as foreground faces"
+    (let ((org-tag-faces '(("1#A" :foreground "yellow1" :weight bold)
+                           ("2#B" :foreground "green yellow" :weight bold)
+                           ("3#C" :foreground "blue" :weight bold :underline t))))
+      (expect (org-newtab--get-tag-faces) :to-equal
+              '(("1#A" . "#ffff00")
+                ("2#B" . "#ffff00") ;; Running in term
+                ("3#C" . "#0000ff")))))
+
+  (it "doesn't break on empty foreground face"
+    (let ((org-tag-faces `(("1#A" :weight bold))))
+      (expect (org-newtab--get-tag-faces) :to-equal '(("1#A")))))
+
+  (it "doesn't break on nil"
+    (let ((org-tag-faces nil))
+      (expect (org-newtab--get-tag-faces) :to-equal nil))))
+
 ;; Local Variables:
 ;; coding: utf-8
 ;; flycheck-disabled-checkers: 'emacs-lisp-elsa

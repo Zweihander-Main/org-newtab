@@ -58,7 +58,6 @@
   (let ((dir (expand-file-name default-directory)))
     (if (not (memq dir load-path))
         (add-to-list 'load-path dir))) ; TODO: Remove for packaging?
-  (require 'org-newtab-agenda)
   (require 'org-newtab-server))
 
 ;; Local Variables:

@@ -68,6 +68,14 @@ Add CLOKED minutes if CLOCKED is non-nil."
                     `(("CLOCKED_MINUTES" . ,(org-clock-get-clocked-time))))))
     props))
 
+(defun org-newtab--string-color-to-hex (string)
+  "Convert STRING to hex value if it's a color."
+  (cond ((not string) nil)
+        ((string-prefix-p "#" string) string)
+        (t (cl-destructuring-bind (red green blue)
+               (color-name-to-rgb string)
+             (color-rgb-to-hex red green blue 2)))))
+
 (defun org-newtab--get-tag-faces ()
   "Retrieve `org-tag-faces' variable in JSON."
   (let ((json-null json-false))
@@ -76,14 +84,14 @@ Add CLOKED minutes if CLOCKED is non-nil."
        (let ((tag (car tag-cons))
              (foreground-data (cdr tag-cons)))
          (cond ((stringp foreground-data)
-                (cons tag foreground-data))
+                (cons tag (org-newtab--string-color-to-hex
+                           foreground-data)))
+               ((facep foreground-data)
+                (cons tag (org-newtab--string-color-to-hex
+                           (face-foreground foreground-data))))
                ((listp foreground-data)
-                (cons tag (plist-get foreground-data :foreground)))
-               ((symbolp foreground-data)
-                (cons tag
-                      (cl-destructuring-bind (red green blue)
-                          (color-name-to-rgb (face-foreground foreground-data))
-                        (color-rgb-to-hex red green blue 2)))))))
+                (cons tag (org-newtab--string-color-to-hex
+                           (plist-get foreground-data :foreground)))))))
      org-tag-faces)))
 
 (provide 'org-newtab-agenda)
