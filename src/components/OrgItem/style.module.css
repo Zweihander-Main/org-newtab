@@ -5,7 +5,7 @@
 	border-radius: 2rem;
 	border: 0.4rem solid var(--color-item-shadow);
 	box-shadow: 1rem 1rem 0 0 var(--color-item-shadow);
-	font-size: 2rem;
+	font-size: 2.25rem;
 	font-weight: 700;
 	font-family: var(--font-item);
 	text-shadow: calc(var(--width-item-stroke) * -1)
@@ -16,6 +16,8 @@
 			var(--color-item-shadow),
 		var(--width-item-stroke) var(--width-item-stroke) 0
 			var(--color-item-shadow);
+	-webkit-text-stroke: calc(var(--width-item-stroke) / 1.5)
+		var(--color-item-shadow);
 	z-index: 10;
 	line-height: 1.25;
 	letter-spacing: 0.0125em;
