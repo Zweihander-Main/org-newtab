@@ -50,7 +50,7 @@ export type EmacsItemMsg = {
 export type EmacsTagsMsg = {
 	type: 'TAGS';
 	data: {
-		[key: string]: string;
+		[key: string]: string | null;
 	};
 };
 
