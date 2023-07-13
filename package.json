@@ -24,7 +24,10 @@
 		"gen:css:watch": "tcm -p 'src/**/*.module.css' -w",
 		"test": "jest --watch",
 		"test:e2e": "playwright test",
-		"test:e2e:report": "playwright show-report"
+		"test:e2e:report": "playwright show-report",
+		"lint": "jest --config=\"jest.config.mjs\"",
+		"lint:ts": "tsc -p .",
+		"prepare": "husky install"
 	},
 	"dependencies": {
 		"@fontsource/public-sans": "^5.0.5",
@@ -56,6 +59,7 @@
 		"eslint-plugin-prettier": "^5.0.0",
 		"eslint-plugin-react": "^7.32.2",
 		"eslint-plugin-react-hooks": "^4.6.0",
+		"husky": "^8.0.3",
 		"jest": "^29.6.1",
 		"jest-environment-jsdom": "^29.6.1",
 		"jest-runner-eslint": "^2.1.0",
@@ -63,6 +67,7 @@
 		"jest-runner-stylelint": "^2.3.7",
 		"jest-watch-select-projects": "^2.0.0",
 		"jest-webextension-mock": "^3.8.9",
+		"lint-staged": "^13.2.3",
 		"prettier": "3.0.0",
 		"stylelint": "^15.10.1",
 		"stylelint-config-prettier": "^9.0.5",
@@ -70,6 +75,11 @@
 		"ts-jest": "^29.1.1",
 		"typed-css-modules": "^0.7.2",
 		"typescript": "5.1.6"
+	},
+	"lint-staged": {
+		"**/*.+(js|jsx|ts|tsx|json|css|html|md)": [
+			"jest --findRelatedTests --passWithNoTests"
+		]
 	},
 	"eslintConfig": {
 		"settings": {
