@@ -18,6 +18,7 @@
 		"types": ["chrome", "jest"],
 		"isolatedModules": true,
 		"useDefineForClassFields": true,
+		"verbatimModuleSyntax": false,
 		"paths": {
 			"~*": ["./src/*"]
 		}
