@@ -187,6 +187,33 @@ const config: Config = {
 
 	// Whether to use watchman for file crawling
 	// watchman: true,
+
+	watchPlugins: ['jest-watch-select-projects'],
+	projects: [
+		{
+			displayName: 'unit',
+			testEnvironment: 'jest-environment-jsdom',
+			testPathIgnorePatterns: ['/e2e/'],
+		},
+		{
+			displayName: 'eslint',
+			runner: 'jest-runner-eslint',
+			moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx'],
+			testPathIgnorePatterns: ['.*.d.ts$'],
+			testMatch: ['<rootDir>/src/**/*'],
+		},
+		{
+			displayName: 'prettier',
+			runner: 'jest-runner-prettier',
+			testMatch: ['<rootDir>/src/**/*', '<rootDir>/package.json'],
+		},
+		{
+			displayName: 'stylelint',
+			runner: 'jest-runner-stylelint',
+			testMatch: ['<rootDir>/src/**/*'],
+			moduleFileExtensions: ['css', 'scss'],
+		},
+	],
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access

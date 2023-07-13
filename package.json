@@ -22,9 +22,9 @@
 		"package": "plasmo package",
 		"gen:css": "tcm -p 'src/**/*.module.css'",
 		"gen:css:watch": "tcm -p 'src/**/*.module.css' -w",
+		"test": "jest --watch",
 		"test:e2e": "playwright test",
-		"test:e2e:report": "playwright show-report",
-		"test": "jest"
+		"test:e2e:report": "playwright show-report"
 	},
 	"dependencies": {
 		"@fontsource/public-sans": "^5.0.5",
@@ -55,6 +55,10 @@
 		"eslint-plugin-react-hooks": "^4.6.0",
 		"jest": "^29.6.1",
 		"jest-environment-jsdom": "^29.6.1",
+		"jest-runner-eslint": "^2.1.0",
+		"jest-runner-prettier": "^1.0.0",
+		"jest-runner-stylelint": "^2.3.7",
+		"jest-watch-select-projects": "^2.0.0",
 		"prettier": "3.0.0",
 		"stylelint": "^15.10.1",
 		"stylelint-config-prettier": "^9.0.5",

@@ -15,7 +15,7 @@
 		"sourceMap": true,
 		"strict": true,
 		"typeRoots": ["./.typings", "./node_modules/@types"],
-		"types": ["jest"],
+		"types": ["chrome", "jest"],
 		"isolatedModules": true,
 		"useDefineForClassFields": true,
 		"paths": {

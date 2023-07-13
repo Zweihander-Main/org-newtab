@@ -14,7 +14,7 @@ import masterWs from './MasterWS';
 const TIME_TO_WAIT_FOR_TAB_ALIVE_RESPONSE = 500;
 
 export const isMsgExpected = (
-	message: MsgToBGSW | unknown,
+	message: MsgToBGSW,
 	sender?: chrome.runtime.MessageSender
 ): message is MsgToBGSW => {
 	if (!sender?.tab?.id) {
@@ -43,7 +43,7 @@ export const isMsgExpected = (
 		LogMsgDir.RECV,
 		'Data recv from',
 		sender.tab.id,
-		getMsgToBGSWType(message.type as MsgToBGSWType)
+		getMsgToBGSWType(message.type)
 	);
 	return true;
 };
