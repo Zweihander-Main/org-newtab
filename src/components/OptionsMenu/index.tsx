@@ -51,7 +51,7 @@ const OptionsMenu: React.FC = () => {
 
 	return (
 		<>
-			<button className={optionsMenuButtonClass} onClick={toggleMenu}>
+			<button aria-label="Options Menu" className={optionsMenuButtonClass} onClick={toggleMenu}>
 				<div className={styles['button-bar1']}></div>
 				<div className={styles['button-bar2']}></div>
 				<div className={styles['button-bar3']}></div>
@@ -63,6 +63,7 @@ const OptionsMenu: React.FC = () => {
 						name="matchQuery"
 						defaultValue={matchQuery}
 						ref={matchQueryInputRef}
+						aria-label="Match Query"
 					/>
 					<button type="submit">Pull data</button>
 				</form>

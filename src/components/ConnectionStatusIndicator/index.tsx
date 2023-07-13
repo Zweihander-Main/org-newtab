@@ -13,9 +13,9 @@ const ConnectionStatusIndicator: React.FC = () => {
 	}[readyState];
 
 	return (
-		<p data-testid="connection-status" className={styles.status}>
+		<footer data-testid="connection-status" className={styles.status}>
 			{connectionStatus}
-		</p>
+		</footer>
 	);
 };
 

@@ -51,12 +51,12 @@ const OrgItem: React.FC = () => {
 	return (
 		<>
 			{itemText ? (
-				<div
+				<h1
 					className={styles.item}
 					style={{ backgroundColor: foregroundColor }}
 				>
 					{itemText}
-				</div>
+				</h1>
 			) : (
 				<img src={logo} className={styles.logo} alt="logo" />
 			)}

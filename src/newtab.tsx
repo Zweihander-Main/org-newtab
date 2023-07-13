@@ -70,11 +70,11 @@ const IndexNewtab: React.FC = () => {
 	}, [sendJsonMessage, matchQuery, amMasterWS, isInitialStateResolved]);
 
 	return (
-		<div className="app">
+		<main className="app">
 			<OptionsMenu />
 			<ConnectionStatusIndicator />
 			<OrgItem />
-		</div>
+		</main>
 	);
 };
 
