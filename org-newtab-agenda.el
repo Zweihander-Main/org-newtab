@@ -77,7 +77,10 @@ Add CLOKED minutes if CLOCKED is non-nil."
              (color-rgb-to-hex red green blue 2)))))
 
 (defun org-newtab--get-tag-faces ()
-  "Retrieve `org-tag-faces' variable in JSON."
+  "Retrieve `org-tag-faces' variable in JSON.
+
+Note that this function will not work in a terminal/async context as converting
+from color names to hex will use the terminal color codes eg goldenrod=yellow1."
   (let ((json-null json-false))
     (mapcar
      (lambda (tag-cons)
