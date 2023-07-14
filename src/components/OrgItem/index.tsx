@@ -5,8 +5,8 @@ import type { AllTagsRecv } from '../../util/types';
 import logo from 'data-base64:~assets/icon-1024x1024.png';
 
 const OrgItem: React.FC = () => {
-	const [tagsData] = useValue('tagsData');
-	const [orgItem] = useValue('orgItem');
+	const { value: tagsData } = useValue('tagsData');
+	const { value: orgItem } = useValue('orgItem');
 	const [foregroundColor, setForegroundColor] = useState<string | undefined>(
 		undefined
 	);

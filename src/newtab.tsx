@@ -1,5 +1,4 @@
-import { useContext, useEffect, useRef } from 'react';
-import { usePrevious } from '@react-hookz/web';
+import { useCallback, useContext, useEffect, useRef } from 'react';
 import WSContext, { WSProvider } from 'contexts/WSContext';
 import '@fontsource/public-sans/700.css';
 import './newtab.css';
@@ -11,10 +10,12 @@ import useValue from 'hooks/useValue';
 const IndexNewtab: React.FC = () => {
 	const { sendJsonMessage, lastRecvJsonMessage, amMasterWS } =
 		useContext(WSContext);
-	const [matchQuery, , , isInitialStateResolved] = useValue('matchQuery');
-	const [tagsData, setTagsData] = useValue('tagsData');
-	const previousMatchQuery = usePrevious(matchQuery);
-	const [, setOrgItem] = useValue('orgItem');
+	const {
+		value: matchQuery,
+		isInitialStateResolved: isInitialMatchQueryStateResolved,
+	} = useValue('matchQuery');
+	const { value: tagsData, setValue: setTagsData } = useValue('tagsData');
+	const { setValue: setOrgItem } = useValue('orgItem');
 	const hasSentInitialQuery = useRef(false);
 	useEffect(() => {
 		if (lastRecvJsonMessage === null) {
@@ -36,30 +37,20 @@ const IndexNewtab: React.FC = () => {
 		}
 	}, [lastRecvJsonMessage, tagsData, setTagsData, setOrgItem]);
 
-	useEffect(() => {
-		if (
-			matchQuery &&
-			previousMatchQuery &&
-			matchQuery !== previousMatchQuery &&
-			isInitialStateResolved
-		) {
+	const updateMatchQuery = useCallback(
+		() =>
 			sendJsonMessage({
 				command: 'updateMatchQuery',
 				data: matchQuery,
-			});
-		}
-	}, [
-		matchQuery,
-		previousMatchQuery,
-		sendJsonMessage,
-		isInitialStateResolved,
-	]);
+			}),
+		[sendJsonMessage, matchQuery]
+	);
 
 	useEffect(() => {
 		if (
 			!hasSentInitialQuery.current &&
 			amMasterWS &&
-			isInitialStateResolved
+			isInitialMatchQueryStateResolved
 		) {
 			sendJsonMessage({
 				command: 'getItem',
@@ -67,11 +58,16 @@ const IndexNewtab: React.FC = () => {
 			});
 			hasSentInitialQuery.current = true;
 		}
-	}, [sendJsonMessage, matchQuery, amMasterWS, isInitialStateResolved]);
+	}, [
+		sendJsonMessage,
+		matchQuery,
+		amMasterWS,
+		isInitialMatchQueryStateResolved,
+	]);
 
 	return (
 		<main className="app">
-			<OptionsMenu />
+			<OptionsMenu updateMatchQuery={updateMatchQuery} />
 			<ConnectionStatusIndicator />
 			<OrgItem />
 		</main>

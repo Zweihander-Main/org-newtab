@@ -4,7 +4,11 @@ import useValue from 'hooks/useValue';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 const OptionsMenu: React.FC = () => {
-	const [matchQuery, setMatchQuery, matchQuerySaved] = useValue('matchQuery');
+	const {
+		value: matchQuery,
+		setValue: setMatchQuery,
+		isPersistent: matchQuerySaved,
+	} = useValue('matchQuery');
 	const { lastRecvJsonMessage, amMasterWS } = useContext(WSContext);
 	const [optionsVisible, setOptionsVisible] = useState(false);
 
@@ -51,7 +55,11 @@ const OptionsMenu: React.FC = () => {
 
 	return (
 		<>
-			<button aria-label="Options Menu" className={optionsMenuButtonClass} onClick={toggleMenu}>
+			<button
+				aria-label="Options Menu"
+				className={optionsMenuButtonClass}
+				onClick={toggleMenu}
+			>
 				<div className={styles['button-bar1']}></div>
 				<div className={styles['button-bar2']}></div>
 				<div className={styles['button-bar3']}></div>

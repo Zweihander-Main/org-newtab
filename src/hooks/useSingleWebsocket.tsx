@@ -10,7 +10,8 @@ const useSingleWebsocket: useSingleWebsocket = (amMasterWS: boolean) => {
 		return;
 	};
 	let lastRecvJsonMessage: EmacsRecvMsg = null;
-	const [readyState, setReadyState] = useValue('readyState');
+	const { value: readyState, setValue: setReadyState } =
+		useValue('readyState');
 
 	const {
 		sendJsonMessage: sendJsonMessageMaster,

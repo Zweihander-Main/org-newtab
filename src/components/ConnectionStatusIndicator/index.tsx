@@ -3,7 +3,7 @@ import useValue from 'hooks/useValue';
 import { ReadyState } from 'react-use-websocket';
 
 const ConnectionStatusIndicator: React.FC = () => {
-	const [readyState] = useValue('readyState');
+	const { value: readyState } = useValue('readyState');
 	const connectionStatus = {
 		[ReadyState.CONNECTING]: 'Connecting',
 		[ReadyState.OPEN]: 'Connected',

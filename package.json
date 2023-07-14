@@ -32,7 +32,6 @@
 	"dependencies": {
 		"@fontsource/public-sans": "^5.0.5",
 		"@plasmohq/storage": "^1.6.2",
-		"@react-hookz/web": "^23.1.0",
 		"plasmo": "0.80.0",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
