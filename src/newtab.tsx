@@ -38,12 +38,12 @@ const IndexNewtab: React.FC = () => {
 	}, [lastRecvJsonMessage, tagsData, setTagsData, setOrgItem]);
 
 	const updateMatchQuery = useCallback(
-		() =>
+		(newMatchQuery: string) =>
 			sendJsonMessage({
 				command: 'updateMatchQuery',
-				data: matchQuery,
+				data: newMatchQuery,
 			}),
-		[sendJsonMessage, matchQuery]
+		[sendJsonMessage]
 	);
 
 	useEffect(() => {

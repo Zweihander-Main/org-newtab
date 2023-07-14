@@ -3,7 +3,10 @@ import WSContext from 'contexts/WSContext';
 import useValue from 'hooks/useValue';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 
-const OptionsMenu: React.FC = () => {
+type OptionsMenuProps = {
+	updateMatchQuery: (newMatchQuery: string) => void;
+};
+const OptionsMenu: React.FC<OptionsMenuProps> = ({ updateMatchQuery }) => {
 	const {
 		value: matchQuery,
 		setValue: setMatchQuery,
@@ -22,9 +25,10 @@ const OptionsMenu: React.FC = () => {
 			const formMatchQuery = data.get('matchQuery');
 			if (formMatchQuery && typeof formMatchQuery === 'string') {
 				setMatchQuery(formMatchQuery);
+				updateMatchQuery(formMatchQuery);
 			}
 		},
-		[setMatchQuery]
+		[setMatchQuery, updateMatchQuery]
 	);
 
 	const matchQueryInputRef = useRef<HTMLInputElement>(null);
