@@ -17,6 +17,7 @@ type SendResponseType = (message: MsgToBGSW) => unknown;
 
 export type WSContextProps = {
 	amMasterWS: boolean;
+	updateMatchQuery: (matchQuery: string) => Promise<void>;
 } & WSCommonProps;
 
 const WSContext = createContext<WSContextProps>({
@@ -26,6 +27,7 @@ const WSContext = createContext<WSContextProps>({
 	},
 	lastRecvJsonMessage: null,
 	readyState: ReadyState.UNINSTANTIATED,
+	updateMatchQuery: () => Promise.resolve(),
 });
 
 export default WSContext;
@@ -120,6 +122,50 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 		[sendMsgAsResponse]
 	);
 
+	const handleUpdatingMatchQuery = useCallback(
+		(newMatchQuery: string) => {
+			sendJsonMessage({
+				command: 'updateMatchQuery',
+				data: newMatchQuery,
+			});
+		},
+		[sendJsonMessage]
+	);
+
+	const updateMatchQuery = useCallback(
+		async (newMatchQuery: string) => {
+			if (amMasterWS) {
+				handleUpdatingMatchQuery(newMatchQuery);
+			} else {
+				const masterWSObject = await chrome.storage.local.get(
+					'masterWSTabId'
+				);
+				const { masterWSTabId } = masterWSObject;
+				const masterWSTabAsNumber =
+					masterWSTabId && typeof masterWSTabId === 'string'
+						? parseInt(masterWSTabId, 10)
+						: null;
+				if (masterWSTabAsNumber) {
+					logMsg(
+						LogLoc.NEWTAB,
+						LogMsgDir.SEND,
+						'Sending update match query request to masterWS',
+						masterWSTabAsNumber
+					);
+					void chrome.tabs.sendMessage<MsgToTab>(
+						masterWSTabAsNumber,
+						{
+							direction: MsgDirection.TO_NEWTAB,
+							type: MsgToTabType.UPDATE_MATCH_QUERY,
+							data: newMatchQuery,
+						}
+					);
+				}
+			}
+		},
+		[amMasterWS, handleUpdatingMatchQuery]
+	);
+
 	const handleMessage = useCallback(
 		(
 			message: MsgToTab,
@@ -132,8 +178,9 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 			logMsg(
 				LogLoc.NEWTAB,
 				LogMsgDir.RECV,
-				'Data recv from BGSW: ',
-				getMsgToTabType(message.type)
+				'Data recv:',
+				getMsgToTabType(message.type),
+				message?.data ? `with data ${message.data}` : ''
 			);
 			switch (message.type) {
 				case MsgToTabType.CONFIRM_IF_MASTER_WS:
@@ -148,6 +195,11 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 				case MsgToTabType.CONFIRM_IF_ALIVE:
 					handleConfirmingAlive(sendResponse);
 					break;
+				case MsgToTabType.UPDATE_MATCH_QUERY:
+					if (message.data && typeof message.data === 'string') {
+						handleUpdatingMatchQuery(message.data);
+					}
+					break;
 			}
 		},
 		[
@@ -155,6 +207,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 			setAsClient,
 			handleMasterQueryConfirmation,
 			handleConfirmingAlive,
+			handleUpdatingMatchQuery,
 		]
 	);
 
@@ -180,6 +233,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 				sendJsonMessage,
 				lastRecvJsonMessage,
 				readyState,
+				updateMatchQuery,
 			}}
 		>
 			{children}

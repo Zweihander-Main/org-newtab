@@ -1,3 +1,4 @@
+import { useCallback, useMemo } from 'react';
 import useAppState, { type AppState } from './useAppState';
 
 /**
@@ -15,12 +16,15 @@ const useValue = <T extends keyof AppState>(
 	const [appState, setAppState, isPersistent, , isInitialStateResolved] =
 		useAppState();
 
-	const value = appState[key];
-	const setValue = (newValue: AppState[T]) => {
-		setAppState((prevState) => {
-			return { ...prevState, [key]: newValue };
-		});
-	};
+	const value = useMemo(() => appState[key], [appState, key]);
+	const setValue = useCallback(
+		(newValue: AppState[T]) => {
+			setAppState((prevState) => {
+				return { ...prevState, [key]: newValue };
+			});
+		},
+		[key, setAppState]
+	);
 
 	return { value, setValue, isPersistent, isInitialStateResolved };
 };

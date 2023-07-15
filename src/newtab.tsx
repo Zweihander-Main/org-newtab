@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import WSContext, { WSProvider } from 'contexts/WSContext';
 import '@fontsource/public-sans/700.css';
 import './newtab.css';
@@ -14,7 +14,7 @@ const IndexNewtab: React.FC = () => {
 		value: matchQuery,
 		isInitialStateResolved: isInitialMatchQueryStateResolved,
 	} = useValue('matchQuery');
-	const { value: tagsData, setValue: setTagsData } = useValue('tagsData');
+	const { setValue: setTagsData } = useValue('tagsData');
 	const { setValue: setOrgItem } = useValue('orgItem');
 	const hasSentInitialQuery = useRef(false);
 	useEffect(() => {
@@ -35,16 +35,7 @@ const IndexNewtab: React.FC = () => {
 				);
 				break;
 		}
-	}, [lastRecvJsonMessage, tagsData, setTagsData, setOrgItem]);
-
-	const updateMatchQuery = useCallback(
-		(newMatchQuery: string) =>
-			sendJsonMessage({
-				command: 'updateMatchQuery',
-				data: newMatchQuery,
-			}),
-		[sendJsonMessage]
-	);
+	}, [lastRecvJsonMessage, setTagsData, setOrgItem]);
 
 	useEffect(() => {
 		if (
@@ -67,7 +58,7 @@ const IndexNewtab: React.FC = () => {
 
 	return (
 		<main className="app">
-			<OptionsMenu updateMatchQuery={updateMatchQuery} />
+			<OptionsMenu />
 			<ConnectionStatusIndicator />
 			<OrgItem />
 		</main>

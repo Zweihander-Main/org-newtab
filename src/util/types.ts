@@ -17,6 +17,7 @@ export enum MsgToTabType {
 	YOU_ARE_MASTER_WS = 2,
 	YOU_ARE_CLIENT_WS = 3,
 	CONFIRM_IF_ALIVE = 4,
+	UPDATE_MATCH_QUERY = 5,
 }
 export const getMsgToTabType = (type: MsgToTabType) => {
 	return MsgToTabType[type];
@@ -35,6 +36,7 @@ export type MsgToBGSW = {
 export type MsgToTab = {
 	direction: MsgDirection.TO_NEWTAB;
 	type: MsgToTabType;
+	data?: string;
 };
 
 export type AllTagsRecv = string | Array<string | number>;

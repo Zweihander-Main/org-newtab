@@ -3,16 +3,14 @@ import WSContext from 'contexts/WSContext';
 import useValue from 'hooks/useValue';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 
-type OptionsMenuProps = {
-	updateMatchQuery: (newMatchQuery: string) => void;
-};
-const OptionsMenu: React.FC<OptionsMenuProps> = ({ updateMatchQuery }) => {
+const OptionsMenu: React.FC = () => {
 	const {
 		value: matchQuery,
 		setValue: setMatchQuery,
-		isPersistent: matchQuerySaved,
+		isInitialStateResolved: isMatchQueryStateResolved,
 	} = useValue('matchQuery');
-	const { lastRecvJsonMessage, amMasterWS } = useContext(WSContext);
+	const { lastRecvJsonMessage, amMasterWS, updateMatchQuery } =
+		useContext(WSContext);
 	const [optionsVisible, setOptionsVisible] = useState(false);
 
 	const masterStatus = amMasterWS ? 'Master' : 'Client';
@@ -25,23 +23,23 @@ const OptionsMenu: React.FC<OptionsMenuProps> = ({ updateMatchQuery }) => {
 			const formMatchQuery = data.get('matchQuery');
 			if (formMatchQuery && typeof formMatchQuery === 'string') {
 				setMatchQuery(formMatchQuery);
-				updateMatchQuery(formMatchQuery);
+				void updateMatchQuery(formMatchQuery);
 			}
 		},
 		[setMatchQuery, updateMatchQuery]
 	);
 
-	const matchQueryInputRef = useRef<HTMLInputElement>(null);
-
 	useEffect(() => {
 		if (
+			isMatchQueryStateResolved &&
 			matchQueryInputRef.current &&
-			matchQuerySaved &&
-			matchQuery !== undefined
+			matchQuery
 		) {
 			matchQueryInputRef.current.value = matchQuery;
 		}
-	}, [matchQuery, matchQueryInputRef, matchQuerySaved]);
+	}, [isMatchQueryStateResolved, matchQuery]);
+
+	const matchQueryInputRef = useRef<HTMLInputElement>(null);
 
 	const toggleMenu = useCallback(() => {
 		setOptionsVisible(!optionsVisible);
