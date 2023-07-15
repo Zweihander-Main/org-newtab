@@ -46,6 +46,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	const port = usePort();
 
 	const isInitialRender = useRef(true);
+
 	const sendMsgToBGSWPort = useCallback(
 		(type: MsgToBGSWType) => {
 			logMsg(
@@ -73,6 +74,17 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 			sendResponse({
 				type,
 				direction: MsgDirection.TO_BGSW,
+			});
+		},
+		[]
+	);
+
+	const sendMsgToTab = useCallback(
+		(type: MsgToTabType, tabId: number, data?: string) => {
+			void chrome.tabs.sendMessage<MsgToTab>(tabId, {
+				direction: MsgDirection.TO_NEWTAB,
+				type,
+				data,
 			});
 		},
 		[]
@@ -144,18 +156,15 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 						'Sending update match query request to masterWS',
 						masterWSTabAsNumber
 					);
-					void chrome.tabs.sendMessage<MsgToTab>(
+					sendMsgToTab(
+						MsgToTabType.UPDATE_MATCH_QUERY,
 						masterWSTabAsNumber,
-						{
-							direction: MsgDirection.TO_NEWTAB,
-							type: MsgToTabType.UPDATE_MATCH_QUERY,
-							data: newMatchQuery,
-						}
+						newMatchQuery
 					);
 				}
 			}
 		},
-		[amMasterWS, handleUpdatingMatchQuery]
+		[amMasterWS, handleUpdatingMatchQuery, sendMsgToTab]
 	);
 
 	const handleMessage = useCallback(
