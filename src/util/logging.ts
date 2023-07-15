@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-const ENABLE_LOGGING = false;
+const ENABLE_LOGGING = true;
 
 export enum LogLoc {
 	BGSW = 'BGSW',
