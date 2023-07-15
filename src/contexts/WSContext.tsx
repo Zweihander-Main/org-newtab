@@ -84,8 +84,10 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 			logMsg(
 				LogLoc.NEWTAB,
 				LogMsgDir.SEND,
-				'Sending update match query request to master tab',
-				tabId
+				'Sending request to master tab',
+				tabId,
+				getMsgToTabType(type),
+				data ? data : ''
 			);
 			void chrome.tabs.sendMessage<MsgToTab>(tabId, {
 				direction: MsgDirection.TO_NEWTAB,
