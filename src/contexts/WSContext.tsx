@@ -11,7 +11,7 @@ import {
 	getMsgToTabType,
 } from '../util/types';
 import useSingleWebsocket from 'hooks/useSingleWebsocket';
-import { LogLoc, LogMsgDir, logMsg } from 'util/logging';
+import { LogLoc, LogMsgDir, logMsg, logMsgErr } from 'util/logging';
 import usePort from 'hooks/usePort';
 
 type SendResponseType = (message: MsgToBGSW) => unknown;
@@ -81,6 +81,12 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 
 	const sendMsgToTab = useCallback(
 		(type: MsgToTabType, tabId: number, data?: string) => {
+			logMsg(
+				LogLoc.NEWTAB,
+				LogMsgDir.SEND,
+				'Sending update match query request to master tab',
+				tabId
+			);
 			void chrome.tabs.sendMessage<MsgToTab>(tabId, {
 				direction: MsgDirection.TO_NEWTAB,
 				type,
@@ -150,12 +156,6 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 						? parseInt(masterWSTabId, 10)
 						: null;
 				if (masterWSTabAsNumber) {
-					logMsg(
-						LogLoc.NEWTAB,
-						LogMsgDir.SEND,
-						'Sending update match query request to masterWS',
-						masterWSTabAsNumber
-					);
 					sendMsgToTab(
 						MsgToTabType.UPDATE_MATCH_QUERY,
 						masterWSTabAsNumber,
@@ -199,6 +199,13 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 				case MsgToTabType.UPDATE_MATCH_QUERY:
 					if (message.data && typeof message.data === 'string') {
 						handleUpdatingMatchQuery(message.data);
+					} else {
+						logMsgErr(
+							LogLoc.NEWTAB,
+							LogMsgDir.RECV,
+							'Bad or no data for updating match query',
+							message?.data
+						);
 					}
 					break;
 			}
