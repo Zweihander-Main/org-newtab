@@ -12,7 +12,6 @@ import {
 } from '../util/types';
 import useSingleWebsocket from 'hooks/useSingleWebsocket';
 import { LogLoc, LogMsgDir, logMsg } from 'util/logging';
-import useMasterWS from 'hooks/useMasterWS';
 import usePort from 'hooks/usePort';
 
 type SendResponseType = (message: MsgToBGSW) => unknown;
@@ -37,9 +36,13 @@ export default WSContext;
 export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	children,
 }) => {
-	const [amMasterWS, setAmMasterWS] = useMasterWS();
-	const { sendJsonMessage, lastRecvJsonMessage, readyState } =
-		useSingleWebsocket(amMasterWS);
+	const {
+		sendJsonMessage,
+		lastRecvJsonMessage,
+		readyState,
+		amMasterWS,
+		setAmMasterWS,
+	} = useSingleWebsocket();
 	const port = usePort();
 
 	const isInitialRender = useRef(true);

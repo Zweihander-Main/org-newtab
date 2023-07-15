@@ -2,11 +2,15 @@ import useWebSocket from 'react-use-websocket';
 import type { SendJsonMessage } from 'react-use-websocket/dist/lib/types';
 import type { WSCommonProps, EmacsRecvMsg } from '../util/types';
 import useValue from './useValue';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-type useSingleWebsocket = (amMasterWS: boolean) => WSCommonProps;
+type useSingleWebsocket = () => WSCommonProps & {
+	amMasterWS: boolean;
+	setAmMasterWS: (amMasterWS: boolean) => void;
+};
 
-const useSingleWebsocket: useSingleWebsocket = (amMasterWS: boolean) => {
+const useSingleWebsocket: useSingleWebsocket = () => {
+	const [amMasterWS, setAmMasterWS] = useState(false);
 	let sendJsonMessage: SendJsonMessage = () => {
 		return;
 	};
@@ -31,7 +35,13 @@ const useSingleWebsocket: useSingleWebsocket = (amMasterWS: boolean) => {
 		lastRecvJsonMessage = lastRecvJsonMessageMaster;
 	}
 
-	return { sendJsonMessage, lastRecvJsonMessage, readyState };
+	return {
+		sendJsonMessage,
+		lastRecvJsonMessage,
+		readyState,
+		amMasterWS,
+		setAmMasterWS,
+	};
 };
 
 export default useSingleWebsocket;
