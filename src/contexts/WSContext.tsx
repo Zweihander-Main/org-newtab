@@ -204,11 +204,13 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	);
 
 	useEffect(() => {
-		chrome.runtime.onMessage.addListener(handleMessage);
+		if (!chrome.runtime.onMessage.hasListener(handleMessage)) {
+			chrome.runtime.onMessage.addListener(handleMessage);
+		}
 		return () => {
 			chrome.runtime.onMessage.removeListener(handleMessage);
 		};
-	}, [amMasterWS, handleMessage]);
+	}, [handleMessage]);
 
 	useEffect(() => {
 		if (isInitialRender.current) {
