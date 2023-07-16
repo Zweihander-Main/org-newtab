@@ -1,5 +1,4 @@
 import { createContext, useCallback, useEffect, useRef } from 'react';
-import { ReadyState } from 'react-use-websocket';
 import {
 	MsgDirection,
 	type MsgToTab,
@@ -27,7 +26,6 @@ const WSContext = createContext<WSContextProps>({
 		return;
 	},
 	lastRecvJsonMessage: null,
-	readyState: ReadyState.UNINSTANTIATED,
 	updateMatchQuery: () => Promise.resolve(),
 });
 
@@ -36,13 +34,8 @@ export default WSContext;
 export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	children,
 }) => {
-	const {
-		sendJsonMessage,
-		lastRecvJsonMessage,
-		readyState,
-		amMasterWS,
-		setAmMasterWS,
-	} = useSingleWebsocket();
+	const { sendJsonMessage, lastRecvJsonMessage, amMasterWS, setAmMasterWS } =
+		useSingleWebsocket();
 	const port = usePort();
 
 	const isInitialRender = useRef(true);
@@ -244,7 +237,6 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 				amMasterWS,
 				sendJsonMessage,
 				lastRecvJsonMessage,
-				readyState,
 				updateMatchQuery,
 			}}
 		>

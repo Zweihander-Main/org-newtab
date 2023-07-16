@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import useAppState, { type AppState } from './useAppState';
 
 /**
@@ -13,18 +13,25 @@ const useValue = <T extends keyof AppState>(
 	isPersistent: boolean;
 	isInitialStateResolved: boolean;
 } => {
-	const [appState, setAppState, isPersistent, , isInitialStateResolved] =
+	const [appState, setAppState, isPersistent, error, isInitialStateResolved] =
 		useAppState();
 
 	const value = useMemo(() => appState[key], [appState, key]);
 	const setValue = useCallback(
 		(newValue: AppState[T]) => {
+			if (value === newValue) return;
 			setAppState((prevState) => {
 				return { ...prevState, [key]: newValue };
 			});
 		},
-		[key, setAppState]
+		[key, setAppState, value]
 	);
+
+	useEffect(() => {
+		if (error && error !== '') {
+			console.error('Error setting storage for', key, error);
+		}
+	}, [error, key]);
 
 	return { value, setValue, isPersistent, isInitialStateResolved };
 };

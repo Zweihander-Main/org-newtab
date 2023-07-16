@@ -1,5 +1,4 @@
 import type { SendJsonMessage } from 'react-use-websocket/dist/lib/types';
-import type { ReadyState } from 'react-use-websocket';
 
 export enum MsgToBGSWType {
 	QUERY_STATUS_OF_WS = 1,
@@ -61,5 +60,4 @@ export type EmacsRecvMsg = EmacsItemMsg | EmacsTagsMsg | null;
 export type WSCommonProps = {
 	sendJsonMessage: SendJsonMessage;
 	lastRecvJsonMessage: EmacsRecvMsg;
-	readyState: ReadyState;
 };
