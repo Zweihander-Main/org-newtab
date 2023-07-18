@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef } from 'react';
-import WSContext, { WSProvider } from 'contexts/WSContext';
+import WSContext, { WSProvider } from 'contexts/ws';
 import '@fontsource/public-sans/700.css';
 import './newtab.css';
 import ConnectionStatusIndicator from 'components/ConnectionStatusIndicator';

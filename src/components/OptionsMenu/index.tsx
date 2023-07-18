@@ -1,5 +1,5 @@
 import * as styles from './style.module.css';
-import WSContext from 'contexts/WSContext';
+import WSContext from 'contexts/ws';
 import useValue from 'hooks/useValue';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 
