@@ -13,6 +13,51 @@ import useSingleWebsocket from 'hooks/useSingleWebsocket';
 import { LogLoc, LogMsgDir, logMsg, logMsgErr } from 'util/logging';
 import usePort from 'hooks/usePort';
 
+const sendMsgToBGSWPort = (type: MsgToBGSWType, port: chrome.runtime.Port) => {
+	logMsg(
+		LogLoc.NEWTAB,
+		LogMsgDir.SEND,
+		'Sending message to BGSW port',
+		getMsgToBGSWType(type)
+	);
+	port.postMessage({
+		type,
+		direction: MsgDirection.TO_BGSW,
+	});
+};
+
+const sendMsgAsResponse = (
+	type: MsgToBGSWType,
+	sendResponse: SendResponseType
+) => {
+	logMsg(
+		LogLoc.NEWTAB,
+		LogMsgDir.SEND,
+		'Sending response to BGSW msg',
+		getMsgToBGSWType(type)
+	);
+	sendResponse({
+		type,
+		direction: MsgDirection.TO_BGSW,
+	});
+};
+
+const sendMsgToTab = (type: MsgToTabType, tabId: number, data?: string) => {
+	logMsg(
+		LogLoc.NEWTAB,
+		LogMsgDir.SEND,
+		'Sending request to master tab',
+		tabId,
+		getMsgToTabType(type),
+		data ? data : ''
+	);
+	void chrome.tabs.sendMessage<MsgToTab>(tabId, {
+		direction: MsgDirection.TO_NEWTAB,
+		type,
+		data,
+	});
+};
+
 type SendResponseType = (message: MsgToBGSW) => unknown;
 
 export type WSContextProps = {
@@ -40,57 +85,6 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 
 	const isInitialRender = useRef(true);
 
-	const sendMsgToBGSWPort = useCallback(
-		(type: MsgToBGSWType) => {
-			logMsg(
-				LogLoc.NEWTAB,
-				LogMsgDir.SEND,
-				'Sending message to BGSW port',
-				getMsgToBGSWType(type)
-			);
-			port.postMessage({
-				type,
-				direction: MsgDirection.TO_BGSW,
-			});
-		},
-		[port]
-	);
-
-	const sendMsgAsResponse = useCallback(
-		(type: MsgToBGSWType, sendResponse: SendResponseType) => {
-			logMsg(
-				LogLoc.NEWTAB,
-				LogMsgDir.SEND,
-				'Sending response to BGSW msg',
-				getMsgToBGSWType(type)
-			);
-			sendResponse({
-				type,
-				direction: MsgDirection.TO_BGSW,
-			});
-		},
-		[]
-	);
-
-	const sendMsgToTab = useCallback(
-		(type: MsgToTabType, tabId: number, data?: string) => {
-			logMsg(
-				LogLoc.NEWTAB,
-				LogMsgDir.SEND,
-				'Sending request to master tab',
-				tabId,
-				getMsgToTabType(type),
-				data ? data : ''
-			);
-			void chrome.tabs.sendMessage<MsgToTab>(tabId, {
-				direction: MsgDirection.TO_NEWTAB,
-				type,
-				data,
-			});
-		},
-		[]
-	);
-
 	const setAsMaster = useCallback(() => {
 		if (amMasterWS === false) {
 			setAmMasterWS(true);
@@ -117,14 +111,14 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 				);
 			}
 		},
-		[amMasterWS, sendMsgAsResponse]
+		[amMasterWS]
 	);
 
 	const handleConfirmingAlive = useCallback(
 		(sendResponse: SendResponseType) => {
 			sendMsgAsResponse(MsgToBGSWType.CONFIRMED_ALIVE, sendResponse);
 		},
-		[sendMsgAsResponse]
+		[]
 	);
 
 	const handleUpdatingMatchQuery = useCallback(
@@ -159,7 +153,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 				}
 			}
 		},
-		[amMasterWS, handleUpdatingMatchQuery, sendMsgToTab]
+		[amMasterWS, handleUpdatingMatchQuery]
 	);
 
 	const handleMessage = useCallback(
@@ -226,10 +220,10 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	useEffect(() => {
 		if (isInitialRender.current) {
 			// 1. Ask if any master web sockets exist
-			sendMsgToBGSWPort(MsgToBGSWType.QUERY_STATUS_OF_WS);
+			sendMsgToBGSWPort(MsgToBGSWType.QUERY_STATUS_OF_WS, port);
 			isInitialRender.current = false;
 		}
-	}, [sendMsgToBGSWPort]);
+	}, [port]);
 
 	return (
 		<WSContext.Provider
