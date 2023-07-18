@@ -8,7 +8,7 @@ import OrgItem from 'components/OrgItem';
 import useValue from 'hooks/useValue';
 
 const IndexNewtab: React.FC = () => {
-	const { sendJsonMessage, lastRecvJsonMessage, amMasterWS } =
+	const { sendJsonMessage, lastRecvJsonMessage, amMasterWS, getItem } =
 		useContext(WSContext);
 	const {
 		value: matchQuery,
@@ -41,12 +41,10 @@ const IndexNewtab: React.FC = () => {
 		if (
 			!hasSentInitialQuery.current &&
 			amMasterWS &&
-			isInitialMatchQueryStateResolved
+			isInitialMatchQueryStateResolved &&
+			matchQuery
 		) {
-			sendJsonMessage({
-				command: 'getItem',
-				data: matchQuery,
-			});
+			getItem(matchQuery);
 			hasSentInitialQuery.current = true;
 		}
 	}, [
@@ -54,6 +52,7 @@ const IndexNewtab: React.FC = () => {
 		matchQuery,
 		amMasterWS,
 		isInitialMatchQueryStateResolved,
+		getItem,
 	]);
 
 	return (

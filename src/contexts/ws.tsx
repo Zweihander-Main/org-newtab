@@ -20,6 +20,7 @@ import usePort from 'hooks/usePort';
 export type WSContextProps = {
 	amMasterWS: boolean;
 	updateMatchQuery: (matchQuery: string) => void;
+	getItem: (matchQuery: string) => void;
 } & WSCommonProps;
 
 const WSContext = createContext<WSContextProps>({
@@ -29,6 +30,7 @@ const WSContext = createContext<WSContextProps>({
 	},
 	lastRecvJsonMessage: null,
 	updateMatchQuery: () => {},
+	getItem: () => {},
 });
 
 export default WSContext;
@@ -42,13 +44,22 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 
 	const isInitialRender = useRef(true);
 
-	const handleUpdatingMatchQuery = useCallback(
+	const updateMatchQuery = useCallback(
 		(newMatchQuery: string) => {
 			sendJsonMessage({
 				command: 'updateMatchQuery',
 				data: newMatchQuery,
 			});
 		},
+		[sendJsonMessage]
+	);
+
+	const getItem = useCallback(
+		(matchQuery: string) =>
+			sendJsonMessage({
+				command: 'getItem',
+				data: matchQuery,
+			}),
 		[sendJsonMessage]
 	);
 
@@ -121,7 +132,8 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 				amMasterWS,
 				sendJsonMessage,
 				lastRecvJsonMessage,
-				updateMatchQuery: handleUpdatingMatchQuery,
+				updateMatchQuery,
+				getItem,
 			}}
 		>
 			{children}
