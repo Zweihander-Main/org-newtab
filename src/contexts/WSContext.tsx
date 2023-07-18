@@ -100,18 +100,6 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 
 	const isInitialRender = useRef(true);
 
-	const setAsMaster = useCallback(() => {
-		if (amMasterWS === false) {
-			setAmMasterWS(true);
-		}
-	}, [amMasterWS, setAmMasterWS]);
-
-	const setAsClient = useCallback(() => {
-		if (amMasterWS === true) {
-			setAmMasterWS(false);
-		}
-	}, [amMasterWS, setAmMasterWS]);
-
 	const handleUpdatingMatchQuery = useCallback(
 		(newMatchQuery: string) => {
 			sendJsonMessage({
@@ -168,10 +156,10 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 					handleMasterQueryConfirmation(sendResponse, amMasterWS);
 					break;
 				case MsgToTabType.YOU_ARE_MASTER_WS:
-					setAsMaster();
+					setAmMasterWS(true);
 					break;
 				case MsgToTabType.YOU_ARE_CLIENT_WS:
-					setAsClient();
+					setAmMasterWS(false);
 					break;
 				case MsgToTabType.CONFIRM_IF_ALIVE:
 					handleConfirmingAlive(sendResponse);
@@ -190,7 +178,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 					break;
 			}
 		},
-		[setAsMaster, setAsClient, amMasterWS, handleUpdatingMatchQuery]
+		[setAmMasterWS, amMasterWS, handleUpdatingMatchQuery]
 	);
 
 	useEffect(() => {
