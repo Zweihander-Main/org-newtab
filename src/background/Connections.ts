@@ -1,7 +1,7 @@
 import type { BaseStorage } from '@plasmohq/storage';
 import { confirmTabIdAlive } from './messaging';
 import Storage from './Storage';
-import { LogLoc, log } from 'util/logging';
+import { LogLoc, log } from 'lib/logging';
 
 type connectedTabIds = Set<number>;
 

@@ -4,80 +4,22 @@ import {
 	type MsgToTab,
 	MsgToTabType,
 	MsgToBGSWType,
-	type MsgToBGSW,
 	type WSCommonProps,
-	getMsgToBGSWType,
 	getMsgToTabType,
-} from '../util/types';
+} from '../lib/types';
+import {
+	SendResponseType,
+	handleConfirmingAlive,
+	handleMasterQueryConfirmation,
+	sendMsgToBGSWPort,
+} from '../lib/messages';
 import useSingleWebsocket from 'hooks/useSingleWS';
-import { LogLoc, LogMsgDir, logMsg, logMsgErr } from 'util/logging';
+import { LogLoc, LogMsgDir, logMsg, logMsgErr } from 'lib/logging';
 import usePort from 'hooks/usePort';
-
-const sendMsgToBGSWPort = (type: MsgToBGSWType, port: chrome.runtime.Port) => {
-	logMsg(
-		LogLoc.NEWTAB,
-		LogMsgDir.SEND,
-		'Sending message to BGSW port',
-		getMsgToBGSWType(type)
-	);
-	port.postMessage({
-		type,
-		direction: MsgDirection.TO_BGSW,
-	});
-};
-
-const sendMsgAsResponse = (
-	type: MsgToBGSWType,
-	sendResponse: SendResponseType
-) => {
-	logMsg(
-		LogLoc.NEWTAB,
-		LogMsgDir.SEND,
-		'Sending response to BGSW msg',
-		getMsgToBGSWType(type)
-	);
-	sendResponse({
-		type,
-		direction: MsgDirection.TO_BGSW,
-	});
-};
-
-const sendMsgToTab = (type: MsgToTabType, tabId: number, data?: string) => {
-	logMsg(
-		LogLoc.NEWTAB,
-		LogMsgDir.SEND,
-		'Sending request to master tab',
-		tabId,
-		getMsgToTabType(type),
-		data ? data : ''
-	);
-	void chrome.tabs.sendMessage<MsgToTab>(tabId, {
-		direction: MsgDirection.TO_NEWTAB,
-		type,
-		data,
-	});
-};
-
-const handleMasterQueryConfirmation = (
-	sendResponse: SendResponseType,
-	amMasterWS: boolean
-) => {
-	if (amMasterWS) {
-		sendMsgAsResponse(MsgToBGSWType.IDENTIFY_AS_MASTER_WS, sendResponse);
-	} else {
-		sendMsgAsResponse(MsgToBGSWType.IDENTIFY_AS_WS_CLIENT, sendResponse);
-	}
-};
-
-const handleConfirmingAlive = (sendResponse: SendResponseType) => {
-	sendMsgAsResponse(MsgToBGSWType.CONFIRMED_ALIVE, sendResponse);
-};
-
-type SendResponseType = (message: MsgToBGSW) => unknown;
 
 export type WSContextProps = {
 	amMasterWS: boolean;
-	updateMatchQuery: (matchQuery: string) => Promise<void>;
+	updateMatchQuery: (matchQuery: string) => void;
 } & WSCommonProps;
 
 const WSContext = createContext<WSContextProps>({
@@ -86,7 +28,7 @@ const WSContext = createContext<WSContextProps>({
 		return;
 	},
 	lastRecvJsonMessage: null,
-	updateMatchQuery: () => Promise.resolve(),
+	updateMatchQuery: () => {},
 });
 
 export default WSContext;
@@ -110,31 +52,6 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 		[sendJsonMessage]
 	);
 
-	const updateMatchQuery = useCallback(
-		async (newMatchQuery: string) => {
-			if (amMasterWS) {
-				handleUpdatingMatchQuery(newMatchQuery);
-			} else {
-				const masterWSObject = await chrome.storage.local.get(
-					'masterWSTabId'
-				);
-				const { masterWSTabId } = masterWSObject;
-				const masterWSTabAsNumber =
-					masterWSTabId && typeof masterWSTabId === 'string'
-						? parseInt(masterWSTabId, 10)
-						: null;
-				if (masterWSTabAsNumber) {
-					sendMsgToTab(
-						MsgToTabType.UPDATE_MATCH_QUERY,
-						masterWSTabAsNumber,
-						newMatchQuery
-					);
-				}
-			}
-		},
-		[amMasterWS, handleUpdatingMatchQuery]
-	);
-
 	const handleMessage = useCallback(
 		(
 			message: MsgToTab,
@@ -149,7 +66,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 				LogMsgDir.RECV,
 				'Data recv:',
 				getMsgToTabType(message.type),
-				message?.data ? `with data ${message.data}` : ''
+				message?.data ? `with data ${JSON.stringify(message.data)}` : ''
 			);
 			switch (message.type) {
 				case MsgToTabType.CONFIRM_IF_MASTER_WS:
@@ -164,9 +81,9 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 				case MsgToTabType.CONFIRM_IF_ALIVE:
 					handleConfirmingAlive(sendResponse);
 					break;
-				case MsgToTabType.UPDATE_MATCH_QUERY:
-					if (message.data && typeof message.data === 'string') {
-						handleUpdatingMatchQuery(message.data);
+				case MsgToTabType.PASS_ON_TO_EMACS:
+					if (message.data) {
+						sendJsonMessage(message.data);
 					} else {
 						logMsgErr(
 							LogLoc.NEWTAB,
@@ -178,7 +95,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 					break;
 			}
 		},
-		[setAmMasterWS, amMasterWS, handleUpdatingMatchQuery]
+		[setAmMasterWS, amMasterWS, sendJsonMessage]
 	);
 
 	useEffect(() => {
@@ -204,7 +121,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 				amMasterWS,
 				sendJsonMessage,
 				lastRecvJsonMessage,
-				updateMatchQuery,
+				updateMatchQuery: handleUpdatingMatchQuery,
 			}}
 		>
 			{children}

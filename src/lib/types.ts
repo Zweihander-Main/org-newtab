@@ -1,4 +1,7 @@
-import type { SendJsonMessage } from 'react-use-websocket/dist/lib/types';
+import type {
+	JsonValue,
+	SendJsonMessage,
+} from 'react-use-websocket/dist/lib/types';
 
 export enum MsgToBGSWType {
 	QUERY_STATUS_OF_WS = 1,
@@ -16,7 +19,7 @@ export enum MsgToTabType {
 	YOU_ARE_MASTER_WS = 2,
 	YOU_ARE_CLIENT_WS = 3,
 	CONFIRM_IF_ALIVE = 4,
-	UPDATE_MATCH_QUERY = 5,
+	PASS_ON_TO_EMACS = 5,
 }
 export const getMsgToTabType = (type: MsgToTabType) => {
 	return MsgToTabType[type];
@@ -35,8 +38,10 @@ export type MsgToBGSW = {
 export type MsgToTab = {
 	direction: MsgDirection.TO_NEWTAB;
 	type: MsgToTabType;
-	data?: string;
+	data?: JsonValue;
 };
+
+// TODO: type data and msg to emacs more tightly
 
 export type AllTagsRecv = string | Array<string | number>;
 

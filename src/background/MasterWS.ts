@@ -1,8 +1,8 @@
 import type { BaseStorage } from '@plasmohq/storage';
 import { sendMsgToTab, confirmTabIdAlive } from './messaging';
-import { MsgToTabType } from '../util/types';
+import { MsgToTabType } from '../lib/types';
 import Storage from './Storage';
-import { LogLoc, log } from 'util/logging';
+import { LogLoc, log } from 'lib/logging';
 
 type masterWS = number | null;
 

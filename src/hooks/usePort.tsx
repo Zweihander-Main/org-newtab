@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { LogLoc, log } from 'util/logging';
+import { LogLoc, log } from 'lib/logging';
 
 const usePort = () => {
 	const [port, setPort] = useState<chrome.runtime.Port>(

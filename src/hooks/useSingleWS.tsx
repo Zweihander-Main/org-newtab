@@ -1,8 +1,16 @@
 import useWebSocket from 'react-use-websocket';
-import type { SendJsonMessage } from 'react-use-websocket/dist/lib/types';
-import type { WSCommonProps, EmacsRecvMsg } from '../util/types';
+import type {
+	JsonValue,
+	SendJsonMessage,
+} from 'react-use-websocket/dist/lib/types';
+import {
+	type WSCommonProps,
+	type EmacsRecvMsg,
+	MsgToTabType,
+} from '../lib/types';
 import useValue from './useValue';
 import { useCallback, useState } from 'react';
+import { sendMsgToTab } from '../lib/messages';
 
 type useSingleWebsocket = () => WSCommonProps & {
 	amMasterWS: boolean;
@@ -11,9 +19,31 @@ type useSingleWebsocket = () => WSCommonProps & {
 
 const useSingleWebsocket: useSingleWebsocket = () => {
 	const [amMasterWS, setAmMasterWS] = useState(false);
-	let sendJsonMessage: SendJsonMessage = () => {
-		return;
-	};
+	let sendJsonMessage: SendJsonMessage = useCallback(
+		(jsonMessage: JsonValue) => {
+			chrome.storage.local
+				.get('masterWSTabId')
+				.then((masterWSObject) => {
+					const { masterWSTabId } = masterWSObject;
+					const masterWSTabAsNumber =
+						masterWSTabId && typeof masterWSTabId === 'string'
+							? parseInt(masterWSTabId, 10)
+							: null;
+					if (masterWSTabAsNumber) {
+						sendMsgToTab(
+							MsgToTabType.PASS_ON_TO_EMACS,
+							masterWSTabAsNumber,
+							jsonMessage
+						);
+					}
+				})
+				.catch((err) => {
+					console.error(err);
+				});
+		},
+		[]
+	);
+
 	let lastRecvJsonMessage: EmacsRecvMsg = null;
 	const { setValue: setReadyState } = useValue('readyState');
 

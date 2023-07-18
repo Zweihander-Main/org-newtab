@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import * as styles from './style.module.css';
 import useValue from 'hooks/useValue';
-import type { AllTagsRecv } from '../../util/types';
+import type { AllTagsRecv } from '../../lib/types';
 import logo from 'data-base64:~assets/icon-1024x1024.png';
 
 const OrgItem: React.FC = () => {

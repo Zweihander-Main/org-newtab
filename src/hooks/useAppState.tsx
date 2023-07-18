@@ -1,6 +1,6 @@
 import { createChromeStorageStateHookLocal } from 'use-chrome-storage';
 import { ReadyState } from 'react-use-websocket';
-import type { EmacsItemMsg } from '../util/types';
+import type { EmacsItemMsg } from '../lib/types';
 
 const STATE_KEY = 'appState';
 const INITIAL_VALUE = {
