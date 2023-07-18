@@ -63,6 +63,22 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 		[sendJsonMessage]
 	);
 
+	const handlePassingMessage = useCallback(
+		(message: MsgToTab) => {
+			if (message.data) {
+				sendJsonMessage(message.data);
+			} else {
+				logMsgErr(
+					LogLoc.NEWTAB,
+					LogMsgDir.RECV,
+					'Bad or no data for updating match query',
+					message?.data
+				);
+			}
+		},
+		[sendJsonMessage]
+	);
+
 	const handleMessage = useCallback(
 		(
 			message: MsgToTab,
@@ -93,20 +109,11 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 					handleConfirmingAlive(sendResponse);
 					break;
 				case MsgToTabType.PASS_ON_TO_EMACS:
-					if (message.data) {
-						sendJsonMessage(message.data);
-					} else {
-						logMsgErr(
-							LogLoc.NEWTAB,
-							LogMsgDir.RECV,
-							'Bad or no data for updating match query',
-							message?.data
-						);
-					}
+					handlePassingMessage(message);
 					break;
 			}
 		},
-		[setAmMasterWS, amMasterWS, sendJsonMessage]
+		[setAmMasterWS, amMasterWS, handlePassingMessage]
 	);
 
 	useEffect(() => {
