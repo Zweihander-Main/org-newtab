@@ -58,6 +58,21 @@ const sendMsgToTab = (type: MsgToTabType, tabId: number, data?: string) => {
 	});
 };
 
+const handleMasterQueryConfirmation = (
+	sendResponse: SendResponseType,
+	amMasterWS: boolean
+) => {
+	if (amMasterWS) {
+		sendMsgAsResponse(MsgToBGSWType.IDENTIFY_AS_MASTER_WS, sendResponse);
+	} else {
+		sendMsgAsResponse(MsgToBGSWType.IDENTIFY_AS_WS_CLIENT, sendResponse);
+	}
+};
+
+const handleConfirmingAlive = (sendResponse: SendResponseType) => {
+	sendMsgAsResponse(MsgToBGSWType.CONFIRMED_ALIVE, sendResponse);
+};
+
 type SendResponseType = (message: MsgToBGSW) => unknown;
 
 export type WSContextProps = {
@@ -96,30 +111,6 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 			setAmMasterWS(false);
 		}
 	}, [amMasterWS, setAmMasterWS]);
-
-	const handleMasterQueryConfirmation = useCallback(
-		(sendResponse: SendResponseType) => {
-			if (amMasterWS) {
-				sendMsgAsResponse(
-					MsgToBGSWType.IDENTIFY_AS_MASTER_WS,
-					sendResponse
-				);
-			} else {
-				sendMsgAsResponse(
-					MsgToBGSWType.IDENTIFY_AS_WS_CLIENT,
-					sendResponse
-				);
-			}
-		},
-		[amMasterWS]
-	);
-
-	const handleConfirmingAlive = useCallback(
-		(sendResponse: SendResponseType) => {
-			sendMsgAsResponse(MsgToBGSWType.CONFIRMED_ALIVE, sendResponse);
-		},
-		[]
-	);
 
 	const handleUpdatingMatchQuery = useCallback(
 		(newMatchQuery: string) => {
@@ -174,7 +165,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 			);
 			switch (message.type) {
 				case MsgToTabType.CONFIRM_IF_MASTER_WS:
-					handleMasterQueryConfirmation(sendResponse);
+					handleMasterQueryConfirmation(sendResponse, amMasterWS);
 					break;
 				case MsgToTabType.YOU_ARE_MASTER_WS:
 					setAsMaster();
@@ -199,13 +190,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 					break;
 			}
 		},
-		[
-			setAsMaster,
-			setAsClient,
-			handleMasterQueryConfirmation,
-			handleConfirmingAlive,
-			handleUpdatingMatchQuery,
-		]
+		[setAsMaster, setAsClient, amMasterWS, handleUpdatingMatchQuery]
 	);
 
 	useEffect(() => {
