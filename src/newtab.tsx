@@ -55,6 +55,10 @@ const IndexNewtab: React.FC = () => {
 		getItem,
 	]);
 
+	useEffect(() => {
+		document.title = 'New Tab';
+	}, []);
+
 	return (
 		<main className="app">
 			<OptionsMenu />
