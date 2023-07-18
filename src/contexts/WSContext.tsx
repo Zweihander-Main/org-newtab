@@ -9,7 +9,7 @@ import {
 	getMsgToBGSWType,
 	getMsgToTabType,
 } from '../util/types';
-import useSingleWebsocket from 'hooks/useSingleWebsocket';
+import useSingleWebsocket from 'hooks/useSingleWS';
 import { LogLoc, LogMsgDir, logMsg, logMsgErr } from 'util/logging';
 import usePort from 'hooks/usePort';
 

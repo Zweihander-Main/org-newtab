@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import useSingleWebSocket from '../useSingleWebsocket';
+import useSingleWebSocket from '../useSingleWS';
 
 describe('AppContext', () => {
 	const { result } = renderHook(() => useSingleWebSocket());
