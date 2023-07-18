@@ -3,10 +3,12 @@ import * as styles from './style.module.css';
 import useValue from 'hooks/useValue';
 import type { AllTagsRecv } from '../../lib/types';
 import logo from 'data-base64:~assets/icon-1024x1024.png';
+import { ReadyState } from 'react-use-websocket';
 
 const OrgItem: React.FC = () => {
 	const { value: tagsData } = useValue('tagsData');
 	const { value: orgItem } = useValue('orgItem');
+	const { value: readyState } = useValue('readyState');
 	const [foregroundColor, setForegroundColor] = useState<string | undefined>(
 		undefined
 	);
@@ -48,11 +50,15 @@ const OrgItem: React.FC = () => {
 		}
 	}, [sanitizeTagsAndMatchData, orgItem, tagsData]);
 
+	const classString = `${styles.item}${
+		readyState === ReadyState.OPEN ? '' : ' ' + styles.stale
+	}`;
+
 	return (
 		<>
 			{itemText ? (
 				<h1
-					className={styles.item}
+					className={classString}
 					style={{ backgroundColor: foregroundColor }}
 				>
 					{itemText}
