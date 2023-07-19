@@ -3,5 +3,6 @@
 	bottom: 0;
 	margin: 0.25rem;
 	font-size: 0.85rem;
-	opacity: 0.55;
+	opacity: var(--opacity-ui);
+	color: var(--color-ui);
 }

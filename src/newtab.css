@@ -3,6 +3,9 @@
 	--color-item-bg-default: #484848;
 	--color-item-shadow: black;
 	--color-loading-bar: #29d;
+	--color-options-menu-bg: hsl(0deg 0% 75%);
+	--color-ui: #fff;
+	--opacity-ui: 0.55;
 	--font-item: 'Public Sans', sans-serif;
 	--width-item-stroke: 0.08rem;
 }

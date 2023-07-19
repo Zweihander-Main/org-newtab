@@ -1,5 +1,5 @@
 .menu {
-	background: hsl(0deg 0% 75%);
+	background: var(--color-options-menu-bg);
 	height: 100%;
 	position: fixed;
 	left: 0;
@@ -44,7 +44,8 @@
 .button-bar3 {
 	width: 2.5rem;
 	height: 0.2rem;
-	background-color: white;
+	background-color: var(--color-ui);
+	opacity: var(--opacity-ui);
 	margin: 0.7rem 0;
 	transition: 0.15s;
 }

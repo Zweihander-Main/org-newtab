@@ -67,8 +67,6 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 		[sendJsonMessage]
 	);
 
-	// NEXT: error handling -- timed out requests
-
 	const handlePassingMessage = useCallback(
 		(message: MsgToTab) => {
 			if (message.data) {
