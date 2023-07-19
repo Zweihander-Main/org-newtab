@@ -1,14 +1,16 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import * as styles from './style.module.css';
 import useValue from 'hooks/useValue';
 import type { AllTagsRecv } from '../../lib/types';
 import logo from 'data-base64:~assets/icon-1024x1024.png';
 import { ReadyState } from 'react-use-websocket';
+import WSContext from 'contexts/ws';
 
 const OrgItem: React.FC = () => {
 	const { value: tagsData } = useValue('tagsData');
 	const { value: orgItem } = useValue('orgItem');
 	const { value: readyState } = useValue('readyState');
+	const { waitingForResponse } = useContext(WSContext);
 	const [foregroundColor, setForegroundColor] = useState<string | undefined>(
 		undefined
 	);
@@ -51,7 +53,9 @@ const OrgItem: React.FC = () => {
 	}, [sanitizeTagsAndMatchData, orgItem, tagsData]);
 
 	const classString = `${styles.item}${
-		readyState === ReadyState.OPEN ? '' : ' ' + styles.stale
+		readyState !== ReadyState.OPEN || waitingForResponse.length > 0
+			? ' ' + styles.stale
+			: ''
 	}`;
 
 	return (

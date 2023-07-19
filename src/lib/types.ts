@@ -44,6 +44,7 @@ export type EmacsItemMsg = {
 		ITEM: string;
 		ALLTAGS?: AllTagsRecv;
 	};
+	resid: number;
 };
 
 export type EmacsTagsMsg = {
