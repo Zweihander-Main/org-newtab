@@ -21,7 +21,7 @@ const useSingleWebsocket: useSingleWebsocket = () => {
 	const [amMasterWS, setAmMasterWS] = useState(false);
 	let sendJsonMessage: SendJsonMessage = useCallback(
 		(jsonMessage: JsonValue) => {
-			chrome.storage.local
+			void chrome.storage.local
 				.get('masterWSTabId')
 				.then((masterWSObject) => {
 					const { masterWSTabId } = masterWSObject;
@@ -36,9 +36,6 @@ const useSingleWebsocket: useSingleWebsocket = () => {
 							jsonMessage
 						);
 					}
-				})
-				.catch((err) => {
-					console.error(err);
 				});
 		},
 		[]
