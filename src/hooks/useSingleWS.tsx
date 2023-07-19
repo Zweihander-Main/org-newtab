@@ -11,6 +11,23 @@ import useValue from './useValue';
 import { useCallback, useEffect, useState } from 'react';
 import { sendMsgToTab } from '../lib/messages';
 
+const MAXIMUM_TIME_TO_WAIT_FOR_RESPONSE = 10000;
+
+const sendJsonMessageWrapper = (
+	sendJsonMessage: sendJsonMessage,
+	addToResponsesWaitingFor: (resid: number) => void
+) => {
+	const wrappedFunc: sendJsonMessage = (jsonMessage: EmacsSendMsg) => {
+		const resid = Math.floor(Math.random() * 1000000000);
+		sendJsonMessage({
+			...jsonMessage,
+			resid,
+		} as EmacsSendMsgWithResid);
+		addToResponsesWaitingFor(resid);
+	};
+	return wrappedFunc;
+};
+
 type useSingleWebsocket = () => WSCommonProps & {
 	setAmMasterWS: (amMasterWS: boolean) => void;
 };
@@ -24,23 +41,24 @@ const useSingleWebsocket: useSingleWebsocket = () => {
 		Array<number>
 	>([]);
 
-	const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
+	const { setValue: setIsWaitingForResponse } = useValue(
+		'isWaitingForResponse'
+	);
 
-	const sendJsonMessageWrapper = useCallback(
-		(sendJsonMessage: sendJsonMessage) => {
-			const wrappedFunc: sendJsonMessage = (
-				jsonMessage: EmacsSendMsg
-			) => {
-				const resid = Math.floor(Math.random() * 1000000000);
-				sendJsonMessage({
-					...jsonMessage,
-					resid,
-				} as EmacsSendMsgWithResid);
-				setResponsesWaitingFor((prevValue) => [...prevValue, resid]);
-			};
-			return wrappedFunc;
+	const removeFromResponsesWaitingFor = useCallback((resid: number) => {
+		setResponsesWaitingFor((prevValue) =>
+			prevValue.filter((value) => value !== resid)
+		);
+	}, []);
+
+	const addToResponsesWaitingFor = useCallback(
+		(resid: number) => {
+			setResponsesWaitingFor((prevValue) => [...prevValue, resid]);
+			setTimeout(() => {
+				removeFromResponsesWaitingFor(resid);
+			}, MAXIMUM_TIME_TO_WAIT_FOR_RESPONSE);
 		},
-		[]
+		[removeFromResponsesWaitingFor]
 	);
 
 	let sendJsonMessage: sendJsonMessage = useCallback(
@@ -84,6 +102,9 @@ const useSingleWebsocket: useSingleWebsocket = () => {
 		sendJsonMessage = sendJsonMessageMaster;
 		lastRecvJsonMessage = lastRecvJsonMessageMaster;
 		setReadyState(readyStateMaster);
+		responsesWaitingFor.length > 0
+			? setIsWaitingForResponse(true)
+			: setIsWaitingForResponse(false);
 	}
 
 	useEffect(() => {
@@ -94,29 +115,18 @@ const useSingleWebsocket: useSingleWebsocket = () => {
 			lastRecvJsonMessage.resid
 		) {
 			const lastMessageId = lastRecvJsonMessage.resid;
-			setResponsesWaitingFor((prevValue) => {
-				const newValue = prevValue.filter(
-					(resid) => resid !== lastMessageId
-				);
-				return newValue;
-			});
+			removeFromResponsesWaitingFor(lastMessageId);
 		}
-	}, [lastRecvJsonMessage, amMasterWS]);
-
-	useEffect(() => {
-		if (responsesWaitingFor.length > 0) {
-			setIsWaitingForResponse(true);
-		} else {
-			setIsWaitingForResponse(false);
-		}
-	}, [responsesWaitingFor]);
+	}, [lastRecvJsonMessage, amMasterWS, removeFromResponsesWaitingFor]);
 
 	return {
-		sendJsonMessage: sendJsonMessageWrapper(sendJsonMessage),
+		sendJsonMessage: sendJsonMessageWrapper(
+			sendJsonMessage,
+			addToResponsesWaitingFor
+		),
 		lastRecvJsonMessage,
 		amMasterWS,
 		setAmMasterWS: setAmMasterWSWrapper,
-		isWaitingForResponse,
 	};
 };
 

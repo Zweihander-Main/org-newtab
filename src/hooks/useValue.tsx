@@ -17,9 +17,20 @@ const useValue = <T extends keyof AppState>(
 		useAppState();
 
 	const value = useMemo(() => appState[key], [appState, key]);
+	/**
+	 * Note that the imported library will always call set.storage if you call
+	 * the set function. There's no returning null path here.
+	 */
 	const setValue = useCallback(
 		(newValue: AppState[T]) => {
-			if (value === newValue) return;
+			if (
+				typeof newValue === 'object' &&
+				JSON.stringify(newValue) === JSON.stringify(value)
+			) {
+				return;
+			} else if (typeof newValue !== 'object' && value === newValue) {
+				return;
+			}
 			setAppState((prevState) => {
 				return { ...prevState, [key]: newValue };
 			});

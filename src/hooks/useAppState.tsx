@@ -8,6 +8,7 @@ const INITIAL_VALUE = {
 	tagsData: {},
 	orgItem: null,
 	readyState: ReadyState.UNINSTANTIATED,
+	isWaitingForResponse: false,
 };
 
 export interface AppState {
@@ -15,6 +16,7 @@ export interface AppState {
 	tagsData: { [key: string]: string | null };
 	orgItem: EmacsItemMsg['data'] | null;
 	readyState: ReadyState;
+	isWaitingForResponse: boolean;
 }
 
 const useAppState = createChromeStorageStateHookLocal<AppState>(

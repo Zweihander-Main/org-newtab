@@ -44,7 +44,7 @@ export type EmacsItemMsg = {
 		ITEM: string;
 		ALLTAGS?: AllTagsRecv;
 	};
-	resid: number;
+	resid?: number;
 };
 
 export type EmacsTagsMsg = {
@@ -74,5 +74,4 @@ export type WSCommonProps = {
 	sendJsonMessage: sendJsonMessage;
 	lastRecvJsonMessage: EmacsRecvMsg;
 	amMasterWS: boolean;
-	isWaitingForResponse: boolean;
 };
