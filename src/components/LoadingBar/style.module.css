@@ -1,0 +1,23 @@
+.outer {
+	pointer-events: none;
+	background: var(--color-loading-bar);
+	height: 0.1rem;
+	left: 0;
+	position: fixed;
+	top: 0;
+	width: 100%;
+	z-index: 1031;
+}
+
+.inner {
+	box-shadow:
+		0 0 0.4rem var(--color-loading-bar),
+		0 0 0.2rem var(--color-loading-bar);
+	display: block;
+	height: 100%;
+	opacity: 1;
+	position: absolute;
+	right: 0;
+	transform: rotate(3deg) translate(0, -0.2rem);
+	width: 100px;
+}

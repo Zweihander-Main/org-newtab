@@ -2,6 +2,7 @@
 	--color-bg: #35373b;
 	--color-item-bg-default: #484848;
 	--color-item-shadow: black;
+	--color-loading-bar: #29d;
 	--font-item: 'Public Sans', sans-serif;
 	--width-item-stroke: 0.08rem;
 }

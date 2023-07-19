@@ -11,6 +11,9 @@ dependencies:
   '@plasmohq/storage':
     specifier: ^1.7.0
     version: 1.7.0(react@18.2.0)
+  '@tanem/react-nprogress':
+    specifier: ^5.0.44
+    version: 5.0.44(react-dom@18.2.0)(react@18.2.0)
   plasmo:
     specifier: 0.81.0
     version: 0.81.0(postcss@8.4.25)(react-dom@18.2.0)(react@18.2.0)
@@ -3065,6 +3068,18 @@ packages:
       defer-to-connect: 2.0.1
     dev: false
 
+  /@tanem/react-nprogress@5.0.44(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-NNEl0M09WIVCVD1W80Q7KSS5NY8Uv/3/onZu+sEWDUS6jjXAB86uz45sN/1QcoAUKghwLSmAYoXs+JmPjSUmSQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      '@babel/runtime': 7.22.6
+      hoist-non-react-statics: 3.3.2
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
   /@testing-library/dom@9.3.1:
     resolution: {integrity: sha512-0DGPd9AR3+iDTjGoMpxIkAsUihHZ3Ai6CneU6bRRrffXMgzCdlNk43jTrD2/5LT6CBb3MWTP8v510JzYtahD2w==}
     engines: {node: '>=14'}
@@ -5738,6 +5753,12 @@ packages:
     resolution: {integrity: sha512-EqYpWyTF2s8nMfttfBA2yLKPNoZCO33pLS4MnbXQ4hECf1TKujCt1Kq7QAdrio7roL4+CqsfjqwYj4tYgq0pJQ==}
     engines: {node: '>=12.0.0'}
     dev: true
+
+  /hoist-non-react-statics@3.3.2:
+    resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
+    dependencies:
+      react-is: 16.13.1
+    dev: false
 
   /hosted-git-info@4.1.0:
     resolution: {integrity: sha512-kyCuEOWjJqZuDbRHzL8V93NzQhwIB71oFWSyzVo+KPZI+pnQPPxucdkrOZvkLRnrf5URsQM+IJ09Dw29cRALIA==}
@@ -8733,7 +8754,6 @@ packages:
 
   /react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
-    dev: true
 
   /react-is@17.0.2:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}

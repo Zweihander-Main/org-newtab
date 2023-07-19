@@ -32,6 +32,7 @@
 	"dependencies": {
 		"@fontsource/public-sans": "^5.0.5",
 		"@plasmohq/storage": "^1.7.0",
+		"@tanem/react-nprogress": "^5.0.44",
 		"plasmo": "0.81.0",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",

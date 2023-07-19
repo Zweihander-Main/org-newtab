@@ -1,11 +1,12 @@
 import { useContext, useEffect, useRef } from 'react';
-import WSContext, { WSProvider } from 'contexts/ws';
 import '@fontsource/public-sans/700.css';
 import './newtab.css';
+import WSContext, { WSProvider } from 'contexts/ws';
 import ConnectionStatusIndicator from 'components/ConnectionStatusIndicator';
 import OptionsMenu from 'components/OptionsMenu';
 import OrgItem from 'components/OrgItem';
 import useValue from 'hooks/useValue';
+import LoadingBar from 'components/LoadingBar';
 
 const IndexNewtab: React.FC = () => {
 	const { lastRecvJsonMessage, amMasterWS, getItem } = useContext(WSContext);
@@ -54,6 +55,7 @@ const IndexNewtab: React.FC = () => {
 
 	return (
 		<main className="app">
+			<LoadingBar animationDuration={200} />
 			<OptionsMenu />
 			<ConnectionStatusIndicator />
 			<OrgItem />
