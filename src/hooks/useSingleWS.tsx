@@ -13,7 +13,6 @@ import { useCallback, useState } from 'react';
 import { sendMsgToTab } from '../lib/messages';
 
 type useSingleWebsocket = () => WSCommonProps & {
-	amMasterWS: boolean;
 	setAmMasterWS: (amMasterWS: boolean) => void;
 };
 

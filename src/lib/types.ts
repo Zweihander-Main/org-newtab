@@ -65,4 +65,5 @@ export type EmacsRecvMsg = EmacsItemMsg | EmacsTagsMsg | null;
 export type WSCommonProps = {
 	sendJsonMessage: SendJsonMessage;
 	lastRecvJsonMessage: EmacsRecvMsg;
+	amMasterWS: boolean;
 };

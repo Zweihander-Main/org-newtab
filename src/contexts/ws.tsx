@@ -18,7 +18,6 @@ import { LogLoc, LogMsgDir, logMsg, logMsgErr } from 'lib/logging';
 import usePort from 'hooks/usePort';
 
 export type WSContextProps = {
-	amMasterWS: boolean;
 	updateMatchQuery: (matchQuery: string) => void;
 	getItem: (matchQuery: string) => void;
 } & WSCommonProps;
