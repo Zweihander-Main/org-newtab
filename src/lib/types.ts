@@ -59,6 +59,9 @@ export type EmacsRecvMsg = EmacsItemMsg | EmacsTagsMsg | null;
 export type EmacsSendMsg = {
 	command: 'updateMatchQuery' | 'getItem';
 	data: string;
+};
+
+export type EmacsSendMsgWithResid = EmacsSendMsg & {
 	resid: number;
 };
 
@@ -71,4 +74,5 @@ export type WSCommonProps = {
 	sendJsonMessage: sendJsonMessage;
 	lastRecvJsonMessage: EmacsRecvMsg;
 	amMasterWS: boolean;
+	isWaitingForResponse: boolean;
 };

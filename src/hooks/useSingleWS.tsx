@@ -5,9 +5,10 @@ import {
 	MsgToTabType,
 	EmacsSendMsg,
 	sendJsonMessage,
+	EmacsSendMsgWithResid,
 } from '../lib/types';
 import useValue from './useValue';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { sendMsgToTab } from '../lib/messages';
 
 type useSingleWebsocket = () => WSCommonProps & {
@@ -16,6 +17,32 @@ type useSingleWebsocket = () => WSCommonProps & {
 
 const useSingleWebsocket: useSingleWebsocket = () => {
 	const [amMasterWS, setAmMasterWS] = useState(false);
+	let lastRecvJsonMessage: EmacsRecvMsg = null;
+	const { setValue: setReadyState } = useValue('readyState');
+
+	const [responsesWaitingFor, setResponsesWaitingFor] = useState<
+		Array<number>
+	>([]);
+
+	const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
+
+	const sendJsonMessageWrapper = useCallback(
+		(sendJsonMessage: sendJsonMessage) => {
+			const wrappedFunc: sendJsonMessage = (
+				jsonMessage: EmacsSendMsg
+			) => {
+				const resid = Math.floor(Math.random() * 1000000000);
+				sendJsonMessage({
+					...jsonMessage,
+					resid,
+				} as EmacsSendMsgWithResid);
+				setResponsesWaitingFor((prevValue) => [...prevValue, resid]);
+			};
+			return wrappedFunc;
+		},
+		[]
+	);
+
 	let sendJsonMessage: sendJsonMessage = useCallback(
 		(jsonMessage: EmacsSendMsg) => {
 			void chrome.storage.local
@@ -38,9 +65,6 @@ const useSingleWebsocket: useSingleWebsocket = () => {
 		[]
 	);
 
-	let lastRecvJsonMessage: EmacsRecvMsg = null;
-	const { setValue: setReadyState } = useValue('readyState');
-
 	const {
 		sendJsonMessage: sendJsonMessageMaster,
 		lastJsonMessage: lastRecvJsonMessageMaster,
@@ -62,11 +86,37 @@ const useSingleWebsocket: useSingleWebsocket = () => {
 		setReadyState(readyStateMaster);
 	}
 
+	useEffect(() => {
+		if (
+			amMasterWS &&
+			lastRecvJsonMessage &&
+			lastRecvJsonMessage.type === 'ITEM' &&
+			lastRecvJsonMessage.resid
+		) {
+			const lastMessageId = lastRecvJsonMessage.resid;
+			setResponsesWaitingFor((prevValue) => {
+				const newValue = prevValue.filter(
+					(resid) => resid !== lastMessageId
+				);
+				return newValue;
+			});
+		}
+	}, [lastRecvJsonMessage, amMasterWS]);
+
+	useEffect(() => {
+		if (responsesWaitingFor.length > 0) {
+			setIsWaitingForResponse(true);
+		} else {
+			setIsWaitingForResponse(false);
+		}
+	}, [responsesWaitingFor]);
+
 	return {
-		sendJsonMessage,
+		sendJsonMessage: sendJsonMessageWrapper(sendJsonMessage),
 		lastRecvJsonMessage,
 		amMasterWS,
 		setAmMasterWS: setAmMasterWSWrapper,
+		isWaitingForResponse,
 	};
 };
 

@@ -10,7 +10,7 @@ const OrgItem: React.FC = () => {
 	const { value: tagsData } = useValue('tagsData');
 	const { value: orgItem } = useValue('orgItem');
 	const { value: readyState } = useValue('readyState');
-	const { waitingForResponse } = useContext(WSContext);
+	const { isWaitingForResponse } = useContext(WSContext);
 	const [foregroundColor, setForegroundColor] = useState<string | undefined>(
 		undefined
 	);
@@ -53,7 +53,7 @@ const OrgItem: React.FC = () => {
 	}, [sanitizeTagsAndMatchData, orgItem, tagsData]);
 
 	const classString = `${styles.item}${
-		readyState !== ReadyState.OPEN || waitingForResponse.length > 0
+		readyState !== ReadyState.OPEN || isWaitingForResponse
 			? ' ' + styles.stale
 			: ''
 	}`;
