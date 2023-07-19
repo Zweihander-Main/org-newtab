@@ -1,12 +1,10 @@
 import useWebSocket from 'react-use-websocket';
-import type {
-	JsonValue,
-	SendJsonMessage,
-} from 'react-use-websocket/dist/lib/types';
 import {
 	type WSCommonProps,
 	type EmacsRecvMsg,
 	MsgToTabType,
+	EmacsSendMsg,
+	sendJsonMessage,
 } from '../lib/types';
 import useValue from './useValue';
 import { useCallback, useState } from 'react';
@@ -18,8 +16,8 @@ type useSingleWebsocket = () => WSCommonProps & {
 
 const useSingleWebsocket: useSingleWebsocket = () => {
 	const [amMasterWS, setAmMasterWS] = useState(false);
-	let sendJsonMessage: SendJsonMessage = useCallback(
-		(jsonMessage: JsonValue) => {
+	let sendJsonMessage: sendJsonMessage = useCallback(
+		(jsonMessage: EmacsSendMsg) => {
 			void chrome.storage.local
 				.get('masterWSTabId')
 				.then((masterWSObject) => {

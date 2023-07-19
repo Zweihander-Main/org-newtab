@@ -8,8 +8,7 @@ import OrgItem from 'components/OrgItem';
 import useValue from 'hooks/useValue';
 
 const IndexNewtab: React.FC = () => {
-	const { sendJsonMessage, lastRecvJsonMessage, amMasterWS, getItem } =
-		useContext(WSContext);
+	const { lastRecvJsonMessage, amMasterWS, getItem } = useContext(WSContext);
 	const {
 		value: matchQuery,
 		isInitialStateResolved: isInitialMatchQueryStateResolved,
@@ -47,13 +46,7 @@ const IndexNewtab: React.FC = () => {
 			getItem(matchQuery);
 			hasSentInitialQuery.current = true;
 		}
-	}, [
-		sendJsonMessage,
-		matchQuery,
-		amMasterWS,
-		isInitialMatchQueryStateResolved,
-		getItem,
-	]);
+	}, [matchQuery, amMasterWS, isInitialMatchQueryStateResolved, getItem]);
 
 	useEffect(() => {
 		document.title = 'New Tab';

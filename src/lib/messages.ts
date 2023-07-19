@@ -1,4 +1,3 @@
-import { JsonValue } from 'react-use-websocket/dist/lib/types';
 import { LogLoc, LogMsgDir, logMsg } from './logging';
 import {
 	MsgDirection,
@@ -8,6 +7,7 @@ import {
 	getMsgToBGSWType,
 	getMsgToTabType,
 	MsgToBGSW,
+	EmacsSendMsg,
 } from './types';
 
 export type SendResponseType = (message: MsgToBGSW) => unknown;
@@ -47,7 +47,7 @@ export const sendMsgAsResponse = (
 export const sendMsgToTab = (
 	type: MsgToTabType,
 	tabId: number,
-	data?: JsonValue
+	data?: EmacsSendMsg
 ) => {
 	logMsg(
 		LogLoc.NEWTAB,
