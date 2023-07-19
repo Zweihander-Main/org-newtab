@@ -89,13 +89,14 @@ This serves the web-build and API over HTTP."
   (let* ((frame-text (websocket-frame-text frame))
          (json-data (org-newtab--decipher-message-from-frame-text frame-text)))
     (org-newtab--log "[Server] Received %S from client" json-data)
-    (let ((command (plist-get json-data :command)))
+    (let ((command (plist-get json-data :command))
+          (resid (plist-get json-data :resid)))
       (cond ((string= command "updateMatchQuery")
-             (org-newtab--on-msg-send-match-query (plist-get json-data :data)))
+             (org-newtab--on-msg-send-match-query resid (plist-get json-data :data)))
             ((org-clocking-p)
-             (org-newtab--on-msg-send-clocked-in))
+             (org-newtab--on-msg-send-clocked-in resid))
             ((string= command "getItem")
-             (org-newtab--on-msg-send-match-query (plist-get json-data :data)))
+             (org-newtab--on-msg-send-match-query resid (plist-get json-data :data)))
             (t
              (org-newtab--log "[Server] %s" "Unknown command from client"))))))
 
@@ -105,14 +106,14 @@ This serves the web-build and API over HTTP."
          (data-packet (list :type "TAGS" :data tags)))
     (org-newtab--send-data (json-encode data-packet))))
 
-(defun org-newtab--on-msg-send-clocked-in ()
-  "Send the current clocked-in item to the client."
+(defun org-newtab--on-msg-send-clocked-in (resid)
+  "Send the current clocked-in item to the client with RESID."
   (let* ((item (org-newtab--get-clocked-in-item))
-         (data-packet (list :type "ITEM" :data item)))
+         (data-packet (list :type "ITEM" :data item :resid resid)))
     (org-newtab--send-data (json-encode data-packet))))
 
-(defun org-newtab--on-msg-send-match-query (data)
-  "Send the current match for query DATA to the client."
+(defun org-newtab--on-msg-send-match-query (resid data)
+  "Send the current match for query DATA to the client with RESID."
   (async-start
    `(lambda () ; TODO: if it becomes interactive (asks for prompt), it freezes
       ,(async-inject-variables "\\`load-path\\'") ;  TODO: Reliant on load path being set to agenda dir
@@ -120,9 +121,9 @@ This serves the web-build and API over HTTP."
       ,(async-inject-variables "\\`org-todo-keywords\\'")
       (require 'org-newtab-agenda)
       (org-newtab--get-one-agenda-item ',data))
-   (lambda (result)
-     (let ((data-packet (list :type "ITEM" :data result)))
-       (org-newtab--send-data (json-encode data-packet))))))
+   `(lambda (result)
+      (let ((data-packet (list :type "ITEM" :data result :resid ,resid)))
+        (org-newtab--send-data (json-encode data-packet))))))
 
 (defun org-newtab--ws-on-close (_ws)
   "Perform when WS is closed."

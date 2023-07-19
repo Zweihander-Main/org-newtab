@@ -58,6 +58,7 @@ export type EmacsRecvMsg = EmacsItemMsg | EmacsTagsMsg | null;
 export type EmacsSendMsg = {
 	command: 'updateMatchQuery' | 'getItem';
 	data: string;
+	resid: number;
 };
 
 export type sendJsonMessage = (

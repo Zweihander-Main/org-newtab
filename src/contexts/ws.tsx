@@ -48,6 +48,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 			sendJsonMessage({
 				command: 'updateMatchQuery',
 				data: newMatchQuery,
+				resid: Math.floor(Math.random() * 1000000000),
 			});
 		},
 		[sendJsonMessage]
@@ -58,6 +59,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 			sendJsonMessage({
 				command: 'getItem',
 				data: matchQuery,
+				resid: Math.floor(Math.random() * 1000000000),
 			}),
 		[sendJsonMessage]
 	);
