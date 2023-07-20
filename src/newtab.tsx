@@ -1,3 +1,4 @@
+import './lib/wdyr';
 import { useContext, useEffect, useRef } from 'react';
 import '@fontsource/public-sans/700.css';
 import './newtab.css';
@@ -58,6 +59,8 @@ const IndexNewtab: React.FC = () => {
 		</main>
 	);
 };
+
+// IndexNewtab.whyDidYouRender = true;
 
 const RootContextWrapper: React.FC = () => {
 	return (
