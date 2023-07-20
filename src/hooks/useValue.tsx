@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import useAppState, { type AppState } from './useAppState';
 
 /**
@@ -16,12 +16,37 @@ const useValue = <T extends keyof AppState>(
 	const [appState, setAppState, isPersistent, error, isInitialStateResolved] =
 		useAppState();
 
-	const value = useMemo(() => appState[key], [appState, key]);
+	// NEXT: create a state variable about what sort of value it is if possible
+	// NEXT: Write test for useValue, mock the storage and confirm it's being hit how many times
+
+	const [value, setValue] = useState(appState[key]);
+
+	if (
+		(typeof value === 'object' &&
+			JSON.stringify(value) !== JSON.stringify(appState[key])) ||
+		(typeof value !== 'object' && value !== appState[key])
+	) {
+		setValue(appState[key]);
+	}
+
+	const [isPersistentValue, setIsPersistentValue] = useState(isPersistent);
+
+	if (isPersistentValue !== isPersistent) {
+		setIsPersistentValue(isPersistent);
+	}
+
+	const [isInitialStateResolvedValue, setIsInitialStateResolvedValue] =
+		useState(isInitialStateResolved);
+
+	if (isInitialStateResolvedValue !== isInitialStateResolved) {
+		setIsInitialStateResolvedValue(isInitialStateResolved);
+	}
+
 	/**
 	 * Note that the imported library will always call set.storage if you call
 	 * the set function. There's no returning null path here.
 	 */
-	const setValue = useCallback(
+	const setStorageValue = useCallback(
 		(newValue: AppState[T]) => {
 			if (
 				typeof newValue === 'object' &&
@@ -44,7 +69,12 @@ const useValue = <T extends keyof AppState>(
 		}
 	}, [error, key]);
 
-	return { value, setValue, isPersistent, isInitialStateResolved };
+	return {
+		value,
+		setValue: setStorageValue,
+		isPersistent: isPersistentValue,
+		isInitialStateResolved: isInitialStateResolvedValue,
+	};
 };
 
 export default useValue;

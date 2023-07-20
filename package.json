@@ -22,7 +22,7 @@
 		"package": "plasmo package",
 		"gen:css": "tcm -p 'src/**/*.module.css'",
 		"gen:css:watch": "tcm -p 'src/**/*.module.css' -w",
-		"test": "jest --watch",
+		"test": "jest --watch --silent=\"false\"",
 		"test:e2e": "playwright test",
 		"test:e2e:report": "playwright show-report",
 		"lint": "jest --config=\"jest.config.mjs\"",
@@ -56,6 +56,7 @@
 		"axe-playwright": "^1.2.3",
 		"eslint": "^8.45.0",
 		"eslint-config-prettier": "^8.8.0",
+		"eslint-plugin-jest": "^27.2.3",
 		"eslint-plugin-jsx-a11y": "^6.7.1",
 		"eslint-plugin-prettier": "^5.0.0",
 		"eslint-plugin-react": "^7.32.2",
@@ -117,6 +118,24 @@
 			"plugin:react-hooks/recommended",
 			"plugin:jsx-a11y/recommended",
 			"prettier"
+		],
+		"overrides": [
+			{
+				"files": [
+					"**/__tests__/**"
+				],
+				"plugins": [
+					"jest"
+				],
+				"extends": [
+					"plugin:jest/recommended",
+					"plugin:jest/style"
+				],
+				"rules": {
+					"@typescript-eslint/unbound-method": "off",
+					"jest/unbound-method": "error"
+				}
+			}
 		],
 		"rules": {
 			"quotes": [
