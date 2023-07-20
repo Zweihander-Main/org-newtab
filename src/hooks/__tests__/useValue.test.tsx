@@ -10,8 +10,4 @@ describe('useValue', () => {
 			expect(chrome.storage.local.get).toHaveBeenCalled();
 		});
 	});
-	// it('should set storage', async () => {
-	// 	result.current.setValue(1);
-	// 	expect(chrome.storage.local.set).toHaveBeenCalled();
-	// });
 });
