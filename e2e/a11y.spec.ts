@@ -8,7 +8,6 @@ test('check accessibility', async ({ page, extensionId }) => {
 	await checkA11y(page, undefined, {
 		axeOptions: {
 			rules: {
-				'html-has-lang': { enabled: false },
 				'page-has-heading-one': { enabled: false },
 			},
 		},

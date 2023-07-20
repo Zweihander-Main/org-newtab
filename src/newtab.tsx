@@ -49,10 +49,6 @@ const IndexNewtab: React.FC = () => {
 		}
 	}, [matchQuery, amMasterWS, isInitialMatchQueryStateResolved, getItem]);
 
-	useEffect(() => {
-		document.title = 'New Tab';
-	}, []);
-
 	return (
 		<main className="app">
 			<LoadingBar animationDuration={200} />
