@@ -80,7 +80,21 @@ const useStorage = <T extends keyof AppState>(key: T) => {
 		[key]
 	);
 
-	// This isn't gonna work when you add the listener in unless you can specific a key for the listener
+	useEffect(() => {
+		const onChange: Parameters<
+			typeof chrome.storage.onChanged.addListener
+		>[0] = (changes, areaName) => {
+			if (areaName === 'local' && key in changes) {
+				setCachedValue(changes[key].newValue as AppState[T]);
+				setIsPersistent(true);
+				setError(undefined);
+			}
+		};
+		chrome.storage.onChanged.addListener(onChange);
+		return () => {
+			chrome.storage.onChanged.removeListener(onChange);
+		};
+	}, [key]);
 
 	return {
 		value: cachedValue,

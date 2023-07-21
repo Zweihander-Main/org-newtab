@@ -50,4 +50,12 @@ describe('useValue', () => {
 			);
 		});
 	});
+
+	it('should subscribe to storage listener', async () => {
+		expect(chrome.storage.onChanged.addListener).not.toHaveBeenCalled();
+		renderHook(() => useStorage('readyState'));
+		await waitFor(() => {
+			expect(chrome.storage.onChanged.addListener).toHaveBeenCalled();
+		});
+	});
 });
