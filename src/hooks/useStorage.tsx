@@ -1,6 +1,6 @@
 import { ReadyState } from 'react-use-websocket';
 import type { EmacsItemMsg } from '../lib/types';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export interface AppState {
 	matchQuery: string | undefined;
@@ -58,18 +58,33 @@ const useStorage = <T extends keyof AppState>(key: T) => {
 				setCachedValue(res);
 				setIsPersistent(true);
 				setError(undefined);
+				setIsInitialStateResolved(true);
 			})
 			.catch((error: chrome.runtime.LastError) => {
 				setIsPersistent(false);
 				setError(error.message);
-			})
-			.finally(() => {
 				setIsInitialStateResolved(true);
 			});
 	}, [key]);
 
+	const setValue = useCallback(
+		(newValue: AppState[T]) => {
+			setCachedValue(newValue);
+			storage
+				.set(key, newValue)
+				.catch((error: chrome.runtime.LastError) => {
+					setIsPersistent(false);
+					setError(error.message);
+				});
+		},
+		[key]
+	);
+
+	// This isn't gonna work when you add the listener in unless you can specific a key for the listener
+
 	return {
 		value: cachedValue,
+		setValue,
 		isPersistent,
 		error,
 		isInitialStateResolved,
