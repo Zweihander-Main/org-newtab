@@ -3,19 +3,19 @@ import { useContext, useEffect, useRef } from 'react';
 import '@fontsource/public-sans/700.css';
 import './newtab.css';
 import WSContext, { WSProvider } from 'contexts/ws';
-import { StateProvider } from 'contexts/state';
+import StateContext, { StateProvider } from 'contexts/state';
 import ConnectionStatusIndicator from 'components/ConnectionStatusIndicator';
 import OptionsMenu from 'components/OptionsMenu';
 import OrgItem from 'components/OrgItem';
 import useValue from 'hooks/useValue';
 import LoadingBar from 'components/LoadingBar';
+import { ReadyState } from 'react-use-websocket';
 
 const IndexNewtab: React.FC = () => {
-	const { lastRecvJsonMessage, amMasterWS, getItem } = useContext(WSContext);
-	const {
-		value: matchQuery,
-		isInitialStateResolved: isInitialMatchQueryStateResolved,
-	} = useValue('matchQuery');
+	const { lastRecvJsonMessage, amMasterWS, getItem, readyState } =
+		useContext(WSContext);
+	const { isInitialStateResolved } = useContext(StateContext);
+	const { value: matchQuery } = useValue('matchQuery');
 	const { setValue: setTagsData } = useValue('tagsData');
 	const { setValue: setOrgItem } = useValue('orgItem');
 	const hasSentInitialQuery = useRef(false);
@@ -43,13 +43,14 @@ const IndexNewtab: React.FC = () => {
 		if (
 			!hasSentInitialQuery.current &&
 			amMasterWS &&
-			isInitialMatchQueryStateResolved &&
-			matchQuery
+			isInitialStateResolved &&
+			matchQuery &&
+			readyState === ReadyState.OPEN
 		) {
 			getItem(matchQuery);
 			hasSentInitialQuery.current = true;
 		}
-	}, [matchQuery, amMasterWS, isInitialMatchQueryStateResolved, getItem]);
+	}, [matchQuery, amMasterWS, isInitialStateResolved, getItem, readyState]);
 
 	return (
 		<main className="app">

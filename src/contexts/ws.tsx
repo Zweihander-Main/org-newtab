@@ -6,16 +6,20 @@ import {
 	MsgToBGSWType,
 	type WSCommonProps,
 	getMsgToTabType,
+	WSStateMsg,
+	EmacsSendMsg,
 } from '../lib/types';
 import {
 	SendResponseType,
 	handleConfirmingAlive,
 	handleMasterQueryConfirmation,
 	sendMsgToBGSWPort,
+	sendMsgToTabAsResponse,
 } from '../lib/messages';
 import useSingleWebsocket from 'hooks/useSingleWS';
 import { LogLoc, LogMsgDir, logMsg, logMsgErr } from 'lib/logging';
 import usePort from 'hooks/usePort';
+import { ReadyState } from 'react-use-websocket';
 
 export type WSContextProps = {
 	updateMatchQuery: (matchQuery: string) => void;
@@ -30,6 +34,8 @@ const WSContext = createContext<WSContextProps>({
 	lastRecvJsonMessage: null,
 	updateMatchQuery: () => {},
 	getItem: () => {},
+	readyState: ReadyState.UNINSTANTIATED,
+	isWaitingForResponse: false,
 });
 
 export default WSContext;
@@ -37,8 +43,16 @@ export default WSContext;
 export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	children,
 }) => {
-	const { sendJsonMessage, lastRecvJsonMessage, amMasterWS, setAmMasterWS } =
-		useSingleWebsocket();
+	const {
+		sendJsonMessage,
+		lastRecvJsonMessage,
+		amMasterWS,
+		setAmMasterWS,
+		readyState,
+		setReadyState,
+		isWaitingForResponse,
+		setIsWaitingForResponse,
+	} = useSingleWebsocket();
 	const port = usePort();
 
 	const isInitialRender = useRef(true);
@@ -64,7 +78,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	const handlePassingMessage = useCallback(
 		(message: MsgToTab) => {
 			if (message.data) {
-				sendJsonMessage(message.data);
+				sendJsonMessage(message.data as EmacsSendMsg);
 			} else {
 				logMsgErr(
 					LogLoc.NEWTAB,
@@ -75,6 +89,40 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 			}
 		},
 		[sendJsonMessage]
+	);
+
+	const handleQueryStateOfWS = useCallback(
+		(sendResponse: SendResponseType) => {
+			if (amMasterWS) {
+				sendMsgToTabAsResponse(
+					MsgToTabType.SET_WS_STATE,
+					sendResponse,
+					{
+						readyState,
+						isWaitingForResponse,
+					}
+				);
+			}
+		},
+		[amMasterWS, readyState, isWaitingForResponse]
+	);
+
+	const handleUpdateStateOfWS = useCallback(
+		(message: MsgToTab) => {
+			if (!amMasterWS && message?.data) {
+				const {
+					isWaitingForResponse: isWaitingForResponseFromMaster,
+					readyState: readyStateFromMaster,
+				} = message.data as WSStateMsg;
+				if (typeof readyStateFromMaster === 'number') {
+					setReadyState(readyStateFromMaster);
+				}
+				if (typeof isWaitingForResponseFromMaster === 'boolean') {
+					setIsWaitingForResponse(isWaitingForResponseFromMaster);
+				}
+			}
+		},
+		[amMasterWS, setReadyState, setIsWaitingForResponse]
 	);
 
 	const handleMessage = useCallback(
@@ -94,27 +142,40 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 				message?.data ? `with data ${JSON.stringify(message.data)}` : ''
 			);
 			switch (message.type) {
-				case MsgToTabType.CONFIRM_IF_MASTER_WS:
+				case MsgToTabType.CONFIRM_YOUR_ROLE_IS_MASTER:
 					handleMasterQueryConfirmation(sendResponse, amMasterWS);
 					break;
-				case MsgToTabType.YOU_ARE_MASTER_WS:
+				case MsgToTabType.SET_ROLE_MASTER:
 					setAmMasterWS(true);
 					break;
-				case MsgToTabType.YOU_ARE_CLIENT_WS:
+				case MsgToTabType.SET_ROLE_CLIENT:
 					setAmMasterWS(false);
 					break;
-				case MsgToTabType.CONFIRM_IF_ALIVE:
+				case MsgToTabType.QUERY_ALIVE:
 					handleConfirmingAlive(sendResponse);
 					break;
-				case MsgToTabType.PASS_ON_TO_EMACS:
+				case MsgToTabType.PASS_TO_EMACS:
 					handlePassingMessage(message);
+					break;
+				case MsgToTabType.QUERY_WS_STATE:
+					handleQueryStateOfWS(sendResponse);
+					break;
+				case MsgToTabType.SET_WS_STATE:
+					handleUpdateStateOfWS(message);
 					break;
 			}
 		},
-		[setAmMasterWS, amMasterWS, handlePassingMessage]
+		[
+			amMasterWS,
+			setAmMasterWS,
+			handlePassingMessage,
+			handleQueryStateOfWS,
+			handleUpdateStateOfWS,
+		]
 	);
 
 	useEffect(() => {
+		// TODO: confirm one add
 		if (!chrome.runtime.onMessage.hasListener(handleMessage)) {
 			chrome.runtime.onMessage.addListener(handleMessage);
 		}
@@ -126,7 +187,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	useEffect(() => {
 		if (isInitialRender.current) {
 			// 1. Ask if any master web sockets exist
-			sendMsgToBGSWPort(MsgToBGSWType.QUERY_STATUS_OF_WS, port);
+			sendMsgToBGSWPort(MsgToBGSWType.QUERY_WS_ROLE, port);
 			isInitialRender.current = false;
 		}
 	}, [port]);
@@ -139,6 +200,8 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 				lastRecvJsonMessage,
 				updateMatchQuery,
 				getItem,
+				readyState,
+				isWaitingForResponse,
 			}}
 		>
 			{children}

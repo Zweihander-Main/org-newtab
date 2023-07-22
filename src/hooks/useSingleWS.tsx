@@ -1,4 +1,4 @@
-import useWebSocket from 'react-use-websocket';
+import useWebSocket, { ReadyState } from 'react-use-websocket';
 import {
 	type WSCommonProps,
 	type EmacsRecvMsg,
@@ -7,11 +7,10 @@ import {
 	sendJsonMessage,
 	EmacsSendMsgWithResid,
 } from '../lib/types';
-import useValue from './useValue';
 import { useCallback, useEffect, useState } from 'react';
-import { sendMsgToTab } from '../lib/messages';
+import { sendMsgToTab, sendUpdateInWSState } from '../lib/messages';
 
-const MAXIMUM_TIME_TO_WAIT_FOR_RESPONSE = 10000;
+const MAXIMUM_TIME_TO_WAIT_FOR_RESPONSE = 60000;
 
 const sendJsonMessageWrapper = (
 	sendJsonMessage: sendJsonMessage,
@@ -30,20 +29,19 @@ const sendJsonMessageWrapper = (
 
 type useSingleWebsocket = () => WSCommonProps & {
 	setAmMasterWS: (amMasterWS: boolean) => void;
+	setReadyState: (readyState: ReadyState) => void;
+	setIsWaitingForResponse: (isWaitingForResponse: boolean) => void;
 };
 
 const useSingleWebsocket: useSingleWebsocket = () => {
 	const [amMasterWS, setAmMasterWS] = useState(false);
+	const [readyState, setReadyState] = useState(ReadyState.UNINSTANTIATED);
+	const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
 	let lastRecvJsonMessage: EmacsRecvMsg = null;
-	const { setValue: setReadyState } = useValue('readyState');
 
 	const [responsesWaitingFor, setResponsesWaitingFor] = useState<
 		Array<number>
 	>([]);
-
-	const { setValue: setIsWaitingForResponse } = useValue(
-		'isWaitingForResponse'
-	);
 
 	const removeFromResponsesWaitingFor = useCallback((resid: number) => {
 		setResponsesWaitingFor((prevValue) =>
@@ -73,7 +71,7 @@ const useSingleWebsocket: useSingleWebsocket = () => {
 							: null;
 					if (masterWSTabAsNumber) {
 						sendMsgToTab(
-							MsgToTabType.PASS_ON_TO_EMACS,
+							MsgToTabType.PASS_TO_EMACS,
 							masterWSTabAsNumber,
 							jsonMessage
 						);
@@ -114,14 +112,17 @@ const useSingleWebsocket: useSingleWebsocket = () => {
 		if (!amMasterWS) return;
 		if (responsesWaitingFor.length > 0) {
 			setIsWaitingForResponse(true);
+			sendUpdateInWSState({ isWaitingForResponse: true });
 		} else {
 			setIsWaitingForResponse(false);
+			sendUpdateInWSState({ isWaitingForResponse: false });
 		}
 	}, [amMasterWS, responsesWaitingFor, setIsWaitingForResponse]);
 
 	useEffect(() => {
 		if (!amMasterWS) return;
 		setReadyState(readyStateMaster);
+		sendUpdateInWSState({ readyState: readyStateMaster });
 	}, [amMasterWS, readyStateMaster, setReadyState]);
 
 	if (amMasterWS) {
@@ -134,11 +135,18 @@ const useSingleWebsocket: useSingleWebsocket = () => {
 		addToResponsesWaitingFor
 	);
 
+	// NEXT: commit some of this, get the messages working, figure out
+	// why animation loading bar wrong
+
 	return {
 		sendJsonMessage,
 		lastRecvJsonMessage,
 		amMasterWS,
 		setAmMasterWS: setAmMasterWSWrapper,
+		readyState,
+		setReadyState,
+		isWaitingForResponse,
+		setIsWaitingForResponse,
 	};
 };
 

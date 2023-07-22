@@ -1,4 +1,3 @@
-import { ReadyState } from 'react-use-websocket';
 import type { EmacsItemMsg } from '../lib/types';
 import { createContext, useCallback, useEffect, useState } from 'react';
 
@@ -6,8 +5,6 @@ export interface AppState {
 	matchQuery: string | undefined;
 	tagsData: { [key: string]: string | null };
 	orgItem: EmacsItemMsg['data'] | null;
-	readyState: ReadyState;
-	isWaitingForResponse: boolean;
 }
 
 export const STATE_KEY = 'appState';
@@ -45,8 +42,6 @@ export const INITIAL_VALUE: AppState = {
 	matchQuery: 'TODO="TODO"',
 	tagsData: {},
 	orgItem: null,
-	readyState: ReadyState.UNINSTANTIATED,
-	isWaitingForResponse: false,
 };
 
 const StateContext = createContext<StateContextProps>({

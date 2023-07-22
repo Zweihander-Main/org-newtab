@@ -13,8 +13,7 @@ const isEqual = <T extends keyof AppState>(a: AppState[T], b: AppState[T]) => {
  * @returns {value, setValue, isInitialStateResolved}
  */
 const useValue = <T extends keyof AppState>(key: T) => {
-	const { state, setState, isInitialStateResolved } =
-		useContext(StateContext);
+	const { state, setState } = useContext(StateContext);
 
 	const value = state[key];
 
@@ -29,7 +28,6 @@ const useValue = <T extends keyof AppState>(key: T) => {
 	return {
 		value,
 		setValue,
-		isInitialStateResolved,
 	};
 };
 

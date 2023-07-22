@@ -1,14 +1,13 @@
+import StateContext from 'contexts/state';
 import * as styles from './style.module.css';
 import WSContext from 'contexts/ws';
 import useValue from 'hooks/useValue';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 const OptionsMenu: React.FC = () => {
-	const {
-		value: matchQuery,
-		setValue: setMatchQuery,
-		isInitialStateResolved: isMatchQueryStateResolved,
-	} = useValue('matchQuery');
+	const { value: matchQuery, setValue: setMatchQuery } =
+		useValue('matchQuery');
+	const { isInitialStateResolved } = useContext(StateContext);
 	const { lastRecvJsonMessage, amMasterWS, updateMatchQuery } =
 		useContext(WSContext);
 	const [optionsVisible, setOptionsVisible] = useState(false);
@@ -31,13 +30,13 @@ const OptionsMenu: React.FC = () => {
 
 	useEffect(() => {
 		if (
-			isMatchQueryStateResolved &&
+			isInitialStateResolved &&
 			matchQueryInputRef.current &&
 			matchQuery
 		) {
 			matchQueryInputRef.current.value = matchQuery;
 		}
-	}, [isMatchQueryStateResolved, matchQuery]);
+	}, [isInitialStateResolved, matchQuery]);
 
 	const matchQueryInputRef = useRef<HTMLInputElement>(null);
 

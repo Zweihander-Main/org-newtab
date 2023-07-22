@@ -3,9 +3,9 @@ import useValue from '../useValue';
 
 describe('useValue', () => {
 	it('should use initial value', async () => {
-		const { result } = renderHook(() => useValue('readyState'));
+		const { result } = renderHook(() => useValue('matchQuery'));
 		await waitFor(() => {
-			expect(result.current.value).toBe(-1);
+			expect(result.current.value).toBe('TODO="TODO"');
 		});
 	});
 });
