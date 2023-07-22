@@ -98,15 +98,6 @@ const useSingleWebsocket: useSingleWebsocket = () => {
 		[amMasterWS, setAmMasterWS]
 	);
 
-	if (amMasterWS) {
-		sendJsonMessage = sendJsonMessageMaster;
-		lastRecvJsonMessage = lastRecvJsonMessageMaster;
-		setReadyState(readyStateMaster);
-		responsesWaitingFor.length > 0
-			? setIsWaitingForResponse(true)
-			: setIsWaitingForResponse(false);
-	}
-
 	useEffect(() => {
 		if (
 			amMasterWS &&
@@ -119,11 +110,32 @@ const useSingleWebsocket: useSingleWebsocket = () => {
 		}
 	}, [lastRecvJsonMessage, amMasterWS, removeFromResponsesWaitingFor]);
 
+	useEffect(() => {
+		if (!amMasterWS) return;
+		if (responsesWaitingFor.length > 0) {
+			setIsWaitingForResponse(true);
+		} else {
+			setIsWaitingForResponse(false);
+		}
+	}, [amMasterWS, responsesWaitingFor, setIsWaitingForResponse]);
+
+	useEffect(() => {
+		if (!amMasterWS) return;
+		setReadyState(readyStateMaster);
+	}, [amMasterWS, readyStateMaster, setReadyState]);
+
+	if (amMasterWS) {
+		sendJsonMessage = sendJsonMessageMaster;
+		lastRecvJsonMessage = lastRecvJsonMessageMaster;
+	}
+
+	sendJsonMessage = sendJsonMessageWrapper(
+		sendJsonMessage,
+		addToResponsesWaitingFor
+	);
+
 	return {
-		sendJsonMessage: sendJsonMessageWrapper(
-			sendJsonMessage,
-			addToResponsesWaitingFor
-		),
+		sendJsonMessage,
 		lastRecvJsonMessage,
 		amMasterWS,
 		setAmMasterWS: setAmMasterWSWrapper,
