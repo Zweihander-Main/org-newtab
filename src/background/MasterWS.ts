@@ -48,7 +48,7 @@ class MasterWS {
 			) {
 				await this.set(loadedMasterWSTabId);
 				await sendMsgToTab(
-					MsgToTabType.YOU_ARE_MASTER_WS,
+					MsgToTabType.SET_ROLE_MASTER,
 					loadedMasterWSTabId
 				);
 				log(

@@ -101,9 +101,9 @@ export const confirmTabIdAlive = async (tabId: number) => {
 		if (tab.active && !tab.discarded && tab.status === 'complete') {
 			const response = await Promise.race([
 				waitForTimeout(tabId),
-				sendMsgToTab(MsgToTabType.CONFIRM_IF_ALIVE, tabId),
+				sendMsgToTab(MsgToTabType.QUERY_ALIVE, tabId),
 			]);
-			if (response && response?.type === MsgToBGSWType.CONFIRMED_ALIVE) {
+			if (response && response?.type === MsgToBGSWType.CONFIRMING_ALIVE) {
 				return true;
 			}
 		}
@@ -121,7 +121,7 @@ export const sendToGivenTabs = async (
 };
 
 const setAsClients = async (clientTabIds: Array<number>) => {
-	await sendToGivenTabs(MsgToTabType.YOU_ARE_CLIENT_WS, clientTabIds);
+	await sendToGivenTabs(MsgToTabType.SET_ROLE_CLIENT, clientTabIds);
 };
 
 export const setAsMaster = (masterTabId: number) => {
@@ -131,7 +131,7 @@ export const setAsMaster = (masterTabId: number) => {
 	);
 	void Promise.all([
 		masterWs.set(masterTabId),
-		sendMsgToTab(MsgToTabType.YOU_ARE_MASTER_WS, masterTabId),
+		sendMsgToTab(MsgToTabType.SET_ROLE_MASTER, masterTabId),
 		setAsClients(clientTabs),
 	]);
 };

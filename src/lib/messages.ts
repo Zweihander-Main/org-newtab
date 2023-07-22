@@ -8,9 +8,10 @@ import {
 	getMsgToTabType,
 	MsgToBGSW,
 	EmacsSendMsg,
+	WSStateMsg,
 } from './types';
 
-export type SendResponseType = (message: MsgToBGSW) => unknown;
+export type SendResponseType = (message: MsgToBGSW | MsgToTab) => unknown;
 
 export const sendMsgToBGSWPort = (
 	type: MsgToBGSWType,
@@ -28,7 +29,7 @@ export const sendMsgToBGSWPort = (
 	});
 };
 
-export const sendMsgAsResponse = (
+export const sendMsgToBGSWAsResponse = (
 	type: MsgToBGSWType,
 	sendResponse: SendResponseType
 ) => {
@@ -41,6 +42,26 @@ export const sendMsgAsResponse = (
 	sendResponse({
 		type,
 		direction: MsgDirection.TO_BGSW,
+	});
+};
+
+export const sendMsgToTabAsResponse = (
+	type: MsgToTabType,
+	sendResponse: SendResponseType,
+	data: WSStateMsg
+) => {
+	logMsg(
+		LogLoc.NEWTAB,
+		LogMsgDir.SEND,
+		'Sending response to tab msg',
+		getMsgToTabType(type),
+		'with data',
+		data
+	);
+	sendResponse({
+		type,
+		direction: MsgDirection.TO_NEWTAB,
+		data,
 	});
 };
 
@@ -64,17 +85,42 @@ export const sendMsgToTab = (
 	});
 };
 
+export const sendMsgToAllTabs = (type: MsgToTabType, data?: WSStateMsg) => {
+	logMsg(
+		LogLoc.NEWTAB,
+		LogMsgDir.SEND,
+		'Sending update to all tabs',
+		getMsgToTabType(type),
+		data ? data : ''
+	);
+	void chrome.runtime.sendMessage<MsgToTab>({
+		direction: MsgDirection.TO_NEWTAB,
+		type,
+		data,
+	});
+};
+
 export const handleMasterQueryConfirmation = (
 	sendResponse: SendResponseType,
 	amMasterWS: boolean
 ) => {
 	if (amMasterWS) {
-		sendMsgAsResponse(MsgToBGSWType.IDENTIFY_AS_MASTER_WS, sendResponse);
+		sendMsgToBGSWAsResponse(
+			MsgToBGSWType.IDENTIFY_ROLE_MASTER,
+			sendResponse
+		);
 	} else {
-		sendMsgAsResponse(MsgToBGSWType.IDENTIFY_AS_WS_CLIENT, sendResponse);
+		sendMsgToBGSWAsResponse(
+			MsgToBGSWType.IDENTIFY_ROLE_CLIENT,
+			sendResponse
+		);
 	}
 };
 
 export const handleConfirmingAlive = (sendResponse: SendResponseType) => {
-	sendMsgAsResponse(MsgToBGSWType.CONFIRMED_ALIVE, sendResponse);
+	sendMsgToBGSWAsResponse(MsgToBGSWType.CONFIRMING_ALIVE, sendResponse);
+};
+
+export const sendUpdateInWSState = (data: WSStateMsg) => {
+	sendMsgToAllTabs(MsgToTabType.SET_WS_STATE, data);
 };

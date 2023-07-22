@@ -25,16 +25,16 @@ const searchAndFindMaster = async (requestingTabId: number) => {
 	await Promise.allSettled(
 		connections.tabIds.map(async (connectedTabId) => {
 			const response = await sendMsgToTab(
-				MsgToTabType.CONFIRM_IF_MASTER_WS,
+				MsgToTabType.CONFIRM_YOUR_ROLE_IS_MASTER,
 				connectedTabId
 			);
 			if (response) {
 				switch (response.type) {
-					case MsgToBGSWType.IDENTIFY_AS_MASTER_WS:
+					case MsgToBGSWType.IDENTIFY_ROLE_MASTER:
 						alreadyExistingMaster = connectedTabId;
 						log(LogLoc.BGSW, 'Found master WS as', connectedTabId);
 						break;
-					case MsgToBGSWType.IDENTIFY_AS_WS_CLIENT:
+					case MsgToBGSWType.IDENTIFY_ROLE_CLIENT:
 						log(LogLoc.BGSW, 'Found client WS as', connectedTabId);
 						break;
 				}
@@ -74,7 +74,7 @@ const handlePortMessage = (message: MsgToBGSW, port: chrome.runtime.Port) => {
 	if (!isMsgExpected(message, port?.sender)) return;
 	const tabId = port?.sender?.tab?.id as number;
 	switch (message.type) {
-		case MsgToBGSWType.QUERY_STATUS_OF_WS: {
+		case MsgToBGSWType.QUERY_WS_ROLE: {
 			void figureOutMaster(tabId);
 			break;
 		}

@@ -1,8 +1,10 @@
+import { ReadyState } from 'react-use-websocket';
+
 export enum MsgToBGSWType {
-	QUERY_STATUS_OF_WS = 1,
-	IDENTIFY_AS_MASTER_WS = 2,
-	IDENTIFY_AS_WS_CLIENT = 3,
-	CONFIRMED_ALIVE = 4,
+	QUERY_WS_ROLE = 1,
+	IDENTIFY_ROLE_MASTER = 2,
+	IDENTIFY_ROLE_CLIENT = 3,
+	CONFIRMING_ALIVE = 4,
 }
 
 export const getMsgToBGSWType = (type: MsgToBGSWType) => {
@@ -10,11 +12,13 @@ export const getMsgToBGSWType = (type: MsgToBGSWType) => {
 };
 
 export enum MsgToTabType {
-	CONFIRM_IF_MASTER_WS = 1,
-	YOU_ARE_MASTER_WS = 2,
-	YOU_ARE_CLIENT_WS = 3,
-	CONFIRM_IF_ALIVE = 4,
-	PASS_ON_TO_EMACS = 5,
+	CONFIRM_YOUR_ROLE_IS_MASTER = 1,
+	SET_ROLE_MASTER = 2,
+	SET_ROLE_CLIENT = 3,
+	QUERY_ALIVE = 4,
+	PASS_TO_EMACS = 11,
+	QUERY_WS_STATE = 12,
+	SET_WS_STATE = 13,
 }
 export const getMsgToTabType = (type: MsgToTabType) => {
 	return MsgToTabType[type];
@@ -33,7 +37,7 @@ export type MsgToBGSW = {
 export type MsgToTab = {
 	direction: MsgDirection.TO_NEWTAB;
 	type: MsgToTabType;
-	data?: EmacsSendMsg;
+	data?: EmacsSendMsg | WSStateMsg;
 };
 
 export type AllTagsRecv = string | Array<string | number>;
@@ -56,6 +60,11 @@ export type EmacsTagsMsg = {
 
 export type EmacsRecvMsg = EmacsItemMsg | EmacsTagsMsg | null;
 
+export type WSStateMsg = {
+	readyState?: ReadyState;
+	isWaitingForResponse?: boolean;
+};
+
 export type EmacsSendMsg = {
 	command: 'updateMatchQuery' | 'getItem';
 	data: string;
@@ -74,4 +83,6 @@ export type WSCommonProps = {
 	sendJsonMessage: sendJsonMessage;
 	lastRecvJsonMessage: EmacsRecvMsg;
 	amMasterWS: boolean;
+	readyState: ReadyState;
+	isWaitingForResponse: boolean;
 };
