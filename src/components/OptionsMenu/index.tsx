@@ -3,10 +3,11 @@ import * as styles from './style.module.css';
 import WSContext from 'contexts/ws';
 import useValue from 'hooks/useValue';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useAppSelector } from '../../hooks';
 
 const OptionsMenu: React.FC = () => {
-	const { value: matchQuery, setValue: setMatchQuery } =
-		useValue('matchQuery');
+	const { setValue: setMatchQuery } = useValue('matchQuery');
+	const matchQuery = useAppSelector((state) => state.matchQuery);
 	const { isInitialStateResolved } = useContext(StateContext);
 	const { lastRecvJsonMessage, amMasterWS, updateMatchQuery } =
 		useContext(WSContext);
