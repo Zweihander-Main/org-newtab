@@ -3,6 +3,7 @@ import { useContext, useEffect, useRef } from 'react';
 import '@fontsource/public-sans/700.css';
 import './newtab.css';
 import WSContext, { WSProvider } from 'contexts/ws';
+import { StateProvider } from 'contexts/state';
 import ConnectionStatusIndicator from 'components/ConnectionStatusIndicator';
 import OptionsMenu from 'components/OptionsMenu';
 import OrgItem from 'components/OrgItem';
@@ -64,9 +65,11 @@ const IndexNewtab: React.FC = () => {
 
 const RootContextWrapper: React.FC = () => {
 	return (
-		<WSProvider>
-			<IndexNewtab />
-		</WSProvider>
+		<StateProvider>
+			<WSProvider>
+				<IndexNewtab />
+			</WSProvider>
+		</StateProvider>
 	);
 };
 
