@@ -223,6 +223,9 @@
 		],
 		"permissions": [
 			"tabs"
-		]
+		],
+		"content_security_policy": {
+			"extension_pages": "script-src 'self' http://localhost http://localhost:8097; object-src 'self'"
+		}
 	}
 }
