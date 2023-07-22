@@ -1,7 +1,7 @@
-import './lib/wdyr';
+import '../lib/wdyr';
 import { useContext, useEffect, useRef } from 'react';
 import '@fontsource/public-sans/700.css';
-import './newtab.css';
+import './index.css';
 import WSContext, { WSProvider } from 'contexts/ws';
 import StateContext, { StateProvider } from 'contexts/state';
 import ConnectionStatusIndicator from 'components/ConnectionStatusIndicator';
@@ -10,6 +10,8 @@ import OrgItem from 'components/OrgItem';
 import useValue from 'hooks/useValue';
 import LoadingBar from 'components/LoadingBar';
 import { ReadyState } from 'react-use-websocket';
+import { Provider } from 'react-redux';
+import store from '../store';
 
 const IndexNewtab: React.FC = () => {
 	const { lastRecvJsonMessage, amMasterWS, getItem, readyState } =
@@ -62,15 +64,16 @@ const IndexNewtab: React.FC = () => {
 	);
 };
 
-// IndexNewtab.whyDidYouRender = true;
-
 const RootContextWrapper: React.FC = () => {
+	// TODO: Strict Mode
 	return (
-		<StateProvider>
-			<WSProvider>
-				<IndexNewtab />
-			</WSProvider>
-		</StateProvider>
+		<Provider store={store}>
+			<StateProvider>
+				<WSProvider>
+					<IndexNewtab />
+				</WSProvider>
+			</StateProvider>
+		</Provider>
 	);
 };
 
