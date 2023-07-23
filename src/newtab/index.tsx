@@ -12,36 +12,15 @@ import OptionsMenu from 'components/OptionsMenu';
 import OrgItem from 'components/OrgItem';
 import LoadingBar from 'components/LoadingBar';
 import store, { persistor } from '../store';
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { setOrgItemTo, setTagsDataTo } from '../stateReducer';
+import { useAppSelector } from '../hooks';
 
 const IndexNewtab: React.FC = () => {
-	const { lastRecvJsonMessage, getItem } = useContext(WSContext);
+	const { getItem } = useContext(WSContext);
 	const { isInitialStateResolved } = useContext(StateContext);
-	const dispatch = useAppDispatch();
 	const amMasterWS = useAppSelector((state) => state.amMasterWS);
 	const readyState = useAppSelector((state) => state.readyState);
 	const matchQuery = useAppSelector((state) => state.matchQuery);
 	const hasSentInitialQuery = useRef(false);
-	useEffect(() => {
-		if (lastRecvJsonMessage === null) {
-			return;
-		}
-		switch (lastRecvJsonMessage?.type) {
-			case 'ITEM':
-				dispatch(setOrgItemTo(lastRecvJsonMessage?.data || null));
-				break;
-			case 'TAGS':
-				dispatch(setTagsDataTo(lastRecvJsonMessage?.data || {}));
-				break;
-			default:
-				console.error(
-					'[NewTab] Unknown message: ',
-					lastRecvJsonMessage
-				);
-				break;
-		}
-	}, [dispatch, lastRecvJsonMessage]);
 
 	useEffect(() => {
 		if (

@@ -10,7 +10,7 @@ const OptionsMenu: React.FC = () => {
 	const matchQuery = useAppSelector((state) => state.matchQuery);
 	const amMasterWS = useAppSelector((state) => state.amMasterWS);
 	const { isInitialStateResolved } = useContext(StateContext);
-	const { lastRecvJsonMessage, updateMatchQuery } = useContext(WSContext);
+	const { updateMatchQuery } = useContext(WSContext);
 	const [optionsVisible, setOptionsVisible] = useState(false);
 
 	const masterStatus = amMasterWS ? 'Master' : 'Client';
@@ -78,14 +78,15 @@ const OptionsMenu: React.FC = () => {
 					/>
 					<button type="submit">Pull data</button>
 				</form>
-				{lastRecvJsonMessage ? (
+				{/* // TODO: fix */}
+				{/* {lastRecvJsonMessage ? (
 					<>
 						Last message:
 						<pre className={styles.json}>
 							{JSON.stringify(lastRecvJsonMessage, null, 2)}
 						</pre>
 					</>
-				) : null}
+				) : null} */}
 				<div
 					data-testid="websocket-status"
 					className={styles['websocket-status']}

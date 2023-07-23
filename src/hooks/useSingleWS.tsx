@@ -1,7 +1,5 @@
-import useWebSocket from 'react-use-websocket';
 import {
 	type WSCommonProps,
-	type EmacsRecvMsg,
 	MsgToTabType,
 	EmacsSendMsg,
 	sendJsonMessage,
@@ -11,7 +9,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { sendMsgToTab, sendUpdateInWSState } from '../lib/messages';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import {
-	setReadyStateTo,
+	sendMsgToEmacs,
 	startWaitingForResponse,
 	stopWaitingForResponse,
 } from '../stateReducer';
@@ -38,7 +36,7 @@ type useSingleWebsocket = () => WSCommonProps;
 const useSingleWebsocket: useSingleWebsocket = () => {
 	const dispatch = useAppDispatch();
 	const amMasterWS = useAppSelector((state) => state.amMasterWS);
-	let lastRecvJsonMessage: EmacsRecvMsg = null;
+	const readyState = useAppSelector((state) => state.readyState);
 
 	const [responsesWaitingFor, setResponsesWaitingFor] = useState<
 		Array<number>
@@ -62,43 +60,42 @@ const useSingleWebsocket: useSingleWebsocket = () => {
 
 	let sendJsonMessage: sendJsonMessage = useCallback(
 		(jsonMessage: EmacsSendMsg) => {
-			void chrome.storage.local
-				.get('masterWSTabId')
-				.then((masterWSObject) => {
-					const { masterWSTabId } = masterWSObject;
-					const masterWSTabAsNumber =
-						masterWSTabId && typeof masterWSTabId === 'string'
-							? parseInt(masterWSTabId, 10)
-							: null;
-					if (masterWSTabAsNumber) {
-						sendMsgToTab(
-							MsgToTabType.PASS_TO_EMACS,
-							masterWSTabAsNumber,
-							jsonMessage
-						);
-					}
-				});
+			if (amMasterWS) {
+				dispatch(sendMsgToEmacs(jsonMessage));
+			} else {
+				void chrome.storage.local
+					.get('masterWSTabId')
+					.then((masterWSObject) => {
+						const { masterWSTabId } = masterWSObject;
+						const masterWSTabAsNumber =
+							masterWSTabId && typeof masterWSTabId === 'string'
+								? parseInt(masterWSTabId, 10)
+								: null;
+						if (masterWSTabAsNumber) {
+							sendMsgToTab(
+								MsgToTabType.PASS_TO_EMACS,
+								masterWSTabAsNumber,
+								jsonMessage
+							);
+						}
+					});
+			}
 		},
-		[]
+		[amMasterWS, dispatch]
 	);
 
-	const {
-		sendJsonMessage: sendJsonMessageMaster,
-		lastJsonMessage: lastRecvJsonMessageMaster,
-		readyState: readyStateMaster,
-	} = useWebSocket<EmacsRecvMsg>(amMasterWS ? 'ws://localhost:35942/' : null);
-
-	useEffect(() => {
-		if (
-			amMasterWS &&
-			lastRecvJsonMessage &&
-			lastRecvJsonMessage.type === 'ITEM' &&
-			lastRecvJsonMessage.resid
-		) {
-			const lastMessageId = lastRecvJsonMessage.resid;
-			removeFromResponsesWaitingFor(lastMessageId);
-		}
-	}, [lastRecvJsonMessage, amMasterWS, removeFromResponsesWaitingFor]);
+	// NEXT: fix this
+	// useEffect(() => {
+	// 	if (
+	// 		amMasterWS &&
+	// 		lastRecvJsonMessage &&
+	// 		lastRecvJsonMessage.type === 'ITEM' &&
+	// 		lastRecvJsonMessage.resid
+	// 	) {
+	// 		const lastMessageId = lastRecvJsonMessage.resid;
+	// 		removeFromResponsesWaitingFor(lastMessageId);
+	// 	}
+	// }, [lastRecvJsonMessage, amMasterWS, removeFromResponsesWaitingFor]);
 
 	useEffect(() => {
 		if (!amMasterWS) return;
@@ -113,14 +110,8 @@ const useSingleWebsocket: useSingleWebsocket = () => {
 
 	useEffect(() => {
 		if (!amMasterWS) return;
-		dispatch(setReadyStateTo(readyStateMaster));
-		sendUpdateInWSState({ readyState: readyStateMaster });
-	}, [amMasterWS, dispatch, readyStateMaster]);
-
-	if (amMasterWS) {
-		sendJsonMessage = sendJsonMessageMaster;
-		lastRecvJsonMessage = lastRecvJsonMessageMaster;
-	}
+		sendUpdateInWSState({ readyState });
+	}, [amMasterWS, readyState]);
 
 	sendJsonMessage = sendJsonMessageWrapper(
 		sendJsonMessage,
@@ -129,7 +120,6 @@ const useSingleWebsocket: useSingleWebsocket = () => {
 
 	return {
 		sendJsonMessage,
-		lastRecvJsonMessage,
 	};
 };
 

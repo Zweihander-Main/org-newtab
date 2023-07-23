@@ -81,5 +81,4 @@ export type sendJsonMessage = (
 
 export type WSCommonProps = {
 	sendJsonMessage: sendJsonMessage;
-	lastRecvJsonMessage: EmacsRecvMsg;
 };

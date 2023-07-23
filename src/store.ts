@@ -15,6 +15,7 @@ import type { Storage as StorageType } from '@plasmohq/redux-persist/lib/types';
 import { Storage } from '@plasmohq/storage';
 
 import stateReducer from './stateReducer';
+import middleware from './middleware';
 
 const persistConfig = {
 	key: 'root',
@@ -45,7 +46,7 @@ export const store = configureStore({
 					RESYNC,
 				],
 			},
-		}),
+		}).prepend(middleware),
 });
 
 export const persistor = persistStore(store);

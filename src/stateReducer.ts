@@ -1,4 +1,4 @@
-import type { EmacsItemMsg } from 'lib/types';
+import type { EmacsItemMsg, EmacsSendMsg } from 'lib/types';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { ReadyState } from 'react-use-websocket';
 
@@ -52,8 +52,14 @@ export const appSlice = createSlice({
 		stopWaitingForResponse: (state) => {
 			state.isWaitingForResponse = false;
 		},
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		sendMsgToEmacs: (_state, _action: PayloadAction<EmacsSendMsg>) => {
+			// TODO start waiting
+		},
 	},
 });
+
+// NEXT: unsafe eval -- build your own
 
 export const {
 	setMatchQueryTo,
@@ -64,6 +70,7 @@ export const {
 	setReadyStateTo,
 	startWaitingForResponse,
 	stopWaitingForResponse,
+	sendMsgToEmacs,
 } = appSlice.actions;
 
 export default appSlice.reducer;

@@ -37,7 +37,6 @@ const WSContext = createContext<WSContextProps>({
 	sendJsonMessage: () => {
 		return;
 	},
-	lastRecvJsonMessage: null,
 	updateMatchQuery: () => {},
 	getItem: () => {},
 });
@@ -53,7 +52,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	const isWaitingForResponse = useAppSelector(
 		(state) => state.isWaitingForResponse
 	);
-	const { sendJsonMessage, lastRecvJsonMessage } = useSingleWebsocket();
+	const { sendJsonMessage } = useSingleWebsocket();
 	const port = usePort();
 
 	const isInitialRender = useRef(true);
@@ -201,7 +200,6 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 		<WSContext.Provider
 			value={{
 				sendJsonMessage,
-				lastRecvJsonMessage,
 				updateMatchQuery,
 				getItem,
 			}}
