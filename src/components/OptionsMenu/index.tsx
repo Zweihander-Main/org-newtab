@@ -3,14 +3,14 @@ import * as styles from './style.module.css';
 import WSContext from 'contexts/ws';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { setMatchQueryTo } from '../../reducers';
+import { setMatchQueryTo } from '../../stateReducer';
 
 const OptionsMenu: React.FC = () => {
-	const matchQuery = useAppSelector((state) => state.matchQuery);
 	const dispatch = useAppDispatch();
+	const matchQuery = useAppSelector((state) => state.matchQuery);
+	const amMasterWS = useAppSelector((state) => state.amMasterWS);
 	const { isInitialStateResolved } = useContext(StateContext);
-	const { lastRecvJsonMessage, amMasterWS, updateMatchQuery } =
-		useContext(WSContext);
+	const { lastRecvJsonMessage, updateMatchQuery } = useContext(WSContext);
 	const [optionsVisible, setOptionsVisible] = useState(false);
 
 	const masterStatus = amMasterWS ? 'Master' : 'Client';

@@ -19,7 +19,14 @@ import {
 import useSingleWebsocket from 'hooks/useSingleWS';
 import { LogLoc, LogMsgDir, logMsg, logMsgErr } from 'lib/logging';
 import usePort from 'hooks/usePort';
-import { ReadyState } from 'react-use-websocket';
+import { useAppDispatch, useAppSelector } from '../hooks';
+import {
+	becomeClientWS,
+	becomeMasterWS,
+	setReadyStateTo,
+	startWaitingForResponse,
+	stopWaitingForResponse,
+} from '../stateReducer';
 
 export type WSContextProps = {
 	updateMatchQuery: (matchQuery: string) => void;
@@ -27,15 +34,12 @@ export type WSContextProps = {
 } & WSCommonProps;
 
 const WSContext = createContext<WSContextProps>({
-	amMasterWS: false,
 	sendJsonMessage: () => {
 		return;
 	},
 	lastRecvJsonMessage: null,
 	updateMatchQuery: () => {},
 	getItem: () => {},
-	readyState: ReadyState.UNINSTANTIATED,
-	isWaitingForResponse: false,
 });
 
 export default WSContext;
@@ -43,16 +47,13 @@ export default WSContext;
 export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	children,
 }) => {
-	const {
-		sendJsonMessage,
-		lastRecvJsonMessage,
-		amMasterWS,
-		setAmMasterWS,
-		readyState,
-		setReadyState,
-		isWaitingForResponse,
-		setIsWaitingForResponse,
-	} = useSingleWebsocket();
+	const dispatch = useAppDispatch();
+	const amMasterWS = useAppSelector((state) => state.amMasterWS);
+	const readyState = useAppSelector((state) => state.readyState);
+	const isWaitingForResponse = useAppSelector(
+		(state) => state.isWaitingForResponse
+	);
+	const { sendJsonMessage, lastRecvJsonMessage } = useSingleWebsocket();
 	const port = usePort();
 
 	const isInitialRender = useRef(true);
@@ -115,14 +116,18 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 					readyState: readyStateFromMaster,
 				} = message.data as WSStateMsg;
 				if (typeof readyStateFromMaster === 'number') {
-					setReadyState(readyStateFromMaster);
+					dispatch(setReadyStateTo(readyStateFromMaster));
 				}
 				if (typeof isWaitingForResponseFromMaster === 'boolean') {
-					setIsWaitingForResponse(isWaitingForResponseFromMaster);
+					dispatch(
+						isWaitingForResponseFromMaster
+							? startWaitingForResponse()
+							: stopWaitingForResponse()
+					);
 				}
 			}
 		},
-		[amMasterWS, setReadyState, setIsWaitingForResponse]
+		[amMasterWS, dispatch]
 	);
 
 	const handleMessage = useCallback(
@@ -146,10 +151,10 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 					handleMasterQueryConfirmation(sendResponse, amMasterWS);
 					break;
 				case MsgToTabType.SET_ROLE_MASTER:
-					setAmMasterWS(true);
+					dispatch(becomeMasterWS());
 					break;
 				case MsgToTabType.SET_ROLE_CLIENT:
-					setAmMasterWS(false);
+					dispatch(becomeClientWS());
 					break;
 				case MsgToTabType.QUERY_ALIVE:
 					handleConfirmingAlive(sendResponse);
@@ -167,7 +172,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 		},
 		[
 			amMasterWS,
-			setAmMasterWS,
+			dispatch,
 			handlePassingMessage,
 			handleQueryStateOfWS,
 			handleUpdateStateOfWS,
@@ -195,13 +200,10 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	return (
 		<WSContext.Provider
 			value={{
-				amMasterWS,
 				sendJsonMessage,
 				lastRecvJsonMessage,
 				updateMatchQuery,
 				getItem,
-				readyState,
-				isWaitingForResponse,
 			}}
 		>
 			{children}

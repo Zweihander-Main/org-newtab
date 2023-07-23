@@ -82,7 +82,4 @@ export type sendJsonMessage = (
 export type WSCommonProps = {
 	sendJsonMessage: sendJsonMessage;
 	lastRecvJsonMessage: EmacsRecvMsg;
-	amMasterWS: boolean;
-	readyState: ReadyState;
-	isWaitingForResponse: boolean;
 };

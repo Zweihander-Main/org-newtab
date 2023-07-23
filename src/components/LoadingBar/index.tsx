@@ -1,12 +1,13 @@
 import * as styles from './style.module.css';
 import { useNProgress } from '@tanem/react-nprogress';
-import WSContext from 'contexts/ws';
-import { useContext } from 'react';
+import { useAppSelector } from '../../hooks';
 
 const LoadingBar: React.FC<{
 	animationDuration: number;
 }> = ({ animationDuration }) => {
-	const { isWaitingForResponse } = useContext(WSContext);
+	const isWaitingForResponse = useAppSelector(
+		(state) => state.isWaitingForResponse
+	);
 
 	const { progress, isFinished } = useNProgress({
 		isAnimating: isWaitingForResponse,

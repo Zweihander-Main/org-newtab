@@ -13,14 +13,15 @@ import OrgItem from 'components/OrgItem';
 import LoadingBar from 'components/LoadingBar';
 import store, { persistor } from '../store';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { setOrgItemTo, setTagsDataTo } from '../reducers';
+import { setOrgItemTo, setTagsDataTo } from '../stateReducer';
 
 const IndexNewtab: React.FC = () => {
-	const { lastRecvJsonMessage, amMasterWS, getItem, readyState } =
-		useContext(WSContext);
+	const { lastRecvJsonMessage, getItem } = useContext(WSContext);
 	const { isInitialStateResolved } = useContext(StateContext);
-	const matchQuery = useAppSelector((state) => state.matchQuery);
 	const dispatch = useAppDispatch();
+	const amMasterWS = useAppSelector((state) => state.amMasterWS);
+	const readyState = useAppSelector((state) => state.readyState);
+	const matchQuery = useAppSelector((state) => state.matchQuery);
 	const hasSentInitialQuery = useRef(false);
 	useEffect(() => {
 		if (lastRecvJsonMessage === null) {

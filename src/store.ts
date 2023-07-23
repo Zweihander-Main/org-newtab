@@ -14,19 +14,20 @@ import {
 import type { Storage as StorageType } from '@plasmohq/redux-persist/lib/types';
 import { Storage } from '@plasmohq/storage';
 
-import rootReducer from './reducers';
+import stateReducer from './stateReducer';
 
 const persistConfig = {
 	key: 'root',
 	version: 1,
 	storage: localStorage as StorageType,
+	blacklist: ['amMasterWS', 'readyState', 'isWaitingForResponse'],
 };
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+const persistedReducer = persistReducer(persistConfig, stateReducer);
 
 // Until persistReducer is fixed, we need to use this mock store to get the types
 export const mockStore = configureStore({
-	reducer: rootReducer,
+	reducer: stateReducer,
 });
 
 export const store = configureStore({
