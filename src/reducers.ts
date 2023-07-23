@@ -17,7 +17,7 @@ const INITIAL_VALUE: AppState = {
 	orgItem: null,
 };
 
-const appSlice = createSlice({
+export const appSlice = createSlice({
 	name: 'app',
 	initialState: INITIAL_VALUE,
 	reducers: {
