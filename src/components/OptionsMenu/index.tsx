@@ -1,13 +1,13 @@
 import StateContext from 'contexts/state';
 import * as styles from './style.module.css';
 import WSContext from 'contexts/ws';
-import useValue from 'hooks/useValue';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { useAppSelector } from '../../hooks';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { setMatchQueryTo } from '../../reducers';
 
 const OptionsMenu: React.FC = () => {
-	const { setValue: setMatchQuery } = useValue('matchQuery');
 	const matchQuery = useAppSelector((state) => state.matchQuery);
+	const dispatch = useAppDispatch();
 	const { isInitialStateResolved } = useContext(StateContext);
 	const { lastRecvJsonMessage, amMasterWS, updateMatchQuery } =
 		useContext(WSContext);
@@ -22,11 +22,12 @@ const OptionsMenu: React.FC = () => {
 			const data = new FormData(currentTarget);
 			const formMatchQuery = data.get('matchQuery');
 			if (formMatchQuery && typeof formMatchQuery === 'string') {
-				setMatchQuery(formMatchQuery);
+				dispatch(setMatchQueryTo(formMatchQuery));
 				void updateMatchQuery(formMatchQuery);
+				// TODO combine
 			}
 		},
-		[setMatchQuery, updateMatchQuery]
+		[updateMatchQuery, dispatch]
 	);
 
 	useEffect(() => {

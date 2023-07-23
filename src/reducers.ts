@@ -1,13 +1,14 @@
 import type { EmacsItemMsg } from 'lib/types';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
-type Tags = { [key: string]: string };
-type OrgItem = EmacsItemMsg['data'];
+type MatchQuery = string | undefined;
+type Tags = { [key: string]: string | null };
+type OrgItem = EmacsItemMsg['data'] | null;
 
 export interface AppState {
-	matchQuery: string | undefined;
-	tagsData: Tags | null;
-	orgItem: OrgItem | null;
+	matchQuery: MatchQuery;
+	tagsData: Tags;
+	orgItem: OrgItem;
 }
 
 const INITIAL_VALUE: AppState = {
@@ -20,19 +21,19 @@ const appSlice = createSlice({
 	name: 'app',
 	initialState: INITIAL_VALUE,
 	reducers: {
-		changeMatchQuery: (state, action: PayloadAction<string>) => {
+		setMatchQueryTo: (state, action: PayloadAction<string>) => {
 			state.matchQuery = action.payload;
 		},
-		changeTagsData: (state, action: PayloadAction<Tags>) => {
+		setTagsDataTo: (state, action: PayloadAction<Tags>) => {
 			state.tagsData = action.payload;
 		},
-		changeOrgItem: (state, action: PayloadAction<OrgItem>) => {
+		setOrgItemTo: (state, action: PayloadAction<OrgItem>) => {
 			state.orgItem = action.payload;
 		},
 	},
 });
 
-export const { changeMatchQuery, changeTagsData, changeOrgItem } =
+export const { setMatchQueryTo, setTagsDataTo, setOrgItemTo } =
 	appSlice.actions;
 
 export default appSlice.reducer;

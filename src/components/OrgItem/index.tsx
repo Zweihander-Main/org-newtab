@@ -1,14 +1,14 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import * as styles from './style.module.css';
-import useValue from 'hooks/useValue';
 import type { AllTagsRecv } from '../../lib/types';
 import logo from 'data-base64:~assets/icon-1024x1024.png';
 import { ReadyState } from 'react-use-websocket';
 import WSContext from 'contexts/ws';
+import { useAppSelector } from '../../hooks';
 
 const OrgItem: React.FC = () => {
-	const { value: tagsData } = useValue('tagsData');
-	const { value: orgItem } = useValue('orgItem');
+	const tagsData = useAppSelector((state) => state.tagsData);
+	const orgItem = useAppSelector((state) => state.orgItem);
 	const { readyState, isWaitingForResponse } = useContext(WSContext);
 	const [foregroundColor, setForegroundColor] = useState<string | undefined>(
 		undefined
