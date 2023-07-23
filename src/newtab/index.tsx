@@ -69,12 +69,16 @@ const RootContextWrapper: React.FC = () => {
 	// TODO: Strict Mode
 	return (
 		<Provider store={store}>
-			<PersistGate loading={null} persistor={persistor}>
-				<StateProvider>
-					<WSProvider>
-						<IndexNewtab />
-					</WSProvider>
-				</StateProvider>
+			<PersistGate persistor={persistor}>
+				{(isInitialStateResolved) => (
+					<StateProvider
+						isInitialStateResolved={isInitialStateResolved}
+					>
+						<WSProvider>
+							<IndexNewtab />
+						</WSProvider>
+					</StateProvider>
+				)}
 			</PersistGate>
 		</Provider>
 	);
