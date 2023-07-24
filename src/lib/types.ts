@@ -62,7 +62,7 @@ export type EmacsRecvMsg = EmacsItemMsg | EmacsTagsMsg | null;
 
 export type WSStateMsg = {
 	readyState?: ReadyState;
-	isWaitingForResponse?: boolean;
+	responsesWaitingFor?: Array<number>;
 };
 
 export type EmacsSendMsg = {

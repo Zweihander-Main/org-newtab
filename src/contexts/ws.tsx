@@ -21,11 +21,10 @@ import { LogLoc, LogMsgDir, logMsg, logMsgErr } from 'lib/logging';
 import usePort from 'hooks/usePort';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import {
+	addToResponsesWaitingFor,
 	becomeClientWS,
 	becomeMasterWS,
 	setReadyStateTo,
-	startWaitingForResponse,
-	stopWaitingForResponse,
 } from '../stateReducer';
 
 export type WSContextProps = {
@@ -49,8 +48,8 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	const dispatch = useAppDispatch();
 	const amMasterWS = useAppSelector((state) => state.amMasterWS);
 	const readyState = useAppSelector((state) => state.readyState);
-	const isWaitingForResponse = useAppSelector(
-		(state) => state.isWaitingForResponse
+	const responsesWaitingFor = useAppSelector(
+		(state) => state.responsesWaitingFor
 	);
 	const { sendJsonMessage } = useSingleWebsocket();
 	const port = usePort();
@@ -99,30 +98,28 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 					sendResponse,
 					{
 						readyState,
-						isWaitingForResponse,
+						responsesWaitingFor,
 					}
 				);
 			}
 		},
-		[amMasterWS, readyState, isWaitingForResponse]
+		[amMasterWS, readyState, responsesWaitingFor]
 	);
 
 	const handleUpdateStateOfWS = useCallback(
 		(message: MsgToTab) => {
 			if (!amMasterWS && message?.data) {
 				const {
-					isWaitingForResponse: isWaitingForResponseFromMaster,
+					responsesWaitingFor: responsesWaitingForFromMaster,
 					readyState: readyStateFromMaster,
 				} = message.data as WSStateMsg;
 				if (typeof readyStateFromMaster === 'number') {
 					dispatch(setReadyStateTo(readyStateFromMaster));
 				}
-				if (typeof isWaitingForResponseFromMaster === 'boolean') {
-					dispatch(
-						isWaitingForResponseFromMaster
-							? startWaitingForResponse()
-							: stopWaitingForResponse()
-					);
+				if (Array.isArray(responsesWaitingForFromMaster)) {
+					responsesWaitingForFromMaster.forEach((resid) => {
+						dispatch(addToResponsesWaitingFor(resid));
+					});
 				}
 			}
 		},

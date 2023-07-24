@@ -12,7 +12,7 @@ export interface AppState {
 	orgItem: OrgItem;
 	amMasterWS: boolean;
 	readyState: ReadyState;
-	isWaitingForResponse: boolean;
+	responsesWaitingFor: Array<number>;
 }
 
 const INITIAL_VALUE: AppState = {
@@ -21,7 +21,7 @@ const INITIAL_VALUE: AppState = {
 	orgItem: null,
 	amMasterWS: false,
 	readyState: ReadyState.UNINSTANTIATED,
-	isWaitingForResponse: false,
+	responsesWaitingFor: [],
 };
 
 export const appSlice = createSlice({
@@ -46,16 +46,19 @@ export const appSlice = createSlice({
 		setReadyStateTo: (state, action: PayloadAction<ReadyState>) => {
 			state.readyState = action.payload;
 		},
-		startWaitingForResponse: (state) => {
-			state.isWaitingForResponse = true;
+		removeFromResponsesWaitingFor: (
+			state,
+			action: PayloadAction<number>
+		) => {
+			state.responsesWaitingFor = state.responsesWaitingFor.filter(
+				(id) => id !== action.payload
+			);
 		},
-		stopWaitingForResponse: (state) => {
-			state.isWaitingForResponse = false;
+		addToResponsesWaitingFor: (state, action: PayloadAction<number>) => {
+			state.responsesWaitingFor.push(action.payload);
 		},
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		sendMsgToEmacs: (_state, _action: PayloadAction<EmacsSendMsg>) => {
-			// TODO start waiting
-		},
+		sendMsgToEmacs: (_state, _action: PayloadAction<EmacsSendMsg>) => {},
 	},
 });
 
@@ -68,8 +71,8 @@ export const {
 	becomeMasterWS,
 	becomeClientWS,
 	setReadyStateTo,
-	startWaitingForResponse,
-	stopWaitingForResponse,
+	removeFromResponsesWaitingFor,
+	addToResponsesWaitingFor,
 	sendMsgToEmacs,
 } = appSlice.actions;
 

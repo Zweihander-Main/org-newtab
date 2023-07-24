@@ -1,8 +1,10 @@
 import { createListenerMiddleware, isAnyOf } from '@reduxjs/toolkit';
 
 import {
+	addToResponsesWaitingFor,
 	becomeClientWS,
 	becomeMasterWS,
+	removeFromResponsesWaitingFor,
 	sendMsgToEmacs,
 	setOrgItemTo,
 	setReadyStateTo,
@@ -12,6 +14,8 @@ import Socket from 'lib/Socket';
 import { ReadyState } from 'react-use-websocket';
 import { EmacsRecvMsg, EmacsSendMsg } from 'lib/types';
 import { RootState } from 'store';
+
+const MAXIMUM_TIME_TO_WAIT_FOR_RESPONSE = 60000;
 
 const listenerMiddleware = createListenerMiddleware<RootState>();
 
@@ -44,12 +48,13 @@ listenerMiddleware.startListening({
 		Socket.on('message', (event) => {
 			const message = event.data;
 			const parsed = JSON.parse(message) as EmacsRecvMsg;
-			// eslint-disable-next-line no-console
-			console.log(parsed);
 			if (parsed === null) return;
 			switch (parsed.type) {
 				case 'ITEM':
 					dispatch(setOrgItemTo(parsed?.data || null));
+					dispatch(
+						removeFromResponsesWaitingFor(parsed?.resid || -1)
+					);
 					break;
 				case 'TAGS':
 					dispatch(setTagsDataTo(parsed?.data || {}));
@@ -81,6 +86,20 @@ listenerMiddleware.startListening({
 	effect: (action) => {
 		if (action.type === sendMsgToEmacs.type) {
 			Socket.sendJSON(action.payload as EmacsSendMsg);
+		}
+	},
+});
+
+listenerMiddleware.startListening({
+	matcher: isAnyOf(addToResponsesWaitingFor),
+	effect: (action, listenerApi) => {
+		const { dispatch } = listenerApi;
+		if (action.type === addToResponsesWaitingFor.type) {
+			setTimeout(() => {
+				dispatch(
+					removeFromResponsesWaitingFor(action.payload as number)
+				);
+			}, MAXIMUM_TIME_TO_WAIT_FOR_RESPONSE);
 		}
 	},
 });

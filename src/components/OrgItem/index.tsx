@@ -10,7 +10,7 @@ const OrgItem: React.FC = () => {
 	const orgItem = useAppSelector((state) => state.orgItem);
 	const readyState = useAppSelector((state) => state.readyState);
 	const isWaitingForResponse = useAppSelector(
-		(state) => state.isWaitingForResponse
+		(state) => state.responsesWaitingFor.length > 0
 	);
 	const [foregroundColor, setForegroundColor] = useState<string | undefined>(
 		undefined
