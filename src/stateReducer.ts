@@ -62,8 +62,6 @@ export const appSlice = createSlice({
 	},
 });
 
-// NEXT: unsafe eval -- build your own
-
 export const {
 	setMatchQueryTo,
 	setTagsDataTo,

@@ -21,7 +21,7 @@ const persistConfig = {
 	key: 'root',
 	version: 1,
 	storage: localStorage as StorageType,
-	blacklist: ['amMasterWS', 'readyState', 'isWaitingForResponse'],
+	blacklist: ['amMasterWS', 'readyState', 'responsesWaitingFor'],
 };
 
 const persistedReducer = persistReducer(persistConfig, stateReducer);
