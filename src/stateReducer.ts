@@ -57,6 +57,12 @@ export const appSlice = createSlice({
 		addToResponsesWaitingFor: (state, action: PayloadAction<number>) => {
 			state.responsesWaitingFor.push(action.payload);
 		},
+		setResponsesWaitingForTo: (
+			state,
+			action: PayloadAction<Array<number>>
+		) => {
+			state.responsesWaitingFor = action.payload;
+		},
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		sendMsgToEmacs: (_state, _action: PayloadAction<EmacsSendMsg>) => {},
 	},
@@ -71,6 +77,7 @@ export const {
 	setReadyStateTo,
 	removeFromResponsesWaitingFor,
 	addToResponsesWaitingFor,
+	setResponsesWaitingForTo,
 	sendMsgToEmacs,
 } = appSlice.actions;
 

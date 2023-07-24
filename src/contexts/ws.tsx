@@ -13,18 +13,19 @@ import {
 	SendResponseType,
 	handleConfirmingAlive,
 	handleMasterQueryConfirmation,
+	sendMsgToAllTabs,
 	sendMsgToBGSWPort,
-	sendMsgToTabAsResponse,
+	sendMsgToTab,
 } from '../lib/messages';
 import useSingleWebsocket from 'hooks/useSingleWS';
 import { LogLoc, LogMsgDir, logMsg, logMsgErr } from 'lib/logging';
 import usePort from 'hooks/usePort';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import {
-	addToResponsesWaitingFor,
 	becomeClientWS,
 	becomeMasterWS,
 	setReadyStateTo,
+	setResponsesWaitingForTo,
 } from '../stateReducer';
 
 export type WSContextProps = {
@@ -90,21 +91,14 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 		[sendJsonMessage]
 	);
 
-	const handleQueryStateOfWS = useCallback(
-		(sendResponse: SendResponseType) => {
-			if (amMasterWS) {
-				sendMsgToTabAsResponse(
-					MsgToTabType.SET_WS_STATE,
-					sendResponse,
-					{
-						readyState,
-						responsesWaitingFor,
-					}
-				);
-			}
-		},
-		[amMasterWS, readyState, responsesWaitingFor]
-	);
+	const handleQueryStateOfWS = useCallback(() => {
+		if (amMasterWS) {
+			sendMsgToAllTabs(MsgToTabType.SET_WS_STATE, {
+				readyState,
+				responsesWaitingFor,
+			});
+		}
+	}, [amMasterWS, readyState, responsesWaitingFor]);
 
 	const handleUpdateStateOfWS = useCallback(
 		(message: MsgToTab) => {
@@ -117,14 +111,37 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 					dispatch(setReadyStateTo(readyStateFromMaster));
 				}
 				if (Array.isArray(responsesWaitingForFromMaster)) {
-					responsesWaitingForFromMaster.forEach((resid) => {
-						dispatch(addToResponsesWaitingFor(resid));
-					});
+					dispatch(
+						setResponsesWaitingForTo(responsesWaitingForFromMaster)
+					);
 				}
 			}
 		},
 		[amMasterWS, dispatch]
 	);
+
+	const queryStateOfWS = useCallback(() => {
+		// TODO: DRY
+		void chrome.storage.local
+			.get('masterWSTabId')
+			.then((masterWSObject) => {
+				const { masterWSTabId } = masterWSObject;
+				const masterWSTabAsNumber =
+					masterWSTabId && typeof masterWSTabId === 'string'
+						? parseInt(masterWSTabId, 10)
+						: null;
+				if (masterWSTabAsNumber) {
+					sendMsgToTab(
+						MsgToTabType.QUERY_WS_STATE,
+						masterWSTabAsNumber,
+						{
+							readyState,
+							responsesWaitingFor,
+						}
+					);
+				}
+			});
+	}, [readyState, responsesWaitingFor]);
 
 	const handleMessage = useCallback(
 		(
@@ -151,6 +168,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 					break;
 				case MsgToTabType.SET_ROLE_CLIENT:
 					dispatch(becomeClientWS());
+					queryStateOfWS();
 					break;
 				case MsgToTabType.QUERY_ALIVE:
 					handleConfirmingAlive(sendResponse);
@@ -159,7 +177,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 					handlePassingMessage(message);
 					break;
 				case MsgToTabType.QUERY_WS_STATE:
-					handleQueryStateOfWS(sendResponse);
+					handleQueryStateOfWS();
 					break;
 				case MsgToTabType.SET_WS_STATE:
 					handleUpdateStateOfWS(message);
@@ -172,6 +190,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 			handlePassingMessage,
 			handleQueryStateOfWS,
 			handleUpdateStateOfWS,
+			queryStateOfWS,
 		]
 	);
 

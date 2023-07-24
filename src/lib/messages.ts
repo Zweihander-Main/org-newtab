@@ -68,7 +68,7 @@ export const sendMsgToTabAsResponse = (
 export const sendMsgToTab = (
 	type: MsgToTabType,
 	tabId: number,
-	data?: EmacsSendMsg
+	data?: EmacsSendMsg | WSStateMsg
 ) => {
 	logMsg(
 		LogLoc.NEWTAB,

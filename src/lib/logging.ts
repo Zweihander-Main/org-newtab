@@ -1,7 +1,5 @@
 /* eslint-disable no-console */
 
-const ENABLE_LOGGING = false;
-
 export enum LogLoc {
 	BGSW = 'BGSW',
 	NEWTAB = 'NewTab',
@@ -12,8 +10,10 @@ export enum LogMsgDir {
 	RECV = '<=',
 }
 
+const ENABLE_LOGGING: false | LogLoc = LogLoc.NEWTAB;
+
 export const log = (loc: LogLoc, ...args: Parameters<typeof console.log>) => {
-	if (ENABLE_LOGGING) {
+	if (ENABLE_LOGGING === loc) {
 		console.log(`[${loc}]`, ...args);
 	}
 };
@@ -23,7 +23,7 @@ export const logMsg = (
 	dir: LogMsgDir,
 	...args: Parameters<typeof console.log>
 ) => {
-	if (ENABLE_LOGGING) {
+	if (ENABLE_LOGGING === loc) {
 		log(loc, dir, ...args);
 	}
 };
@@ -33,7 +33,7 @@ export const logMsgErr = (
 	dir: LogMsgDir,
 	...args: Parameters<typeof console.error>
 ) => {
-	if (ENABLE_LOGGING) {
+	if (ENABLE_LOGGING === loc) {
 		console.error(`[${loc}]`, dir, ...args);
 	}
 };

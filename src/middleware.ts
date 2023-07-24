@@ -83,18 +83,13 @@ listenerMiddleware.startListening({
 
 listenerMiddleware.startListening({
 	matcher: isAnyOf(sendMsgToEmacs),
-	effect: (action) => {
-		if (action.type === sendMsgToEmacs.type) {
-			Socket.sendJSON(action.payload as EmacsSendMsg);
-		}
-	},
-});
-
-listenerMiddleware.startListening({
-	matcher: isAnyOf(addToResponsesWaitingFor),
 	effect: (action, listenerApi) => {
-		const { dispatch } = listenerApi;
-		if (action.type === addToResponsesWaitingFor.type) {
+		if (action.type === sendMsgToEmacs.type) {
+			const { dispatch } = listenerApi;
+			const resid = Math.floor(Math.random() * 1000000000);
+			const data = { ...action.payload, resid } as EmacsSendMsg;
+			Socket.sendJSON(data);
+			dispatch(addToResponsesWaitingFor(resid));
 			setTimeout(() => {
 				dispatch(
 					removeFromResponsesWaitingFor(action.payload as number)

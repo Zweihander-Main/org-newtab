@@ -3,12 +3,11 @@ import {
 	MsgToTabType,
 	EmacsSendMsg,
 	sendJsonMessage,
-	EmacsSendMsgWithResid,
 } from '../lib/types';
 import { useCallback, useEffect } from 'react';
 import { sendMsgToTab, sendUpdateInWSState } from '../lib/messages';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { addToResponsesWaitingFor, sendMsgToEmacs } from '../stateReducer';
+import { sendMsgToEmacs } from '../stateReducer';
 
 type useSingleWebsocket = () => WSCommonProps;
 
@@ -46,23 +45,6 @@ const useSingleWebsocket: useSingleWebsocket = () => {
 		[amMasterWS, dispatch]
 	);
 
-	const sendJsonMessageWrapper = useCallback(
-		(sendJsonMessage: sendJsonMessage) => {
-			const wrappedFunc: sendJsonMessage = (
-				jsonMessage: EmacsSendMsg
-			) => {
-				const resid = Math.floor(Math.random() * 1000000000);
-				sendJsonMessage({
-					...jsonMessage,
-					resid,
-				} as EmacsSendMsgWithResid);
-				dispatch(addToResponsesWaitingFor(resid));
-			};
-			return wrappedFunc;
-		},
-		[dispatch]
-	);
-
 	useEffect(() => {
 		if (!amMasterWS) return;
 		sendUpdateInWSState({ responsesWaitingFor });
@@ -74,7 +56,7 @@ const useSingleWebsocket: useSingleWebsocket = () => {
 	}, [amMasterWS, readyState]);
 
 	return {
-		sendJsonMessage: sendJsonMessageWrapper(sendJsonMessage),
+		sendJsonMessage,
 	};
 };
 
