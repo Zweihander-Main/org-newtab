@@ -45,26 +45,6 @@ export const sendMsgToBGSWAsResponse = (
 	});
 };
 
-export const sendMsgToTabAsResponse = (
-	type: MsgToTabType,
-	sendResponse: SendResponseType,
-	data: WSStateMsg
-) => {
-	logMsg(
-		LogLoc.NEWTAB,
-		LogMsgDir.SEND,
-		'Sending response to tab msg',
-		getMsgToTabType(type),
-		'with data',
-		data
-	);
-	sendResponse({
-		type,
-		direction: MsgDirection.TO_NEWTAB,
-		data,
-	});
-};
-
 export const sendMsgToTab = (
 	type: MsgToTabType,
 	tabId: number,

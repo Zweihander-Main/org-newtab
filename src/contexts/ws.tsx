@@ -8,6 +8,7 @@ import {
 	getMsgToTabType,
 	WSStateMsg,
 	EmacsSendMsg,
+	sendJsonMessage,
 } from '../lib/types';
 import {
 	SendResponseType,
@@ -16,17 +17,29 @@ import {
 	sendMsgToAllTabs,
 	sendMsgToBGSWPort,
 	sendMsgToTab,
+	sendUpdateInWSState,
 } from '../lib/messages';
-import useSingleWebsocket from 'hooks/useSingleWS';
 import { LogLoc, LogMsgDir, logMsg, logMsgErr } from 'lib/logging';
 import usePort from 'hooks/usePort';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import {
 	becomeClientWS,
 	becomeMasterWS,
+	sendMsgToEmacs,
 	setReadyStateTo,
 	setResponsesWaitingForTo,
 } from '../stateReducer';
+
+const getMasterWSTabId = async () => {
+	const masterWSObject = await chrome.storage.local.get('masterWSTabId');
+	const { masterWSTabId } = masterWSObject;
+	const masterWSTabAsNumber =
+		masterWSTabId && typeof masterWSTabId === 'string'
+			? parseInt(masterWSTabId, 10)
+			: null;
+
+	return masterWSTabAsNumber;
+};
 
 export type WSContextProps = {
 	updateMatchQuery: (matchQuery: string) => void;
@@ -52,10 +65,28 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	const responsesWaitingFor = useAppSelector(
 		(state) => state.responsesWaitingFor
 	);
-	const { sendJsonMessage } = useSingleWebsocket();
 	const port = usePort();
 
 	const isInitialRender = useRef(true);
+
+	const sendJsonMessage: sendJsonMessage = useCallback(
+		(jsonMessage: EmacsSendMsg) => {
+			if (amMasterWS) {
+				dispatch(sendMsgToEmacs(jsonMessage));
+			} else {
+				void getMasterWSTabId().then((masterWSTabAsNumber) => {
+					if (masterWSTabAsNumber) {
+						sendMsgToTab(
+							MsgToTabType.PASS_TO_EMACS,
+							masterWSTabAsNumber,
+							jsonMessage
+						);
+					}
+				});
+			}
+		},
+		[amMasterWS, dispatch]
+	);
 
 	const updateMatchQuery = useCallback(
 		(newMatchQuery: string) =>
@@ -121,26 +152,14 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	);
 
 	const queryStateOfWS = useCallback(() => {
-		// TODO: DRY
-		void chrome.storage.local
-			.get('masterWSTabId')
-			.then((masterWSObject) => {
-				const { masterWSTabId } = masterWSObject;
-				const masterWSTabAsNumber =
-					masterWSTabId && typeof masterWSTabId === 'string'
-						? parseInt(masterWSTabId, 10)
-						: null;
-				if (masterWSTabAsNumber) {
-					sendMsgToTab(
-						MsgToTabType.QUERY_WS_STATE,
-						masterWSTabAsNumber,
-						{
-							readyState,
-							responsesWaitingFor,
-						}
-					);
-				}
-			});
+		void getMasterWSTabId().then((masterWSTabAsNumber) => {
+			if (masterWSTabAsNumber) {
+				sendMsgToTab(MsgToTabType.QUERY_WS_STATE, masterWSTabAsNumber, {
+					readyState,
+					responsesWaitingFor,
+				});
+			}
+		});
 	}, [readyState, responsesWaitingFor]);
 
 	const handleMessage = useCallback(
@@ -211,6 +230,16 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 			isInitialRender.current = false;
 		}
 	}, [port]);
+
+	useEffect(() => {
+		if (!amMasterWS) return;
+		sendUpdateInWSState({ responsesWaitingFor });
+	}, [amMasterWS, responsesWaitingFor]);
+
+	useEffect(() => {
+		if (!amMasterWS) return;
+		sendUpdateInWSState({ readyState });
+	}, [amMasterWS, readyState]);
 
 	return (
 		<WSContext.Provider
