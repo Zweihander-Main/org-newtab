@@ -1,5 +1,3 @@
-import { ReadyState } from 'react-use-websocket';
-
 export enum MsgToBGSWType {
 	QUERY_WS_ROLE = 1,
 	IDENTIFY_ROLE_MASTER = 2,
@@ -60,8 +58,16 @@ export type EmacsTagsMsg = {
 
 export type EmacsRecvMsg = EmacsItemMsg | EmacsTagsMsg | null;
 
+export enum WSReadyState {
+	UNINSTANTIATED = -1,
+	CONNECTING = 0,
+	OPEN = 1,
+	CLOSING = 2,
+	CLOSED = 3,
+}
+
 export type WSStateMsg = {
-	readyState?: ReadyState;
+	readyState?: WSReadyState;
 	responsesWaitingFor?: Array<number>;
 };
 
@@ -74,11 +80,11 @@ export type EmacsSendMsgWithResid = EmacsSendMsg & {
 	resid: number;
 };
 
-export type sendJsonMessage = (
+export type SendJsonMessage = (
 	jsonMessage: EmacsSendMsg,
 	keep?: boolean
 ) => void;
 
 export type WSCommonProps = {
-	sendJsonMessage: sendJsonMessage;
+	sendJsonMessage: SendJsonMessage;
 };

@@ -11,8 +11,7 @@ import {
 	setTagsDataTo,
 } from './stateReducer';
 import Socket from 'lib/Socket';
-import { ReadyState } from 'react-use-websocket';
-import { EmacsRecvMsg, EmacsSendMsg } from 'lib/types';
+import { EmacsRecvMsg, EmacsSendMsg, WSReadyState } from 'lib/types';
 import { RootState } from 'store';
 
 const MAXIMUM_TIME_TO_WAIT_FOR_RESPONSE = 60000;
@@ -28,19 +27,19 @@ listenerMiddleware.startListening({
 	},
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
-		dispatch(setReadyStateTo(ReadyState.CONNECTING));
+		dispatch(setReadyStateTo(WSReadyState.CONNECTING));
 		// eslint-disable-next-line no-console
 		console.log('connecting');
 		Socket.connect('ws://localhost:35942/');
 		Socket.on('open', () => {
 			// eslint-disable-next-line no-console
 			console.log('open');
-			dispatch(setReadyStateTo(ReadyState.OPEN));
+			dispatch(setReadyStateTo(WSReadyState.OPEN));
 		});
 		Socket.on('close', () => {
 			// eslint-disable-next-line no-console
 			console.log('close');
-			dispatch(setReadyStateTo(ReadyState.CLOSED));
+			dispatch(setReadyStateTo(WSReadyState.CLOSED));
 		});
 		Socket.on('error', (event) => {
 			console.error('Websocket error', event.data);
@@ -76,7 +75,7 @@ listenerMiddleware.startListening({
 	},
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
-		dispatch(setReadyStateTo(ReadyState.CLOSING));
+		dispatch(setReadyStateTo(WSReadyState.CLOSING));
 		Socket.disconnect();
 	},
 });

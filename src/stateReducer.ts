@@ -1,6 +1,5 @@
-import type { EmacsItemMsg, EmacsSendMsg } from 'lib/types';
+import { WSReadyState, type EmacsItemMsg, type EmacsSendMsg } from 'lib/types';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { ReadyState } from 'react-use-websocket';
 
 type MatchQuery = string | undefined;
 type Tags = { [key: string]: string | null };
@@ -11,7 +10,7 @@ export interface AppState {
 	tagsData: Tags;
 	orgItem: OrgItem;
 	amMasterWS: boolean;
-	readyState: ReadyState;
+	readyState: WSReadyState;
 	responsesWaitingFor: Array<number>;
 }
 
@@ -20,7 +19,7 @@ const INITIAL_VALUE: AppState = {
 	tagsData: {},
 	orgItem: null,
 	amMasterWS: false,
-	readyState: ReadyState.UNINSTANTIATED,
+	readyState: WSReadyState.UNINSTANTIATED,
 	responsesWaitingFor: [],
 };
 
@@ -43,7 +42,7 @@ export const appSlice = createSlice({
 		becomeClientWS: (state) => {
 			state.amMasterWS = false;
 		},
-		setReadyStateTo: (state, action: PayloadAction<ReadyState>) => {
+		setReadyStateTo: (state, action: PayloadAction<WSReadyState>) => {
 			state.readyState = action.payload;
 		},
 		removeFromResponsesWaitingFor: (

@@ -1,15 +1,15 @@
 import * as styles from './style.module.css';
-import { ReadyState } from 'react-use-websocket';
 import { useAppSelector } from '../../hooks';
+import { WSReadyState } from '../../lib/types';
 
 const ConnectionStatusIndicator: React.FC = () => {
 	const readyState = useAppSelector((state) => state.readyState);
 	const connectionStatus = {
-		[ReadyState.CONNECTING]: 'Connecting',
-		[ReadyState.OPEN]: 'Connected',
-		[ReadyState.CLOSING]: 'Closing',
-		[ReadyState.CLOSED]: 'Not Connected',
-		[ReadyState.UNINSTANTIATED]: 'Initializing',
+		[WSReadyState.CONNECTING]: 'Connecting',
+		[WSReadyState.OPEN]: 'Connected',
+		[WSReadyState.CLOSING]: 'Closing',
+		[WSReadyState.CLOSED]: 'Not Connected',
+		[WSReadyState.UNINSTANTIATED]: 'Initializing',
 	}[readyState];
 
 	return (

@@ -1,6 +1,5 @@
 import '../lib/wdyr';
 import { useContext, useEffect, useRef } from 'react';
-import { ReadyState } from 'react-use-websocket';
 import { Provider } from 'react-redux';
 import { PersistGate } from '@plasmohq/redux-persist/integration/react';
 import '@fontsource/public-sans/700.css';
@@ -13,6 +12,7 @@ import OrgItem from 'components/OrgItem';
 import LoadingBar from 'components/LoadingBar';
 import store, { persistor } from '../store';
 import { useAppSelector } from '../hooks';
+import { WSReadyState } from 'lib/types';
 
 const IndexNewtab: React.FC = () => {
 	const { getItem } = useContext(WSContext);
@@ -28,7 +28,7 @@ const IndexNewtab: React.FC = () => {
 			amMasterWS &&
 			isInitialStateResolved &&
 			matchQuery &&
-			readyState === ReadyState.OPEN
+			readyState === WSReadyState.OPEN
 		) {
 			getItem(matchQuery);
 			hasSentInitialQuery.current = true;

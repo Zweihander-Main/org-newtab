@@ -8,7 +8,7 @@ import {
 	getMsgToTabType,
 	WSStateMsg,
 	EmacsSendMsg,
-	sendJsonMessage,
+	SendJsonMessage,
 } from '../lib/types';
 import {
 	SendResponseType,
@@ -69,7 +69,7 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 
 	const isInitialRender = useRef(true);
 
-	const sendJsonMessage: sendJsonMessage = useCallback(
+	const sendJsonMessage: SendJsonMessage = useCallback(
 		(jsonMessage: EmacsSendMsg) => {
 			if (amMasterWS) {
 				dispatch(sendMsgToEmacs(jsonMessage));

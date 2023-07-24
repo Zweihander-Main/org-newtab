@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import * as styles from './style.module.css';
-import type { AllTagsRecv } from '../../lib/types';
+import { WSReadyState, type AllTagsRecv } from '../../lib/types';
 import logo from 'data-base64:~assets/icon-1024x1024.png';
-import { ReadyState } from 'react-use-websocket';
 import { useAppSelector } from '../../hooks';
 
 const OrgItem: React.FC = () => {
@@ -54,7 +53,7 @@ const OrgItem: React.FC = () => {
 	}, [sanitizeTagsAndMatchData, orgItem, tagsData]);
 
 	const classString = `${styles.item}${
-		readyState !== ReadyState.OPEN || isWaitingForResponse
+		readyState !== WSReadyState.OPEN || isWaitingForResponse
 			? ' ' + styles.stale
 			: ''
 	}`;
