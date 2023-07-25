@@ -17,9 +17,9 @@ import { WSReadyState } from 'lib/types';
 const IndexNewtab: React.FC = () => {
 	const { getItem } = useContext(WSContext);
 	const { isInitialStateResolved } = useContext(StateContext);
-	const amMasterWS = useAppSelector((state) => state.amMasterWS);
-	const readyState = useAppSelector((state) => state.readyState);
-	const matchQuery = useAppSelector((state) => state.matchQuery);
+	const amMasterWS = useAppSelector((state) => state.app.amMasterWS);
+	const readyState = useAppSelector((state) => state.app.readyState);
+	const matchQuery = useAppSelector((state) => state.app.matchQuery);
 	const hasSentInitialQuery = useRef(false);
 
 	useEffect(() => {

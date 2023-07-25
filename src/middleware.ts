@@ -20,7 +20,10 @@ const listenerMiddleware = createListenerMiddleware<RootState>();
 
 listenerMiddleware.startListening({
 	predicate: (action, _currentState, originalState) => {
-		if (action.type === becomeMasterWS.type && !originalState.amMasterWS) {
+		if (
+			action.type === becomeMasterWS.type &&
+			!originalState.app.amMasterWS
+		) {
 			return true;
 		}
 		return false;
@@ -68,7 +71,10 @@ listenerMiddleware.startListening({
 
 listenerMiddleware.startListening({
 	predicate: (action, _currentState, originalState) => {
-		if (action.type === becomeClientWS.type && originalState.amMasterWS) {
+		if (
+			action.type === becomeClientWS.type &&
+			originalState.app.amMasterWS
+		) {
 			return true;
 		}
 		return false;

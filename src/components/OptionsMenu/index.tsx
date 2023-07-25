@@ -7,8 +7,8 @@ import { setMatchQueryTo } from '../../stateReducer';
 
 const OptionsMenu: React.FC = () => {
 	const dispatch = useAppDispatch();
-	const matchQuery = useAppSelector((state) => state.matchQuery);
-	const amMasterWS = useAppSelector((state) => state.amMasterWS);
+	const matchQuery = useAppSelector((state) => state.app.matchQuery);
+	const amMasterWS = useAppSelector((state) => state.app.amMasterWS);
 	const { isInitialStateResolved } = useContext(StateContext);
 	const { updateMatchQuery } = useContext(WSContext);
 	const [optionsVisible, setOptionsVisible] = useState(false);

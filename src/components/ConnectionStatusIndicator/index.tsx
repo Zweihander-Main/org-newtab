@@ -3,7 +3,7 @@ import { useAppSelector } from '../../hooks';
 import { WSReadyState } from '../../lib/types';
 
 const ConnectionStatusIndicator: React.FC = () => {
-	const readyState = useAppSelector((state) => state.readyState);
+	const readyState = useAppSelector((state) => state.app.readyState);
 	const connectionStatus = {
 		[WSReadyState.CONNECTING]: 'Connecting',
 		[WSReadyState.OPEN]: 'Connected',

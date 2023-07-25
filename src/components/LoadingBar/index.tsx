@@ -6,7 +6,7 @@ const LoadingBar: React.FC<{
 	animationDuration: number;
 }> = ({ animationDuration }) => {
 	const isWaitingForResponse = useAppSelector(
-		(state) => state.responsesWaitingFor.length > 0
+		(state) => state.app.responsesWaitingFor.length > 0
 	);
 
 	const { progress, isFinished } = useNProgress({

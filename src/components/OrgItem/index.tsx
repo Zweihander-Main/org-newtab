@@ -5,11 +5,11 @@ import logo from 'data-base64:~assets/icon-1024x1024.png';
 import { useAppSelector } from '../../hooks';
 
 const OrgItem: React.FC = () => {
-	const tagsData = useAppSelector((state) => state.tagsData);
-	const orgItem = useAppSelector((state) => state.orgItem);
-	const readyState = useAppSelector((state) => state.readyState);
+	const tagsData = useAppSelector((state) => state.app.tagsData);
+	const orgItem = useAppSelector((state) => state.app.orgItem);
+	const readyState = useAppSelector((state) => state.app.readyState);
 	const isWaitingForResponse = useAppSelector(
-		(state) => state.responsesWaitingFor.length > 0
+		(state) => state.app.responsesWaitingFor.length > 0
 	);
 	const [foregroundColor, setForegroundColor] = useState<string | undefined>(
 		undefined

@@ -60,10 +60,10 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	children,
 }) => {
 	const dispatch = useAppDispatch();
-	const amMasterWS = useAppSelector((state) => state.amMasterWS);
-	const readyState = useAppSelector((state) => state.readyState);
+	const amMasterWS = useAppSelector((state) => state.app.amMasterWS);
+	const readyState = useAppSelector((state) => state.app.readyState);
 	const responsesWaitingFor = useAppSelector(
-		(state) => state.responsesWaitingFor
+		(state) => state.app.responsesWaitingFor
 	);
 	const port = usePort();
 

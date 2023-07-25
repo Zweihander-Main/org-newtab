@@ -1,4 +1,4 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { devToolsEnhancer } from '@redux-devtools/remote';
 import { localStorage } from 'redux-persist-webextension-storage';
 import {
@@ -15,30 +15,45 @@ import {
 import type { Storage as StorageType } from '@plasmohq/redux-persist/lib/types';
 import { Storage } from '@plasmohq/storage';
 
-import stateReducer from './stateReducer';
+import appReducer from './stateReducer';
 import middleware from './middleware';
-
-const persistConfig = {
-	key: 'root',
-	version: 1,
-	storage: localStorage as StorageType,
-	blacklist: ['amMasterWS', 'readyState', 'responsesWaitingFor'],
-};
-
-const persistedReducer = persistReducer(persistConfig, stateReducer);
-
-// Until persistReducer is fixed, we need to use this mock store to get the types
-export const mockStore = configureStore({
-	reducer: stateReducer,
-});
 
 const enhancers = [];
 if (process.env.NODE_ENV === 'development') {
 	enhancers.push(devToolsEnhancer({}));
 }
 
+const appPersistConfig = {
+	key: 'app',
+	version: 1,
+	storage: localStorage as StorageType,
+	blacklist: ['amMasterWS', 'readyState', 'responsesWaitingFor'],
+};
+
+const persistedAppReducer = persistReducer(appPersistConfig, appReducer);
+
+const rootReducer = combineReducers({
+	app: persistedAppReducer,
+});
+
+const rootPersistConfig = {
+	key: 'root',
+	version: 1,
+	storage: localStorage as StorageType,
+	blacklist: ['app'],
+};
+
+const persistedRootReducer = persistReducer(rootPersistConfig, rootReducer);
+
+// Until persistReducer is fixed, we need to use this mock store to get the types
+export const mockStore = configureStore({
+	reducer: combineReducers({
+		app: appReducer,
+	}),
+});
+
 export const store = configureStore({
-	reducer: persistedReducer,
+	reducer: persistedRootReducer,
 	middleware: (getDefaultMiddleware) =>
 		getDefaultMiddleware({
 			serializableCheck: {
@@ -62,7 +77,10 @@ export const persistor = persistStore(store);
 new Storage({
 	area: 'local',
 }).watch({
-	[`persist:${persistConfig.key}`]: () => {
+	[`persist:${rootPersistConfig.key}`]: () => {
+		void persistor.resync();
+	},
+	[`persist:${appPersistConfig.key}`]: () => {
 		void persistor.resync();
 	},
 });
