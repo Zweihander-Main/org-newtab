@@ -99,6 +99,5 @@ listenerMiddleware.startListening({
 });
 
 // TODO reconnecting
-// TODO remove react-use-websocket
 
 export default listenerMiddleware.middleware;

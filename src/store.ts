@@ -1,4 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
+import { devToolsEnhancer } from '@redux-devtools/remote';
 import { localStorage } from 'redux-persist-webextension-storage';
 import {
 	FLUSH,
@@ -31,6 +32,11 @@ export const mockStore = configureStore({
 	reducer: stateReducer,
 });
 
+const enhancers = [];
+if (process.env.NODE_ENV === 'development') {
+	enhancers.push(devToolsEnhancer({}));
+}
+
 export const store = configureStore({
 	reducer: persistedReducer,
 	middleware: (getDefaultMiddleware) =>
@@ -47,6 +53,7 @@ export const store = configureStore({
 				],
 			},
 		}).prepend(middleware),
+	enhancers,
 });
 
 export const persistor = persistStore(store);

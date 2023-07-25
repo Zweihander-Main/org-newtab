@@ -214,7 +214,6 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	);
 
 	useEffect(() => {
-		// TODO: confirm one add
 		if (!chrome.runtime.onMessage.hasListener(handleMessage)) {
 			chrome.runtime.onMessage.addListener(handleMessage);
 		}
