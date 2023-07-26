@@ -21,14 +21,14 @@ import {
 } from '../lib/messages';
 import { LogLoc, LogMsgDir, logMsg, logMsgErr } from 'lib/logging';
 import usePort from 'hooks/usePort';
-import { useAppDispatch, useAppSelector } from '../hooks';
+import { useAppDispatch, useAppSelector } from '../app/hooks';
 import {
 	becomeClientWS,
 	becomeMasterWS,
 	sendMsgToEmacs,
 	setReadyStateTo,
 	setResponsesWaitingForTo,
-} from '../stateReducer';
+} from '../modules/ws/wsSlice';
 
 const getMasterWSTabId = async () => {
 	const masterWSObject = await chrome.storage.local.get('masterWSTabId');
@@ -60,10 +60,10 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	children,
 }) => {
 	const dispatch = useAppDispatch();
-	const amMasterWS = useAppSelector((state) => state.app.amMasterWS);
-	const readyState = useAppSelector((state) => state.app.readyState);
+	const amMasterWS = useAppSelector((state) => state.ws.amMasterWS);
+	const readyState = useAppSelector((state) => state.ws.readyState);
 	const responsesWaitingFor = useAppSelector(
-		(state) => state.app.responsesWaitingFor
+		(state) => state.ws.responsesWaitingFor
 	);
 	const port = usePort();
 
@@ -161,6 +161,8 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 			}
 		});
 	}, [readyState, responsesWaitingFor]);
+
+	// NEXT: turn into slices, eventually hitting this
 
 	const handleMessage = useCallback(
 		(

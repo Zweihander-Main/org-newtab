@@ -10,16 +10,16 @@ import ConnectionStatusIndicator from 'components/ConnectionStatusIndicator';
 import OptionsMenu from 'components/OptionsMenu';
 import OrgItem from 'components/OrgItem';
 import LoadingBar from 'components/LoadingBar';
-import store, { persistor } from '../store';
-import { useAppSelector } from '../hooks';
+import store, { persistor } from '../app/store';
+import { useAppSelector } from '../app/hooks';
 import { WSReadyState } from 'lib/types';
 
 const IndexNewtab: React.FC = () => {
 	const { getItem } = useContext(WSContext);
 	const { isInitialStateResolved } = useContext(StateContext);
-	const amMasterWS = useAppSelector((state) => state.app.amMasterWS);
-	const readyState = useAppSelector((state) => state.app.readyState);
-	const matchQuery = useAppSelector((state) => state.app.matchQuery);
+	const amMasterWS = useAppSelector((state) => state.ws.amMasterWS);
+	const readyState = useAppSelector((state) => state.ws.readyState);
+	const matchQuery = useAppSelector((state) => state.emacs.matchQuery);
 	const hasSentInitialQuery = useRef(false);
 
 	useEffect(() => {

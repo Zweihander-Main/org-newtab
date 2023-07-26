@@ -6,13 +6,12 @@ import {
 	becomeMasterWS,
 	removeFromResponsesWaitingFor,
 	sendMsgToEmacs,
-	setOrgItemTo,
 	setReadyStateTo,
-	setTagsDataTo,
-} from './stateReducer';
+} from '../modules/ws/wsSlice';
 import Socket from 'lib/Socket';
 import { EmacsRecvMsg, EmacsSendMsg, WSReadyState } from 'lib/types';
-import { RootState } from 'store';
+import { RootState } from './store';
+import { setOrgItemTo, setTagsDataTo } from 'modules/emacs/emacsSlice';
 
 const MAXIMUM_TIME_TO_WAIT_FOR_RESPONSE = 60000;
 
@@ -22,7 +21,7 @@ listenerMiddleware.startListening({
 	predicate: (action, _currentState, originalState) => {
 		if (
 			action.type === becomeMasterWS.type &&
-			!originalState.app.amMasterWS
+			!originalState.ws.amMasterWS
 		) {
 			return true;
 		}
@@ -30,6 +29,7 @@ listenerMiddleware.startListening({
 	},
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
+		// TODO: move this into a slice
 		dispatch(setReadyStateTo(WSReadyState.CONNECTING));
 		// eslint-disable-next-line no-console
 		console.log('connecting');
@@ -73,7 +73,7 @@ listenerMiddleware.startListening({
 	predicate: (action, _currentState, originalState) => {
 		if (
 			action.type === becomeClientWS.type &&
-			originalState.app.amMasterWS
+			originalState.ws.amMasterWS
 		) {
 			return true;
 		}

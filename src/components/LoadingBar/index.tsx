@@ -1,12 +1,12 @@
 import * as styles from './style.module.css';
 import { useNProgress } from '@tanem/react-nprogress';
-import { useAppSelector } from '../../hooks';
+import { useAppSelector } from '../../app/hooks';
 
 const LoadingBar: React.FC<{
 	animationDuration: number;
 }> = ({ animationDuration }) => {
 	const isWaitingForResponse = useAppSelector(
-		(state) => state.app.responsesWaitingFor.length > 0
+		(state) => state.ws.responsesWaitingFor.length > 0
 	);
 
 	const { progress, isFinished } = useNProgress({

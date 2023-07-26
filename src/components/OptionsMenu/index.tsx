@@ -2,13 +2,13 @@ import StateContext from 'contexts/state';
 import * as styles from './style.module.css';
 import WSContext from 'contexts/ws';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../../hooks';
-import { setMatchQueryTo } from '../../stateReducer';
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import { setMatchQueryTo } from '../../modules/emacs/emacsSlice';
 
 const OptionsMenu: React.FC = () => {
 	const dispatch = useAppDispatch();
-	const matchQuery = useAppSelector((state) => state.app.matchQuery);
-	const amMasterWS = useAppSelector((state) => state.app.amMasterWS);
+	const matchQuery = useAppSelector((state) => state.emacs.matchQuery);
+	const amMasterWS = useAppSelector((state) => state.ws.amMasterWS);
 	const { isInitialStateResolved } = useContext(StateContext);
 	const { updateMatchQuery } = useContext(WSContext);
 	const [optionsVisible, setOptionsVisible] = useState(false);

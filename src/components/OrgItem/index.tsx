@@ -2,14 +2,16 @@ import { useCallback, useEffect, useState } from 'react';
 import * as styles from './style.module.css';
 import { WSReadyState, type AllTagsRecv } from '../../lib/types';
 import logo from 'data-base64:~assets/icon-1024x1024.png';
-import { useAppSelector } from '../../hooks';
+import { useAppSelector } from '../../app/hooks';
+
+//TODO: flip out image with actual transparency
 
 const OrgItem: React.FC = () => {
-	const tagsData = useAppSelector((state) => state.app.tagsData);
-	const orgItem = useAppSelector((state) => state.app.orgItem);
-	const readyState = useAppSelector((state) => state.app.readyState);
+	const tagsData = useAppSelector((state) => state.emacs.tagsData);
+	const orgItem = useAppSelector((state) => state.emacs.orgItem);
+	const readyState = useAppSelector((state) => state.ws.readyState);
 	const isWaitingForResponse = useAppSelector(
-		(state) => state.app.responsesWaitingFor.length > 0
+		(state) => state.ws.responsesWaitingFor.length > 0
 	);
 	const [foregroundColor, setForegroundColor] = useState<string | undefined>(
 		undefined

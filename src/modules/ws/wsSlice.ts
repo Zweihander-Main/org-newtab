@@ -1,41 +1,22 @@
-import { WSReadyState, type EmacsItemMsg, type EmacsSendMsg } from 'lib/types';
+import { WSReadyState, type EmacsSendMsg } from 'lib/types';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
-type MatchQuery = string | undefined;
-type Tags = { [key: string]: string | null };
-type OrgItem = EmacsItemMsg['data'] | null;
-
-export interface AppState {
-	matchQuery: MatchQuery;
-	tagsData: Tags;
-	orgItem: OrgItem;
+export interface WSState {
 	amMasterWS: boolean;
 	readyState: WSReadyState;
 	responsesWaitingFor: Array<number>;
 }
 
-const INITIAL_VALUE: AppState = {
-	matchQuery: 'TODO="TODO"',
-	tagsData: {},
-	orgItem: null,
+const initialState: WSState = {
 	amMasterWS: false,
 	readyState: WSReadyState.UNINSTANTIATED,
 	responsesWaitingFor: [],
 };
 
-export const appSlice = createSlice({
-	name: 'app',
-	initialState: INITIAL_VALUE,
+export const wsSlice = createSlice({
+	name: 'ws',
+	initialState,
 	reducers: {
-		setMatchQueryTo: (state, action: PayloadAction<string>) => {
-			state.matchQuery = action.payload;
-		},
-		setTagsDataTo: (state, action: PayloadAction<Tags>) => {
-			state.tagsData = action.payload;
-		},
-		setOrgItemTo: (state, action: PayloadAction<OrgItem>) => {
-			state.orgItem = action.payload;
-		},
 		becomeMasterWS: (state) => {
 			state.amMasterWS = true;
 		},
@@ -68,9 +49,6 @@ export const appSlice = createSlice({
 });
 
 export const {
-	setMatchQueryTo,
-	setTagsDataTo,
-	setOrgItemTo,
 	becomeMasterWS,
 	becomeClientWS,
 	setReadyStateTo,
@@ -78,6 +56,6 @@ export const {
 	addToResponsesWaitingFor,
 	setResponsesWaitingForTo,
 	sendMsgToEmacs,
-} = appSlice.actions;
+} = wsSlice.actions;
 
-export default appSlice.reducer;
+export default wsSlice.reducer;
