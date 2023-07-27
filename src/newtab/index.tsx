@@ -13,13 +13,15 @@ import LoadingBar from 'components/LoadingBar';
 import store, { persistor } from '../app/store';
 import { useAppSelector } from '../app/hooks';
 import { WSReadyState } from 'lib/types';
+import { selectedAmMasterWs, selectedReadyState } from 'modules/ws/wsSlice';
+import { selectedMatchQuery } from 'modules/emacs/emacsSlice';
 
 const IndexNewtab: React.FC = () => {
 	const { getItem } = useContext(WSContext);
 	const { isInitialStateResolved } = useContext(StateContext);
-	const amMasterWS = useAppSelector((state) => state.ws.amMasterWS);
-	const readyState = useAppSelector((state) => state.ws.readyState);
-	const matchQuery = useAppSelector((state) => state.emacs.matchQuery);
+	const amMasterWS = useAppSelector(selectedAmMasterWs);
+	const readyState = useAppSelector(selectedReadyState);
+	const matchQuery = useAppSelector(selectedMatchQuery);
 	const hasSentInitialQuery = useRef(false);
 
 	useEffect(() => {

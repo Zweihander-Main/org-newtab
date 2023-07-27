@@ -1,13 +1,12 @@
 import * as styles from './style.module.css';
 import { useNProgress } from '@tanem/react-nprogress';
 import { useAppSelector } from '../../app/hooks';
+import { selectedIsWaitingForResponse } from 'modules/ws/wsSlice';
 
 const LoadingBar: React.FC<{
 	animationDuration: number;
 }> = ({ animationDuration }) => {
-	const isWaitingForResponse = useAppSelector(
-		(state) => state.ws.responsesWaitingFor.length > 0
-	);
+	const isWaitingForResponse = useAppSelector(selectedIsWaitingForResponse);
 
 	const { progress, isFinished } = useNProgress({
 		isAnimating: isWaitingForResponse,

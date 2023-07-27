@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { RootState } from 'app/store';
 import { type EmacsItemMsg } from 'lib/types';
 
 type MatchQuery = string | undefined;
@@ -32,6 +33,10 @@ const emacsSlice = createSlice({
 		},
 	},
 });
+
+export const selectedMatchQuery = (state: RootState) => state.emacs.matchQuery;
+export const selectedTagsData = (state: RootState) => state.emacs.tagsData;
+export const selectedOrgItem = (state: RootState) => state.emacs.orgItem;
 
 export const { setMatchQueryTo, setTagsDataTo, setOrgItemTo } =
 	emacsSlice.actions;

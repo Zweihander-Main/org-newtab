@@ -25,6 +25,9 @@ import { useAppDispatch, useAppSelector } from '../app/hooks';
 import {
 	becomeClientWS,
 	becomeMasterWS,
+	selectedAmMasterWs,
+	selectedReadyState,
+	selectedResponsesWaitingFor,
 	sendMsgToEmacs,
 	setReadyStateTo,
 	setResponsesWaitingForTo,
@@ -60,11 +63,9 @@ export const WSProvider: React.FC<{ children?: React.ReactNode }> = ({
 	children,
 }) => {
 	const dispatch = useAppDispatch();
-	const amMasterWS = useAppSelector((state) => state.ws.amMasterWS);
-	const readyState = useAppSelector((state) => state.ws.readyState);
-	const responsesWaitingFor = useAppSelector(
-		(state) => state.ws.responsesWaitingFor
-	);
+	const amMasterWS = useAppSelector(selectedAmMasterWs);
+	const readyState = useAppSelector(selectedReadyState);
+	const responsesWaitingFor = useAppSelector(selectedResponsesWaitingFor);
 	const port = usePort();
 
 	const isInitialRender = useRef(true);

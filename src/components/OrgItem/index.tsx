@@ -3,16 +3,19 @@ import * as styles from './style.module.css';
 import { WSReadyState, type AllTagsRecv } from '../../lib/types';
 import logo from 'data-base64:~assets/icon-1024x1024.png';
 import { useAppSelector } from '../../app/hooks';
+import {
+	selectedIsWaitingForResponse,
+	selectedReadyState,
+} from 'modules/ws/wsSlice';
+import { selectedOrgItem, selectedTagsData } from 'modules/emacs/emacsSlice';
 
 //TODO: flip out image with actual transparency
 
 const OrgItem: React.FC = () => {
-	const tagsData = useAppSelector((state) => state.emacs.tagsData);
-	const orgItem = useAppSelector((state) => state.emacs.orgItem);
-	const readyState = useAppSelector((state) => state.ws.readyState);
-	const isWaitingForResponse = useAppSelector(
-		(state) => state.ws.responsesWaitingFor.length > 0
-	);
+	const tagsData = useAppSelector(selectedTagsData);
+	const orgItem = useAppSelector(selectedOrgItem);
+	const readyState = useAppSelector(selectedReadyState);
+	const isWaitingForResponse = useAppSelector(selectedIsWaitingForResponse);
 	const [foregroundColor, setForegroundColor] = useState<string | undefined>(
 		undefined
 	);

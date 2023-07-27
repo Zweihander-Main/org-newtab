@@ -1,5 +1,6 @@
 import { WSReadyState, type EmacsSendMsg } from 'lib/types';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { RootState } from 'app/store';
 
 export interface WSState {
 	amMasterWS: boolean;
@@ -57,5 +58,12 @@ export const {
 	setResponsesWaitingForTo,
 	sendMsgToEmacs,
 } = wsSlice.actions;
+
+export const selectedReadyState = (state: RootState) => state.ws.readyState;
+export const selectedAmMasterWs = (state: RootState) => state.ws.amMasterWS;
+export const selectedIsWaitingForResponse = (state: RootState) =>
+	state.ws.responsesWaitingFor.length > 0;
+export const selectedResponsesWaitingFor = (state: RootState) =>
+	state.ws.responsesWaitingFor;
 
 export default wsSlice.reducer;
