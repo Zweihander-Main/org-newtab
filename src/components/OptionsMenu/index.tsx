@@ -95,7 +95,7 @@ const OptionsMenu: React.FC = () => {
 					data-testid="websocket-status"
 					className={styles['websocket-status']}
 				>
-					WebSocket Status: {masterStatus}
+					WebSocket Role: {masterStatus}
 				</div>
 			</nav>
 		</>
