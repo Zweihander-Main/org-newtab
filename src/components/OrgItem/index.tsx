@@ -69,6 +69,7 @@ const OrgItem: React.FC = () => {
 				<h1
 					className={classString}
 					style={{ backgroundColor: foregroundColor }}
+					data-testid="item-text"
 				>
 					{itemText}
 				</h1>

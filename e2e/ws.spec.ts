@@ -1,11 +1,14 @@
 import {
 	CLIENT_MESSAGE,
 	GET_ITEM_COMMAND,
+	HOW_LONG_TO_WAIT_FOR_RESPONSE,
 	HOW_LONG_TO_WAIT_FOR_WEBSOCKET,
+	ITEM_TEXT_LOCATOR,
 	MASTER_MESSAGE,
 	STATUS_LOCATOR,
 	WEBSOCKET_PORT,
 	WEBSOCKET_URL,
+	WSS_TEST_TEXT,
 } from './common';
 import { test, expect } from './fixture';
 import WebSocket from 'ws';
@@ -15,11 +18,12 @@ function startTestWebSocketServer() {
 	const wss = new WebSocket.Server({ port: WEBSOCKET_PORT });
 
 	wss.on('connection', (ws) => {
-		// ws.send('Hello from the test WebSocket server!');
-
 		ws.on('message', (message) => {
 			// eslint-disable-next-line no-console
 			console.log('Received message from client:', message);
+			ws.send(
+				JSON.stringify({ type: 'ITEM', data: { ITEM: WSS_TEST_TEXT } })
+			);
 		});
 
 		ws.on('close', () => {
@@ -53,9 +57,9 @@ test.describe('WebSocket', () => {
 
 	let websocketServer: WebSocket.Server | undefined;
 	test.beforeEach(async () => {
-		if (!(await isPortInUse(WEBSOCKET_PORT))) {
-			websocketServer = startTestWebSocketServer();
-		}
+		// Don't run while Emacs is running
+		expect(await isPortInUse(WEBSOCKET_PORT)).toBe(false);
+		websocketServer = startTestWebSocketServer();
 	});
 
 	test.afterEach(() => {
@@ -142,10 +146,7 @@ test.describe('WebSocket', () => {
 						ws.on('socketerror', () => resolve(false));
 					}
 				});
-				setTimeout(
-					() => resolve(false),
-					HOW_LONG_TO_WAIT_FOR_WEBSOCKET * 10
-				);
+				setTimeout(() => resolve(false), HOW_LONG_TO_WAIT_FOR_RESPONSE);
 			});
 		}
 
@@ -154,5 +155,34 @@ test.describe('WebSocket', () => {
 			MASTER_MESSAGE
 		);
 		expect(await getItemMessageSent()).toBeTruthy();
+	});
+
+	test('Should update item text based on data from server', async ({
+		extensionId,
+		context,
+	}) => {
+		const tab1 = await context.newPage();
+		await tab1.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await expect(tab1.getByTestId(STATUS_LOCATOR)).toContainText(
+			MASTER_MESSAGE
+		);
+		async function getAnyDataSent(): Promise<boolean> {
+			return new Promise(function (resolve) {
+				tab1.on('websocket', (ws) => {
+					if (ws.url() === WEBSOCKET_URL) {
+						ws.on('framesent', () => {
+							resolve(true);
+						});
+						ws.on('close', () => resolve(false));
+						ws.on('socketerror', () => resolve(false));
+					}
+				});
+				setTimeout(() => resolve(false), HOW_LONG_TO_WAIT_FOR_RESPONSE);
+			});
+		}
+		expect(await getAnyDataSent()).toBeTruthy();
+		await expect(tab1.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
+			WSS_TEST_TEXT
+		);
 	});
 });
