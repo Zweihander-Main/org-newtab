@@ -144,7 +144,7 @@ test.describe('WebSocket', () => {
 				});
 				setTimeout(
 					() => resolve(false),
-					HOW_LONG_TO_WAIT_FOR_WEBSOCKET * 20
+					HOW_LONG_TO_WAIT_FOR_WEBSOCKET * 10
 				);
 			});
 		}
