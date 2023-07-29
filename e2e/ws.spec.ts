@@ -53,6 +53,11 @@ async function isPortInUse(port: number) {
 }
 
 test.describe('WebSocket', () => {
+	/**
+	 * Websocket tests are flaky in parallel mode.
+	 * Each connection needs its own port as if a connection closes a port
+	 * while another test is running, the second test will fail.
+	 */
 	test.describe.configure({ mode: 'serial' });
 
 	let websocketServer: WebSocket.Server | undefined;
