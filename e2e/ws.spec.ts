@@ -1,4 +1,6 @@
 import {
+	CLIENT_MESSAGE,
+	HOW_LONG_TO_WAIT_FOR_WEBSOCKET,
 	MASTER_MESSAGE,
 	STATUS_LOCATOR,
 	WEBSOCKET_PORT,
@@ -52,11 +54,8 @@ test('Should open a websocket connection to emacs from the master tab', async ({
 				if (ws.url() === WEBSOCKET_URL) {
 					resolve(true);
 				}
-				setTimeout(() => resolve(false), 5000);
-				// ws.on('framesent', (event) => console.log(event.payload));
-				// ws.on('framereceived', (event) => console.log(event.payload));
-				// ws.on('close', () => console.log('WebSocket closed'));
 			});
+			setTimeout(() => resolve(false), HOW_LONG_TO_WAIT_FOR_WEBSOCKET);
 		});
 	}
 
@@ -65,4 +64,35 @@ test('Should open a websocket connection to emacs from the master tab', async ({
 		MASTER_MESSAGE
 	);
 	expect(await waitForWebsocket()).toBeTruthy();
+});
+
+test('Should not open a websocket connection to emacs from a client tab', async ({
+	extensionId,
+	context,
+}) => {
+	if (!(await isPortInUse(WEBSOCKET_PORT))) {
+		startTestWebSocketServer();
+	}
+	const tabMaster = await context.newPage();
+	const tabClient = await context.newPage();
+	async function waitForClientWebsocket(): Promise<boolean> {
+		return new Promise(function (resolve) {
+			tabClient.on('websocket', (ws) => {
+				if (ws.url() === WEBSOCKET_URL) {
+					resolve(true);
+				}
+			});
+			setTimeout(() => resolve(false), HOW_LONG_TO_WAIT_FOR_WEBSOCKET);
+		});
+	}
+
+	await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+	await tabClient.goto(`chrome-extension://${extensionId}/newtab.html`);
+	await expect(tabMaster.getByTestId(STATUS_LOCATOR)).toContainText(
+		MASTER_MESSAGE
+	);
+	await expect(tabClient.getByTestId(STATUS_LOCATOR)).toContainText(
+		CLIENT_MESSAGE
+	);
+	expect(await waitForClientWebsocket()).toBeFalsy();
 });
