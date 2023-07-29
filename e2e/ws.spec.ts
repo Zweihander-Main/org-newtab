@@ -21,6 +21,7 @@ function startTestWebSocketServer() {
 			console.log('Received message from client:', message);
 		});
 	});
+	return wss;
 }
 
 async function isPortInUse(port: number) {
@@ -40,13 +41,25 @@ async function isPortInUse(port: number) {
 		server.listen(port);
 	});
 }
+
+let websocketServer: WebSocket.Server | undefined;
+
+test.beforeEach(async () => {
+	if (!(await isPortInUse(WEBSOCKET_PORT))) {
+		websocketServer = startTestWebSocketServer();
+	}
+});
+
+test.afterEach(() => {
+	if (websocketServer) {
+		websocketServer.close();
+	}
+});
+
 test('Should open a websocket connection to emacs from the master tab', async ({
 	extensionId,
 	context,
 }) => {
-	if (!(await isPortInUse(WEBSOCKET_PORT))) {
-		startTestWebSocketServer();
-	}
 	const tab1 = await context.newPage();
 	async function waitForWebsocket(): Promise<boolean> {
 		return new Promise(function (resolve) {
@@ -70,9 +83,6 @@ test('Should not open a websocket connection to emacs from a client tab', async 
 	extensionId,
 	context,
 }) => {
-	if (!(await isPortInUse(WEBSOCKET_PORT))) {
-		startTestWebSocketServer();
-	}
 	const tabMaster = await context.newPage();
 	const tabClient = await context.newPage();
 	async function waitForClientWebsocket(): Promise<boolean> {
