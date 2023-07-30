@@ -226,6 +226,12 @@
 			"last 1 safari version"
 		]
 	},
+	"pnpm": {
+		"overrides": {
+			"playwright-core": "$@playwright/test",
+			"playwright": "$@playwright/test"
+		}
+	},
 	"manifest": {
 		"host_permissions": [
 			"https://*/*"
