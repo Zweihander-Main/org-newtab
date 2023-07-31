@@ -7,11 +7,15 @@ const usePort = () => {
 	);
 
 	useEffect(() => {
-		port.onDisconnect.addListener(() => {
+		const handlePortDisconnect = () => {
 			log(LogLoc.NEWTAB, 'Port disconnected, reconnecting...');
 			setPort(chrome.runtime.connect({ name: 'ws' }));
-		});
+		};
+		if (!port.onDisconnect.hasListener(handlePortDisconnect)) {
+			port.onDisconnect.addListener(handlePortDisconnect);
+		}
 		return () => {
+			port.onDisconnect.removeListener(handlePortDisconnect);
 			port.disconnect();
 		};
 	}, [port]);
