@@ -46,8 +46,16 @@ export const wsSlice = createSlice({
 		},
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		sendMsgToEmacs: (_state, _action: PayloadAction<EmacsSendMsg>) => {},
+		getItem: () => {},
+		establishRole: () => {},
 	},
 });
+
+// NEXT: move  updatematchquery here but remember that middleware also sets
+// updatematchquery
+// Create listeners to updatewsstate
+// Run through listeners carefully
+// Write test to make sure client doesn't send data
 
 export const {
 	becomeMasterWS,
@@ -57,6 +65,8 @@ export const {
 	addToResponsesWaitingFor,
 	setResponsesWaitingForTo,
 	sendMsgToEmacs,
+	getItem,
+	establishRole,
 } = wsSlice.actions;
 
 export const selectedReadyState = (state: RootState) => state.ws.readyState;

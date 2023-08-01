@@ -1,6 +1,5 @@
 import StateContext from 'contexts/state';
 import * as styles from './style.module.css';
-import WSContext from 'contexts/ws';
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import {
@@ -14,7 +13,6 @@ const OptionsMenu: React.FC = () => {
 	const matchQuery = useAppSelector(selectedMatchQuery);
 	const amMasterWS = useAppSelector(selectedAmMasterWs);
 	const { isInitialStateResolved } = useContext(StateContext);
-	const { updateMatchQuery } = useContext(WSContext);
 	const [optionsVisible, setOptionsVisible] = useState(false);
 
 	const masterStatus = amMasterWS ? 'Master' : 'Client';
@@ -27,11 +25,9 @@ const OptionsMenu: React.FC = () => {
 			const formMatchQuery = data.get('matchQuery');
 			if (formMatchQuery && typeof formMatchQuery === 'string') {
 				dispatch(setMatchQueryTo(formMatchQuery));
-				void updateMatchQuery(formMatchQuery);
-				// TODO combine
 			}
 		},
-		[updateMatchQuery, dispatch]
+		[dispatch]
 	);
 
 	useEffect(() => {

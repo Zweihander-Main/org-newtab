@@ -84,7 +84,3 @@ export type SendJsonMessage = (
 	jsonMessage: EmacsSendMsg,
 	keep?: boolean
 ) => void;
-
-export type WSCommonProps = {
-	sendJsonMessage: SendJsonMessage;
-};
