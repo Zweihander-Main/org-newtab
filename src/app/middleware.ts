@@ -37,6 +37,7 @@ import {
 	sendMsgToAllTabs,
 	sendMsgToBGSWPort,
 	sendMsgToTab,
+	sendUpdateInWSState,
 } from 'lib/messages';
 import { LogLoc, LogMsgDir, log, logMsg, logMsgErr } from 'lib/logging';
 
@@ -56,15 +57,8 @@ const getMasterWSTabId = async () => {
 const listenerMiddleware = createListenerMiddleware<RootState>();
 
 listenerMiddleware.startListening({
-	predicate: (action, _currentState, originalState) => {
-		if (
-			action.type === becomeMasterWS.type &&
-			!originalState.ws.amMasterWS
-		) {
-			return true;
-		}
-		return false;
-	},
+	predicate: (action, _currentState, originalState) =>
+		action.type === becomeMasterWS.type && !originalState.ws.amMasterWS,
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
 		dispatch(setReadyStateTo(WSReadyState.CONNECTING));
@@ -107,15 +101,8 @@ listenerMiddleware.startListening({
 });
 
 listenerMiddleware.startListening({
-	predicate: (action, _currentState, originalState) => {
-		if (
-			action.type === becomeClientWS.type &&
-			originalState.ws.amMasterWS
-		) {
-			return true;
-		}
-		return false;
-	},
+	predicate: (action, _currentState, originalState) =>
+		action.type === becomeClientWS.type && originalState.ws.amMasterWS,
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
 		dispatch(setReadyStateTo(WSReadyState.CLOSING));
@@ -321,6 +308,24 @@ listenerMiddleware.startListening({
 
 		// 1. Ask if any master web sockets exist
 		sendMsgToBGSWPort(MsgToBGSWType.QUERY_WS_ROLE, port);
+	},
+});
+
+listenerMiddleware.startListening({
+	predicate: (action, currentState) =>
+		currentState.ws.amMasterWS &&
+		(action.type === removeFromResponsesWaitingFor.type ||
+			action.type === addToResponsesWaitingFor.type ||
+			action.type === setResponsesWaitingForTo.type ||
+			action.type === setReadyStateTo.type),
+	effect: (action, listenerApi) => {
+		const getState = listenerApi.getState.bind(this);
+		const { responsesWaitingFor, readyState } = getState().ws;
+		if (action.type === setReadyStateTo.type) {
+			sendUpdateInWSState({ readyState });
+		} else {
+			sendUpdateInWSState({ responsesWaitingFor });
+		}
 	},
 });
 

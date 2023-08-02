@@ -4,7 +4,6 @@ import { Provider } from 'react-redux';
 import { PersistGate } from '@plasmohq/redux-persist/integration/react';
 import '@fontsource/public-sans/700.css';
 import './index.css';
-import { WSProvider } from 'contexts/ws';
 import StateContext, { StateProvider } from 'contexts/state';
 import ConnectionStatusIndicator from 'components/ConnectionStatusIndicator';
 import OptionsMenu from 'components/OptionsMenu';
@@ -14,6 +13,7 @@ import store, { persistor } from '../app/store';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { WSReadyState } from 'lib/types';
 import {
+	establishRole,
 	getItem,
 	selectedAmMasterWs,
 	selectedReadyState,
@@ -26,7 +26,15 @@ const IndexNewtab: React.FC = () => {
 	const amMasterWS = useAppSelector(selectedAmMasterWs);
 	const readyState = useAppSelector(selectedReadyState);
 	const matchQuery = useAppSelector(selectedMatchQuery);
+	const isInitialRender = useRef(true);
 	const hasSentInitialQuery = useRef(false);
+
+	useEffect(() => {
+		if (isInitialRender.current) {
+			isInitialRender.current = false;
+			dispatch(establishRole());
+		}
+	}, [dispatch]);
 
 	useEffect(() => {
 		if (
@@ -60,9 +68,7 @@ const RootContextWrapper: React.FC = () => {
 					<StateProvider
 						isInitialStateResolved={isInitialStateResolved}
 					>
-						<WSProvider>
-							<IndexNewtab />
-						</WSProvider>
+						<IndexNewtab />
 					</StateProvider>
 				)}
 			</PersistGate>

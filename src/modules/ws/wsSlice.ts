@@ -51,12 +51,6 @@ export const wsSlice = createSlice({
 	},
 });
 
-// NEXT: move  updatematchquery here but remember that middleware also sets
-// updatematchquery
-// Create listeners to updatewsstate
-// Run through listeners carefully
-// Write test to make sure client doesn't send data
-
 export const {
 	becomeMasterWS,
 	becomeClientWS,
