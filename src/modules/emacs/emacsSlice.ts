@@ -1,7 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { listenerMiddleware } from 'app/middleware';
 import { RootState } from 'app/store';
-import { EmacsSendMsg, type EmacsItemMsg } from 'lib/types';
+import { EmacsSendMsg, type EmacsItemMsg, EmacsRecvMsg } from 'lib/types';
 
 type MatchQuery = string | undefined;
 type Tags = { [key: string]: string | null };
@@ -35,6 +35,21 @@ const emacsSlice = createSlice({
 		getItem: () => {},
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		sendMsgToEmacs: (_state, _action: PayloadAction<EmacsSendMsg>) => {},
+		recvMsgFromEmacs: (state, action: PayloadAction<EmacsRecvMsg>) => {
+			const { payload } = action;
+			if (payload === null) return;
+			switch (payload.type) {
+				case 'ITEM':
+					state.orgItem = payload?.data || null;
+					break;
+				case 'TAGS':
+					state.tagsData = payload?.data || {};
+					break;
+				default:
+					console.error('[NewTab] Unknown message: ', payload);
+					break;
+			}
+		},
 	},
 });
 
@@ -48,7 +63,10 @@ export const {
 	setOrgItemTo,
 	getItem,
 	sendMsgToEmacs,
+	recvMsgFromEmacs,
 } = emacsSlice.actions;
+
+export default emacsSlice.reducer;
 
 listenerMiddleware.startListening({
 	actionCreator: setMatchQueryTo,
@@ -76,5 +94,3 @@ listenerMiddleware.startListening({
 		dispatch(sendMsgToEmacs(jsonMessage));
 	},
 });
-
-export default emacsSlice.reducer;
