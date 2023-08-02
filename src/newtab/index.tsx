@@ -12,12 +12,9 @@ import LoadingBar from 'components/LoadingBar';
 import store, { persistor } from '../app/store';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { WSReadyState } from 'lib/types';
-import {
-	establishRole,
-	selectedAmMasterWs,
-	selectedReadyState,
-} from 'modules/ws/wsSlice';
+import { selectedReadyState } from 'modules/ws/wsSlice';
 import { selectedMatchQuery, getItem } from 'modules/emacs/emacsSlice';
+import { establishRole, selectedAmMasterWs } from 'modules/role/roleSlice';
 
 const IndexNewtab: React.FC = () => {
 	const { isInitialStateResolved } = useContext(StateContext);

@@ -110,6 +110,16 @@ export const handleConfirmingAlive = (sendResponse: SendResponseType) => {
 	sendMsgToBGSWAsResponse(MsgToBGSWType.CONFIRMING_ALIVE, sendResponse);
 };
 
+export const getMasterWSTabId = async () => {
+	const masterWSObject = await chrome.storage.local.get('masterWSTabId');
+	const { masterWSTabId } = masterWSObject;
+	const masterWSTabAsNumber =
+		masterWSTabId && typeof masterWSTabId === 'string'
+			? parseInt(masterWSTabId, 10)
+			: null;
+
+	return masterWSTabAsNumber;
+};
 /**
  * WSState related messaging functions
  */

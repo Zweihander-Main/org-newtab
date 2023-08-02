@@ -6,7 +6,7 @@ import {
 	selectedMatchQuery,
 	setMatchQueryTo,
 } from '../../modules/emacs/emacsSlice';
-import { selectedAmMasterWs } from 'modules/ws/wsSlice';
+import { selectedAmMasterWs } from 'modules/role/roleSlice';
 
 const OptionsMenu: React.FC = () => {
 	const dispatch = useAppDispatch();

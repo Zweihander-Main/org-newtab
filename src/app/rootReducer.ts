@@ -5,12 +5,22 @@ import type { Storage as StorageType } from '@plasmohq/redux-persist/lib/types';
 
 import wsReducer from '../modules/ws/wsSlice';
 import emacsReducer from '../modules/emacs/emacsSlice';
+import roleReducer from '../modules/role/roleSlice';
+
+export const rolePersistConfig = {
+	key: 'role',
+	version: 1,
+	storage: localStorage as StorageType,
+	blacklist: ['amMasterWS'],
+};
+
+const persistedRoleReducer = persistReducer(rolePersistConfig, roleReducer);
 
 export const wsPersistConfig = {
 	key: 'ws',
 	version: 1,
 	storage: localStorage as StorageType,
-	blacklist: ['amMasterWS', 'readyState', 'responsesWaitingFor'],
+	blacklist: ['readyState', 'responsesWaitingFor'],
 };
 
 const persistedWSReducer = persistReducer(wsPersistConfig, wsReducer);
@@ -25,6 +35,7 @@ export const emacsPersistConfig = {
 const persistedEmacsReducer = persistReducer(emacsPersistConfig, emacsReducer);
 
 const rootReducer = combineReducers({
+	role: persistedRoleReducer,
 	ws: persistedWSReducer,
 	emacs: persistedEmacsReducer,
 });
@@ -33,12 +44,13 @@ export const rootPersistConfig = {
 	key: 'root',
 	version: 1,
 	storage: localStorage as StorageType,
-	blacklist: ['ws', 'emacs'],
+	blacklist: ['role', 'ws', 'emacs'],
 };
 
 const persistedRootReducer = persistReducer(rootPersistConfig, rootReducer);
 
 export const mockRootReducer = combineReducers({
+	role: roleReducer,
 	ws: wsReducer,
 	emacs: emacsReducer,
 });
