@@ -1,4 +1,4 @@
-import { LogLoc, LogMsgDir, logMsg } from './logging';
+import { LogLoc, LogMsgDir, logMsg, logMsgErr } from './logging';
 import {
 	MsgDirection,
 	type MsgToTab,
@@ -9,9 +9,14 @@ import {
 	MsgToBGSW,
 	EmacsSendMsg,
 	WSStateMsg,
+	SendJsonMessage,
 } from './types';
 
 export type SendResponseType = (message: MsgToBGSW | MsgToTab) => unknown;
+
+/**
+ * General messaging functions
+ */
 
 export const sendMsgToBGSWPort = (
 	type: MsgToBGSWType,
@@ -80,7 +85,11 @@ export const sendMsgToAllTabs = (type: MsgToTabType, data?: WSStateMsg) => {
 	});
 };
 
-export const handleMasterQueryConfirmation = (
+/**
+ * BGSW related messaging functions
+ */
+
+export const handleConfirmingRoleAsMaster = (
 	sendResponse: SendResponseType,
 	amMasterWS: boolean
 ) => {
@@ -101,6 +110,30 @@ export const handleConfirmingAlive = (sendResponse: SendResponseType) => {
 	sendMsgToBGSWAsResponse(MsgToBGSWType.CONFIRMING_ALIVE, sendResponse);
 };
 
+/**
+ * WSState related messaging functions
+ */
+
 export const sendUpdateInWSState = (data: WSStateMsg) => {
 	sendMsgToAllTabs(MsgToTabType.SET_WS_STATE, data);
+};
+
+/**
+ * Emacs related messaging functions
+ */
+
+export const handlePassingMessage = (
+	sendJsonMessage: SendJsonMessage,
+	message: MsgToTab
+) => {
+	if (message.data) {
+		sendJsonMessage(message.data as EmacsSendMsg);
+	} else {
+		logMsgErr(
+			LogLoc.NEWTAB,
+			LogMsgDir.RECV,
+			'Bad or no data for updating match query',
+			message?.data
+		);
+	}
 };

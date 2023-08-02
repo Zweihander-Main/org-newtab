@@ -33,13 +33,14 @@ import {
 import {
 	SendResponseType,
 	handleConfirmingAlive,
-	handleMasterQueryConfirmation,
+	handleConfirmingRoleAsMaster,
+	handlePassingMessage,
 	sendMsgToAllTabs,
 	sendMsgToBGSWPort,
 	sendMsgToTab,
 	sendUpdateInWSState,
 } from 'lib/messages';
-import { LogLoc, LogMsgDir, logMsg, logMsgErr } from 'lib/logging';
+import { LogLoc, LogMsgDir, logMsg } from 'lib/logging';
 import Port from 'lib/Port';
 
 const MAXIMUM_TIME_TO_WAIT_FOR_RESPONSE = 60000;
@@ -193,19 +194,6 @@ listenerMiddleware.startListening({
 			}
 		};
 
-		const handlePassingMessage = (message: MsgToTab) => {
-			if (message.data) {
-				sendJsonMessage(message.data as EmacsSendMsg);
-			} else {
-				logMsgErr(
-					LogLoc.NEWTAB,
-					LogMsgDir.RECV,
-					'Bad or no data for updating match query',
-					message?.data
-				);
-			}
-		};
-
 		const handleQueryStateOfWS = () => {
 			const { amMasterWS, readyState, responsesWaitingFor } =
 				getState().ws;
@@ -267,7 +255,7 @@ listenerMiddleware.startListening({
 			);
 			switch (message.type) {
 				case MsgToTabType.CONFIRM_YOUR_ROLE_IS_MASTER:
-					handleMasterQueryConfirmation(
+					handleConfirmingRoleAsMaster(
 						sendResponse,
 						getState().ws.amMasterWS
 					);
@@ -283,7 +271,7 @@ listenerMiddleware.startListening({
 					handleConfirmingAlive(sendResponse);
 					break;
 				case MsgToTabType.PASS_TO_EMACS:
-					handlePassingMessage(message);
+					handlePassingMessage(sendJsonMessage, message);
 					break;
 				case MsgToTabType.QUERY_WS_STATE:
 					handleQueryStateOfWS();

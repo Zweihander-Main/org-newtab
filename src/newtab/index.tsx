@@ -36,6 +36,9 @@ const IndexNewtab: React.FC = () => {
 		}
 	}, [dispatch]);
 
+	/**
+	 * Effect should fire after websocket opened so keep the readyState effect.
+	 */
 	useEffect(() => {
 		if (
 			!hasSentInitialQuery.current &&
