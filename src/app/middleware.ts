@@ -39,7 +39,8 @@ import {
 	sendMsgToTab,
 	sendUpdateInWSState,
 } from 'lib/messages';
-import { LogLoc, LogMsgDir, log, logMsg, logMsgErr } from 'lib/logging';
+import { LogLoc, LogMsgDir, logMsg, logMsgErr } from 'lib/logging';
+import Port from 'lib/Port';
 
 const MAXIMUM_TIME_TO_WAIT_FOR_RESPONSE = 60000;
 
@@ -293,21 +294,12 @@ listenerMiddleware.startListening({
 			}
 		};
 
-		let port = chrome.runtime.connect({ name: 'ws' });
-		const handlePortDisconnect = () => {
-			log(LogLoc.NEWTAB, 'Port disconnected, reconnecting...');
-			port = chrome.runtime.connect({ name: 'ws' });
-		};
-		if (!port.onDisconnect.hasListener(handlePortDisconnect)) {
-			port.onDisconnect.addListener(handlePortDisconnect);
-		}
-
 		if (!chrome.runtime.onMessage.hasListener(handleMessage)) {
 			chrome.runtime.onMessage.addListener(handleMessage);
 		}
 
 		// 1. Ask if any master web sockets exist
-		sendMsgToBGSWPort(MsgToBGSWType.QUERY_WS_ROLE, port);
+		sendMsgToBGSWPort(MsgToBGSWType.QUERY_WS_ROLE, Port.port);
 	},
 });
 
