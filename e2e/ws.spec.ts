@@ -5,7 +5,9 @@ import {
 	HOW_LONG_TO_WAIT_FOR_WEBSOCKET,
 	ITEM_TEXT_LOCATOR,
 	MASTER_MESSAGE,
+	MATCH_QUERY_LABEL,
 	STATUS_LOCATOR,
+	UPDATE_MATCH_QUERY_COMMAND,
 	WEBSOCKET_PORT,
 	WEBSOCKET_URL,
 	WSS_TEST_TEXT,
@@ -190,6 +192,68 @@ test.describe('WebSocket', () => {
 			WSS_TEST_TEXT
 		);
 	});
-});
 
-// TODO: Update match query in client, sends query through master
+	test('Should send an update match query request from client through master', async ({
+		extensionId,
+		context,
+	}) => {
+		const tabMaster = await context.newPage();
+		const tabClient = await context.newPage();
+		async function clientWebsocketOpened(): Promise<boolean> {
+			return new Promise(function (resolve) {
+				tabClient.on('websocket', (ws) => {
+					if (ws.url() === WEBSOCKET_URL) {
+						resolve(true);
+					}
+				});
+				setTimeout(
+					() => resolve(false),
+					HOW_LONG_TO_WAIT_FOR_WEBSOCKET
+				);
+			});
+		}
+
+		async function masterWebSocketUpdatesQuery(): Promise<boolean> {
+			return new Promise(function (resolve) {
+				tabMaster.on('websocket', (ws) => {
+					if (ws.url() === WEBSOCKET_URL) {
+						ws.on('framesent', (event) => {
+							if (typeof event.payload === 'string') {
+								const payload = JSON.parse(event.payload) as {
+									command?: string;
+									data?: string;
+								};
+								if (
+									payload?.command ===
+										UPDATE_MATCH_QUERY_COMMAND &&
+									payload?.data === WSS_TEST_TEXT
+								) {
+									resolve(true);
+								}
+							}
+						});
+					}
+				});
+				setTimeout(
+					() => resolve(false),
+					HOW_LONG_TO_WAIT_FOR_WEBSOCKET * 10
+				);
+			});
+		}
+
+		const clientSocket = clientWebsocketOpened();
+		const masterSocket = masterWebSocketUpdatesQuery();
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await tabClient.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await expect(tabMaster.getByTestId(STATUS_LOCATOR)).toContainText(
+			MASTER_MESSAGE
+		);
+		await expect(tabClient.getByTestId(STATUS_LOCATOR)).toContainText(
+			CLIENT_MESSAGE
+		);
+		await tabClient.getByLabel(MATCH_QUERY_LABEL).fill(WSS_TEST_TEXT);
+		await tabClient.getByLabel(MATCH_QUERY_LABEL).press('Enter');
+		expect(await clientSocket).toBeFalsy();
+		expect(await masterSocket).toBeTruthy();
+	});
+});
