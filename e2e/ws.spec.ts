@@ -280,4 +280,33 @@ test.describe('WebSocket', () => {
 			tabClient.getByTestId(CONNECTION_STATUS_LOCATOR)
 		).toContainText(CONNECTION_STATUS_OPEN);
 	});
+
+	test('Should sync match query between roles', async ({
+		extensionId,
+		context,
+	}) => {
+		const tabMaster = await context.newPage();
+		const tabClient = await context.newPage();
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await tabClient.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await expect(tabMaster.getByTestId(ROLE_LOCATOR)).toContainText(
+			MASTER_MESSAGE
+		);
+		await expect(tabClient.getByTestId(ROLE_LOCATOR)).toContainText(
+			CLIENT_MESSAGE
+		);
+		await expect(
+			tabMaster.getByTestId(CONNECTION_STATUS_LOCATOR)
+		).toContainText(CONNECTION_STATUS_OPEN);
+		await tabClient.getByLabel(MATCH_QUERY_LABEL).fill(WSS_TEST_TEXT);
+		await tabClient.getByLabel(MATCH_QUERY_LABEL).press('Enter');
+		await expect(tabClient.getByLabel(MATCH_QUERY_LABEL)).toHaveValue(
+			WSS_TEST_TEXT
+		);
+		await expect(tabMaster.getByLabel(MATCH_QUERY_LABEL)).toHaveValue(
+			WSS_TEST_TEXT
+		);
+	});
 });
+
+// TODO: Create way to randomize websocket port to run tests in parallel
