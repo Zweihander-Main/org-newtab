@@ -1,5 +1,7 @@
 import {
 	CLIENT_MESSAGE,
+	CONNECTION_STATUS_LOCATOR,
+	CONNECTION_STATUS_OPEN,
 	GET_ITEM_COMMAND,
 	HOW_LONG_TO_WAIT_FOR_RESPONSE,
 	HOW_LONG_TO_WAIT_FOR_WEBSOCKET,
@@ -271,5 +273,11 @@ test.describe('WebSocket', () => {
 		await expect(tabClient.getByTestId(ROLE_LOCATOR)).toContainText(
 			CLIENT_MESSAGE
 		);
+		await expect(
+			tabMaster.getByTestId(CONNECTION_STATUS_LOCATOR)
+		).toContainText(CONNECTION_STATUS_OPEN);
+		await expect(
+			tabClient.getByTestId(CONNECTION_STATUS_LOCATOR)
+		).toContainText(CONNECTION_STATUS_OPEN);
 	});
 });
