@@ -15,11 +15,13 @@ const MAXIMUM_TIME_TO_WAIT_FOR_RESPONSE = 60000;
 export interface WSState {
 	readyState: WSReadyState;
 	responsesWaitingFor: Array<number>;
+	wsPort: number;
 }
 
 const initialState: WSState = {
 	readyState: WSReadyState.UNINSTANTIATED,
 	responsesWaitingFor: [],
+	wsPort: 35942,
 };
 
 export const wsSlice = createSlice({
@@ -48,6 +50,9 @@ export const wsSlice = createSlice({
 		},
 		openWS: () => {},
 		closeWS: () => {},
+		setWSPortTo: (state, action: PayloadAction<number>) => {
+			state.wsPort = action.payload;
+		},
 	},
 });
 
@@ -58,6 +63,7 @@ export const {
 	setResponsesWaitingForTo,
 	openWS,
 	closeWS,
+	setWSPortTo,
 } = wsSlice.actions;
 
 export const selectedReadyState = (state: RootState) => state.ws.readyState;
@@ -65,6 +71,7 @@ export const selectedIsWaitingForResponse = (state: RootState) =>
 	state.ws.responsesWaitingFor.length > 0;
 export const selectedResponsesWaitingFor = (state: RootState) =>
 	state.ws.responsesWaitingFor;
+export const selectedWSPort = (state: RootState) => state.ws.wsPort;
 
 export default wsSlice.reducer;
 
@@ -72,10 +79,12 @@ listenerMiddleware.startListening({
 	actionCreator: openWS,
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
+		const getState = listenerApi.getState.bind(this);
+		const port = getState().ws.wsPort;
 		dispatch(setReadyStateTo(WSReadyState.CONNECTING));
 		// eslint-disable-next-line no-console
 		console.log('connecting');
-		Socket.connect('ws://localhost:35942/');
+		Socket.connect(`ws://localhost:${port}/`);
 		Socket.on('open', () => {
 			// eslint-disable-next-line no-console
 			console.log('open');
@@ -107,6 +116,15 @@ listenerMiddleware.startListening({
 		const { dispatch } = listenerApi;
 		dispatch(setReadyStateTo(WSReadyState.CLOSING));
 		Socket.disconnect();
+	},
+});
+
+listenerMiddleware.startListening({
+	actionCreator: setWSPortTo,
+	effect: (_action, listenerApi) => {
+		const { dispatch } = listenerApi;
+		dispatch(closeWS());
+		dispatch(openWS());
 	},
 });
 

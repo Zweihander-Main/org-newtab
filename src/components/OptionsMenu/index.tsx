@@ -7,17 +7,22 @@ import {
 	setMatchQueryTo,
 } from '../../modules/emacs/emacsSlice';
 import { selectedAmMasterWs } from 'modules/role/roleSlice';
+import { selectedWSPort, setWSPortTo } from 'modules/ws/wsSlice';
 
 const OptionsMenu: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const matchQuery = useAppSelector(selectedMatchQuery);
 	const amMasterWS = useAppSelector(selectedAmMasterWs);
+	const wsPort = useAppSelector(selectedWSPort);
 	const { isInitialStateResolved } = useContext(StateContext);
 	const [optionsVisible, setOptionsVisible] = useState(false);
 
+	const matchQueryInputRef = useRef<HTMLInputElement>(null);
+	const wsPortInputRef = useRef<HTMLInputElement>(null);
+
 	const masterStatus = amMasterWS ? 'Master' : 'Client';
 
-	const handleMatchQuerySubmit = useCallback(
+	const handleFormSubmit = useCallback(
 		(event: React.FormEvent<HTMLFormElement>) => {
 			event.preventDefault();
 			const { currentTarget } = event;
@@ -25,6 +30,13 @@ const OptionsMenu: React.FC = () => {
 			const formMatchQuery = data.get('matchQuery');
 			if (formMatchQuery && typeof formMatchQuery === 'string') {
 				dispatch(setMatchQueryTo(formMatchQuery));
+			}
+			const formWSPort = data.get('wsPort');
+			if (formWSPort && typeof formWSPort === 'string') {
+				const portNumber = parseInt(formWSPort, 10);
+				if (!isNaN(portNumber)) {
+					dispatch(setWSPortTo(portNumber));
+				}
 			}
 		},
 		[dispatch]
@@ -40,7 +52,11 @@ const OptionsMenu: React.FC = () => {
 		}
 	}, [isInitialStateResolved, matchQuery]);
 
-	const matchQueryInputRef = useRef<HTMLInputElement>(null);
+	useEffect(() => {
+		if (isInitialStateResolved && wsPortInputRef.current && wsPort) {
+			wsPortInputRef.current.value = wsPort.toString();
+		}
+	}, [isInitialStateResolved, wsPort]);
 
 	const toggleMenu = useCallback(() => {
 		setOptionsVisible(!optionsVisible);
@@ -68,7 +84,12 @@ const OptionsMenu: React.FC = () => {
 				<div className={styles['button-bar3']}></div>
 			</button>
 			<nav className={optionsMenuClass}>
-				<form method="post" onSubmit={handleMatchQuerySubmit}>
+				<form
+					className={styles.form}
+					method="post"
+					onSubmit={handleFormSubmit}
+				>
+					<label htmlFor="matchQuery">Match Query: </label>
 					<input
 						type="text"
 						name="matchQuery"
@@ -76,7 +97,15 @@ const OptionsMenu: React.FC = () => {
 						ref={matchQueryInputRef}
 						aria-label="Match Query"
 					/>
-					<button type="submit">Pull data</button>
+					<label htmlFor="wsPort">WS Port:</label>
+					<input
+						type="number"
+						name="wsPort"
+						defaultValue={wsPort}
+						ref={wsPortInputRef}
+						aria-label="WebSocket Port"
+					/>
+					<button type="submit">Update</button>
 				</form>
 				{/* // TODO: fix */}
 				{/* {lastRecvJsonMessage ? (
