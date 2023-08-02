@@ -6,7 +6,7 @@ import {
 	ITEM_TEXT_LOCATOR,
 	MASTER_MESSAGE,
 	MATCH_QUERY_LABEL,
-	STATUS_LOCATOR,
+	ROLE_LOCATOR,
 	UPDATE_MATCH_QUERY_COMMAND,
 	WEBSOCKET_PORT,
 	WEBSOCKET_URL,
@@ -95,7 +95,7 @@ test.describe('WebSocket', () => {
 		}
 
 		await tab1.goto(`chrome-extension://${extensionId}/newtab.html`);
-		await expect(tab1.getByTestId(STATUS_LOCATOR)).toContainText(
+		await expect(tab1.getByTestId(ROLE_LOCATOR)).toContainText(
 			MASTER_MESSAGE
 		);
 		expect(await websocketOpened()).toBeTruthy();
@@ -123,10 +123,10 @@ test.describe('WebSocket', () => {
 
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
 		await tabClient.goto(`chrome-extension://${extensionId}/newtab.html`);
-		await expect(tabMaster.getByTestId(STATUS_LOCATOR)).toContainText(
+		await expect(tabMaster.getByTestId(ROLE_LOCATOR)).toContainText(
 			MASTER_MESSAGE
 		);
-		await expect(tabClient.getByTestId(STATUS_LOCATOR)).toContainText(
+		await expect(tabClient.getByTestId(ROLE_LOCATOR)).toContainText(
 			CLIENT_MESSAGE
 		);
 		expect(await clientWebsocketOpened()).toBeFalsy();
@@ -158,7 +158,7 @@ test.describe('WebSocket', () => {
 		}
 
 		await tab1.goto(`chrome-extension://${extensionId}/newtab.html`);
-		await expect(tab1.getByTestId(STATUS_LOCATOR)).toContainText(
+		await expect(tab1.getByTestId(ROLE_LOCATOR)).toContainText(
 			MASTER_MESSAGE
 		);
 		expect(await getItemMessageSent()).toBeTruthy();
@@ -170,7 +170,7 @@ test.describe('WebSocket', () => {
 	}) => {
 		const tab1 = await context.newPage();
 		await tab1.goto(`chrome-extension://${extensionId}/newtab.html`);
-		await expect(tab1.getByTestId(STATUS_LOCATOR)).toContainText(
+		await expect(tab1.getByTestId(ROLE_LOCATOR)).toContainText(
 			MASTER_MESSAGE
 		);
 		async function getAnyDataSent(): Promise<boolean> {
@@ -245,15 +245,31 @@ test.describe('WebSocket', () => {
 		const masterSocket = masterWebSocketUpdatesQuery();
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
 		await tabClient.goto(`chrome-extension://${extensionId}/newtab.html`);
-		await expect(tabMaster.getByTestId(STATUS_LOCATOR)).toContainText(
+		await expect(tabMaster.getByTestId(ROLE_LOCATOR)).toContainText(
 			MASTER_MESSAGE
 		);
-		await expect(tabClient.getByTestId(STATUS_LOCATOR)).toContainText(
+		await expect(tabClient.getByTestId(ROLE_LOCATOR)).toContainText(
 			CLIENT_MESSAGE
 		);
 		await tabClient.getByLabel(MATCH_QUERY_LABEL).fill(WSS_TEST_TEXT);
 		await tabClient.getByLabel(MATCH_QUERY_LABEL).press('Enter');
 		expect(await clientSocket).toBeFalsy();
 		expect(await masterSocket).toBeTruthy();
+	});
+
+	test('Should sync websocket state between tabs', async ({
+		extensionId,
+		context,
+	}) => {
+		const tabMaster = await context.newPage();
+		const tabClient = await context.newPage();
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await tabClient.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await expect(tabMaster.getByTestId(ROLE_LOCATOR)).toContainText(
+			MASTER_MESSAGE
+		);
+		await expect(tabClient.getByTestId(ROLE_LOCATOR)).toContainText(
+			CLIENT_MESSAGE
+		);
 	});
 });

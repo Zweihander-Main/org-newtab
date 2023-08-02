@@ -62,7 +62,7 @@
 	transform: translate(0, -0.9rem) rotate(45deg);
 }
 
-.websocket-status {
+.websocket-role {
 	font-size: 1rem;
 	margin-top: auto;
 	align-self: baseline;

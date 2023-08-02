@@ -1,7 +1,7 @@
 // TODO -- generalize through app, intl, etc.
 export const MASTER_MESSAGE = 'Master';
 export const CLIENT_MESSAGE = 'Client';
-export const STATUS_LOCATOR = 'websocket-status';
+export const ROLE_LOCATOR = 'websocket-role';
 export const ITEM_TEXT_LOCATOR = 'item-text';
 export const WSS_TEST_TEXT = 'WSS test message';
 export const MATCH_QUERY_LABEL = 'Match Query';

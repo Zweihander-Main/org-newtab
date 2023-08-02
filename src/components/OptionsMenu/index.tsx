@@ -88,8 +88,8 @@ const OptionsMenu: React.FC = () => {
 					</>
 				) : null} */}
 				<div
-					data-testid="websocket-status"
-					className={styles['websocket-status']}
+					data-testid="websocket-role"
+					className={styles['websocket-role']}
 				>
 					WebSocket Role: {masterStatus}
 				</div>
