@@ -1,4 +1,4 @@
-import { WSReadyState, type EmacsSendMsg } from 'lib/types';
+import { WSReadyState } from 'lib/types';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { RootState } from 'app/store';
 
@@ -44,9 +44,6 @@ export const wsSlice = createSlice({
 		) => {
 			state.responsesWaitingFor = action.payload;
 		},
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		sendMsgToEmacs: (_state, _action: PayloadAction<EmacsSendMsg>) => {},
-		getItem: () => {},
 		establishRole: () => {},
 	},
 });
@@ -58,8 +55,6 @@ export const {
 	removeFromResponsesWaitingFor,
 	addToResponsesWaitingFor,
 	setResponsesWaitingForTo,
-	sendMsgToEmacs,
-	getItem,
 	establishRole,
 } = wsSlice.actions;
 

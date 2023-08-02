@@ -5,9 +5,7 @@ import {
 	becomeClientWS,
 	becomeMasterWS,
 	establishRole,
-	getItem,
 	removeFromResponsesWaitingFor,
-	sendMsgToEmacs,
 	setReadyStateTo,
 	setResponsesWaitingForTo,
 } from '../modules/ws/wsSlice';
@@ -26,7 +24,7 @@ import {
 } from 'lib/types';
 import { RootState } from './store';
 import {
-	setMatchQueryTo,
+	sendMsgToEmacs,
 	setOrgItemTo,
 	setTagsDataTo,
 } from 'modules/emacs/emacsSlice';
@@ -56,7 +54,7 @@ const getMasterWSTabId = async () => {
 	return masterWSTabAsNumber;
 };
 
-const listenerMiddleware = createListenerMiddleware<RootState>();
+export const listenerMiddleware = createListenerMiddleware<RootState>();
 
 listenerMiddleware.startListening({
 	predicate: (action, _currentState, originalState) =>
@@ -140,33 +138,6 @@ listenerMiddleware.startListening({
 				}
 			});
 		}
-	},
-});
-
-listenerMiddleware.startListening({
-	actionCreator: setMatchQueryTo,
-	effect: (action, listenerApi) => {
-		const { dispatch } = listenerApi;
-		const matchQuery = action.payload;
-		const jsonMessage = {
-			command: 'updateMatchQuery',
-			data: matchQuery,
-		} as EmacsSendMsg;
-		dispatch(sendMsgToEmacs(jsonMessage));
-	},
-});
-
-listenerMiddleware.startListening({
-	actionCreator: getItem,
-	effect: (_action, listenerApi) => {
-		const { dispatch } = listenerApi;
-		const getState = listenerApi.getState.bind(this);
-		const { matchQuery } = getState().emacs;
-		const jsonMessage = {
-			command: 'getItem',
-			data: matchQuery,
-		} as EmacsSendMsg;
-		dispatch(sendMsgToEmacs(jsonMessage));
 	},
 });
 

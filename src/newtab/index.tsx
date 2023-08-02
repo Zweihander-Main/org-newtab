@@ -14,11 +14,10 @@ import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { WSReadyState } from 'lib/types';
 import {
 	establishRole,
-	getItem,
 	selectedAmMasterWs,
 	selectedReadyState,
 } from 'modules/ws/wsSlice';
-import { selectedMatchQuery } from 'modules/emacs/emacsSlice';
+import { selectedMatchQuery, getItem } from 'modules/emacs/emacsSlice';
 
 const IndexNewtab: React.FC = () => {
 	const { isInitialStateResolved } = useContext(StateContext);
