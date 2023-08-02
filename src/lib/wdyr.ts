@@ -5,7 +5,7 @@ if (process.env.NODE_ENV === 'development') {
 	whyDidYouRender(React, {
 		trackAllPureComponents: true,
 		trackHooks: true,
-		include: [/WS.*/],
+		include: [/.*/],
 		collapseGroups: true,
 		diffNameColor: 'darkturquoise',
 		titleColor: 'lavender',
