@@ -1,4 +1,10 @@
-import { CLIENT_MESSAGE, MASTER_MESSAGE, ROLE_LOCATOR } from './common';
+import {
+	CLIENT_MESSAGE,
+	MASTER_MESSAGE,
+	MATCH_QUERY_LABEL,
+	ROLE_LOCATOR,
+	WSS_TEST_TEXT,
+} from './common';
 import { test, expect } from './fixture';
 
 test('Should load a newtab page', async ({ page, extensionId }) => {
@@ -74,4 +80,19 @@ test('Should load multiple tabs and switch the master role between them as neede
 	await tab5.goto(`chrome-extension://${extensionId}/newtab.html`);
 	await expect(tab5.getByTestId(ROLE_LOCATOR)).toContainText(MASTER_MESSAGE);
 	await tab5.close();
+});
+
+test('Should sync match query between roles', async ({
+	extensionId,
+	context,
+}) => {
+	const tab1 = await context.newPage();
+	const tab2 = await context.newPage();
+	await tab1.goto(`chrome-extension://${extensionId}/newtab.html`);
+	await tab2.goto(`chrome-extension://${extensionId}/newtab.html`);
+	await expect(tab1.getByTestId(ROLE_LOCATOR)).toContainText(MASTER_MESSAGE);
+	await expect(tab2.getByTestId(ROLE_LOCATOR)).toContainText(CLIENT_MESSAGE);
+	await tab2.getByLabel(MATCH_QUERY_LABEL).fill(WSS_TEST_TEXT);
+	await tab2.getByLabel(MATCH_QUERY_LABEL).press('Enter');
+	await expect(tab1.getByLabel(MATCH_QUERY_LABEL)).toHaveValue(WSS_TEST_TEXT);
 });
