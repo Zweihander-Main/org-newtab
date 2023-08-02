@@ -116,8 +116,8 @@ listenerMiddleware.startListening({
 	effect: (action, listenerApi) => {
 		const { dispatch } = listenerApi;
 		const getState = listenerApi.getState.bind(this);
-		const amMasterWS = getState().ws.amMasterWS;
-		if (amMasterWS) {
+		const { amMasterWS, readyState } = getState().ws;
+		if (amMasterWS && readyState === WSReadyState.OPEN) {
 			const resid = Math.floor(Math.random() * 1000000000);
 			const data = { ...action.payload, resid } as EmacsSendMsg;
 			Socket.sendJSON(data);
