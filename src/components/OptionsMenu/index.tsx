@@ -124,6 +124,13 @@ const OptionsMenu: React.FC = () => {
 					</>
 				) : null} */}
 				<div
+					data-testid="initial-state"
+					className={styles['initial-state']}
+				>
+					Storage:{' '}
+					{isInitialStateResolved ? 'Resolved' : 'Unresolved'}
+				</div>
+				<div
 					data-testid="websocket-role"
 					className={styles['websocket-role']}
 				>

@@ -92,6 +92,12 @@
 
 .websocket-role {
 	font-size: 1rem;
-	margin-top: auto;
 	align-self: baseline;
+}
+
+.initial-state {
+	margin-top: auto;
+	font-size: 1rem;
+	align-self: baseline;
+	float: right;
 }
