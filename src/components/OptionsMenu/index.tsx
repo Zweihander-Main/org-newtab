@@ -34,12 +34,17 @@ const OptionsMenu: React.FC = () => {
 			const formWSPort = data.get('wsPort');
 			if (formWSPort && typeof formWSPort === 'string') {
 				const portNumber = parseInt(formWSPort, 10);
-				if (!isNaN(portNumber)) {
+				if (
+					!isNaN(portNumber) &&
+					portNumber > 0 &&
+					portNumber < 65536 &&
+					portNumber !== wsPort
+				) {
 					dispatch(setWSPortTo(portNumber));
 				}
 			}
 		},
-		[dispatch]
+		[dispatch, wsPort]
 	);
 
 	useEffect(() => {
