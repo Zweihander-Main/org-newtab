@@ -110,7 +110,9 @@ const OptionsMenu: React.FC = () => {
 						ref={wsPortInputRef}
 						aria-label="WebSocket Port"
 					/>
-					<button type="submit">Update</button>
+					<button type="submit" disabled={!isInitialStateResolved}>
+						Update
+					</button>
 				</form>
 				{/* // TODO: fix */}
 				{/* {lastRecvJsonMessage ? (
