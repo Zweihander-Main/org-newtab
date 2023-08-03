@@ -102,7 +102,7 @@ const OptionsMenu: React.FC = () => {
 						ref={matchQueryInputRef}
 						aria-label="Match Query"
 					/>
-					<label htmlFor="wsPort">WS Port:</label>
+					<label htmlFor="wsPort">WebSocket Port:</label>
 					<input
 						type="number"
 						name="wsPort"
