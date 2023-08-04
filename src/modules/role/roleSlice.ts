@@ -36,10 +36,12 @@ import {
 
 export interface RoleState {
 	amMasterWS: boolean;
+	stateResolved: boolean;
 }
 
 const initialState: RoleState = {
 	amMasterWS: false,
+	stateResolved: false,
 };
 
 export const roleSlice = createSlice({
@@ -52,19 +54,37 @@ export const roleSlice = createSlice({
 		becomeClientWS: (state) => {
 			state.amMasterWS = false;
 		},
+		setStateAsResolved: (state) => {
+			state.stateResolved = true;
+		},
 		establishRole: () => {},
 	},
 });
-export const { becomeMasterWS, becomeClientWS, establishRole } =
-	roleSlice.actions;
+export const {
+	becomeMasterWS,
+	becomeClientWS,
+	setStateAsResolved,
+	establishRole,
+} = roleSlice.actions;
 
 export const selectedAmMasterWs = (state: RootState) => state.role.amMasterWS;
+export const selectedStateResolved = (state: RootState) =>
+	state.role.stateResolved;
 
 export default roleSlice.reducer;
 
+// TODO: rename amMasterWS to amMasterRole
+
+/**
+ * Open websocket when role becomes master and state is resolved.
+ * This, websocket should not open before role and state are established.
+ */
 listenerMiddleware.startListening({
-	predicate: (action, _currentState, originalState) =>
-		action.type === becomeMasterWS.type && !originalState.role.amMasterWS,
+	predicate: (action, currentState, originalState) =>
+		(action.type === becomeMasterWS.type &&
+			!originalState.role.amMasterWS &&
+			currentState.role.stateResolved) ||
+		(action.type === setStateAsResolved && currentState.role.amMasterWS),
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
 		dispatch(openWS());

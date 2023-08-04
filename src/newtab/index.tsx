@@ -1,10 +1,9 @@
 import '../lib/wdyr';
-import { useContext, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Provider } from 'react-redux';
 import { PersistGate } from '@plasmohq/redux-persist/integration/react';
 import '@fontsource/public-sans/700.css';
 import './index.css';
-import StateContext, { StateProvider } from 'contexts/state';
 import ConnectionStatusIndicator from 'components/ConnectionStatusIndicator';
 import OptionsMenu from 'components/OptionsMenu';
 import OrgItem from 'components/OrgItem';
@@ -15,9 +14,10 @@ import { WSReadyState } from 'lib/types';
 import { selectedReadyState } from 'modules/ws/wsSlice';
 import { selectedMatchQuery, getItem } from 'modules/emacs/emacsSlice';
 import { establishRole, selectedAmMasterWs } from 'modules/role/roleSlice';
+import { useAppDispatch } from '../app/hooks';
+import { setStateAsResolved, establishRole } from 'modules/role/roleSlice';
 
 const IndexNewtab: React.FC = () => {
-	const { isInitialStateResolved } = useContext(StateContext);
 	const dispatch = useAppDispatch();
 	const amMasterWS = useAppSelector(selectedAmMasterWs);
 	const readyState = useAppSelector(selectedReadyState);
@@ -63,13 +63,12 @@ const RootContextWrapper: React.FC = () => {
 	return (
 		<Provider store={store}>
 			<PersistGate persistor={persistor}>
-				{(isInitialStateResolved) => (
-					<StateProvider
-						isInitialStateResolved={isInitialStateResolved}
-					>
-						<IndexNewtab />
-					</StateProvider>
-				)}
+				{(isInitialStateResolved) => {
+					if (isInitialStateResolved) {
+						store.dispatch(setStateAsResolved());
+					}
+					return <IndexNewtab />;
+				}}
 			</PersistGate>
 		</Provider>
 	);
