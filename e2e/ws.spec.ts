@@ -10,16 +10,22 @@ import {
 	MATCH_QUERY_LABEL,
 	ROLE_LOCATOR,
 	UPDATE_MATCH_QUERY_COMMAND,
-	WEBSOCKET_PORT,
-	WEBSOCKET_URL,
+	DEFAULT_WEBSOCKET_PORT,
 	WSS_TEST_TEXT,
+	WS_PORT_LABEL,
+	INITIAL_STATE_LOCATOR,
+	INITIAL_STATE_RESOLVED,
+	HOW_LONG_TO_WAIT_FOR_STORAGE,
 } from './common';
 import { test, expect } from './fixture';
 import WebSocket from 'ws';
 import net from 'net';
+import { Page } from '@playwright/test';
 
-function startTestWebSocketServer() {
-	const wss = new WebSocket.Server({ port: WEBSOCKET_PORT });
+// TODO: storage wait should be passed down so you can wait properly for websocket, otherwise, wait is always gonna be 30 seconds
+
+function startTestWebSocketServer(port: number) {
+	const wss = new WebSocket.Server({ port: port });
 
 	wss.on('connection', (ws) => {
 		ws.on('message', (message) => {
@@ -56,36 +62,57 @@ async function isPortInUse(port: number) {
 	});
 }
 
+async function pickARandomPort() {
+	const port = Math.floor(Math.random() * (55000 - 10000 + 1)) + 10000;
+	if (!(await isPortInUse(port)) && port !== DEFAULT_WEBSOCKET_PORT) {
+		return port;
+	} else {
+		return pickARandomPort();
+	}
+}
+
+async function openSocketConnection() {
+	const port = await pickARandomPort();
+	const wss = startTestWebSocketServer(port);
+	return { port, wss };
+}
+
+async function setupWebsocketPort(
+	conn: Awaited<ReturnType<typeof openSocketConnection>>,
+	tab: Page
+) {
+	await expect(tab.getByTestId(INITIAL_STATE_LOCATOR)).toContainText(
+		INITIAL_STATE_RESOLVED,
+		{ timeout: HOW_LONG_TO_WAIT_FOR_STORAGE }
+	);
+	await tab.getByLabel(WS_PORT_LABEL).fill(conn.port.toString());
+	await tab.getByLabel(WS_PORT_LABEL).press('Enter');
+	await expect(tab.getByLabel(WS_PORT_LABEL)).toHaveValue(
+		conn.port.toString()
+	);
+}
+
+function webSocketURL(conn: Awaited<ReturnType<typeof openSocketConnection>>) {
+	return `ws://localhost:${conn.port}/`;
+}
+
 test.describe('WebSocket', () => {
-	/**
-	 * Websocket tests are flaky in parallel mode.
-	 * Each connection needs its own port as if a connection closes a port
-	 * while another test is running, the second test will fail.
-	 */
-	test.describe.configure({ mode: 'serial' });
-
-	let websocketServer: WebSocket.Server | undefined;
-	test.beforeEach(async () => {
-		// Don't run while Emacs is running
-		expect(await isPortInUse(WEBSOCKET_PORT)).toBe(false);
-		websocketServer = startTestWebSocketServer();
-	});
-
-	test.afterEach(() => {
-		if (websocketServer) {
-			websocketServer.close();
-		}
+	test.describe.configure({
+		retries: 3,
+		timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE,
 	});
 
 	test('Should open a connection to emacs from the master tab', async ({
 		extensionId,
 		context,
 	}) => {
-		const tab1 = await context.newPage();
+		const conn = await openSocketConnection();
+		const tabMaster = await context.newPage();
+
 		async function websocketOpened(): Promise<boolean> {
 			return new Promise(function (resolve) {
-				tab1.on('websocket', (ws) => {
-					if (ws.url() === WEBSOCKET_URL) {
+				tabMaster.on('websocket', (ws) => {
+					if (ws.url() === webSocketURL(conn)) {
 						resolve(true);
 					}
 				});
@@ -96,23 +123,27 @@ test.describe('WebSocket', () => {
 			});
 		}
 
-		await tab1.goto(`chrome-extension://${extensionId}/newtab.html`);
-		await expect(tab1.getByTestId(ROLE_LOCATOR)).toContainText(
+		const wsFunc = websocketOpened();
+
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await setupWebsocketPort(conn, tabMaster);
+		await expect(tabMaster.getByTestId(ROLE_LOCATOR)).toContainText(
 			MASTER_MESSAGE
 		);
-		expect(await websocketOpened()).toBeTruthy();
+		expect(await wsFunc).toBeTruthy();
 	});
 
 	test('Should not open a connection to emacs from a client tab', async ({
 		extensionId,
 		context,
 	}) => {
+		const conn = await openSocketConnection();
 		const tabMaster = await context.newPage();
 		const tabClient = await context.newPage();
 		async function clientWebsocketOpened(): Promise<boolean> {
 			return new Promise(function (resolve) {
 				tabClient.on('websocket', (ws) => {
-					if (ws.url() === WEBSOCKET_URL) {
+					if (ws.url() === webSocketURL(conn)) {
 						resolve(true);
 					}
 				});
@@ -123,26 +154,33 @@ test.describe('WebSocket', () => {
 			});
 		}
 
+		const wsFunc = clientWebsocketOpened();
+
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
 		await tabClient.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await setupWebsocketPort(conn, tabClient);
+		await expect(tabMaster.getByLabel(WS_PORT_LABEL)).toHaveValue(
+			conn.port.toString()
+		);
 		await expect(tabMaster.getByTestId(ROLE_LOCATOR)).toContainText(
 			MASTER_MESSAGE
 		);
 		await expect(tabClient.getByTestId(ROLE_LOCATOR)).toContainText(
 			CLIENT_MESSAGE
 		);
-		expect(await clientWebsocketOpened()).toBeFalsy();
+		expect(await wsFunc).toBeFalsy();
 	});
 
 	test('Should ask for item after opening', async ({
 		extensionId,
 		context,
 	}) => {
-		const tab1 = await context.newPage();
+		const conn = await openSocketConnection();
+		const tabMaster = await context.newPage();
 		async function getItemMessageSent(): Promise<boolean> {
 			return new Promise(function (resolve) {
-				tab1.on('websocket', (ws) => {
-					if (ws.url() === WEBSOCKET_URL) {
+				tabMaster.on('websocket', (ws) => {
+					if (ws.url() === webSocketURL(conn)) {
 						ws.on('framesent', (data) => {
 							const json = JSON.parse(data.payload as string) as {
 								command?: string;
@@ -155,30 +193,34 @@ test.describe('WebSocket', () => {
 						ws.on('socketerror', () => resolve(false));
 					}
 				});
-				setTimeout(() => resolve(false), HOW_LONG_TO_WAIT_FOR_RESPONSE);
+				setTimeout(
+					() => resolve(false),
+					HOW_LONG_TO_WAIT_FOR_WEBSOCKET
+				);
 			});
 		}
+		const wsFunc = getItemMessageSent();
 
-		await tab1.goto(`chrome-extension://${extensionId}/newtab.html`);
-		await expect(tab1.getByTestId(ROLE_LOCATOR)).toContainText(
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await setupWebsocketPort(conn, tabMaster);
+		await expect(tabMaster.getByTestId(ROLE_LOCATOR)).toContainText(
 			MASTER_MESSAGE
 		);
-		expect(await getItemMessageSent()).toBeTruthy();
+		expect(await wsFunc).toBeTruthy();
 	});
 
 	test('Should update item text based on data from server', async ({
 		extensionId,
 		context,
 	}) => {
-		const tab1 = await context.newPage();
-		await tab1.goto(`chrome-extension://${extensionId}/newtab.html`);
-		await expect(tab1.getByTestId(ROLE_LOCATOR)).toContainText(
-			MASTER_MESSAGE
-		);
+		test.slow();
+		const conn = await openSocketConnection();
+		const tabMaster = await context.newPage();
+
 		async function getAnyDataSent(): Promise<boolean> {
 			return new Promise(function (resolve) {
-				tab1.on('websocket', (ws) => {
-					if (ws.url() === WEBSOCKET_URL) {
+				tabMaster.on('websocket', (ws) => {
+					if (ws.url() === webSocketURL(conn)) {
 						ws.on('framesent', () => {
 							resolve(true);
 						});
@@ -186,12 +228,24 @@ test.describe('WebSocket', () => {
 						ws.on('socketerror', () => resolve(false));
 					}
 				});
-				setTimeout(() => resolve(false), HOW_LONG_TO_WAIT_FOR_RESPONSE);
+				setTimeout(
+					() => resolve(false),
+					HOW_LONG_TO_WAIT_FOR_WEBSOCKET
+				);
 			});
 		}
-		expect(await getAnyDataSent()).toBeTruthy();
-		await expect(tab1.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
-			WSS_TEST_TEXT
+
+		const wsFunc = getAnyDataSent();
+
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await setupWebsocketPort(conn, tabMaster);
+		await expect(tabMaster.getByTestId(ROLE_LOCATOR)).toContainText(
+			MASTER_MESSAGE
+		);
+		expect(await wsFunc).toBeTruthy();
+		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
+			WSS_TEST_TEXT,
+			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
 		);
 	});
 
@@ -199,12 +253,14 @@ test.describe('WebSocket', () => {
 		extensionId,
 		context,
 	}) => {
+		const conn = await openSocketConnection();
 		const tabMaster = await context.newPage();
 		const tabClient = await context.newPage();
+
 		async function clientWebsocketOpened(): Promise<boolean> {
 			return new Promise(function (resolve) {
 				tabClient.on('websocket', (ws) => {
-					if (ws.url() === WEBSOCKET_URL) {
+					if (ws.url() === webSocketURL(conn)) {
 						resolve(true);
 					}
 				});
@@ -218,7 +274,7 @@ test.describe('WebSocket', () => {
 		async function masterWebSocketUpdatesQuery(): Promise<boolean> {
 			return new Promise(function (resolve) {
 				tabMaster.on('websocket', (ws) => {
-					if (ws.url() === WEBSOCKET_URL) {
+					if (ws.url() === webSocketURL(conn)) {
 						ws.on('framesent', (event) => {
 							if (typeof event.payload === 'string') {
 								const payload = JSON.parse(event.payload) as {
@@ -238,15 +294,16 @@ test.describe('WebSocket', () => {
 				});
 				setTimeout(
 					() => resolve(false),
-					HOW_LONG_TO_WAIT_FOR_WEBSOCKET * 10
+					HOW_LONG_TO_WAIT_FOR_WEBSOCKET
 				);
 			});
 		}
 
-		const clientSocket = clientWebsocketOpened();
-		const masterSocket = masterWebSocketUpdatesQuery();
+		const masterSocketUpdate = masterWebSocketUpdatesQuery();
+		const clientSocketUpdate = clientWebsocketOpened();
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
 		await tabClient.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await setupWebsocketPort(conn, tabClient);
 		await expect(tabMaster.getByTestId(ROLE_LOCATOR)).toContainText(
 			MASTER_MESSAGE
 		);
@@ -255,17 +312,19 @@ test.describe('WebSocket', () => {
 		);
 		await tabClient.getByLabel(MATCH_QUERY_LABEL).fill(WSS_TEST_TEXT);
 		await tabClient.getByLabel(MATCH_QUERY_LABEL).press('Enter');
-		expect(await clientSocket).toBeFalsy();
-		expect(await masterSocket).toBeTruthy();
+		expect(await clientSocketUpdate).toBeFalsy();
+		expect(await masterSocketUpdate).toBeTruthy();
 	});
 
 	test('Should sync websocket state between tabs', async ({
 		extensionId,
 		context,
 	}) => {
+		const conn = await openSocketConnection();
 		const tabMaster = await context.newPage();
 		const tabClient = await context.newPage();
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await setupWebsocketPort(conn, tabMaster);
 		await tabClient.goto(`chrome-extension://${extensionId}/newtab.html`);
 		await expect(tabMaster.getByTestId(ROLE_LOCATOR)).toContainText(
 			MASTER_MESSAGE
@@ -285,9 +344,11 @@ test.describe('WebSocket', () => {
 		extensionId,
 		context,
 	}) => {
+		const conn = await openSocketConnection();
 		const tabMaster = await context.newPage();
 		const tabClient = await context.newPage();
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await setupWebsocketPort(conn, tabMaster);
 		await tabClient.goto(`chrome-extension://${extensionId}/newtab.html`);
 		await expect(tabMaster.getByTestId(ROLE_LOCATOR)).toContainText(
 			MASTER_MESSAGE
