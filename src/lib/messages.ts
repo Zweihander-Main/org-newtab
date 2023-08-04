@@ -10,6 +10,7 @@ import {
 	EmacsSendMsg,
 	WSStateMsg,
 	SendJsonMessage,
+	WSPortMsg,
 } from './types';
 
 export type SendResponseType = (message: MsgToBGSW | MsgToTab) => unknown;
@@ -53,7 +54,7 @@ export const sendMsgToBGSWAsResponse = (
 export const sendMsgToTab = (
 	type: MsgToTabType,
 	tabId: number,
-	data?: EmacsSendMsg | WSStateMsg
+	data?: EmacsSendMsg | WSStateMsg | WSPortMsg
 ) => {
 	logMsg(
 		LogLoc.NEWTAB,

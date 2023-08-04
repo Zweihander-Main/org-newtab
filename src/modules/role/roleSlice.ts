@@ -21,6 +21,7 @@ import {
 	MsgToTab,
 	MsgToTabType,
 	SendJsonMessage,
+	WSPortMsg,
 	WSStateMsg,
 	getMsgToTabType,
 } from 'lib/types';
@@ -32,6 +33,7 @@ import {
 	removeFromResponsesWaitingFor,
 	setReadyStateTo,
 	setResponsesWaitingForTo,
+	setWSPortTo,
 } from 'modules/ws/wsSlice';
 
 export interface RoleState {
@@ -91,15 +93,48 @@ listenerMiddleware.startListening({
 	},
 });
 
+/**
+ * Close websocket when role becomes client
+ */
 listenerMiddleware.startListening({
-	predicate: (action, _currentState, originalState) =>
-		action.type === becomeClientWS.type && originalState.role.amMasterWS,
+	actionCreator: becomeClientWS,
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
 		dispatch(closeWS());
 	},
 });
 
+/**
+ * Everytime the port changes, restart the websocket as master or let the
+ * master know it needs to.
+ */
+listenerMiddleware.startListening({
+	actionCreator: setWSPortTo,
+	effect: (action, listenerApi) => {
+		const { dispatch } = listenerApi;
+		const getState = listenerApi.getState.bind(this);
+		const {
+			role: { amMasterWS },
+		} = getState();
+		if (amMasterWS) {
+			dispatch(closeWS());
+			dispatch(openWS());
+		} else {
+			void getMasterWSTabId().then((masterWSTabNum) => {
+				if (masterWSTabNum) {
+					const port = action.payload;
+					sendMsgToTab(MsgToTabType.SET_WS_PORT, masterWSTabNum, {
+						port,
+					});
+				}
+			});
+		}
+	},
+});
+
+/**
+ * Establish role using BGSW, handle messages
+ */
 listenerMiddleware.startListening({
 	actionCreator: establishRole,
 	effect: (_action, listenerApi) => {
@@ -109,7 +144,10 @@ listenerMiddleware.startListening({
 		const sendJsonMessage: SendJsonMessage = (
 			jsonMessage: EmacsSendMsg
 		) => {
-			if (getState().role.amMasterWS) {
+			const {
+				role: { amMasterWS },
+			} = getState();
+			if (amMasterWS) {
 				dispatch(sendMsgToEmacs(jsonMessage));
 			} else {
 				void getMasterWSTabId().then((masterWSTabAsNumber) => {
@@ -155,19 +193,24 @@ listenerMiddleware.startListening({
 		};
 
 		const queryStateOfWS = () => {
-			void getMasterWSTabId().then((masterWSTabAsNumber) => {
+			void getMasterWSTabId().then((masterWSTabNum) => {
 				const { readyState, responsesWaitingFor } = getState().ws;
-				if (masterWSTabAsNumber) {
-					sendMsgToTab(
-						MsgToTabType.QUERY_WS_STATE,
-						masterWSTabAsNumber,
-						{
-							readyState,
-							responsesWaitingFor,
-						}
-					);
+				if (masterWSTabNum) {
+					sendMsgToTab(MsgToTabType.QUERY_WS_STATE, masterWSTabNum, {
+						readyState,
+						responsesWaitingFor,
+					});
 				}
 			});
+		};
+
+		const handleSetWSPort = (message: MsgToTab) => {
+			if (getState().role.amMasterWS && message?.data) {
+				const { port } = message.data as WSPortMsg;
+				if (typeof port === 'number') {
+					dispatch(setWSPortTo(port));
+				}
+			}
 		};
 
 		const handleMessage = (
@@ -211,6 +254,9 @@ listenerMiddleware.startListening({
 				case MsgToTabType.SET_WS_STATE:
 					handleUpdateStateOfWS(message);
 					break;
+				case MsgToTabType.SET_WS_PORT:
+					handleSetWSPort(message);
+					break;
 			}
 		};
 
@@ -223,6 +269,9 @@ listenerMiddleware.startListening({
 	},
 });
 
+/**
+ * As master, send WS updates to all other tabs
+ */
 listenerMiddleware.startListening({
 	predicate: (action, currentState) =>
 		currentState.role.amMasterWS &&
@@ -235,7 +284,11 @@ listenerMiddleware.startListening({
 		const { responsesWaitingFor, readyState } = getState().ws;
 		if (action.type === setReadyStateTo.type) {
 			sendUpdateInWSState({ readyState });
-		} else {
+		} else if (
+			action.type === addToResponsesWaitingFor.type ||
+			action.type === removeFromResponsesWaitingFor.type ||
+			action.type === setResponsesWaitingForTo.type
+		) {
 			sendUpdateInWSState({ responsesWaitingFor });
 		}
 	},

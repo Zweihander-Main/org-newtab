@@ -17,7 +17,9 @@ export enum MsgToTabType {
 	PASS_TO_EMACS = 11,
 	QUERY_WS_STATE = 12,
 	SET_WS_STATE = 13,
+	SET_WS_PORT = 14,
 }
+
 export const getMsgToTabType = (type: MsgToTabType) => {
 	return MsgToTabType[type];
 };
@@ -35,7 +37,7 @@ export type MsgToBGSW = {
 export type MsgToTab = {
 	direction: MsgDirection.TO_NEWTAB;
 	type: MsgToTabType;
-	data?: EmacsSendMsg | WSStateMsg;
+	data?: EmacsSendMsg | WSStateMsg | WSPortMsg;
 };
 
 export type AllTagsRecv = string | Array<string | number>;
@@ -69,6 +71,10 @@ export enum WSReadyState {
 export type WSStateMsg = {
 	readyState?: WSReadyState;
 	responsesWaitingFor?: Array<number>;
+};
+
+export type WSPortMsg = {
+	port?: number;
 };
 
 export type EmacsSendMsg = {

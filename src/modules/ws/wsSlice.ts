@@ -8,7 +8,11 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { RootState } from 'app/store';
 import Socket from 'lib/Socket';
 import { listenerMiddleware } from 'app/middleware';
-import { recvMsgFromEmacs, sendMsgToEmacs } from 'modules/emacs/emacsSlice';
+import {
+	getItem,
+	recvMsgFromEmacs,
+	sendMsgToEmacs,
+} from 'modules/emacs/emacsSlice';
 import { getMasterWSTabId, sendMsgToTab } from 'lib/messages';
 
 const MAXIMUM_TIME_TO_WAIT_FOR_RESPONSE = 60000;
@@ -50,6 +54,7 @@ export const wsSlice = createSlice({
 		},
 		openWS: () => {},
 		closeWS: () => {},
+		resetWS: () => {},
 		setWSPortTo: (state, action: PayloadAction<number>) => {
 			state.wsPort = action.payload;
 		},
@@ -63,6 +68,7 @@ export const {
 	setResponsesWaitingForTo,
 	openWS,
 	closeWS,
+	resetWS,
 	setWSPortTo,
 } = wsSlice.actions;
 
@@ -75,16 +81,22 @@ export const selectedWSPort = (state: RootState) => state.ws.wsPort;
 
 export default wsSlice.reducer;
 
+/**
+ * Open the websocket (assuming master role)
+ */
 listenerMiddleware.startListening({
-	actionCreator: openWS,
+	predicate: (action, currentState) =>
+		action.type === openWS.type && currentState.role.amMasterWS,
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
 		const getState = listenerApi.getState.bind(this);
-		const port = getState().ws.wsPort;
+		const {
+			ws: { wsPort },
+		} = getState();
 		dispatch(setReadyStateTo(WSReadyState.CONNECTING));
 		// eslint-disable-next-line no-console
 		console.log('connecting');
-		Socket.connect(`ws://localhost:${port}/`);
+		Socket.connect(`ws://localhost:${wsPort}/`);
 		Socket.on('open', () => {
 			// eslint-disable-next-line no-console
 			console.log('open');
@@ -104,40 +116,61 @@ listenerMiddleware.startListening({
 			if (parsed === null) return;
 			dispatch(recvMsgFromEmacs(parsed));
 			if (parsed.type === 'ITEM') {
+				// TODO: more general case for this
 				dispatch(removeFromResponsesWaitingFor(parsed?.resid || -1));
 			}
 		});
 	},
 });
 
+/**
+ * Close the websocket (role doesn't matter)
+ */
 listenerMiddleware.startListening({
 	actionCreator: closeWS,
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
 		dispatch(setReadyStateTo(WSReadyState.CLOSING));
+		dispatch(setResponsesWaitingForTo([]));
 		Socket.disconnect();
 	},
 });
 
+/**
+ * Every time the websocket opens, ask Emacs for the current item
+ * (assuming master role)
+ */
 listenerMiddleware.startListening({
-	actionCreator: setWSPortTo,
+	predicate: (action, currentState) =>
+		action.type === setReadyStateTo.type &&
+		currentState.role.amMasterWS &&
+		currentState.ws.readyState === WSReadyState.OPEN,
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
-		dispatch(closeWS());
-		dispatch(openWS());
+		const getState = listenerApi.getState.bind(this);
+		const {
+			emacs: { matchQuery },
+		} = getState();
+		if (matchQuery) {
+			dispatch(getItem());
+		}
 	},
 });
 
+/**
+ * Send a message to Emacs or to the master websocket to pass to Emacs
+ */
 listenerMiddleware.startListening({
-	actionCreator: sendMsgToEmacs,
+	predicate: (action, currentState) =>
+		action.type === sendMsgToEmacs.type &&
+		currentState.ws.readyState === WSReadyState.OPEN,
 	effect: (action, listenerApi) => {
 		const { dispatch } = listenerApi;
 		const getState = listenerApi.getState.bind(this);
 		const {
-			ws: { readyState },
 			role: { amMasterWS },
 		} = getState();
-		if (amMasterWS && readyState === WSReadyState.OPEN) {
+		if (amMasterWS) {
 			const resid = Math.floor(Math.random() * 1000000000);
 			const data = { ...action.payload, resid } as EmacsSendMsg;
 			Socket.sendJSON(data);

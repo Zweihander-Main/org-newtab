@@ -1,12 +1,14 @@
-import StateContext from 'contexts/state';
 import * as styles from './style.module.css';
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import {
 	selectedMatchQuery,
 	setMatchQueryTo,
 } from '../../modules/emacs/emacsSlice';
-import { selectedAmMasterWs } from 'modules/role/roleSlice';
+import {
+	selectedAmMasterWs,
+	selectedStateResolved,
+} from 'modules/role/roleSlice';
 import { selectedWSPort, setWSPortTo } from 'modules/ws/wsSlice';
 
 const OptionsMenu: React.FC = () => {
@@ -14,7 +16,7 @@ const OptionsMenu: React.FC = () => {
 	const matchQuery = useAppSelector(selectedMatchQuery);
 	const amMasterWS = useAppSelector(selectedAmMasterWs);
 	const wsPort = useAppSelector(selectedWSPort);
-	const { isInitialStateResolved } = useContext(StateContext);
+	const isInitialStateResolved = useAppSelector(selectedStateResolved);
 	const [optionsVisible, setOptionsVisible] = useState(false);
 
 	const matchQueryInputRef = useRef<HTMLInputElement>(null);
