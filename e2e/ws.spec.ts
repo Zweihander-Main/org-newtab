@@ -23,8 +23,6 @@ import WebSocket from 'ws';
 import net from 'net';
 import { Page } from '@playwright/test';
 
-// TODO: storage wait should be passed down so you can wait properly for websocket, otherwise, wait is always gonna be 30 seconds
-
 function startTestWebSocketServer(port: number) {
 	const wss = new WebSocket.Server({ port: port });
 
@@ -410,5 +408,3 @@ test.describe('WebSocket', () => {
 		);
 	});
 });
-
-// TODO: Create way to randomize websocket port to run tests in parallel
