@@ -11,7 +11,7 @@ export const rolePersistConfig = {
 	key: 'role',
 	version: 1,
 	storage: localStorage as StorageType,
-	blacklist: ['amMasterWS'],
+	blacklist: ['amMasterWS', 'stateResolved'],
 };
 
 const persistedRoleReducer = persistReducer(rolePersistConfig, roleReducer);
