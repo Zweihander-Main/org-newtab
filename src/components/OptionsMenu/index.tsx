@@ -1,5 +1,5 @@
 import * as styles from './style.module.css';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import {
 	selectedMatchQuery,
@@ -49,6 +49,18 @@ const OptionsMenu: React.FC = () => {
 		[dispatch, wsPort]
 	);
 
+	useEffect(() => {
+		if (matchQueryInputRef.current && matchQuery) {
+			matchQueryInputRef.current.value = matchQuery;
+		}
+	}, [isInitialStateResolved, matchQuery]);
+
+	useEffect(() => {
+		if (wsPortInputRef.current && wsPort) {
+			wsPortInputRef.current.value = wsPort.toString();
+		}
+	}, [isInitialStateResolved, wsPort]);
+
 	const toggleMenu = useCallback(() => {
 		setOptionsVisible(!optionsVisible);
 	}, [optionsVisible]);
@@ -96,7 +108,7 @@ const OptionsMenu: React.FC = () => {
 						ref={wsPortInputRef}
 						aria-label="WebSocket Port"
 					/>
-					<button type="submit" disabled={!isInitialStateResolved}>
+					<button type="submit" disabled={false}>
 						Update
 					</button>
 				</form>
