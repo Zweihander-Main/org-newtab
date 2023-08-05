@@ -33,16 +33,31 @@ const IndexNewtab: React.FC = () => {
 	);
 };
 
+const StateResolver: React.FC<{ isInitialStateResolved: boolean }> = ({
+	isInitialStateResolved,
+}) => {
+	const dispatch = useAppDispatch();
+
+	useEffect(() => {
+		if (isInitialStateResolved) {
+			dispatch(setStateAsResolved());
+		}
+	}, [dispatch, isInitialStateResolved]);
+
+	return null;
+};
+
 const RootContextWrapper: React.FC = () => {
 	// TODO: Strict Mode
 	return (
 		<Provider store={store}>
 			<PersistGate persistor={persistor}>
 				{(isInitialStateResolved) => {
-					if (isInitialStateResolved) {
-						store.dispatch(setStateAsResolved());
-					}
-					return null;
+					return (
+						<StateResolver
+							isInitialStateResolved={isInitialStateResolved}
+						/>
+					);
 				}}
 			</PersistGate>
 			<IndexNewtab />
