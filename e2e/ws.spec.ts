@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {
 	CLIENT_MESSAGE,
 	CONNECTION_STATUS_LOCATOR,
@@ -29,15 +30,16 @@ function startTestWebSocketServer(port: number) {
 
 	wss.on('connection', (ws) => {
 		ws.on('message', (message) => {
-			// eslint-disable-next-line no-console
 			console.log('Received message from client:', message);
-			ws.send(
-				JSON.stringify({ type: 'ITEM', data: { ITEM: WSS_TEST_TEXT } })
-			);
+			const toSend = JSON.stringify({
+				type: 'ITEM',
+				data: { ITEM: WSS_TEST_TEXT },
+			});
+			console.log('Sending response', toSend);
+			ws.send(toSend);
 		});
 
 		ws.on('close', () => {
-			// eslint-disable-next-line no-console
 			console.log('Client disconnected');
 		});
 	});
