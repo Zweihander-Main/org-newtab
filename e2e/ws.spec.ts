@@ -99,7 +99,10 @@ function webSocketURL(conn: Awaited<ReturnType<typeof openSocketConnection>>) {
 test.describe('WebSocket', () => {
 	test.describe.configure({
 		retries: 3,
-		timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE,
+		timeout:
+			HOW_LONG_TO_WAIT_FOR_STORAGE +
+			HOW_LONG_TO_WAIT_FOR_WEBSOCKET +
+			HOW_LONG_TO_WAIT_FOR_RESPONSE,
 	});
 
 	test('Should open a connection to emacs from the master tab', async ({
@@ -116,10 +119,16 @@ test.describe('WebSocket', () => {
 						resolve(true);
 					}
 				});
-				setTimeout(
-					() => resolve(false),
-					HOW_LONG_TO_WAIT_FOR_WEBSOCKET
-				);
+				void expect(tabMaster.getByTestId(INITIAL_STATE_LOCATOR))
+					.toContainText(INITIAL_STATE_RESOLVED, {
+						timeout: HOW_LONG_TO_WAIT_FOR_STORAGE,
+					})
+					.then(() => {
+						setTimeout(
+							() => resolve(false),
+							HOW_LONG_TO_WAIT_FOR_WEBSOCKET
+						);
+					});
 			});
 		}
 
@@ -147,10 +156,16 @@ test.describe('WebSocket', () => {
 						resolve(true);
 					}
 				});
-				setTimeout(
-					() => resolve(false),
-					HOW_LONG_TO_WAIT_FOR_WEBSOCKET
-				);
+				void expect(tabClient.getByTestId(INITIAL_STATE_LOCATOR))
+					.toContainText(INITIAL_STATE_RESOLVED, {
+						timeout: HOW_LONG_TO_WAIT_FOR_STORAGE,
+					})
+					.then(() => {
+						setTimeout(
+							() => resolve(false),
+							HOW_LONG_TO_WAIT_FOR_WEBSOCKET
+						);
+					});
 			});
 		}
 
@@ -193,10 +208,16 @@ test.describe('WebSocket', () => {
 						ws.on('socketerror', () => resolve(false));
 					}
 				});
-				setTimeout(
-					() => resolve(false),
-					HOW_LONG_TO_WAIT_FOR_WEBSOCKET
-				);
+				void expect(tabMaster.getByTestId(INITIAL_STATE_LOCATOR))
+					.toContainText(INITIAL_STATE_RESOLVED, {
+						timeout: HOW_LONG_TO_WAIT_FOR_STORAGE,
+					})
+					.then(() => {
+						setTimeout(
+							() => resolve(false),
+							HOW_LONG_TO_WAIT_FOR_WEBSOCKET
+						);
+					});
 			});
 		}
 		const wsFunc = getItemMessageSent();
@@ -228,10 +249,16 @@ test.describe('WebSocket', () => {
 						ws.on('socketerror', () => resolve(false));
 					}
 				});
-				setTimeout(
-					() => resolve(false),
-					HOW_LONG_TO_WAIT_FOR_WEBSOCKET
-				);
+				void expect(tabMaster.getByTestId(INITIAL_STATE_LOCATOR))
+					.toContainText(INITIAL_STATE_RESOLVED, {
+						timeout: HOW_LONG_TO_WAIT_FOR_STORAGE,
+					})
+					.then(() => {
+						setTimeout(
+							() => resolve(false),
+							HOW_LONG_TO_WAIT_FOR_WEBSOCKET
+						);
+					});
 			});
 		}
 
@@ -264,10 +291,16 @@ test.describe('WebSocket', () => {
 						resolve(true);
 					}
 				});
-				setTimeout(
-					() => resolve(false),
-					HOW_LONG_TO_WAIT_FOR_WEBSOCKET
-				);
+				void expect(tabClient.getByTestId(INITIAL_STATE_LOCATOR))
+					.toContainText(INITIAL_STATE_RESOLVED, {
+						timeout: HOW_LONG_TO_WAIT_FOR_STORAGE,
+					})
+					.then(() => {
+						setTimeout(
+							() => resolve(false),
+							HOW_LONG_TO_WAIT_FOR_WEBSOCKET
+						);
+					});
 			});
 		}
 
@@ -292,10 +325,16 @@ test.describe('WebSocket', () => {
 						});
 					}
 				});
-				setTimeout(
-					() => resolve(false),
-					HOW_LONG_TO_WAIT_FOR_WEBSOCKET
-				);
+				void expect(tabMaster.getByTestId(INITIAL_STATE_LOCATOR))
+					.toContainText(INITIAL_STATE_RESOLVED, {
+						timeout: HOW_LONG_TO_WAIT_FOR_STORAGE,
+					})
+					.then(() => {
+						setTimeout(
+							() => resolve(false),
+							HOW_LONG_TO_WAIT_FOR_WEBSOCKET
+						);
+					});
 			});
 		}
 
