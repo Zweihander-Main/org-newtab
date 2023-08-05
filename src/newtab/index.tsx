@@ -42,9 +42,10 @@ const RootContextWrapper: React.FC = () => {
 					if (isInitialStateResolved) {
 						store.dispatch(setStateAsResolved());
 					}
-					return <IndexNewtab />;
+					return null;
 				}}
 			</PersistGate>
+			<IndexNewtab />
 		</Provider>
 	);
 };

@@ -1,5 +1,5 @@
 import * as styles from './style.module.css';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import {
 	selectedMatchQuery,
@@ -48,22 +48,6 @@ const OptionsMenu: React.FC = () => {
 		},
 		[dispatch, wsPort]
 	);
-
-	useEffect(() => {
-		if (
-			isInitialStateResolved &&
-			matchQueryInputRef.current &&
-			matchQuery
-		) {
-			matchQueryInputRef.current.value = matchQuery;
-		}
-	}, [isInitialStateResolved, matchQuery]);
-
-	useEffect(() => {
-		if (isInitialStateResolved && wsPortInputRef.current && wsPort) {
-			wsPortInputRef.current.value = wsPort.toString();
-		}
-	}, [isInitialStateResolved, wsPort]);
 
 	const toggleMenu = useCallback(() => {
 		setOptionsVisible(!optionsVisible);
