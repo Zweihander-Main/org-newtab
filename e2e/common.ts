@@ -12,9 +12,9 @@ export const CONNECTION_STATUS_OPEN = 'Connected';
 export const INITIAL_STATE_RESOLVED = 'Resolved';
 
 // VSCode test environment is slower than CLI
-export const HOW_LONG_TO_WAIT_FOR_STORAGE = 20000;
+export const HOW_LONG_TO_WAIT_FOR_STORAGE = 10000;
 export const HOW_LONG_TO_WAIT_FOR_WEBSOCKET = 500;
-export const HOW_LONG_TO_WAIT_FOR_RESPONSE = 20000; // NEXT: why is the one test failing?
+export const HOW_LONG_TO_WAIT_FOR_RESPONSE = 5000;
 
 export const DEFAULT_WEBSOCKET_PORT = 35942;
 
