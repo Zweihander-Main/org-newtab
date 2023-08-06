@@ -14,7 +14,7 @@ import { selectedWSPort, setWSPortTo } from 'modules/ws/wsSlice';
 const OptionsMenu: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const matchQuery = useAppSelector(selectedMatchQuery);
-	const amMasterWS = useAppSelector(selectedAmMasterRole);
+	const amMasterRole = useAppSelector(selectedAmMasterRole);
 	const wsPort = useAppSelector(selectedWSPort);
 	const isInitialStateResolved = useAppSelector(selectedStateResolved);
 	const [optionsVisible, setOptionsVisible] = useState(false);
@@ -22,7 +22,7 @@ const OptionsMenu: React.FC = () => {
 	const matchQueryInputRef = useRef<HTMLInputElement>(null);
 	const wsPortInputRef = useRef<HTMLInputElement>(null);
 
-	const masterStatus = amMasterWS ? 'Master' : 'Client';
+	const masterStatus = amMasterRole ? 'Master' : 'Client';
 
 	const handleFormSubmit = useCallback(
 		(event: React.FormEvent<HTMLFormElement>) => {
