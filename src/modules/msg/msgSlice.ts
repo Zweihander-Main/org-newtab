@@ -167,9 +167,9 @@ listenerMiddleware.startListening({
 		}
 
 		const {
-			role: { amMasterRole: amMasterWS },
+			role: { amMasterRole },
 		} = getState();
-		if (amMasterWS) {
+		if (amMasterRole) {
 			dispatch(_sendMsgToEmacs(message.data as EmacsSendMsg));
 		} else {
 			void getMasterWSTabId().then((masterWSTabAsNumber) => {
@@ -190,10 +190,10 @@ listenerMiddleware.startListening({
 	effect: (_action, listenerApi) => {
 		const getState = listenerApi.getState.bind(this);
 		const {
-			role: { amMasterRole: amMasterWS },
+			role: { amMasterRole },
 			ws: { readyState, responsesWaitingFor },
 		} = getState();
-		if (amMasterWS) {
+		if (amMasterRole) {
 			sendMsgToAllTabs(MsgToTabType.SET_WS_STATE, {
 				readyState,
 				responsesWaitingFor,

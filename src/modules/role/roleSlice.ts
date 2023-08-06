@@ -113,9 +113,9 @@ listenerMiddleware.startListening({
 		const { dispatch } = listenerApi;
 		const getState = listenerApi.getState.bind(this);
 		const {
-			role: { amMasterRole: amMasterWS },
+			role: { amMasterRole },
 		} = getState();
-		if (amMasterWS) {
+		if (amMasterRole) {
 			dispatch(_resetWS());
 		} else {
 			void getMasterWSTabId().then((masterWSTabNum) => {

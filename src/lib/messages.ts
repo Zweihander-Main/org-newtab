@@ -91,9 +91,9 @@ export const sendMsgToAllTabs = (type: MsgToTabType, data?: WSStateMsg) => {
 
 export const handleConfirmingRoleAsMaster = (
 	sendResponse: SendResponseType,
-	amMasterWS: boolean
+	amMasterRole: boolean
 ) => {
-	if (amMasterWS) {
+	if (amMasterRole) {
 		sendMsgToBGSWAsResponse(
 			MsgToBGSWType.IDENTIFY_ROLE_MASTER,
 			sendResponse
