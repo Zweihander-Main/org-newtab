@@ -34,8 +34,8 @@ const emacsSlice = createSlice({
 		},
 		getItem: () => {},
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		sendMsgToEmacs: (_state, _action: PayloadAction<EmacsSendMsg>) => {},
-		recvMsgFromEmacs: (state, action: PayloadAction<EmacsRecvMsg>) => {
+		_sendMsgToEmacs: (_state, _action: PayloadAction<EmacsSendMsg>) => {},
+		_recvMsgFromEmacs: (state, action: PayloadAction<EmacsRecvMsg>) => {
 			const { payload } = action;
 			if (payload === null) return;
 			switch (payload.type) {
@@ -62,8 +62,8 @@ export const {
 	setTagsDataTo,
 	setOrgItemTo,
 	getItem,
-	sendMsgToEmacs,
-	recvMsgFromEmacs,
+	_sendMsgToEmacs,
+	_recvMsgFromEmacs,
 } = emacsSlice.actions;
 
 export default emacsSlice.reducer;
@@ -77,7 +77,7 @@ listenerMiddleware.startListening({
 			command: 'updateMatchQuery',
 			data: matchQuery,
 		} as EmacsSendMsg;
-		dispatch(sendMsgToEmacs(jsonMessage));
+		dispatch(_sendMsgToEmacs(jsonMessage));
 	},
 });
 
@@ -91,7 +91,7 @@ listenerMiddleware.startListening({
 			command: 'getItem',
 			data: matchQuery,
 		} as EmacsSendMsg;
-		dispatch(sendMsgToEmacs(jsonMessage));
+		dispatch(_sendMsgToEmacs(jsonMessage));
 	},
 });
 

@@ -25,15 +25,15 @@ import {
 	WSStateMsg,
 	getMsgToTabType,
 } from 'lib/types';
-import { sendMsgToEmacs } from 'modules/emacs/emacsSlice';
+import { _sendMsgToEmacs } from 'modules/emacs/emacsSlice';
 import {
-	addToResponsesWaitingFor,
-	closeWS,
-	openWS,
-	removeFromResponsesWaitingFor,
-	resetWS,
-	setReadyStateTo,
-	setResponsesWaitingForTo,
+	_addToResponsesWaitingFor,
+	_closeWS,
+	_openWS,
+	_removeFromResponsesWaitingFor,
+	_resetWS,
+	_setReadyStateTo,
+	_setResponsesWaitingForTo,
 	setWSPortTo,
 } from 'modules/ws/wsSlice';
 
@@ -58,23 +58,23 @@ export const roleSlice = createSlice({
 	name: 'role',
 	initialState,
 	reducers: {
-		becomeMasterRole: (state) => {
+		establishRole: () => {},
+		_becomeMasterRole: (state) => {
 			state.amMasterRole = true;
 		},
-		becomeClientRole: (state) => {
+		_becomeClientRole: (state) => {
 			state.amMasterRole = false;
 		},
-		setStateAsResolved: (state) => {
+		_setStateAsResolved: (state) => {
 			state.stateResolved = true;
 		},
-		establishRole: () => {},
 	},
 });
 export const {
-	becomeMasterRole,
-	becomeClientRole,
-	setStateAsResolved,
 	establishRole,
+	_becomeMasterRole,
+	_becomeClientRole,
+	_setStateAsResolved,
 } = roleSlice.actions;
 
 export const selectedAmMasterRole = (state: RootState) =>
@@ -91,13 +91,13 @@ export default roleSlice.reducer;
  */
 listenerMiddleware.startListening({
 	predicate: (action, currentState, originalState) =>
-		(action.type === becomeMasterRole.type &&
+		(action.type === _becomeMasterRole.type &&
 			!originalState.role.amMasterRole &&
 			currentState.role.stateResolved) ||
-		(action.type === setStateAsResolved && currentState.role.amMasterRole),
+		(action.type === _setStateAsResolved && currentState.role.amMasterRole),
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
-		dispatch(openWS());
+		dispatch(_openWS());
 	},
 });
 
@@ -105,10 +105,10 @@ listenerMiddleware.startListening({
  * Close websocket when role becomes client.
  */
 listenerMiddleware.startListening({
-	actionCreator: becomeClientRole,
+	actionCreator: _becomeClientRole,
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
-		dispatch(closeWS());
+		dispatch(_closeWS());
 	},
 });
 
@@ -127,7 +127,7 @@ listenerMiddleware.startListening({
 			role: { amMasterRole: amMasterWS },
 		} = getState();
 		if (amMasterWS) {
-			dispatch(resetWS());
+			dispatch(_resetWS());
 		} else {
 			void getMasterWSTabId().then((masterWSTabNum) => {
 				if (masterWSTabNum) {
@@ -158,7 +158,7 @@ listenerMiddleware.startListening({
 				role: { amMasterRole: amMasterWS },
 			} = getState();
 			if (amMasterWS) {
-				dispatch(sendMsgToEmacs(jsonMessage));
+				dispatch(_sendMsgToEmacs(jsonMessage));
 			} else {
 				void getMasterWSTabId().then((masterWSTabAsNumber) => {
 					if (masterWSTabAsNumber) {
@@ -192,11 +192,11 @@ listenerMiddleware.startListening({
 					readyState: readyStateFromMaster,
 				} = message.data as WSStateMsg;
 				if (typeof readyStateFromMaster === 'number') {
-					dispatch(setReadyStateTo(readyStateFromMaster));
+					dispatch(_setReadyStateTo(readyStateFromMaster));
 				}
 				if (Array.isArray(responsesWaitingForFromMaster)) {
 					dispatch(
-						setResponsesWaitingForTo(responsesWaitingForFromMaster)
+						_setResponsesWaitingForTo(responsesWaitingForFromMaster)
 					);
 				}
 			}
@@ -246,10 +246,10 @@ listenerMiddleware.startListening({
 					);
 					break;
 				case MsgToTabType.SET_ROLE_MASTER:
-					dispatch(becomeMasterRole());
+					dispatch(_becomeMasterRole());
 					break;
 				case MsgToTabType.SET_ROLE_CLIENT:
-					dispatch(becomeClientRole());
+					dispatch(_becomeClientRole());
 					queryStateOfWS();
 					break;
 				case MsgToTabType.QUERY_ALIVE:
@@ -286,19 +286,19 @@ listenerMiddleware.startListening({
 listenerMiddleware.startListening({
 	predicate: (action, currentState) =>
 		currentState.role.amMasterRole &&
-		(action.type === removeFromResponsesWaitingFor.type ||
-			action.type === addToResponsesWaitingFor.type ||
-			action.type === setResponsesWaitingForTo.type ||
-			action.type === setReadyStateTo.type),
+		(action.type === _removeFromResponsesWaitingFor.type ||
+			action.type === _addToResponsesWaitingFor.type ||
+			action.type === _setResponsesWaitingForTo.type ||
+			action.type === _setReadyStateTo.type),
 	effect: (action, listenerApi) => {
 		const getState = listenerApi.getState.bind(this);
 		const { responsesWaitingFor, readyState } = getState().ws;
-		if (action.type === setReadyStateTo.type) {
+		if (action.type === _setReadyStateTo.type) {
 			sendUpdateInWSState({ readyState });
 		} else if (
-			action.type === addToResponsesWaitingFor.type ||
-			action.type === removeFromResponsesWaitingFor.type ||
-			action.type === setResponsesWaitingForTo.type
+			action.type === _addToResponsesWaitingFor.type ||
+			action.type === _removeFromResponsesWaitingFor.type ||
+			action.type === _setResponsesWaitingForTo.type
 		) {
 			sendUpdateInWSState({ responsesWaitingFor });
 		}

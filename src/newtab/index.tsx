@@ -10,7 +10,7 @@ import OrgItem from 'components/OrgItem';
 import LoadingBar from 'components/LoadingBar';
 import store, { persistor } from '../app/store';
 import { useAppDispatch } from '../app/hooks';
-import { setStateAsResolved, establishRole } from 'modules/role/roleSlice';
+import { _setStateAsResolved, establishRole } from 'modules/role/roleSlice';
 
 const IndexNewtab: React.FC = () => {
 	const dispatch = useAppDispatch();
@@ -40,7 +40,7 @@ const StateResolver: React.FC<{ isInitialStateResolved: boolean }> = ({
 
 	useEffect(() => {
 		if (isInitialStateResolved) {
-			dispatch(setStateAsResolved());
+			dispatch(_setStateAsResolved());
 		}
 	}, [dispatch, isInitialStateResolved]);
 

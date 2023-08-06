@@ -10,8 +10,8 @@ import Socket from 'lib/Socket';
 import { listenerMiddleware } from 'app/middleware';
 import {
 	getItem,
-	recvMsgFromEmacs,
-	sendMsgToEmacs,
+	_recvMsgFromEmacs,
+	_sendMsgToEmacs,
 } from 'modules/emacs/emacsSlice';
 import { getMasterWSTabId, sendMsgToTab } from 'lib/messages';
 
@@ -32,10 +32,16 @@ export const wsSlice = createSlice({
 	name: 'ws',
 	initialState,
 	reducers: {
-		setReadyStateTo: (state, action: PayloadAction<WSReadyState>) => {
+		setWSPortTo: (state, action: PayloadAction<number>) => {
+			state.wsPort = action.payload;
+		},
+		_setReadyStateTo: (state, action: PayloadAction<WSReadyState>) => {
 			state.readyState = action.payload;
 		},
-		removeFromResponsesWaitingFor: (
+		_addToResponsesWaitingFor: (state, action: PayloadAction<number>) => {
+			state.responsesWaitingFor.push(action.payload);
+		},
+		_removeFromResponsesWaitingFor: (
 			state,
 			action: PayloadAction<number>
 		) => {
@@ -43,33 +49,27 @@ export const wsSlice = createSlice({
 				(id) => id !== action.payload
 			);
 		},
-		addToResponsesWaitingFor: (state, action: PayloadAction<number>) => {
-			state.responsesWaitingFor.push(action.payload);
-		},
-		setResponsesWaitingForTo: (
+		_setResponsesWaitingForTo: (
 			state,
 			action: PayloadAction<Array<number>>
 		) => {
 			state.responsesWaitingFor = action.payload;
 		},
-		openWS: () => {},
-		closeWS: () => {},
-		resetWS: () => {},
-		setWSPortTo: (state, action: PayloadAction<number>) => {
-			state.wsPort = action.payload;
-		},
+		_openWS: () => {},
+		_closeWS: () => {},
+		_resetWS: () => {},
 	},
 });
 
 export const {
-	setReadyStateTo,
-	removeFromResponsesWaitingFor,
-	addToResponsesWaitingFor,
-	setResponsesWaitingForTo,
-	openWS,
-	closeWS,
-	resetWS,
 	setWSPortTo,
+	_setReadyStateTo,
+	_removeFromResponsesWaitingFor,
+	_addToResponsesWaitingFor,
+	_setResponsesWaitingForTo,
+	_openWS,
+	_closeWS,
+	_resetWS,
 } = wsSlice.actions;
 
 export const selectedReadyState = (state: RootState) => state.ws.readyState;
@@ -86,26 +86,26 @@ export default wsSlice.reducer;
  * Open the websocket
  */
 listenerMiddleware.startListening({
-	actionCreator: openWS,
+	actionCreator: _openWS,
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
 		const getState = listenerApi.getState.bind(this);
 		const {
 			ws: { wsPort },
 		} = getState();
-		dispatch(setReadyStateTo(WSReadyState.CONNECTING));
+		dispatch(_setReadyStateTo(WSReadyState.CONNECTING));
 		// eslint-disable-next-line no-console
 		console.log('connecting');
 		Socket.connect(`ws://localhost:${wsPort}/`);
 		Socket.on('open', () => {
 			// eslint-disable-next-line no-console
 			console.log('open');
-			dispatch(setReadyStateTo(WSReadyState.OPEN));
+			dispatch(_setReadyStateTo(WSReadyState.OPEN));
 		});
 		Socket.on('close', () => {
 			// eslint-disable-next-line no-console
 			console.log('close');
-			dispatch(setReadyStateTo(WSReadyState.CLOSED));
+			dispatch(_setReadyStateTo(WSReadyState.CLOSED));
 		});
 		Socket.on('error', (event) => {
 			console.error('Websocket error', event.data);
@@ -114,10 +114,10 @@ listenerMiddleware.startListening({
 			const message = event.data;
 			const parsed = JSON.parse(message) as EmacsRecvMsg;
 			if (parsed === null) return;
-			dispatch(recvMsgFromEmacs(parsed));
+			dispatch(_recvMsgFromEmacs(parsed));
 			if (parsed.type === 'ITEM') {
 				// TODO: more general case for this
-				dispatch(removeFromResponsesWaitingFor(parsed?.resid || -1));
+				dispatch(_removeFromResponsesWaitingFor(parsed?.resid || -1));
 			}
 		});
 	},
@@ -127,11 +127,11 @@ listenerMiddleware.startListening({
  * Close the websocket
  */
 listenerMiddleware.startListening({
-	actionCreator: closeWS,
+	actionCreator: _closeWS,
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
-		dispatch(setReadyStateTo(WSReadyState.CLOSING));
-		dispatch(setResponsesWaitingForTo([]));
+		dispatch(_setReadyStateTo(WSReadyState.CLOSING));
+		dispatch(_setResponsesWaitingForTo([]));
 		Socket.disconnect();
 	},
 });
@@ -140,11 +140,11 @@ listenerMiddleware.startListening({
  * Reset (open and close) the websocket
  */
 listenerMiddleware.startListening({
-	actionCreator: resetWS,
+	actionCreator: _resetWS,
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
-		dispatch(closeWS());
-		dispatch(openWS());
+		dispatch(_closeWS());
+		dispatch(_openWS());
 	},
 });
 
@@ -154,7 +154,7 @@ listenerMiddleware.startListening({
  */
 listenerMiddleware.startListening({
 	predicate: (action, currentState) =>
-		action.type === setReadyStateTo.type &&
+		action.type === _setReadyStateTo.type &&
 		currentState.role.amMasterRole &&
 		currentState.ws.readyState === WSReadyState.OPEN,
 	effect: (_action, listenerApi) => {
@@ -174,7 +174,7 @@ listenerMiddleware.startListening({
  */
 listenerMiddleware.startListening({
 	predicate: (action, currentState) =>
-		action.type === sendMsgToEmacs.type &&
+		action.type === _sendMsgToEmacs.type &&
 		currentState.ws.readyState === WSReadyState.OPEN,
 	effect: (action, listenerApi) => {
 		const { dispatch } = listenerApi;
@@ -186,9 +186,9 @@ listenerMiddleware.startListening({
 			const resid = Math.floor(Math.random() * 1000000000);
 			const data = { ...action.payload, resid } as EmacsSendMsg;
 			Socket.sendJSON(data);
-			dispatch(addToResponsesWaitingFor(resid));
+			dispatch(_addToResponsesWaitingFor(resid));
 			setTimeout(() => {
-				dispatch(removeFromResponsesWaitingFor(resid));
+				dispatch(_removeFromResponsesWaitingFor(resid));
 			}, MAXIMUM_TIME_TO_WAIT_FOR_RESPONSE);
 		} else {
 			void getMasterWSTabId().then((masterWSTabAsNumber) => {
