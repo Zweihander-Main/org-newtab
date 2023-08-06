@@ -280,27 +280,32 @@ listenerMiddleware.startListening({
 });
 
 /**
- * As master, send WS updates to all other tabs. Using messaging rather than
- * storage to avoid persisting ephemeral state in storage.
+ * As master, send updates in readyState to other tabs
+ * (not persisted in storage)
+ */
+listenerMiddleware.startListening({
+	predicate: (action, currentState) =>
+		currentState.role.amMasterRole && action.type === _setReadyStateTo.type,
+	effect: (_action, listenerApi) => {
+		const getState = listenerApi.getState.bind(this);
+		const { readyState } = getState().ws;
+		sendUpdateInWSState({ readyState });
+	},
+});
+
+/**
+ * As master, send updates in responsesWaitingFor to other tabs
+ * (not persisted in storage)
  */
 listenerMiddleware.startListening({
 	predicate: (action, currentState) =>
 		currentState.role.amMasterRole &&
 		(action.type === _removeFromResponsesWaitingFor.type ||
 			action.type === _addToResponsesWaitingFor.type ||
-			action.type === _setResponsesWaitingForTo.type ||
-			action.type === _setReadyStateTo.type),
-	effect: (action, listenerApi) => {
+			action.type === _setResponsesWaitingForTo.type),
+	effect: (_action, listenerApi) => {
 		const getState = listenerApi.getState.bind(this);
-		const { responsesWaitingFor, readyState } = getState().ws;
-		if (action.type === _setReadyStateTo.type) {
-			sendUpdateInWSState({ readyState });
-		} else if (
-			action.type === _addToResponsesWaitingFor.type ||
-			action.type === _removeFromResponsesWaitingFor.type ||
-			action.type === _setResponsesWaitingForTo.type
-		) {
-			sendUpdateInWSState({ responsesWaitingFor });
-		}
+		const { responsesWaitingFor } = getState().ws;
+		sendUpdateInWSState({ responsesWaitingFor });
 	},
 });
