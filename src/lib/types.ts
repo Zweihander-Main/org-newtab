@@ -85,8 +85,3 @@ export type EmacsSendMsg = {
 export type EmacsSendMsgWithResid = EmacsSendMsg & {
 	resid: number;
 };
-
-export type SendJsonMessage = (
-	jsonMessage: EmacsSendMsg,
-	keep?: boolean
-) => void;

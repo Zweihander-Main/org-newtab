@@ -1,4 +1,4 @@
-import { LogLoc, LogMsgDir, logMsg, logMsgErr } from './logging';
+import { LogLoc, LogMsgDir, logMsg } from './logging';
 import {
 	MsgDirection,
 	type MsgToTab,
@@ -9,7 +9,6 @@ import {
 	MsgToBGSW,
 	EmacsSendMsg,
 	WSStateMsg,
-	SendJsonMessage,
 	WSPortMsg,
 } from './types';
 
@@ -127,24 +126,4 @@ export const getMasterWSTabId = async () => {
 
 export const sendUpdateInWSState = (data: WSStateMsg) => {
 	sendMsgToAllTabs(MsgToTabType.SET_WS_STATE, data);
-};
-
-/**
- * Emacs related messaging functions
- */
-
-export const handlePassingMessage = (
-	sendJsonMessage: SendJsonMessage,
-	message: MsgToTab
-) => {
-	if (message.data) {
-		sendJsonMessage(message.data as EmacsSendMsg);
-	} else {
-		logMsgErr(
-			LogLoc.NEWTAB,
-			LogMsgDir.RECV,
-			'Bad or no data for updating match query',
-			message?.data
-		);
-	}
 };

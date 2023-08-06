@@ -7,11 +7,13 @@ import wsReducer, { WSState } from '../modules/ws/wsSlice';
 import emacsReducer, { EmacsState } from '../modules/emacs/emacsSlice';
 import roleReducer, { RoleState } from '../modules/role/roleSlice';
 
+// TODO: DRY this stuff
+
 export const rolePersistConfig = {
 	key: 'role',
 	version: 1,
 	storage: localStorage as StorageType,
-	blacklist: ['amMasterWS', 'stateResolved'],
+	blacklist: ['amMasterRole', 'stateResolved'],
 };
 
 const persistedRoleReducer = persistReducer<RoleState, AnyAction>(

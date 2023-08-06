@@ -3,13 +3,12 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { listenerMiddleware } from 'app/middleware';
 import { RootState } from 'app/store';
 import Port from 'lib/Port';
-import { LogLoc, LogMsgDir, logMsg } from 'lib/logging';
+import { LogLoc, LogMsgDir, logMsg, logMsgErr } from 'lib/logging';
 import {
 	SendResponseType,
 	getMasterWSTabId,
 	handleConfirmingAlive,
 	handleConfirmingRoleAsMaster,
-	handlePassingMessage,
 	sendMsgToAllTabs,
 	sendMsgToBGSWPort,
 	sendMsgToTab,
@@ -21,7 +20,6 @@ import {
 	MsgToBGSWType,
 	MsgToTab,
 	MsgToTabType,
-	SendJsonMessage,
 	WSPortMsg,
 	WSStateMsg,
 	getMsgToTabType,
@@ -75,11 +73,23 @@ export const roleSlice = createSlice({
 		) => {},
 		_handleBGSWMsg_setRoleAsMaster: () => {},
 		_handleBGSWMsg_setRoleAsClient: () => {},
-		_handleBGSWMsg_confirmAlive: () => {},
-		_handleTabMsg_passToEmacs: () => {},
+		_handleBGSWMsg_confirmAlive: (
+			_state,
+			_action: PayloadAction<SendResponseType>
+		) => {},
+		_handleTabMsg_passToEmacs: (
+			_state,
+			_action: PayloadAction<MsgToTab>
+		) => {},
 		_handleTabMsg_getWSState: () => {},
-		_handleTabMsg_setWSState: () => {},
-		_handleTabMsg_setWSPort: () => {},
+		_handleTabMsg_setWSState: (
+			_state,
+			_action: PayloadAction<MsgToTab>
+		) => {},
+		_handleTabMsg_setWSPort: (
+			_state,
+			_action: PayloadAction<MsgToTab>
+		) => {},
 	},
 });
 export const {
@@ -195,93 +205,152 @@ listenerMiddleware.startListening({
 listenerMiddleware.startListening({
 	actionCreator: _handleBGSWMsg_confirmRoleAsMaster,
 	effect: (action, listenerApi) => {
+		const getState = listenerApi.getState.bind(this);
+		const {
+			role: { amMasterRole },
+		} = getState();
+		handleConfirmingRoleAsMaster(action.payload, amMasterRole);
+	},
+});
+
+listenerMiddleware.startListening({
+	actionCreator: _handleBGSWMsg_setRoleAsMaster,
+	effect: (_action, listenerApi) => {
+		const { dispatch } = listenerApi;
+		dispatch(_becomeMasterRole());
+	},
+});
+
+listenerMiddleware.startListening({
+	actionCreator: _handleBGSWMsg_setRoleAsClient,
+	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
 		const getState = listenerApi.getState.bind(this);
+		dispatch(_becomeClientRole());
+		void getMasterWSTabId().then((masterWSTabNum) => {
+			if (masterWSTabNum) {
+				const {
+					ws: { readyState, responsesWaitingFor },
+				} = getState();
+				sendMsgToTab(MsgToTabType.QUERY_WS_STATE, masterWSTabNum, {
+					readyState,
+					responsesWaitingFor,
+				});
+			}
+		});
+	},
+});
+
+listenerMiddleware.startListening({
+	actionCreator: _handleBGSWMsg_confirmAlive,
+	effect: (action) => {
+		handleConfirmingAlive(action.payload);
+	},
+});
+
+listenerMiddleware.startListening({
+	actionCreator: _handleTabMsg_passToEmacs,
+	effect: (action, listenerApi) => {
+		const { dispatch } = listenerApi;
+		const getState = listenerApi.getState.bind(this);
+		const message = action.payload;
+		if (!message?.data) {
+			logMsgErr(
+				LogLoc.NEWTAB,
+				LogMsgDir.RECV,
+				'Bad or no data for updating match query',
+				message?.data
+			);
+			return;
+		}
+
+		const {
+			role: { amMasterRole: amMasterWS },
+		} = getState();
+		if (amMasterWS) {
+			dispatch(_sendMsgToEmacs(message.data as EmacsSendMsg));
+		} else {
+			void getMasterWSTabId().then((masterWSTabAsNumber) => {
+				if (masterWSTabAsNumber) {
+					sendMsgToTab(
+						MsgToTabType.PASS_TO_EMACS,
+						masterWSTabAsNumber,
+						message.data
+					);
+				}
+			});
+		}
+	},
+});
+
+listenerMiddleware.startListening({
+	actionCreator: _handleTabMsg_getWSState,
+	effect: (_action, listenerApi) => {
+		const getState = listenerApi.getState.bind(this);
+		const {
+			role: { amMasterRole: amMasterWS },
+			ws: { readyState, responsesWaitingFor },
+		} = getState();
+		if (amMasterWS) {
+			sendMsgToAllTabs(MsgToTabType.SET_WS_STATE, {
+				readyState,
+				responsesWaitingFor,
+			});
+		}
+	},
+});
+
+listenerMiddleware.startListening({
+	actionCreator: _handleTabMsg_setWSState,
+	effect: (action, listenerApi) => {
+		const { dispatch } = listenerApi;
+		const getState = listenerApi.getState.bind(this);
+		const {
+			role: { amMasterRole },
+		} = getState();
+		const message = action.payload;
+		if (amMasterRole && message?.data) {
+			const {
+				responsesWaitingFor: responsesWaitingForFromMaster,
+				readyState: readyStateFromMaster,
+			} = message.data as WSStateMsg;
+			if (typeof readyStateFromMaster === 'number') {
+				dispatch(_setReadyStateTo(readyStateFromMaster));
+			}
+			if (Array.isArray(responsesWaitingForFromMaster)) {
+				dispatch(
+					_setResponsesWaitingForTo(responsesWaitingForFromMaster)
+				);
+			}
+		}
+	},
+});
+
+listenerMiddleware.startListening({
+	actionCreator: _handleTabMsg_setWSPort,
+	effect: (action, listenerApi) => {
+		const { dispatch } = listenerApi;
+		const getState = listenerApi.getState.bind(this);
+		const {
+			role: { amMasterRole },
+		} = getState();
+		const message = action.payload;
+		if (amMasterRole && message?.data) {
+			const { port } = message.data as WSPortMsg;
+			if (typeof port === 'number') {
+				dispatch(setWSPortTo(port));
+			}
+		}
 	},
 });
 
 /**
  * Establish role using BGSW, handle messages.
  */
-// TODO: Some of this should be moved into actions for easier debugging.
 listenerMiddleware.startListening({
 	actionCreator: establishRole,
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
-		const getState = listenerApi.getState.bind(this);
-
-		const sendJsonMessage: SendJsonMessage = (
-			jsonMessage: EmacsSendMsg
-		) => {
-			const {
-				role: { amMasterRole: amMasterWS },
-			} = getState();
-			if (amMasterWS) {
-				dispatch(_sendMsgToEmacs(jsonMessage));
-			} else {
-				void getMasterWSTabId().then((masterWSTabAsNumber) => {
-					if (masterWSTabAsNumber) {
-						sendMsgToTab(
-							MsgToTabType.PASS_TO_EMACS,
-							masterWSTabAsNumber,
-							jsonMessage
-						);
-					}
-				});
-			}
-		};
-
-		const handleQueryStateOfWS = () => {
-			const {
-				role: { amMasterRole: amMasterWS },
-				ws: { readyState, responsesWaitingFor },
-			} = getState();
-			if (amMasterWS) {
-				sendMsgToAllTabs(MsgToTabType.SET_WS_STATE, {
-					readyState,
-					responsesWaitingFor,
-				});
-			}
-		};
-
-		const handleUpdateStateOfWS = (message: MsgToTab) => {
-			if (!getState().role.amMasterRole && message?.data) {
-				const {
-					responsesWaitingFor: responsesWaitingForFromMaster,
-					readyState: readyStateFromMaster,
-				} = message.data as WSStateMsg;
-				if (typeof readyStateFromMaster === 'number') {
-					dispatch(_setReadyStateTo(readyStateFromMaster));
-				}
-				if (Array.isArray(responsesWaitingForFromMaster)) {
-					dispatch(
-						_setResponsesWaitingForTo(responsesWaitingForFromMaster)
-					);
-				}
-			}
-		};
-
-		const queryStateOfWS = () => {
-			void getMasterWSTabId().then((masterWSTabNum) => {
-				const { readyState, responsesWaitingFor } = getState().ws;
-				if (masterWSTabNum) {
-					sendMsgToTab(MsgToTabType.QUERY_WS_STATE, masterWSTabNum, {
-						readyState,
-						responsesWaitingFor,
-					});
-				}
-			});
-		};
-
-		const handleSetWSPort = (message: MsgToTab) => {
-			if (getState().role.amMasterRole && message?.data) {
-				const { port } = message.data as WSPortMsg;
-				if (typeof port === 'number') {
-					dispatch(setWSPortTo(port));
-				}
-			}
-		};
-
 		const handleMessage = (
 			message: MsgToTab,
 			_sender: chrome.runtime.MessageSender,
@@ -299,32 +368,28 @@ listenerMiddleware.startListening({
 			);
 			switch (message.type) {
 				case MsgToTabType.CONFIRM_YOUR_ROLE_IS_MASTER:
-					handleConfirmingRoleAsMaster(
-						sendResponse,
-						getState().role.amMasterRole
-					);
+					dispatch(_handleBGSWMsg_confirmRoleAsMaster(sendResponse));
 					break;
 				case MsgToTabType.SET_ROLE_MASTER:
-					dispatch(_becomeMasterRole());
+					dispatch(_handleBGSWMsg_setRoleAsMaster());
 					break;
 				case MsgToTabType.SET_ROLE_CLIENT:
-					dispatch(_becomeClientRole());
-					queryStateOfWS();
+					dispatch(_handleBGSWMsg_setRoleAsClient());
 					break;
 				case MsgToTabType.QUERY_ALIVE:
-					handleConfirmingAlive(sendResponse);
+					dispatch(_handleBGSWMsg_confirmAlive(sendResponse));
 					break;
 				case MsgToTabType.PASS_TO_EMACS:
-					handlePassingMessage(sendJsonMessage, message);
+					dispatch(_handleTabMsg_passToEmacs(message));
 					break;
 				case MsgToTabType.QUERY_WS_STATE:
-					handleQueryStateOfWS();
+					dispatch(_handleTabMsg_getWSState());
 					break;
 				case MsgToTabType.SET_WS_STATE:
-					handleUpdateStateOfWS(message);
+					dispatch(_handleTabMsg_setWSState(message));
 					break;
 				case MsgToTabType.SET_WS_PORT:
-					handleSetWSPort(message);
+					dispatch(_handleTabMsg_setWSPort(message));
 					break;
 			}
 		};
