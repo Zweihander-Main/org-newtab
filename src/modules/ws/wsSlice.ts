@@ -81,12 +81,13 @@ export const selectedWSPort = (state: RootState) => state.ws.wsPort;
 
 export default wsSlice.reducer;
 
+// TODO: alot of the role logic can be moved out of this file and into the roleSlice
 /**
  * Open the websocket (assuming master role)
  */
 listenerMiddleware.startListening({
 	predicate: (action, currentState) =>
-		action.type === openWS.type && currentState.role.amMasterWS,
+		action.type === openWS.type && currentState.role.amMasterRole,
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
 		const getState = listenerApi.getState.bind(this);
@@ -143,7 +144,7 @@ listenerMiddleware.startListening({
 listenerMiddleware.startListening({
 	predicate: (action, currentState) =>
 		action.type === setReadyStateTo.type &&
-		currentState.role.amMasterWS &&
+		currentState.role.amMasterRole &&
 		currentState.ws.readyState === WSReadyState.OPEN,
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
@@ -168,9 +169,9 @@ listenerMiddleware.startListening({
 		const { dispatch } = listenerApi;
 		const getState = listenerApi.getState.bind(this);
 		const {
-			role: { amMasterWS },
+			role: { amMasterRole },
 		} = getState();
-		if (amMasterWS) {
+		if (amMasterRole) {
 			const resid = Math.floor(Math.random() * 1000000000);
 			const data = { ...action.payload, resid } as EmacsSendMsg;
 			Socket.sendJSON(data);
@@ -195,4 +196,4 @@ listenerMiddleware.startListening({
 	},
 });
 
-// TODO reconnecting
+// TODO reconnecting logic -- reconnect on failure and also when browser starts before Emacs

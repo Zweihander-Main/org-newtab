@@ -6,7 +6,7 @@ import {
 	setMatchQueryTo,
 } from '../../modules/emacs/emacsSlice';
 import {
-	selectedAmMasterWs,
+	selectedAmMasterRole,
 	selectedStateResolved,
 } from 'modules/role/roleSlice';
 import { selectedWSPort, setWSPortTo } from 'modules/ws/wsSlice';
@@ -14,7 +14,7 @@ import { selectedWSPort, setWSPortTo } from 'modules/ws/wsSlice';
 const OptionsMenu: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const matchQuery = useAppSelector(selectedMatchQuery);
-	const amMasterWS = useAppSelector(selectedAmMasterWs);
+	const amMasterWS = useAppSelector(selectedAmMasterRole);
 	const wsPort = useAppSelector(selectedWSPort);
 	const isInitialStateResolved = useAppSelector(selectedStateResolved);
 	const [optionsVisible, setOptionsVisible] = useState(false);

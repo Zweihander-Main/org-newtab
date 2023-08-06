@@ -36,13 +36,20 @@ import {
 	setWSPortTo,
 } from 'modules/ws/wsSlice';
 
+/**
+ * Role is defined as master or client and refers to the websocket connection.
+ * The Master websocket is the one that actually talks to Emacs while the client
+ * is a dummy connection that talks through the master. This is done to avoid
+ * multiple websocket connections to Emacs.
+ */
+
 export interface RoleState {
-	amMasterWS: boolean;
+	amMasterRole: boolean;
 	stateResolved: boolean;
 }
 
 const initialState: RoleState = {
-	amMasterWS: false,
+	amMasterRole: false,
 	stateResolved: false,
 };
 
@@ -50,11 +57,11 @@ export const roleSlice = createSlice({
 	name: 'role',
 	initialState,
 	reducers: {
-		becomeMasterWS: (state) => {
-			state.amMasterWS = true;
+		becomeMasterRole: (state) => {
+			state.amMasterRole = true;
 		},
-		becomeClientWS: (state) => {
-			state.amMasterWS = false;
+		becomeClientRole: (state) => {
+			state.amMasterRole = false;
 		},
 		setStateAsResolved: (state) => {
 			state.stateResolved = true;
@@ -63,30 +70,30 @@ export const roleSlice = createSlice({
 	},
 });
 export const {
-	becomeMasterWS,
-	becomeClientWS,
+	becomeMasterRole,
+	becomeClientRole,
 	setStateAsResolved,
 	establishRole,
 } = roleSlice.actions;
 
-export const selectedAmMasterWs = (state: RootState) => state.role.amMasterWS;
+export const selectedAmMasterRole = (state: RootState) =>
+	state.role.amMasterRole;
 export const selectedStateResolved = (state: RootState) =>
 	state.role.stateResolved;
 
 export default roleSlice.reducer;
 
-// TODO: rename amMasterWS to amMasterRole
-
 /**
  * Open websocket when role becomes master and state is resolved.
- * This, websocket should not open before role and state are established.
+ * The role is necessary to avoid multiple websocket connections to Emacs. The
+ * state is necessary to allow custom websocket ports.
  */
 listenerMiddleware.startListening({
 	predicate: (action, currentState, originalState) =>
-		(action.type === becomeMasterWS.type &&
-			!originalState.role.amMasterWS &&
+		(action.type === becomeMasterRole.type &&
+			!originalState.role.amMasterRole &&
 			currentState.role.stateResolved) ||
-		(action.type === setStateAsResolved && currentState.role.amMasterWS),
+		(action.type === setStateAsResolved && currentState.role.amMasterRole),
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
 		dispatch(openWS());
@@ -94,10 +101,10 @@ listenerMiddleware.startListening({
 });
 
 /**
- * Close websocket when role becomes client
+ * Close websocket when role becomes client.
  */
 listenerMiddleware.startListening({
-	actionCreator: becomeClientWS,
+	actionCreator: becomeClientRole,
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
 		dispatch(closeWS());
@@ -106,7 +113,9 @@ listenerMiddleware.startListening({
 
 /**
  * Everytime the port changes, restart the websocket as master or let the
- * master know it needs to.
+ * master know it needs to. The master will not restart without the message
+ * from client as the side effect is not triggered without an action (which the
+ * storage sync doesn't trigger).
  */
 listenerMiddleware.startListening({
 	actionCreator: setWSPortTo,
@@ -114,7 +123,7 @@ listenerMiddleware.startListening({
 		const { dispatch } = listenerApi;
 		const getState = listenerApi.getState.bind(this);
 		const {
-			role: { amMasterWS },
+			role: { amMasterRole: amMasterWS },
 		} = getState();
 		if (amMasterWS) {
 			dispatch(closeWS());
@@ -133,8 +142,9 @@ listenerMiddleware.startListening({
 });
 
 /**
- * Establish role using BGSW, handle messages
+ * Establish role using BGSW, handle messages.
  */
+// TODO: Some of this should be moved into actions for easier debugging.
 listenerMiddleware.startListening({
 	actionCreator: establishRole,
 	effect: (_action, listenerApi) => {
@@ -145,7 +155,7 @@ listenerMiddleware.startListening({
 			jsonMessage: EmacsSendMsg
 		) => {
 			const {
-				role: { amMasterWS },
+				role: { amMasterRole: amMasterWS },
 			} = getState();
 			if (amMasterWS) {
 				dispatch(sendMsgToEmacs(jsonMessage));
@@ -164,7 +174,7 @@ listenerMiddleware.startListening({
 
 		const handleQueryStateOfWS = () => {
 			const {
-				role: { amMasterWS },
+				role: { amMasterRole: amMasterWS },
 				ws: { readyState, responsesWaitingFor },
 			} = getState();
 			if (amMasterWS) {
@@ -176,7 +186,7 @@ listenerMiddleware.startListening({
 		};
 
 		const handleUpdateStateOfWS = (message: MsgToTab) => {
-			if (!getState().role.amMasterWS && message?.data) {
+			if (!getState().role.amMasterRole && message?.data) {
 				const {
 					responsesWaitingFor: responsesWaitingForFromMaster,
 					readyState: readyStateFromMaster,
@@ -205,7 +215,7 @@ listenerMiddleware.startListening({
 		};
 
 		const handleSetWSPort = (message: MsgToTab) => {
-			if (getState().role.amMasterWS && message?.data) {
+			if (getState().role.amMasterRole && message?.data) {
 				const { port } = message.data as WSPortMsg;
 				if (typeof port === 'number') {
 					dispatch(setWSPortTo(port));
@@ -232,14 +242,14 @@ listenerMiddleware.startListening({
 				case MsgToTabType.CONFIRM_YOUR_ROLE_IS_MASTER:
 					handleConfirmingRoleAsMaster(
 						sendResponse,
-						getState().role.amMasterWS
+						getState().role.amMasterRole
 					);
 					break;
 				case MsgToTabType.SET_ROLE_MASTER:
-					dispatch(becomeMasterWS());
+					dispatch(becomeMasterRole());
 					break;
 				case MsgToTabType.SET_ROLE_CLIENT:
-					dispatch(becomeClientWS());
+					dispatch(becomeClientRole());
 					queryStateOfWS();
 					break;
 				case MsgToTabType.QUERY_ALIVE:
@@ -270,11 +280,12 @@ listenerMiddleware.startListening({
 });
 
 /**
- * As master, send WS updates to all other tabs
+ * As master, send WS updates to all other tabs. Using messaging rather than
+ * storage to avoid persisting ephemeral state in storage.
  */
 listenerMiddleware.startListening({
 	predicate: (action, currentState) =>
-		currentState.role.amMasterWS &&
+		currentState.role.amMasterRole &&
 		(action.type === removeFromResponsesWaitingFor.type ||
 			action.type === addToResponsesWaitingFor.type ||
 			action.type === setResponsesWaitingForTo.type ||
