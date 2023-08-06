@@ -315,7 +315,7 @@ listenerMiddleware.startListening({
 			role: { amMasterRole },
 		} = getState();
 		const message = action.payload;
-		if (amMasterRole && message?.data) {
+		if (!amMasterRole && message?.data) {
 			const {
 				responsesWaitingFor: responsesWaitingForFromMaster,
 				readyState: readyStateFromMaster,
