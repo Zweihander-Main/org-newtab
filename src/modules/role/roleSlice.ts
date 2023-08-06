@@ -31,6 +31,7 @@ import {
 	closeWS,
 	openWS,
 	removeFromResponsesWaitingFor,
+	resetWS,
 	setReadyStateTo,
 	setResponsesWaitingForTo,
 	setWSPortTo,
@@ -126,8 +127,7 @@ listenerMiddleware.startListening({
 			role: { amMasterRole: amMasterWS },
 		} = getState();
 		if (amMasterWS) {
-			dispatch(closeWS());
-			dispatch(openWS());
+			dispatch(resetWS());
 		} else {
 			void getMasterWSTabId().then((masterWSTabNum) => {
 				if (masterWSTabNum) {

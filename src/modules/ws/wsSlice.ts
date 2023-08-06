@@ -83,11 +83,10 @@ export default wsSlice.reducer;
 
 // TODO: alot of the role logic can be moved out of this file and into the roleSlice
 /**
- * Open the websocket (assuming master role)
+ * Open the websocket
  */
 listenerMiddleware.startListening({
-	predicate: (action, currentState) =>
-		action.type === openWS.type && currentState.role.amMasterRole,
+	actionCreator: openWS,
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
 		const getState = listenerApi.getState.bind(this);
@@ -125,7 +124,7 @@ listenerMiddleware.startListening({
 });
 
 /**
- * Close the websocket (role doesn't matter)
+ * Close the websocket
  */
 listenerMiddleware.startListening({
 	actionCreator: closeWS,
@@ -134,6 +133,18 @@ listenerMiddleware.startListening({
 		dispatch(setReadyStateTo(WSReadyState.CLOSING));
 		dispatch(setResponsesWaitingForTo([]));
 		Socket.disconnect();
+	},
+});
+
+/**
+ * Reset (open and close) the websocket
+ */
+listenerMiddleware.startListening({
+	actionCreator: resetWS,
+	effect: (_action, listenerApi) => {
+		const { dispatch } = listenerApi;
+		dispatch(closeWS());
+		dispatch(openWS());
 	},
 });
 
