@@ -3,17 +3,29 @@ import { localStorage } from 'redux-persist-webextension-storage';
 import { persistReducer } from '@plasmohq/redux-persist';
 import type { Storage as StorageType } from '@plasmohq/redux-persist/lib/types';
 import autoMergeLevel2 from '@plasmohq/redux-persist/lib/stateReconciler/autoMergeLevel2';
-import wsReducer, { WSState } from '../modules/ws/wsSlice';
-import emacsReducer, { EmacsState } from '../modules/emacs/emacsSlice';
-import roleReducer, { RoleState } from '../modules/role/roleSlice';
+import wsReducer, {
+	WSState,
+	name as wsSliceName,
+	persistenceBlacklist as wsSlicePersistenceBlacklist,
+} from '../modules/ws/wsSlice';
+import emacsReducer, {
+	EmacsState,
+	name as emacsSliceName,
+	persistenceBlacklist as emacsSlicePersistenceBlacklist,
+} from '../modules/emacs/emacsSlice';
+import roleReducer, {
+	RoleState,
+	name as roleSliceName,
+	persistenceBlacklist as roleSlicePersistenceBlacklist,
+} from '../modules/role/roleSlice';
 
-// TODO: DRY this stuff
+// TODO: Reduce persistence to only what is necessary
 
 export const rolePersistConfig = {
-	key: 'role',
+	key: roleSliceName,
 	version: 1,
 	storage: localStorage as StorageType,
-	blacklist: ['amMasterRole', 'stateResolved'],
+	blacklist: roleSlicePersistenceBlacklist,
 };
 
 const persistedRoleReducer = persistReducer<RoleState, AnyAction>(
@@ -22,10 +34,10 @@ const persistedRoleReducer = persistReducer<RoleState, AnyAction>(
 );
 
 export const wsPersistConfig = {
-	key: 'ws',
+	key: wsSliceName,
 	version: 1,
 	storage: localStorage as StorageType,
-	blacklist: ['readyState', 'responsesWaitingFor'],
+	blacklist: wsSlicePersistenceBlacklist,
 };
 
 const persistedWSReducer = persistReducer<WSState, AnyAction>(
@@ -34,10 +46,10 @@ const persistedWSReducer = persistReducer<WSState, AnyAction>(
 );
 
 export const emacsPersistConfig = {
-	key: 'emacs',
+	key: emacsSliceName,
 	version: 1,
 	storage: localStorage as StorageType,
-	blacklist: [],
+	blacklist: emacsSlicePersistenceBlacklist,
 	stateReconciler: autoMergeLevel2,
 };
 

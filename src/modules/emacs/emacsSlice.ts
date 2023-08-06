@@ -14,6 +14,9 @@ export interface EmacsState {
 	orgItem: OrgItem;
 }
 
+export const name = 'emacs';
+export const persistenceBlacklist: Array<keyof EmacsState> = [];
+
 const initialState: EmacsState = {
 	matchQuery: 'TODO="TODO"',
 	tagsData: {},
@@ -21,7 +24,7 @@ const initialState: EmacsState = {
 };
 
 const emacsSlice = createSlice({
-	name: 'emacs',
+	name,
 	initialState,
 	reducers: {
 		setMatchQueryTo: (state, action: PayloadAction<string>) => {

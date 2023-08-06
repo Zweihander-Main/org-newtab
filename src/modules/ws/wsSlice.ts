@@ -22,6 +22,12 @@ export interface WSState {
 	wsPort: number;
 }
 
+export const name = 'ws';
+export const persistenceBlacklist: Array<keyof WSState> = [
+	'readyState',
+	'responsesWaitingFor',
+];
+
 const initialState: WSState = {
 	readyState: WSReadyState.UNINSTANTIATED,
 	responsesWaitingFor: [],
@@ -29,7 +35,7 @@ const initialState: WSState = {
 };
 
 export const wsSlice = createSlice({
-	name: 'ws',
+	name,
 	initialState,
 	reducers: {
 		setWSPortTo: (state, action: PayloadAction<number>) => {
