@@ -48,16 +48,15 @@ export interface RoleState {
 	stateResolved: boolean;
 }
 
-export const name = 'role';
-export const persistenceBlacklist: Array<keyof RoleState> = [
-	'stateResolved',
-	'amMasterRole',
-];
-
 const initialState: RoleState = {
 	amMasterRole: false,
 	stateResolved: false,
 };
+
+export const name = 'role';
+export const persistenceBlacklist: Array<keyof RoleState> = Object.keys(
+	initialState
+) as Array<keyof RoleState>;
 
 export const roleSlice = createSlice({
 	name,
