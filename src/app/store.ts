@@ -16,7 +16,6 @@ import middleware from './middleware';
 import persistedRootReducer, {
 	emacsPersistConfig,
 	mockRootReducer,
-	rolePersistConfig,
 	rootPersistConfig,
 	wsPersistConfig,
 } from './rootReducer';
@@ -63,9 +62,6 @@ new Storage({
 		void persistor.resync();
 	},
 	[`persist:${wsPersistConfig.key}`]: () => {
-		void persistor.resync();
-	},
-	[`persist:${rolePersistConfig.key}`]: () => {
 		void persistor.resync();
 	},
 });

@@ -8,11 +8,7 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { RootState } from 'app/store';
 import Socket from 'lib/Socket';
 import { listenerMiddleware } from 'app/middleware';
-import {
-	getItem,
-	_recvMsgFromEmacs,
-	_sendMsgToEmacs,
-} from 'modules/emacs/emacsSlice';
+import { _recvMsgFromEmacs, _sendMsgToEmacs } from 'modules/emacs/emacsSlice';
 import { getMasterWSTabId, sendMsgToTab } from 'lib/messages';
 
 const MAXIMUM_TIME_TO_WAIT_FOR_RESPONSE = 60000;
@@ -151,27 +147,6 @@ listenerMiddleware.startListening({
 		const { dispatch } = listenerApi;
 		dispatch(_closeWS());
 		dispatch(_openWS());
-	},
-});
-
-/**
- * Every time the websocket opens, ask Emacs for the current item
- * (assuming master role)
- */
-listenerMiddleware.startListening({
-	predicate: (action, currentState) =>
-		action.type === _setReadyStateTo.type &&
-		currentState.role.amMasterRole &&
-		currentState.ws.readyState === WSReadyState.OPEN,
-	effect: (_action, listenerApi) => {
-		const { dispatch } = listenerApi;
-		const getState = listenerApi.getState.bind(this);
-		const {
-			emacs: { matchQuery },
-		} = getState();
-		if (matchQuery) {
-			dispatch(getItem());
-		}
 	},
 });
 

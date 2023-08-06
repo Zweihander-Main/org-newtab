@@ -13,25 +13,8 @@ import emacsReducer, {
 	name as emacsSliceName,
 	persistenceBlacklist as emacsSlicePersistenceBlacklist,
 } from '../modules/emacs/emacsSlice';
-import roleReducer, {
-	RoleState,
-	name as roleSliceName,
-	persistenceBlacklist as roleSlicePersistenceBlacklist,
-} from '../modules/role/roleSlice';
-
-// TODO: Reduce persistence to only what is necessary
-
-export const rolePersistConfig = {
-	key: roleSliceName,
-	version: 1,
-	storage: localStorage as StorageType,
-	blacklist: roleSlicePersistenceBlacklist,
-};
-
-const persistedRoleReducer = persistReducer<RoleState, AnyAction>(
-	rolePersistConfig,
-	roleReducer
-);
+import roleReducer, { name as roleSliceName } from '../modules/role/roleSlice';
+import msgReducer, { name as msgSliceName } from '../modules/msg/msgSlice';
 
 export const wsPersistConfig = {
 	key: wsSliceName,
@@ -59,24 +42,26 @@ const persistedEmacsReducer = persistReducer<EmacsState, AnyAction>(
 );
 
 const rootReducer = combineReducers({
-	role: persistedRoleReducer,
-	ws: persistedWSReducer,
-	emacs: persistedEmacsReducer,
+	[msgSliceName]: msgReducer,
+	[roleSliceName]: roleReducer,
+	[wsSliceName]: persistedWSReducer,
+	[emacsSliceName]: persistedEmacsReducer,
 });
 
 export const rootPersistConfig = {
 	key: 'root',
 	version: 1,
 	storage: localStorage as StorageType,
-	blacklist: ['role', 'ws', 'emacs'],
+	blacklist: [msgSliceName, roleSliceName, wsSliceName, emacsSliceName],
 };
 
 const persistedRootReducer = persistReducer(rootPersistConfig, rootReducer);
 
 export const mockRootReducer = combineReducers({
-	role: roleReducer,
-	ws: wsReducer,
-	emacs: emacsReducer,
+	[msgSliceName]: msgReducer,
+	[roleSliceName]: roleReducer,
+	[wsSliceName]: wsReducer,
+	[emacsSliceName]: emacsReducer,
 });
 
 export default persistedRootReducer;
