@@ -1,4 +1,5 @@
-import { createSlice } from '@reduxjs/toolkit';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { listenerMiddleware } from 'app/middleware';
 import { RootState } from 'app/store';
 import Port from 'lib/Port';
@@ -68,6 +69,17 @@ export const roleSlice = createSlice({
 		_setStateAsResolved: (state) => {
 			state.stateResolved = true;
 		},
+		_handleBGSWMsg_confirmRoleAsMaster: (
+			_state,
+			_action: PayloadAction<SendResponseType>
+		) => {},
+		_handleBGSWMsg_setRoleAsMaster: () => {},
+		_handleBGSWMsg_setRoleAsClient: () => {},
+		_handleBGSWMsg_confirmAlive: () => {},
+		_handleTabMsg_passToEmacs: () => {},
+		_handleTabMsg_getWSState: () => {},
+		_handleTabMsg_setWSState: () => {},
+		_handleTabMsg_setWSPort: () => {},
 	},
 });
 export const {
@@ -75,6 +87,14 @@ export const {
 	_becomeMasterRole,
 	_becomeClientRole,
 	_setStateAsResolved,
+	_handleBGSWMsg_confirmRoleAsMaster,
+	_handleBGSWMsg_setRoleAsMaster,
+	_handleBGSWMsg_setRoleAsClient,
+	_handleBGSWMsg_confirmAlive,
+	_handleTabMsg_passToEmacs,
+	_handleTabMsg_getWSState,
+	_handleTabMsg_setWSState,
+	_handleTabMsg_setWSPort,
 } = roleSlice.actions;
 
 export const selectedAmMasterRole = (state: RootState) =>
@@ -138,6 +158,45 @@ listenerMiddleware.startListening({
 				}
 			});
 		}
+	},
+});
+
+/**
+ * As master, send updates in readyState to other tabs
+ * (not persisted in storage)
+ */
+listenerMiddleware.startListening({
+	predicate: (action, currentState) =>
+		currentState.role.amMasterRole && action.type === _setReadyStateTo.type,
+	effect: (_action, listenerApi) => {
+		const getState = listenerApi.getState.bind(this);
+		const { readyState } = getState().ws;
+		sendUpdateInWSState({ readyState });
+	},
+});
+
+/**
+ * As master, send updates in responsesWaitingFor to other tabs
+ * (not persisted in storage)
+ */
+listenerMiddleware.startListening({
+	predicate: (action, currentState) =>
+		currentState.role.amMasterRole &&
+		(action.type === _removeFromResponsesWaitingFor.type ||
+			action.type === _addToResponsesWaitingFor.type ||
+			action.type === _setResponsesWaitingForTo.type),
+	effect: (_action, listenerApi) => {
+		const getState = listenerApi.getState.bind(this);
+		const { responsesWaitingFor } = getState().ws;
+		sendUpdateInWSState({ responsesWaitingFor });
+	},
+});
+
+listenerMiddleware.startListening({
+	actionCreator: _handleBGSWMsg_confirmRoleAsMaster,
+	effect: (action, listenerApi) => {
+		const { dispatch } = listenerApi;
+		const getState = listenerApi.getState.bind(this);
 	},
 });
 
@@ -276,36 +335,5 @@ listenerMiddleware.startListening({
 
 		// 1. Ask if any master web sockets exist
 		sendMsgToBGSWPort(MsgToBGSWType.QUERY_WS_ROLE, Port.port);
-	},
-});
-
-/**
- * As master, send updates in readyState to other tabs
- * (not persisted in storage)
- */
-listenerMiddleware.startListening({
-	predicate: (action, currentState) =>
-		currentState.role.amMasterRole && action.type === _setReadyStateTo.type,
-	effect: (_action, listenerApi) => {
-		const getState = listenerApi.getState.bind(this);
-		const { readyState } = getState().ws;
-		sendUpdateInWSState({ readyState });
-	},
-});
-
-/**
- * As master, send updates in responsesWaitingFor to other tabs
- * (not persisted in storage)
- */
-listenerMiddleware.startListening({
-	predicate: (action, currentState) =>
-		currentState.role.amMasterRole &&
-		(action.type === _removeFromResponsesWaitingFor.type ||
-			action.type === _addToResponsesWaitingFor.type ||
-			action.type === _setResponsesWaitingForTo.type),
-	effect: (_action, listenerApi) => {
-		const getState = listenerApi.getState.bind(this);
-		const { responsesWaitingFor } = getState().ws;
-		sendUpdateInWSState({ responsesWaitingFor });
 	},
 });

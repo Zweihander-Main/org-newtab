@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { listenerMiddleware } from 'app/middleware';
 import { RootState } from 'app/store';
@@ -33,7 +34,6 @@ const emacsSlice = createSlice({
 			state.orgItem = action.payload;
 		},
 		getItem: () => {},
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		_sendMsgToEmacs: (_state, _action: PayloadAction<EmacsSendMsg>) => {},
 		_recvMsgFromEmacs: (state, action: PayloadAction<EmacsRecvMsg>) => {
 			const { payload } = action;
