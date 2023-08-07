@@ -3,9 +3,8 @@ import { listenerMiddleware } from 'app/middleware';
 import { RootState } from 'app/store';
 import Port from 'lib/Port';
 import {
-	getMasterWSTabId,
 	sendMsgToBGSWPort,
-	sendMsgToTab,
+	sendToMasterTab,
 	sendUpdateInWSState,
 } from 'lib/messages';
 import { MsgToBGSWType, MsgToTabType, WSReadyState } from 'lib/types';
@@ -129,14 +128,8 @@ listenerMiddleware.startListening({
 		if (amMasterRole) {
 			dispatch(_resetWS());
 		} else {
-			void getMasterWSTabId().then((masterWSTabNum) => {
-				if (masterWSTabNum) {
-					const port = action.payload;
-					sendMsgToTab(MsgToTabType.SET_WS_PORT, masterWSTabNum, {
-						port,
-					});
-				}
-			});
+			const port = action.payload;
+			sendToMasterTab(MsgToTabType.SET_WS_PORT, { port });
 		}
 	},
 });

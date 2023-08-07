@@ -1,6 +1,6 @@
 import {
 	EmacsRecvMsg,
-	EmacsSendMsg,
+	EmacsSendMsgWithResid,
 	MsgToTabType,
 	WSReadyState,
 } from 'lib/types';
@@ -9,7 +9,7 @@ import { RootState } from 'app/store';
 import Socket from 'lib/Socket';
 import { listenerMiddleware } from 'app/middleware';
 import { _recvMsgFromEmacs, _sendMsgToEmacs } from 'modules/emacs/emacsSlice';
-import { getMasterWSTabId, sendMsgToTab } from 'lib/messages';
+import { sendToMasterTab } from 'lib/messages';
 
 const MAXIMUM_TIME_TO_WAIT_FOR_RESPONSE = 60000;
 export interface WSState {
@@ -154,36 +154,25 @@ listenerMiddleware.startListening({
  * Send a message to Emacs or to the master websocket to pass to Emacs
  */
 listenerMiddleware.startListening({
-	predicate: (action, currentState) =>
-		action.type === _sendMsgToEmacs.type &&
-		currentState.ws.readyState === WSReadyState.OPEN,
+	actionCreator: _sendMsgToEmacs,
 	effect: (action, listenerApi) => {
 		const { dispatch } = listenerApi;
 		const getState = listenerApi.getState.bind(this);
 		const {
 			role: { amMasterRole },
+			ws: { readyState },
 		} = getState();
-		if (amMasterRole) {
+		const data = action.payload;
+		if (amMasterRole && readyState === WSReadyState.OPEN) {
 			const resid = Math.floor(Math.random() * 1000000000);
-			const data = { ...action.payload, resid } as EmacsSendMsg;
-			Socket.sendJSON(data);
+			const toSend: EmacsSendMsgWithResid = { ...data, resid };
+			Socket.sendJSON(toSend);
 			dispatch(_addToResponsesWaitingFor(resid));
 			setTimeout(() => {
 				dispatch(_removeFromResponsesWaitingFor(resid));
 			}, MAXIMUM_TIME_TO_WAIT_FOR_RESPONSE);
 		} else {
-			void getMasterWSTabId().then((masterWSTabAsNumber) => {
-				if (masterWSTabAsNumber) {
-					const data = {
-						...action.payload,
-					} as EmacsSendMsg;
-					sendMsgToTab(
-						MsgToTabType.PASS_TO_EMACS,
-						masterWSTabAsNumber,
-						data
-					);
-				}
-			});
+			sendToMasterTab(MsgToTabType.PASS_TO_EMACS, data);
 		}
 	},
 });

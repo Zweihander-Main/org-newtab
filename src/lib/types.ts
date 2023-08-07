@@ -34,10 +34,12 @@ export type MsgToBGSW = {
 	type: MsgToBGSWType;
 };
 
+export type MsgToTabData = EmacsSendMsg | WSStateMsg | WSPortMsg;
+
 export type MsgToTab = {
 	direction: MsgDirection.TO_NEWTAB;
 	type: MsgToTabType;
-	data?: EmacsSendMsg | WSStateMsg | WSPortMsg;
+	data?: MsgToTabData;
 };
 
 export type AllTagsRecv = string | Array<string | number>;

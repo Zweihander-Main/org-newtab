@@ -4,11 +4,10 @@ import { listenerMiddleware } from 'app/middleware';
 import { LogLoc, LogMsgDir, logMsg, logMsgErr } from 'lib/logging';
 import {
 	SendResponseType,
-	getMasterWSTabId,
 	handleConfirmingAlive,
 	handleConfirmingRoleAsMaster,
 	sendMsgToAllTabs,
-	sendMsgToTab,
+	sendToMasterTab,
 } from 'lib/messages';
 import {
 	EmacsSendMsg,
@@ -138,19 +137,8 @@ listenerMiddleware.startListening({
 	actionCreator: _handleBGSWMsg_setRoleAsClient,
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
-		const getState = listenerApi.getState.bind(this);
 		dispatch(_becomeClientRole());
-		void getMasterWSTabId().then((masterWSTabNum) => {
-			if (masterWSTabNum) {
-				const {
-					ws: { readyState, responsesWaitingFor },
-				} = getState();
-				sendMsgToTab(MsgToTabType.QUERY_WS_STATE, masterWSTabNum, {
-					readyState,
-					responsesWaitingFor,
-				});
-			}
-		});
+		sendToMasterTab(MsgToTabType.QUERY_WS_STATE);
 	},
 });
 
@@ -190,15 +178,8 @@ listenerMiddleware.startListening({
 		if (amMasterRole) {
 			dispatch(_sendMsgToEmacs(message.data as EmacsSendMsg));
 		} else {
-			void getMasterWSTabId().then((masterWSTabAsNumber) => {
-				if (masterWSTabAsNumber) {
-					sendMsgToTab(
-						MsgToTabType.PASS_TO_EMACS,
-						masterWSTabAsNumber,
-						message.data
-					);
-				}
-			});
+			sendToMasterTab(MsgToTabType.PASS_TO_EMACS, message.data);
+			// TODO: this is duplicate code as emacs side effects
 		}
 	},
 });
@@ -329,10 +310,12 @@ listenerMiddleware.startListening({
 					break;
 			}
 		};
+
 		if (!chrome.runtime.onMessage.hasListener(handleMessage)) {
 			chrome.runtime.onMessage.addListener(handleMessage);
 			dispatch(_handlerIsConnected());
 		}
+
 		dispatch(establishRole());
 	},
 });

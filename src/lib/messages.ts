@@ -7,9 +7,8 @@ import {
 	getMsgToBGSWType,
 	getMsgToTabType,
 	MsgToBGSW,
-	EmacsSendMsg,
 	WSStateMsg,
-	WSPortMsg,
+	MsgToTabData,
 } from './types';
 
 export type SendResponseType = (message: MsgToBGSW | MsgToTab) => unknown;
@@ -53,7 +52,7 @@ export const sendMsgToBGSWAsResponse = (
 export const sendMsgToTab = (
 	type: MsgToTabType,
 	tabId: number,
-	data?: EmacsSendMsg | WSStateMsg | WSPortMsg
+	data?: MsgToTabData
 ) => {
 	logMsg(
 		LogLoc.NEWTAB,
@@ -120,10 +119,19 @@ export const getMasterWSTabId = async () => {
 
 	return masterWSTabAsNumber;
 };
+
 /**
- * WSState related messaging functions
+ * WS (inter-tab) related messaging functions
  */
 
 export const sendUpdateInWSState = (data: WSStateMsg) => {
 	sendMsgToAllTabs(MsgToTabType.SET_WS_STATE, data);
+};
+
+export const sendToMasterTab = (type: MsgToTabType, data?: MsgToTabData) => {
+	void getMasterWSTabId().then((masterWSTabNum) => {
+		if (masterWSTabNum) {
+			sendMsgToTab(type, masterWSTabNum, data);
+		}
+	});
 };
