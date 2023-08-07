@@ -104,6 +104,9 @@ export const {
 
 export default msgSlice.reducer;
 
+/**
+ * Let the BGSW know that this is the master websocket.
+ */
 listenerMiddleware.startListening({
 	actionCreator: _handleBGSWMsg_confirmRoleAsMaster,
 	effect: (action, listenerApi) => {
@@ -115,6 +118,9 @@ listenerMiddleware.startListening({
 	},
 });
 
+/**
+ * The BGSW has instructed that this tab is the master websocket.
+ */
 listenerMiddleware.startListening({
 	actionCreator: _handleBGSWMsg_setRoleAsMaster,
 	effect: (_action, listenerApi) => {
@@ -123,6 +129,11 @@ listenerMiddleware.startListening({
 	},
 });
 
+/**
+ * The BGSW has instructed that this tab is a client websocket.
+ * Send a message to the master tab to get the current state of the master
+ * websocket.
+ */
 listenerMiddleware.startListening({
 	actionCreator: _handleBGSWMsg_setRoleAsClient,
 	effect: (_action, listenerApi) => {
@@ -143,6 +154,9 @@ listenerMiddleware.startListening({
 	},
 });
 
+/**
+ * Respond to the BGSW's request to confirm that this tab is still alive.
+ */
 listenerMiddleware.startListening({
 	actionCreator: _handleBGSWMsg_confirmAlive,
 	effect: (action) => {
@@ -150,6 +164,10 @@ listenerMiddleware.startListening({
 	},
 });
 
+/**
+ * If master, send passed in message to Emacs. If not, pass the message to the
+ * master websocket.
+ */
 listenerMiddleware.startListening({
 	actionCreator: _handleTabMsg_passToEmacs,
 	effect: (action, listenerApi) => {
@@ -185,6 +203,10 @@ listenerMiddleware.startListening({
 	},
 });
 
+/**
+ * If master, send the current state of the master websocket to all tabs.
+ * Triggered from a client request.
+ */
 listenerMiddleware.startListening({
 	actionCreator: _handleTabMsg_getWSState,
 	effect: (_action, listenerApi) => {
@@ -202,6 +224,11 @@ listenerMiddleware.startListening({
 	},
 });
 
+/**
+ * If a client websocket, set the dummy websocket status based on the
+ * data from the master websocket.
+ * Triggered from a master response.
+ */
 listenerMiddleware.startListening({
 	actionCreator: _handleTabMsg_setWSState,
 	effect: (action, listenerApi) => {
@@ -228,6 +255,12 @@ listenerMiddleware.startListening({
 	},
 });
 
+/**
+ * Received an FYI from a client websocket tab that the user has changed
+ * the websocket port. Will be reflected in the state due to syncing but
+ * needs this action called to trigger side effects (reopening websocket
+ * with new port).
+ */
 listenerMiddleware.startListening({
 	actionCreator: _handleTabMsg_setWSPort,
 	effect: (action, listenerApi) => {
@@ -246,6 +279,10 @@ listenerMiddleware.startListening({
 	},
 });
 
+/**
+ * Setup listener and message handler. Accepts message from both the BGSW
+ * and other tabs.
+ */
 listenerMiddleware.startListening({
 	actionCreator: initMessaging,
 	effect: (_action, listenerApi) => {
