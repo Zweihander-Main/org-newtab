@@ -179,7 +179,6 @@ listenerMiddleware.startListening({
 			dispatch(_sendMsgToEmacs(message.data as EmacsSendMsg));
 		} else {
 			sendToMasterTab(MsgToTabType.PASS_TO_EMACS, message.data);
-			// TODO: this is duplicate code as emacs side effects
 		}
 	},
 });
