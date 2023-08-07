@@ -25,7 +25,13 @@ import {
  * Role is defined as master or client and refers to the websocket connection.
  * The Master websocket is the one that actually talks to Emacs while the client
  * is a dummy connection that talks through the master. This is done to avoid
- * multiple websocket connections to Emacs.
+ * multiple websocket connections to Emacs -- multiple new tab pages may exist
+ * but only one should actually be talking to Emacs.
+ *
+ * While a more sane strategy would be to handle the websocket connection in the
+ * background service worker, this is not reliably possible as of writing in
+ * Manifest v3. The BGSW may be terminated at any time and the connection would
+ * be lost even though Emacs may still be sending messages over.
  */
 
 export interface RoleState {
