@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { PayloadAction, createSlice, isAnyOf } from '@reduxjs/toolkit';
 import { listenerMiddleware } from 'app/middleware';
 import { RootState } from 'app/store';
 import { EmacsSendMsg, type EmacsItemMsg, EmacsRecvMsg } from 'lib/types';
@@ -72,20 +72,7 @@ export const {
 export default emacsSlice.reducer;
 
 listenerMiddleware.startListening({
-	actionCreator: setMatchQueryTo,
-	effect: (action, listenerApi) => {
-		const { dispatch } = listenerApi;
-		const matchQuery = action.payload;
-		const jsonMessage = {
-			command: 'updateMatchQuery',
-			data: matchQuery,
-		} as EmacsSendMsg;
-		dispatch(_sendMsgToEmacs(jsonMessage));
-	},
-});
-
-listenerMiddleware.startListening({
-	actionCreator: getItem,
+	matcher: isAnyOf(getItem, setMatchQueryTo),
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
 		const getState = listenerApi.getState.bind(this);

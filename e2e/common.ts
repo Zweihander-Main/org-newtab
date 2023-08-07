@@ -19,4 +19,3 @@ export const HOW_LONG_TO_WAIT_FOR_RESPONSE = 5000;
 export const DEFAULT_WEBSOCKET_PORT = 35942;
 
 export const GET_ITEM_COMMAND = 'getItem';
-export const UPDATE_MATCH_QUERY_COMMAND = 'updateMatchQuery';

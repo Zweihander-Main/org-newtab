@@ -10,7 +10,6 @@ import {
 	MASTER_MESSAGE,
 	MATCH_QUERY_LABEL,
 	ROLE_LOCATOR,
-	UPDATE_MATCH_QUERY_COMMAND,
 	DEFAULT_WEBSOCKET_PORT,
 	WSS_TEST_TEXT,
 	WS_PORT_LABEL,
@@ -315,8 +314,7 @@ test.describe('WebSocket', () => {
 									data?: string;
 								};
 								if (
-									payload?.command ===
-										UPDATE_MATCH_QUERY_COMMAND &&
+									payload?.command === GET_ITEM_COMMAND &&
 									payload?.data === WSS_TEST_TEXT
 								) {
 									resolve(true);

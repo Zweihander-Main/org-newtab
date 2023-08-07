@@ -1,3 +1,7 @@
+/**
+ * BGSW messages
+ */
+
 export enum MsgToBGSWType {
 	QUERY_WS_ROLE = 1,
 	IDENTIFY_ROLE_MASTER = 2,
@@ -34,6 +38,10 @@ export type MsgToBGSW = {
 	type: MsgToBGSWType;
 };
 
+/**
+ * Inter-tab messages
+ */
+
 export type MsgToTabData = EmacsSendMsg | WSStateMsg | WSPortMsg;
 
 export type MsgToTab = {
@@ -41,26 +49,6 @@ export type MsgToTab = {
 	type: MsgToTabType;
 	data?: MsgToTabData;
 };
-
-export type AllTagsRecv = string | Array<string | number>;
-
-export type EmacsItemMsg = {
-	type: 'ITEM';
-	data: {
-		ITEM: string;
-		ALLTAGS?: AllTagsRecv;
-	};
-	resid?: number;
-};
-
-export type EmacsTagsMsg = {
-	type: 'TAGS';
-	data: {
-		[key: string]: string | null; // TODO: sure about this?
-	};
-};
-
-export type EmacsRecvMsg = EmacsItemMsg | EmacsTagsMsg | null;
 
 export enum WSReadyState {
 	UNINSTANTIATED = -1,
@@ -79,8 +67,37 @@ export type WSPortMsg = {
 	port?: number;
 };
 
+/**
+ * Messages from Emacs
+ */
+
+export type AllTagsRecv = string | Array<string | number>;
+
+export type EmacsItemMsg = {
+	type: 'ITEM';
+	data: {
+		ITEM: string;
+		ALLTAGS?: AllTagsRecv;
+	};
+	resid?: number;
+};
+
+export type EmacsTagsMsg = {
+	type: 'TAGS';
+	data: {
+		[key: string]: string | null;
+	} | null;
+};
+
+export type EmacsRecvMsg = EmacsItemMsg | EmacsTagsMsg | null;
+
+/**
+ * Messages to Emacs
+ */
+export type EmacsSendMsgCommand = 'getItem';
+
 export type EmacsSendMsg = {
-	command: 'updateMatchQuery' | 'getItem';
+	command: EmacsSendMsgCommand;
 	data: string;
 };
 
