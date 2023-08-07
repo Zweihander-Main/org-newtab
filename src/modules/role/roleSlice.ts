@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, isAnyOf } from '@reduxjs/toolkit';
 import { listenerMiddleware } from 'app/middleware';
 import { RootState } from 'app/store';
 import Port from 'lib/Port';
@@ -79,14 +79,19 @@ export default roleSlice.reducer;
  * state is necessary to allow custom websocket ports.
  */
 listenerMiddleware.startListening({
-	predicate: (action, currentState, originalState) =>
-		(action.type === _becomeMasterRole.type &&
-			!originalState.role.amMasterRole &&
-			currentState.role.stateResolved) ||
-		(action.type === setStateAsResolved && currentState.role.amMasterRole),
+	matcher: isAnyOf(_becomeMasterRole, setStateAsResolved),
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
-		dispatch(_openWS());
+		const getState = listenerApi.getState.bind(this);
+		const {
+			role: { amMasterRole: wasMasterRole },
+		} = listenerApi.getOriginalState();
+		const {
+			role: { amMasterRole, stateResolved },
+		} = getState();
+		if (!wasMasterRole && amMasterRole && stateResolved) {
+			dispatch(_openWS());
+		}
 	},
 });
 
@@ -135,12 +140,16 @@ listenerMiddleware.startListening({
  * (not persisted in storage)
  */
 listenerMiddleware.startListening({
-	predicate: (action, currentState) =>
-		currentState.role.amMasterRole && action.type === _setReadyStateTo.type,
+	actionCreator: _setReadyStateTo,
 	effect: (_action, listenerApi) => {
 		const getState = listenerApi.getState.bind(this);
-		const { readyState } = getState().ws;
-		sendUpdateInWSState({ readyState });
+		const {
+			ws: { readyState },
+			role: { amMasterRole },
+		} = getState();
+		if (amMasterRole) {
+			sendUpdateInWSState({ readyState });
+		}
 	},
 });
 
@@ -149,15 +158,20 @@ listenerMiddleware.startListening({
  * (not persisted in storage)
  */
 listenerMiddleware.startListening({
-	predicate: (action, currentState) =>
-		currentState.role.amMasterRole &&
-		(action.type === _removeFromResponsesWaitingFor.type ||
-			action.type === _addToResponsesWaitingFor.type ||
-			action.type === _setResponsesWaitingForTo.type),
+	matcher: isAnyOf(
+		_addToResponsesWaitingFor,
+		_removeFromResponsesWaitingFor,
+		_setResponsesWaitingForTo
+	),
 	effect: (_action, listenerApi) => {
 		const getState = listenerApi.getState.bind(this);
-		const { responsesWaitingFor } = getState().ws;
-		sendUpdateInWSState({ responsesWaitingFor });
+		const {
+			ws: { responsesWaitingFor },
+			role: { amMasterRole },
+		} = getState();
+		if (amMasterRole) {
+			sendUpdateInWSState({ responsesWaitingFor });
+		}
 	},
 });
 
@@ -166,17 +180,16 @@ listenerMiddleware.startListening({
  * (assuming master role)
  */
 listenerMiddleware.startListening({
-	predicate: (action, currentState) =>
-		action.type === _setReadyStateTo.type &&
-		currentState.role.amMasterRole &&
-		currentState.ws.readyState === WSReadyState.OPEN,
+	actionCreator: _setReadyStateTo,
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
 		const getState = listenerApi.getState.bind(this);
 		const {
 			emacs: { matchQuery },
+			role: { amMasterRole },
+			ws: { readyState },
 		} = getState();
-		if (matchQuery) {
+		if (matchQuery && amMasterRole && readyState === WSReadyState.OPEN) {
 			dispatch(getItem());
 		}
 	},
