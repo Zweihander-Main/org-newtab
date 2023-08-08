@@ -11,6 +11,33 @@ import {
 } from 'modules/role/roleSlice';
 import { selectedWSPort, setWSPortTo } from 'modules/ws/wsSlice';
 
+type OptionsButtonProps = {
+	optionsVisible: boolean;
+	toggleMenu: () => void;
+};
+
+const OptionsButton: React.FC<OptionsButtonProps> = ({
+	optionsVisible,
+	toggleMenu,
+}) => {
+	const optionsMenuButtonClass = [
+		styles.button,
+		optionsVisible ? styles.active : '',
+	].join(' ');
+
+	return (
+		<button
+			aria-label={chrome.i18n.getMessage('optionsMenu')}
+			className={optionsMenuButtonClass}
+			onClick={toggleMenu}
+		>
+			<div className={styles['button-bar1']}></div>
+			<div className={styles['button-bar2']}></div>
+			<div className={styles['button-bar3']}></div>
+		</button>
+	);
+};
+
 const OptionsMenu: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const matchQuery = useAppSelector(selectedMatchQuery);
@@ -67,28 +94,17 @@ const OptionsMenu: React.FC = () => {
 		setOptionsVisible(!optionsVisible);
 	}, [optionsVisible]);
 
-	const optionsMenuButtonClass = [
-		styles.button,
-		optionsVisible ? styles.active : '',
-	].join(' ');
-
 	const optionsMenuClass = [
 		styles.menu,
 		optionsVisible ? styles.active : '',
 	].join(' ');
 
-	// TODO: break out button in its own component
 	return (
 		<>
-			<button
-				aria-label={chrome.i18n.getMessage('optionsMenu')}
-				className={optionsMenuButtonClass}
-				onClick={toggleMenu}
-			>
-				<div className={styles['button-bar1']}></div>
-				<div className={styles['button-bar2']}></div>
-				<div className={styles['button-bar3']}></div>
-			</button>
+			<OptionsButton
+				optionsVisible={optionsVisible}
+				toggleMenu={toggleMenu}
+			/>
 			<nav className={optionsMenuClass}>
 				<form
 					className={styles.form}
