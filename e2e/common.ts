@@ -5,6 +5,7 @@ export const ROLE_LOCATOR = 'websocket-role';
 export const ITEM_TEXT_LOCATOR = 'item-text';
 export const INITIAL_STATE_LOCATOR = 'initial-state';
 export const CONNECTION_STATUS_LOCATOR = 'connection-status';
+export const LOADING_BAR_LOCATOR = 'loading-bar';
 export const WSS_TEST_TEXT = 'WSS test message';
 export const MATCH_QUERY_LABEL = 'Match Query';
 export const WS_PORT_LABEL = 'WebSocket Port';

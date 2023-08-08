@@ -14,9 +14,10 @@ const LoadingBar: React.FC<{
 
 	return (
 		<div
+			data-testid="loading-bar"
 			className={styles.outer}
 			style={{
-				opacity: isFinished ? 0 : 1,
+				visibility: isFinished ? 'hidden' : 'visible',
 				marginLeft: `${(-1 + progress) * 100}%`,
 				transition: `margin-left ${animationDuration}ms linear`,
 			}}

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-base-to-string */
 /* eslint-disable no-console */
 import {
 	CLIENT_MESSAGE,
@@ -16,6 +17,7 @@ import {
 	INITIAL_STATE_LOCATOR,
 	INITIAL_STATE_RESOLVED,
 	HOW_LONG_TO_WAIT_FOR_STORAGE,
+	LOADING_BAR_LOCATOR,
 } from './common';
 import { test, expect } from './fixture';
 import WebSocket from 'ws';
@@ -27,10 +29,22 @@ function startTestWebSocketServer(port: number) {
 
 	wss.on('connection', (ws) => {
 		ws.on('message', (message) => {
-			console.log('Received message from client:', message);
+			console.log('Received message from client: %s', message);
+			let resid = -1;
+			try {
+				const parsed = JSON.parse(message.toString()) as {
+					command: string;
+					data: string;
+					resid: number;
+				};
+				resid = parsed?.resid || -1;
+			} catch {
+				console.log('Could not parse message, not JSON.');
+			}
 			const toSend = JSON.stringify({
 				type: 'ITEM',
 				data: { ITEM: WSS_TEST_TEXT },
+				resid,
 			});
 			console.log('Sending response', toSend);
 			ws.send(toSend);
@@ -404,5 +418,59 @@ test.describe('WebSocket', () => {
 		await expect(tabMaster.getByLabel(MATCH_QUERY_LABEL)).toHaveValue(
 			WSS_TEST_TEXT
 		);
+	});
+
+	test('Should add and remove waiting responses', async ({
+		extensionId,
+		context,
+	}) => {
+		const conn = await openSocketConnection();
+		const tabMaster = await context.newPage();
+		async function getAnyDataSent(): Promise<boolean> {
+			return new Promise(function (resolve) {
+				tabMaster.on('websocket', (ws) => {
+					if (ws.url() === webSocketURL(conn)) {
+						ws.on('framesent', () => {
+							resolve(true);
+						});
+						ws.on('close', () => resolve(false));
+						ws.on('socketerror', () => resolve(false));
+					}
+				});
+				void expect(tabMaster.getByTestId(INITIAL_STATE_LOCATOR))
+					.toContainText(INITIAL_STATE_RESOLVED, {
+						timeout: HOW_LONG_TO_WAIT_FOR_STORAGE,
+					})
+					.then(() => {
+						setTimeout(
+							() => resolve(false),
+							HOW_LONG_TO_WAIT_FOR_WEBSOCKET
+						);
+					});
+			});
+		}
+
+		const wsFunc = getAnyDataSent();
+
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await expect(
+			tabMaster.getByTestId(LOADING_BAR_LOCATOR)
+		).not.toBeVisible();
+		await setupWebsocketPort(conn, tabMaster);
+		await expect(tabMaster.getByTestId(ROLE_LOCATOR)).toContainText(
+			MASTER_MESSAGE
+		);
+		await expect(
+			tabMaster.getByTestId(CONNECTION_STATUS_LOCATOR)
+		).toContainText(CONNECTION_STATUS_OPEN);
+		expect(await wsFunc).toBeTruthy();
+		await expect(tabMaster.getByTestId(LOADING_BAR_LOCATOR)).toBeVisible();
+		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
+			WSS_TEST_TEXT,
+			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
+		);
+		await expect(
+			tabMaster.getByTestId(LOADING_BAR_LOCATOR)
+		).not.toBeVisible();
 	});
 });

@@ -83,7 +83,6 @@ export const selectedWSPort = (state: RootState) => state.ws.wsPort;
 
 export default wsSlice.reducer;
 
-// TODO: alot of the role logic can be moved out of this file and into the roleSlice
 /**
  * Open the websocket
  */
@@ -119,6 +118,7 @@ listenerMiddleware.startListening({
 			dispatch(_recvMsgFromEmacs(parsed));
 			if (parsed.type === 'ITEM') {
 				// TODO: more general case for this
+				// NEXT: create test for this before refactoring
 				dispatch(_removeFromResponsesWaitingFor(parsed?.resid || -1));
 			}
 		});
