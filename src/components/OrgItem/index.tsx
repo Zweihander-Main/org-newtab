@@ -9,7 +9,7 @@ import {
 } from 'modules/ws/wsSlice';
 import { selectedOrgItem, selectedTagsData } from 'modules/emacs/emacsSlice';
 
-//TODO: flip out image with actual transparency
+//NEXT: flip out image with actual transparency
 
 const OrgItem: React.FC = () => {
 	const tagsData = useAppSelector(selectedTagsData);
