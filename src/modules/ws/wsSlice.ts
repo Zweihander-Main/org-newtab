@@ -116,9 +116,7 @@ listenerMiddleware.startListening({
 			const parsed = JSON.parse(message) as EmacsRecvMsg;
 			if (parsed === null) return;
 			dispatch(_recvMsgFromEmacs(parsed));
-			if (parsed.type === 'ITEM') {
-				// TODO: more general case for this
-				// NEXT: create test for this before refactoring
+			if ('resid' in parsed) {
 				dispatch(_removeFromResponsesWaitingFor(parsed?.resid || -1));
 			}
 		});
