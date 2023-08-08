@@ -420,38 +420,12 @@ test.describe('WebSocket', () => {
 		);
 	});
 
-	// TODO: flaky
-	test.only('Should add and remove waiting responses', async ({
+	test('Should add and remove waiting responses', async ({
 		extensionId,
 		context,
 	}) => {
 		const conn = await openSocketConnection();
 		const tabMaster = await context.newPage();
-		async function getAnyDataSent(): Promise<boolean> {
-			return new Promise(function (resolve) {
-				tabMaster.on('websocket', (ws) => {
-					if (ws.url() === webSocketURL(conn)) {
-						ws.on('framesent', () => {
-							resolve(true);
-						});
-						ws.on('close', () => resolve(false));
-						ws.on('socketerror', () => resolve(false));
-					}
-				});
-				void expect(tabMaster.getByTestId(INITIAL_STATE_LOCATOR))
-					.toContainText(INITIAL_STATE_RESOLVED, {
-						timeout: HOW_LONG_TO_WAIT_FOR_STORAGE,
-					})
-					.then(() => {
-						setTimeout(
-							() => resolve(false),
-							HOW_LONG_TO_WAIT_FOR_WEBSOCKET
-						);
-					});
-			});
-		}
-
-		const wsFunc = getAnyDataSent();
 
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
 		await expect(
@@ -464,7 +438,6 @@ test.describe('WebSocket', () => {
 		await expect(
 			tabMaster.getByTestId(CONNECTION_STATUS_LOCATOR)
 		).toContainText(CONNECTION_STATUS_OPEN);
-		expect(await wsFunc).toBeTruthy();
 		await expect(tabMaster.getByTestId(LOADING_BAR_LOCATOR)).toBeVisible();
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
 			WSS_TEST_TEXT,

@@ -84,5 +84,3 @@ listenerMiddleware.startListening({
 		dispatch(_sendMsgToEmacs(jsonMessage));
 	},
 });
-
-// TODO: update query and get item do nothing different

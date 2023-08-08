@@ -112,15 +112,6 @@ const OptionsMenu: React.FC = () => {
 						Update
 					</button>
 				</form>
-				{/* // TODO: fix */}
-				{/* {lastRecvJsonMessage ? (
-					<>
-						Last message:
-						<pre className={styles.json}>
-							{JSON.stringify(lastRecvJsonMessage, null, 2)}
-						</pre>
-					</>
-				) : null} */}
 				<div
 					data-testid="initial-state"
 					className={styles['initial-state']}
