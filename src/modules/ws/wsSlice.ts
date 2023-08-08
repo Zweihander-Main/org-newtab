@@ -16,18 +16,24 @@ export interface WSState {
 	readyState: WSReadyState;
 	responsesWaitingFor: Array<number>;
 	wsPort: number;
+	reconnectionAttempt: number;
+	reconnectionTimeout: NodeJS.Timeout | null;
 }
 
 export const name = 'ws';
 export const persistenceBlacklist: Array<keyof WSState> = [
 	'readyState',
 	'responsesWaitingFor',
+	'reconnectionAttempt',
+	'reconnectionTimeout',
 ];
 
 const initialState: WSState = {
 	readyState: WSReadyState.UNINSTANTIATED,
 	responsesWaitingFor: [],
 	wsPort: 35942,
+	reconnectionAttempt: 0,
+	reconnectionTimeout: null,
 };
 
 export const wsSlice = createSlice({
@@ -57,6 +63,17 @@ export const wsSlice = createSlice({
 		) => {
 			state.responsesWaitingFor = action.payload;
 		},
+		_setReconnectionAttemptAndTimeoutTo: (
+			state,
+			action: PayloadAction<{
+				reconnectionAttempt: number;
+				reconnectionTimeout: NodeJS.Timeout | null;
+			}>
+		) => {
+			const { reconnectionAttempt, reconnectionTimeout } = action.payload;
+			state.reconnectionAttempt = reconnectionAttempt;
+			state.reconnectionTimeout = reconnectionTimeout;
+		},
 		_openWS: () => {},
 		_closeWS: () => {},
 		_resetWS: () => {},
@@ -69,6 +86,7 @@ export const {
 	_removeFromResponsesWaitingFor,
 	_addToResponsesWaitingFor,
 	_setResponsesWaitingForTo,
+	_setReconnectionAttemptAndTimeoutTo,
 	_openWS,
 	_closeWS,
 	_resetWS,
@@ -92,21 +110,38 @@ listenerMiddleware.startListening({
 		const { dispatch } = listenerApi;
 		const getState = listenerApi.getState.bind(this);
 		const {
-			ws: { wsPort },
+			ws: { wsPort, reconnectionAttempt, reconnectionTimeout },
 		} = getState();
 		dispatch(_setReadyStateTo(WSReadyState.CONNECTING));
-		// eslint-disable-next-line no-console
-		console.log('connecting');
 		Socket.connect(`ws://localhost:${wsPort}/`);
 		Socket.on('open', () => {
-			// eslint-disable-next-line no-console
-			console.log('open');
+			if (reconnectionTimeout) clearTimeout(reconnectionTimeout);
+			dispatch(
+				_setReconnectionAttemptAndTimeoutTo({
+					reconnectionAttempt: 0,
+					reconnectionTimeout: null,
+				})
+			);
 			dispatch(_setReadyStateTo(WSReadyState.OPEN));
 		});
 		Socket.on('close', () => {
-			// eslint-disable-next-line no-console
-			console.log('close');
 			dispatch(_setReadyStateTo(WSReadyState.CLOSED));
+			dispatch(_setResponsesWaitingForTo([]));
+			// Algo: Exponential Backoff
+			const newReconnectionAttempt = Math.min(
+				reconnectionAttempt + 1,
+				16
+			); // 2^16 secs = ~18 hours
+			const interval = Math.pow(2, newReconnectionAttempt) * 1000;
+			const newReconnectionTimeout = setTimeout(() => {
+				dispatch(_resetWS());
+			}, interval);
+			dispatch(
+				_setReconnectionAttemptAndTimeoutTo({
+					reconnectionAttempt: newReconnectionAttempt,
+					reconnectionTimeout: newReconnectionTimeout,
+				})
+			);
 		});
 		Socket.on('error', (event) => {
 			console.error('Websocket error', event.data);
@@ -174,5 +209,3 @@ listenerMiddleware.startListening({
 		}
 	},
 });
-
-// TODO reconnecting logic -- reconnect on failure and also when browser starts before Emacs

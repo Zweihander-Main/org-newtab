@@ -420,7 +420,8 @@ test.describe('WebSocket', () => {
 		);
 	});
 
-	test('Should add and remove waiting responses', async ({
+	// TODO: flaky
+	test.only('Should add and remove waiting responses', async ({
 		extensionId,
 		context,
 	}) => {

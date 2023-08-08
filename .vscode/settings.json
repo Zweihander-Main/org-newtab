@@ -12,6 +12,7 @@
 	"vim.useSystemClipboard": true,
 	"cSpell.words": [
 		"ALLTAGS",
+		"Backoff",
 		"BGSW",
 		"Everytime",
 		"fontsource",
