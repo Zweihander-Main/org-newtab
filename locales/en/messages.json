@@ -1,0 +1,74 @@
+{
+	"extensionName": {
+		"message": "Org-NewTab",
+		"description": "Name of the extension"
+	},
+	"extensionDescription": {
+		"message": "Supercharge your browser's New Tab with Org-Agenda",
+		"description": "Description of the extension"
+	},
+	"title": {
+		"message": "New Tab",
+		"description": "Title of new tab page"
+	},
+	"masterRole": {
+		"message": "Master",
+		"description": "Name of master websocket role"
+	},
+	"clientRole": {
+		"message": "Client",
+		"description": "Name of client websocket role"
+	},
+	"optionsMenu": {
+		"message": "Options Menu",
+		"description": "Label for Options Menu"
+	},
+	"matchQuery": {
+		"message": "Match Query",
+		"description": "Name of match query input sent to Emacs"
+	},
+	"wsPort": {
+		"message": "WebSocket Port",
+		"description": "Name of websocket port input to connect to Emacs"
+	},
+	"saveOptions": {
+		"message": "Update",
+		"description": "Label for save options form button"
+	},
+	"storageStatus": {
+		"message": "Storage",
+		"description": "Label for storage status"
+	},
+	"storageResolved": {
+		"message": "Resolved",
+		"description": "Label for resolved storage status"
+	},
+	"storageUnresolved": {
+		"message": "Unresolved",
+		"description": "Label for unresolved storage status"
+	},
+	"websocketRole": {
+		"message": "WebSocket Role",
+		"description": "Label for websocket role status"
+	},
+	"connectionStatusConnecting": {
+		"message": "Connecting",
+		"description": "Label for connecting websocket connection status"
+	},
+	"connectionStatusOpen": {
+		"message": "Connected",
+		"description": "Label for open websocket connection status"
+	},
+	"connectionStatusClosed": {
+		"message": "Disconnected",
+		"description": "Label for closed websocket connection status"
+	},
+	"connectionStatusClosing": {
+		"message": "Closing",
+		"description": "Label for closing websocket connection status"
+	},
+	"connectionStatusUninstantiated": {
+		"message": "Initializing",
+		"description": "Label for initializing websocket connection status"
+	}
+}

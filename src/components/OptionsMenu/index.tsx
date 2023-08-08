@@ -22,7 +22,9 @@ const OptionsMenu: React.FC = () => {
 	const matchQueryInputRef = useRef<HTMLInputElement>(null);
 	const wsPortInputRef = useRef<HTMLInputElement>(null);
 
-	const masterStatus = amMasterRole ? 'Master' : 'Client';
+	const masterStatus = amMasterRole
+		? chrome.i18n.getMessage('masterRole')
+		: chrome.i18n.getMessage('clientRole');
 
 	const handleFormSubmit = useCallback(
 		(event: React.FormEvent<HTMLFormElement>) => {
@@ -75,10 +77,11 @@ const OptionsMenu: React.FC = () => {
 		optionsVisible ? styles.active : '',
 	].join(' ');
 
+	// TODO: break out button in its own component
 	return (
 		<>
 			<button
-				aria-label="Options Menu"
+				aria-label={chrome.i18n.getMessage('optionsMenu')}
 				className={optionsMenuButtonClass}
 				onClick={toggleMenu}
 			>
@@ -92,38 +95,44 @@ const OptionsMenu: React.FC = () => {
 					method="post"
 					onSubmit={handleFormSubmit}
 				>
-					<label htmlFor="matchQuery">Match Query: </label>
+					<label htmlFor="matchQuery">
+						{chrome.i18n.getMessage('matchQuery')}:{' '}
+					</label>
 					<input
 						type="text"
 						name="matchQuery"
 						defaultValue={matchQuery}
 						ref={matchQueryInputRef}
-						aria-label="Match Query"
+						aria-label={chrome.i18n.getMessage('matchQuery')}
 					/>
-					<label htmlFor="wsPort">WebSocket Port:</label>
+					<label htmlFor="wsPort">
+						{chrome.i18n.getMessage('wsPort')}:
+					</label>
 					<input
 						type="number"
 						name="wsPort"
 						defaultValue={wsPort}
 						ref={wsPortInputRef}
-						aria-label="WebSocket Port"
+						aria-label={chrome.i18n.getMessage('wsPort')}
 					/>
 					<button type="submit" disabled={false}>
-						Update
+						{chrome.i18n.getMessage('saveOptions')}
 					</button>
 				</form>
 				<div
 					data-testid="initial-state"
 					className={styles['initial-state']}
 				>
-					Storage:{' '}
-					{isInitialStateResolved ? 'Resolved' : 'Unresolved'}
+					{chrome.i18n.getMessage('storageStatus')}:{' '}
+					{isInitialStateResolved
+						? chrome.i18n.getMessage('storageResolved')
+						: chrome.i18n.getMessage('storageUnresolved')}
 				</div>
 				<div
 					data-testid="websocket-role"
 					className={styles['websocket-role']}
 				>
-					WebSocket Role: {masterStatus}
+					{chrome.i18n.getMessage('websocketRole')}: {masterStatus}
 				</div>
 			</nav>
 		</>

@@ -1,4 +1,4 @@
-# org-newtab
+# Org-NewTab
 
 > 🗃️ Supercharge your browser's New Tab with Org-Agenda
 

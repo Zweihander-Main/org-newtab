@@ -10,6 +10,7 @@ import Socket from 'lib/Socket';
 import { listenerMiddleware } from 'app/middleware';
 import { _recvMsgFromEmacs, _sendMsgToEmacs } from 'modules/emacs/emacsSlice';
 import { sendToMasterTab } from 'lib/messages';
+import { DEFAULT_WEBSOCKET_PORT } from 'lib/constants';
 
 const MAXIMUM_TIME_TO_WAIT_FOR_RESPONSE = 60000;
 export interface WSState {
@@ -31,7 +32,7 @@ export const persistenceBlacklist: Array<keyof WSState> = [
 const initialState: WSState = {
 	readyState: WSReadyState.UNINSTANTIATED,
 	responsesWaitingFor: [],
-	wsPort: 35942,
+	wsPort: DEFAULT_WEBSOCKET_PORT,
 	reconnectionAttempt: 0,
 	reconnectionTimeout: null,
 };

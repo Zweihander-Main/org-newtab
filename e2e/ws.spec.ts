@@ -11,7 +11,6 @@ import {
 	MASTER_MESSAGE,
 	MATCH_QUERY_LABEL,
 	ROLE_LOCATOR,
-	DEFAULT_WEBSOCKET_PORT,
 	WSS_TEST_TEXT,
 	WS_PORT_LABEL,
 	INITIAL_STATE_LOCATOR,
@@ -23,6 +22,7 @@ import { test, expect } from './fixture';
 import WebSocket from 'ws';
 import net from 'net';
 import { Page } from '@playwright/test';
+import { DEFAULT_WEBSOCKET_PORT } from 'lib/constants';
 
 function startTestWebSocketServer(port: number) {
 	const wss = new WebSocket.Server({ port: port });

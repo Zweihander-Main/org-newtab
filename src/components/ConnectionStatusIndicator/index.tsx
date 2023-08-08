@@ -6,11 +6,17 @@ import { selectedReadyState } from 'modules/ws/wsSlice';
 const ConnectionStatusIndicator: React.FC = () => {
 	const readyState = useAppSelector(selectedReadyState);
 	const connectionStatus = {
-		[WSReadyState.CONNECTING]: 'Connecting',
-		[WSReadyState.OPEN]: 'Connected',
-		[WSReadyState.CLOSING]: 'Closing',
-		[WSReadyState.CLOSED]: 'Not Connected',
-		[WSReadyState.UNINSTANTIATED]: 'Initializing',
+		[WSReadyState.CONNECTING]: chrome.i18n.getMessage(
+			'connectionStatusConnecting'
+		),
+		[WSReadyState.OPEN]: chrome.i18n.getMessage('connectionStatusOpen'),
+		[WSReadyState.CLOSING]: chrome.i18n.getMessage(
+			'connectionStatusClosing'
+		),
+		[WSReadyState.CLOSED]: chrome.i18n.getMessage('connectionStatusClosed'),
+		[WSReadyState.UNINSTANTIATED]: chrome.i18n.getMessage(
+			'connectionStatusUninstantiated'
+		),
 	}[readyState];
 
 	return (

@@ -1,7 +1,8 @@
 {
 	"name": "org-newtab",
+	"displayName": "__MSG_extensionName__",
 	"version": "0.0.1",
-	"description": "Supercharge your browser's New Tab with Org-Agenda",
+	"description": "__MSG_extensionDescription__",
 	"main": "index.js",
 	"directories": {
 		"test": "test"
@@ -233,6 +234,8 @@
 		}
 	},
 	"manifest": {
+		"default_locale": "en",
+		"name": "__MSG_extensionName__",
 		"host_permissions": [
 			"https://*/*"
 		],

@@ -1,0 +1,1 @@
+export const DEFAULT_WEBSOCKET_PORT = 35942;
