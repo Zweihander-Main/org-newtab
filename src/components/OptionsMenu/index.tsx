@@ -27,29 +27,39 @@ const OptionsButton: React.FC<OptionsButtonProps> = ({
 		optionsVisible ? styles.active : '',
 	].join(' ');
 
+	const optionsMenuCloseButtonClass = [
+		styles['close-button'],
+		optionsVisible ? styles.active : '',
+	].join(' ');
+
 	return (
-		<button
-			aria-label={chrome.i18n.getMessage('optionsMenu')}
-			className={optionsMenuButtonClass}
-			onClick={toggleMenu}
-		>
-			<div className={styles['button-bar1']}></div>
-			<div className={styles['button-bar2']}></div>
-			<div className={styles['button-bar3']}></div>
-		</button>
+		<>
+			<button
+				aria-label={chrome.i18n.getMessage('optionsMenu')}
+				className={optionsMenuButtonClass}
+				onClick={toggleMenu}
+			>
+				<div className={styles['button-bar1']}></div>
+				<div className={styles['button-bar2']}></div>
+				<div className={styles['button-bar3']}></div>
+			</button>
+			<button
+				className={optionsMenuCloseButtonClass}
+				onClick={toggleMenu}
+			>
+				<div className={styles['close-button-bar1']}></div>
+				<div className={styles['close-button-bar2']}></div>
+			</button>
+		</>
 	);
 };
 
 type OptionsBarProps = {
 	selectedCategory: OptionCategories;
 	setSelectedCategory: (category: OptionCategories) => void;
-	setOptionsVisible: (visible: boolean) => void;
 };
 
-const OptionsBar: React.FC<OptionsBarProps> = ({
-	setSelectedCategory,
-	setOptionsVisible,
-}) => {
+const OptionsBar: React.FC<OptionsBarProps> = ({ setSelectedCategory }) => {
 	const handleCategoryClick = useCallback(
 		(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
 			const { currentTarget } = event;
@@ -61,18 +71,8 @@ const OptionsBar: React.FC<OptionsBarProps> = ({
 		[setSelectedCategory]
 	);
 
-	const handleCloseButton = useCallback(() => {
-		setOptionsVisible(false);
-	}, [setOptionsVisible]);
-
 	return (
 		<nav className={styles['options-bar']}>
-			<button
-				className={styles['close-button']}
-				onClick={handleCloseButton}
-			>
-				Close
-			</button>
 			<button data-category="Behavior" onClick={handleCategoryClick}>
 				Behavior
 			</button>
@@ -245,7 +245,6 @@ const OptionsMenu: React.FC = () => {
 				<OptionsBar
 					selectedCategory={selectedCategory}
 					setSelectedCategory={setSelectedCategory}
-					setOptionsVisible={setOptionsVisible}
 				/>
 				<OptionsContent>
 					<ContentComponent />
