@@ -1,5 +1,5 @@
 import * as styles from './style.module.css';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import {
 	selectedMatchQuery,
@@ -10,7 +10,7 @@ import {
 	selectedStateResolved,
 } from 'modules/role/roleSlice';
 import { selectedWSPort, setWSPortTo } from 'modules/ws/wsSlice';
-import { CSSTransition } from 'react-transition-group';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 type OptionCategories = 'Behavior' | 'Layout' | 'Theming' | 'Debug';
 
@@ -90,17 +90,56 @@ const OptionsBar: React.FC<OptionsBarProps> = ({ setSelectedCategory }) => {
 	);
 };
 
-type OptionsContentProps = {
-	children: React.ReactNode;
+type OptionsPanelProps = {
+	selectedCategory: OptionCategories;
 };
 
-const OptionsContent: React.FC<OptionsContentProps> = ({ children }) => {
+const OptionsPanel: React.FC<OptionsPanelProps> = ({ selectedCategory }) => {
+	const PanelToRender = useCallback(() => {
+		switch (selectedCategory) {
+			case 'Behavior':
+				return <BehaviorPanel />;
+			case 'Layout':
+				return <LayoutPanel />;
+			case 'Theming':
+				return <ThemingPanel />;
+			case 'Debug':
+				return <DebugPanel />;
+		}
+	}, [selectedCategory]);
 	return (
-		<div className={styles['options-content-container']}>
-			<div className={styles['options-content']}>{children}</div>
+		<div className={styles['options-panel']}>
+			<PanelToRender />
 		</div>
 	);
 };
+
+type OptionsContentProps = {
+	selectedCategory: OptionCategories;
+};
+
+const OptionsContent: React.FC<OptionsContentProps> = ({
+	selectedCategory,
+}) => {
+	return (
+		<div className={styles['options-content-container']}>
+			<div className={styles['options-content']}>
+				<TransitionGroup component={null}>
+					<CSSTransition
+						key={selectedCategory}
+						timeout={slideTransitionTimeout}
+						classNames={slideTransitionClassNames}
+						unmountOnExit
+					>
+						<OptionsPanel selectedCategory={selectedCategory} />
+					</CSSTransition>
+				</TransitionGroup>
+			</div>
+		</div>
+	);
+};
+
+const MemoizedOptionsContent = memo(OptionsContent);
 
 const BehaviorPanel: React.FC = () => {
 	const dispatch = useAppDispatch();
@@ -148,37 +187,29 @@ const BehaviorPanel: React.FC = () => {
 	}, [isInitialStateResolved, wsPort]);
 
 	return (
-		<div className={styles['options-panel']}>
-			<form
-				className={styles.form}
-				method="post"
-				onSubmit={handleFormSubmit}
-			>
-				<label htmlFor="matchQuery">
-					{chrome.i18n.getMessage('matchQuery')}:{' '}
-				</label>
-				<input
-					type="text"
-					name="matchQuery"
-					defaultValue={matchQuery}
-					ref={matchQueryInputRef}
-					aria-label={chrome.i18n.getMessage('matchQuery')}
-				/>
-				<label htmlFor="wsPort">
-					{chrome.i18n.getMessage('wsPort')}:
-				</label>
-				<input
-					type="number"
-					name="wsPort"
-					defaultValue={wsPort}
-					ref={wsPortInputRef}
-					aria-label={chrome.i18n.getMessage('wsPort')}
-				/>
-				<button type="submit" disabled={false}>
-					{chrome.i18n.getMessage('saveOptions')}
-				</button>
-			</form>
-		</div>
+		<form className={styles.form} method="post" onSubmit={handleFormSubmit}>
+			<label htmlFor="matchQuery">
+				{chrome.i18n.getMessage('matchQuery')}:{' '}
+			</label>
+			<input
+				type="text"
+				name="matchQuery"
+				defaultValue={matchQuery}
+				ref={matchQueryInputRef}
+				aria-label={chrome.i18n.getMessage('matchQuery')}
+			/>
+			<label htmlFor="wsPort">{chrome.i18n.getMessage('wsPort')}:</label>
+			<input
+				type="number"
+				name="wsPort"
+				defaultValue={wsPort}
+				ref={wsPortInputRef}
+				aria-label={chrome.i18n.getMessage('wsPort')}
+			/>
+			<button type="submit" disabled={false}>
+				{chrome.i18n.getMessage('saveOptions')}
+			</button>
+		</form>
 	);
 };
 
@@ -189,7 +220,7 @@ const DebugPanel: React.FC = () => {
 		? chrome.i18n.getMessage('masterRole')
 		: chrome.i18n.getMessage('clientRole');
 	return (
-		<div className={styles['options-panel']}>
+		<>
 			<div
 				data-testid="initial-state"
 				className={styles['initial-state']}
@@ -205,16 +236,16 @@ const DebugPanel: React.FC = () => {
 			>
 				{chrome.i18n.getMessage('websocketRole')}: {masterStatus}
 			</div>
-		</div>
+		</>
 	);
 };
 
 const LayoutPanel: React.FC = () => {
-	return <div className={styles['options-panel']}></div>;
+	return null;
 };
 
 const ThemingPanel: React.FC = () => {
-	return <div className={styles['options-panel']}></div>;
+	return null;
 };
 
 const slideTransitionTimeout = 500;
@@ -239,14 +270,6 @@ const OptionsMenu: React.FC = () => {
 		optionsVisible ? styles.active : '',
 	].join(' ');
 
-	const selectedCategoryIs = useCallback(
-		(category: OptionCategories) => {
-			return selectedCategory === category;
-		},
-		[selectedCategory]
-	);
-	// TODO: transition wdyr problems
-
 	return (
 		<>
 			<OptionsButton
@@ -258,43 +281,7 @@ const OptionsMenu: React.FC = () => {
 					selectedCategory={selectedCategory}
 					setSelectedCategory={setSelectedCategory}
 				/>
-				<OptionsContent>
-					<CSSTransition
-						in={selectedCategoryIs('Behavior')}
-						timeout={slideTransitionTimeout}
-						classNames={slideTransitionClassNames}
-						unmountOnExit
-					>
-						<BehaviorPanel />
-					</CSSTransition>
-
-					<CSSTransition
-						in={selectedCategoryIs('Layout')}
-						timeout={slideTransitionTimeout}
-						classNames={slideTransitionClassNames}
-						unmountOnExit
-					>
-						<LayoutPanel />
-					</CSSTransition>
-
-					<CSSTransition
-						in={selectedCategoryIs('Theming')}
-						timeout={slideTransitionTimeout}
-						classNames={slideTransitionClassNames}
-						unmountOnExit
-					>
-						<ThemingPanel />
-					</CSSTransition>
-
-					<CSSTransition
-						in={selectedCategoryIs('Debug')}
-						timeout={slideTransitionTimeout}
-						classNames={slideTransitionClassNames}
-						unmountOnExit
-					>
-						<DebugPanel />
-					</CSSTransition>
-				</OptionsContent>
+				<MemoizedOptionsContent selectedCategory={selectedCategory} />
 			</div>
 		</>
 	);

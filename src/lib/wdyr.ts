@@ -6,6 +6,7 @@ if (process.env.NODE_ENV === 'development') {
 		trackAllPureComponents: true,
 		trackHooks: true,
 		include: [/.*/],
+		exclude: [/^Transition$/],
 		collapseGroups: true,
 		diffNameColor: 'darkturquoise',
 		titleColor: 'lavender',

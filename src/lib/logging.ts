@@ -3,6 +3,7 @@
 export enum LogLoc {
 	BGSW = 'BGSW',
 	NEWTAB = 'NewTab',
+	NONE = 'NONE',
 }
 
 export enum LogMsgDir {
@@ -10,7 +11,7 @@ export enum LogMsgDir {
 	RECV = '<=',
 }
 
-const ENABLE_LOGGING: false | LogLoc = LogLoc.NEWTAB;
+const ENABLE_LOGGING: LogLoc = LogLoc.NONE;
 
 export const log = (loc: LogLoc, ...args: Parameters<typeof console.log>) => {
 	if (ENABLE_LOGGING === loc) {
