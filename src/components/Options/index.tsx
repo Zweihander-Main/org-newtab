@@ -1,21 +1,16 @@
 import * as styles from './style.module.css';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import {
-	selectedMatchQuery,
-	setMatchQueryTo,
-} from '../../modules/emacs/emacsSlice';
-import {
-	selectedAmMasterRole,
-	selectedStateResolved,
-} from 'modules/role/roleSlice';
-import { selectedWSPort, setWSPortTo } from 'modules/ws/wsSlice';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import {
 	OptionCategories,
 	selectedOptionCategory,
 	setOptCatTo,
 } from 'modules/ui/uiSlice';
+import BehaviorPanel from 'components/BehaviorPanel';
+import LayoutPanel from 'components/LayoutPanel';
+import ThemingPanel from 'components/ThemingPanel';
+import DebugPanel from 'components/DebugPanel';
 
 type OptionsButtonProps = {
 	optionsVisible: boolean;
@@ -133,113 +128,6 @@ const OptionsContent: React.FC = () => {
 	);
 };
 
-const BehaviorPanel: React.FC = () => {
-	const dispatch = useAppDispatch();
-	const matchQuery = useAppSelector(selectedMatchQuery);
-	const wsPort = useAppSelector(selectedWSPort);
-	const matchQueryInputRef = useRef<HTMLInputElement>(null);
-	const wsPortInputRef = useRef<HTMLInputElement>(null);
-	const isInitialStateResolved = useAppSelector(selectedStateResolved);
-
-	const handleFormSubmit = useCallback(
-		(event: React.FormEvent<HTMLFormElement>) => {
-			event.preventDefault();
-			const { currentTarget } = event;
-			const data = new FormData(currentTarget);
-			const formMatchQuery = data.get('matchQuery');
-			if (formMatchQuery && typeof formMatchQuery === 'string') {
-				dispatch(setMatchQueryTo(formMatchQuery));
-			}
-			const formWSPort = data.get('wsPort');
-			if (formWSPort && typeof formWSPort === 'string') {
-				const portNumber = parseInt(formWSPort, 10);
-				if (
-					!isNaN(portNumber) &&
-					portNumber > 0 &&
-					portNumber < 65536 &&
-					portNumber !== wsPort
-				) {
-					dispatch(setWSPortTo(portNumber));
-				}
-			}
-		},
-		[dispatch, wsPort]
-	);
-
-	useEffect(() => {
-		if (matchQueryInputRef.current && matchQuery) {
-			matchQueryInputRef.current.value = matchQuery;
-		}
-	}, [isInitialStateResolved, matchQuery]);
-
-	useEffect(() => {
-		if (wsPortInputRef.current && wsPort) {
-			wsPortInputRef.current.value = wsPort.toString();
-		}
-	}, [isInitialStateResolved, wsPort]);
-
-	return (
-		<form className={styles.form} method="post" onSubmit={handleFormSubmit}>
-			<label htmlFor="matchQuery">
-				{chrome.i18n.getMessage('matchQuery')}:{' '}
-			</label>
-			<input
-				type="text"
-				name="matchQuery"
-				defaultValue={matchQuery}
-				ref={matchQueryInputRef}
-				aria-label={chrome.i18n.getMessage('matchQuery')}
-			/>
-			<label htmlFor="wsPort">{chrome.i18n.getMessage('wsPort')}:</label>
-			<input
-				type="number"
-				name="wsPort"
-				defaultValue={wsPort}
-				ref={wsPortInputRef}
-				aria-label={chrome.i18n.getMessage('wsPort')}
-			/>
-			<button type="submit" disabled={false}>
-				{chrome.i18n.getMessage('saveOptions')}
-			</button>
-		</form>
-	);
-};
-
-const DebugPanel: React.FC = () => {
-	const isInitialStateResolved = useAppSelector(selectedStateResolved);
-	const amMasterRole = useAppSelector(selectedAmMasterRole);
-	const masterStatus = amMasterRole
-		? chrome.i18n.getMessage('masterRole')
-		: chrome.i18n.getMessage('clientRole');
-	return (
-		<>
-			<div
-				data-testid="initial-state"
-				className={styles['initial-state']}
-			>
-				{chrome.i18n.getMessage('storageStatus')}:{' '}
-				{isInitialStateResolved
-					? chrome.i18n.getMessage('storageResolved')
-					: chrome.i18n.getMessage('storageUnresolved')}
-			</div>
-			<div
-				data-testid="websocket-role"
-				className={styles['websocket-role']}
-			>
-				{chrome.i18n.getMessage('websocketRole')}: {masterStatus}
-			</div>
-		</>
-	);
-};
-
-const LayoutPanel: React.FC = () => {
-	return null;
-};
-
-const ThemingPanel: React.FC = () => {
-	return null;
-};
-
 const slideTransitionTimeout = 500;
 const slideTransitionClassNames = {
 	enter: styles['slide-transition-enter'],
@@ -248,7 +136,7 @@ const slideTransitionClassNames = {
 	exitActive: styles['slide-transition-exit-active'],
 };
 
-const OptionsMenu: React.FC = () => {
+const Options: React.FC = () => {
 	const [optionsVisible, setOptionsVisible] = useState(false);
 	const toggleMenu = useCallback(() => {
 		setOptionsVisible(!optionsVisible);
@@ -273,4 +161,4 @@ const OptionsMenu: React.FC = () => {
 	);
 };
 
-export default OptionsMenu;
+export default Options;
