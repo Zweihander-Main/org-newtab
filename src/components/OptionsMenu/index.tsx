@@ -1,5 +1,5 @@
 import * as styles from './style.module.css';
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import {
 	selectedMatchQuery,
@@ -11,8 +11,11 @@ import {
 } from 'modules/role/roleSlice';
 import { selectedWSPort, setWSPortTo } from 'modules/ws/wsSlice';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-
-type OptionCategories = 'Behavior' | 'Layout' | 'Theming' | 'Debug';
+import {
+	OptionCategories,
+	selectedOptionCategory,
+	setOptCatTo,
+} from 'modules/ui/uiSlice';
 
 type OptionsButtonProps = {
 	optionsVisible: boolean;
@@ -55,21 +58,17 @@ const OptionsButton: React.FC<OptionsButtonProps> = ({
 	);
 };
 
-type OptionsBarProps = {
-	selectedCategory: OptionCategories;
-	setSelectedCategory: (category: OptionCategories) => void;
-};
-
-const OptionsBar: React.FC<OptionsBarProps> = ({ setSelectedCategory }) => {
+const OptionsBar: React.FC = () => {
+	const dispatch = useAppDispatch();
 	const handleCategoryClick = useCallback(
 		(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
 			const { currentTarget } = event;
 			const category = currentTarget.dataset.category as OptionCategories;
 			if (category) {
-				setSelectedCategory(category);
+				dispatch(setOptCatTo(category));
 			}
 		},
-		[setSelectedCategory]
+		[dispatch]
 	);
 
 	return (
@@ -114,13 +113,8 @@ const OptionsPanel: React.FC<OptionsPanelProps> = ({ selectedCategory }) => {
 	);
 };
 
-type OptionsContentProps = {
-	selectedCategory: OptionCategories;
-};
-
-const OptionsContent: React.FC<OptionsContentProps> = ({
-	selectedCategory,
-}) => {
+const OptionsContent: React.FC = () => {
+	const selectedCategory = useAppSelector(selectedOptionCategory);
 	return (
 		<div className={styles['options-content-container']}>
 			<div className={styles['options-content']}>
@@ -138,8 +132,6 @@ const OptionsContent: React.FC<OptionsContentProps> = ({
 		</div>
 	);
 };
-
-const MemoizedOptionsContent = memo(OptionsContent);
 
 const BehaviorPanel: React.FC = () => {
 	const dispatch = useAppDispatch();
@@ -258,9 +250,6 @@ const slideTransitionClassNames = {
 
 const OptionsMenu: React.FC = () => {
 	const [optionsVisible, setOptionsVisible] = useState(false);
-	const [selectedCategory, setSelectedCategory] =
-		useState<OptionCategories>('Behavior');
-
 	const toggleMenu = useCallback(() => {
 		setOptionsVisible(!optionsVisible);
 	}, [optionsVisible]);
@@ -277,11 +266,8 @@ const OptionsMenu: React.FC = () => {
 				toggleMenu={toggleMenu}
 			/>
 			<div className={optionsMenuClass}>
-				<OptionsBar
-					selectedCategory={selectedCategory}
-					setSelectedCategory={setSelectedCategory}
-				/>
-				<MemoizedOptionsContent selectedCategory={selectedCategory} />
+				<OptionsBar />
+				<OptionsContent />
 			</div>
 		</>
 	);

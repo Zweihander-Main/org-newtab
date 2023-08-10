@@ -15,6 +15,7 @@ import emacsReducer, {
 } from '../modules/emacs/emacsSlice';
 import roleReducer, { name as roleSliceName } from '../modules/role/roleSlice';
 import msgReducer, { name as msgSliceName } from '../modules/msg/msgSlice';
+import uiReducer, { name as uiSliceName } from '../modules/ui/uiSlice';
 
 export const wsPersistConfig = {
 	key: wsSliceName,
@@ -46,13 +47,20 @@ const rootReducer = combineReducers({
 	[roleSliceName]: roleReducer,
 	[wsSliceName]: persistedWSReducer,
 	[emacsSliceName]: persistedEmacsReducer,
+	[uiSliceName]: uiReducer,
 });
 
 export const rootPersistConfig = {
 	key: 'root',
 	version: 1,
 	storage: localStorage as StorageType,
-	blacklist: [msgSliceName, roleSliceName, wsSliceName, emacsSliceName],
+	blacklist: [
+		msgSliceName,
+		roleSliceName,
+		wsSliceName,
+		emacsSliceName,
+		uiSliceName,
+	],
 };
 
 const persistedRootReducer = persistReducer(rootPersistConfig, rootReducer);
@@ -62,6 +70,7 @@ export const mockRootReducer = combineReducers({
 	[roleSliceName]: roleReducer,
 	[wsSliceName]: wsReducer,
 	[emacsSliceName]: emacsReducer,
+	[uiSliceName]: uiReducer,
 });
 
 export default persistedRootReducer;
