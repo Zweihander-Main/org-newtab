@@ -24,6 +24,10 @@ const IndexNewtab: React.FC = () => {
 		}
 	}, [dispatch]);
 
+	useEffect(() => {
+		document.title = chrome.i18n.getMessage('title');
+	}, []);
+
 	return (
 		<main className="app">
 			<LoadingBar animationDuration={200} />
