@@ -131,11 +131,11 @@
 	z-index: 200;
 	width: 100vw;
 	inset: 0;
-	display: none;
+	visibility: hidden;
 }
 
 .options-menu.active {
-	display: block;
+	visibility: visible;
 }
 
 .options-bar {
@@ -145,10 +145,18 @@
 	background: var(--color-ui);
 	min-height: 4rem;
 	transform: translateX(-100%);
+	transition: all var(--animation-duration-options)
+		var(--animation-timing-options);
 }
 
 .active .options-bar {
 	transform: translateX(0);
+}
+
+.options-content-container {
+	position: relative;
+	height: 100vh;
+	overflow: hidden;
 }
 
 .options-content {
@@ -159,4 +167,11 @@
 	justify-content: center;
 	align-content: center;
 	flex-direction: column;
+	transform: translateY(-100%);
+	transition: all var(--animation-duration-options)
+		var(--animation-timing-options);
+}
+
+.active .options-content {
+	transform: translateY(0);
 }

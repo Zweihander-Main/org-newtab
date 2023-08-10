@@ -12,6 +12,7 @@ declare const styles: {
   readonly "close-button": string;
   readonly "options-menu": string;
   readonly "options-bar": string;
+  readonly "options-content-container": string;
   readonly "options-content": string;
 };
 export = styles;

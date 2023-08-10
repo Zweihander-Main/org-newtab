@@ -94,7 +94,11 @@ type OptionsContentProps = {
 };
 
 const OptionsContent: React.FC<OptionsContentProps> = ({ children }) => {
-	return <div className={styles['options-content']}>{children}</div>;
+	return (
+		<div className={styles['options-content-container']}>
+			<div className={styles['options-content']}>{children}</div>
+		</div>
+	);
 };
 
 const BehaviorOptions: React.FC = () => {
