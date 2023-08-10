@@ -79,17 +79,19 @@
 	padding: 1.75rem;
 	background-color: transparent;
 	border: none;
-	z-index: 2000;
+	z-index: 210;
 	cursor: pointer;
 	outline: none;
 	opacity: 0;
 	transition: all var(--animation-duration-options) ease;
 	transform: rotate(-90deg);
+	pointer-events: none;
 }
 
 .close-button.active {
 	opacity: 1;
 	transform: rotate(0deg);
+	pointer-events: all;
 }
 
 .close-button-bar1,
