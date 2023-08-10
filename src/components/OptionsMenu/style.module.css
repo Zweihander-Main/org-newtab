@@ -199,3 +199,29 @@
 .active .options-content {
 	transform: translateY(0);
 }
+
+.slide-transition-enter {
+	transform: translateX(-100%);
+	opacity: 0;
+}
+
+.slide-transition-enter-active {
+	transform: translateX(0);
+	opacity: 1;
+	transition:
+		transform 0.5s ease,
+		opacity 0.5s ease;
+}
+
+.slide-transition-exit {
+	transform: translateX(0);
+	opacity: 1;
+}
+
+.slide-transition-exit-active {
+	transform: translateX(100%);
+	opacity: 0;
+	transition:
+		transform 0.5s ease,
+		opacity 0.5s ease;
+}

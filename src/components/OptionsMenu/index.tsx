@@ -10,6 +10,7 @@ import {
 	selectedStateResolved,
 } from 'modules/role/roleSlice';
 import { selectedWSPort, setWSPortTo } from 'modules/ws/wsSlice';
+import { CSSTransition } from 'react-transition-group';
 
 type OptionCategories = 'Behavior' | 'Layout' | 'Theming' | 'Debug';
 
@@ -180,7 +181,7 @@ const DebugOptions: React.FC = () => {
 		? chrome.i18n.getMessage('masterRole')
 		: chrome.i18n.getMessage('clientRole');
 	return (
-		<>
+		<div>
 			<div
 				data-testid="initial-state"
 				className={styles['initial-state']}
@@ -196,7 +197,7 @@ const DebugOptions: React.FC = () => {
 			>
 				{chrome.i18n.getMessage('websocketRole')}: {masterStatus}
 			</div>
-		</>
+		</div>
 	);
 };
 
@@ -222,18 +223,16 @@ const OptionsMenu: React.FC = () => {
 		optionsVisible ? styles.active : '',
 	].join(' ');
 
-	const ContentComponent = useCallback(() => {
-		switch (selectedCategory) {
-			case 'Behavior':
-				return <BehaviorOptions />;
-			case 'Layout':
-				return <LayoutOptions />;
-			case 'Theming':
-				return <ThemingOptions />;
-			case 'Debug':
-				return <DebugOptions />;
-		}
-	}, [selectedCategory]);
+	const slideTransitionClassNames = {
+		enter: styles['slide-transition-enter'],
+		enterActive: styles['slide-transition-enter-active'],
+		exit: styles['slide-transition-exit'],
+		exitActive: styles['slide-transition-exit-active'],
+	};
+
+	// NEXT: Animation up and down motion
+
+	const slideTransitionTimeout = 500;
 
 	return (
 		<>
@@ -247,7 +246,41 @@ const OptionsMenu: React.FC = () => {
 					setSelectedCategory={setSelectedCategory}
 				/>
 				<OptionsContent>
-					<ContentComponent />
+					<CSSTransition
+						in={selectedCategory === 'Behavior'}
+						timeout={slideTransitionTimeout}
+						classNames={slideTransitionClassNames}
+						unmountOnExit
+					>
+						<BehaviorOptions />
+					</CSSTransition>
+
+					<CSSTransition
+						in={selectedCategory === 'Layout'}
+						timeout={slideTransitionTimeout}
+						classNames={slideTransitionClassNames}
+						unmountOnExit
+					>
+						<LayoutOptions />
+					</CSSTransition>
+
+					<CSSTransition
+						in={selectedCategory === 'Theming'}
+						timeout={slideTransitionTimeout}
+						classNames={slideTransitionClassNames}
+						unmountOnExit
+					>
+						<ThemingOptions />
+					</CSSTransition>
+
+					<CSSTransition
+						in={selectedCategory === 'Debug'}
+						timeout={slideTransitionTimeout}
+						classNames={slideTransitionClassNames}
+						unmountOnExit
+					>
+						<DebugOptions />
+					</CSSTransition>
 				</OptionsContent>
 			</div>
 		</>
