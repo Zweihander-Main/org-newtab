@@ -10,9 +10,10 @@ import Socket from 'lib/Socket';
 import { listenerMiddleware } from 'app/middleware';
 import { _recvMsgFromEmacs, _sendMsgToEmacs } from 'modules/emacs/emacsSlice';
 import { sendToMasterTab } from 'lib/messages';
-import { DEFAULT_WEBSOCKET_PORT } from 'lib/constants';
-
-const MAXIMUM_TIME_TO_WAIT_FOR_RESPONSE = 60000;
+import {
+	DEFAULT_WEBSOCKET_PORT,
+	MAXIMUM_TIME_TO_WAIT_FOR_RESPONSE,
+} from 'lib/constants';
 export interface WSState {
 	readyState: WSReadyState;
 	responsesWaitingFor: Array<number>;
