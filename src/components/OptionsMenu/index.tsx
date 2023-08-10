@@ -148,29 +148,37 @@ const BehaviorOptions: React.FC = () => {
 	}, [isInitialStateResolved, wsPort]);
 
 	return (
-		<form className={styles.form} method="post" onSubmit={handleFormSubmit}>
-			<label htmlFor="matchQuery">
-				{chrome.i18n.getMessage('matchQuery')}:{' '}
-			</label>
-			<input
-				type="text"
-				name="matchQuery"
-				defaultValue={matchQuery}
-				ref={matchQueryInputRef}
-				aria-label={chrome.i18n.getMessage('matchQuery')}
-			/>
-			<label htmlFor="wsPort">{chrome.i18n.getMessage('wsPort')}:</label>
-			<input
-				type="number"
-				name="wsPort"
-				defaultValue={wsPort}
-				ref={wsPortInputRef}
-				aria-label={chrome.i18n.getMessage('wsPort')}
-			/>
-			<button type="submit" disabled={false}>
-				{chrome.i18n.getMessage('saveOptions')}
-			</button>
-		</form>
+		<div className={styles['options-panel']}>
+			<form
+				className={styles.form}
+				method="post"
+				onSubmit={handleFormSubmit}
+			>
+				<label htmlFor="matchQuery">
+					{chrome.i18n.getMessage('matchQuery')}:{' '}
+				</label>
+				<input
+					type="text"
+					name="matchQuery"
+					defaultValue={matchQuery}
+					ref={matchQueryInputRef}
+					aria-label={chrome.i18n.getMessage('matchQuery')}
+				/>
+				<label htmlFor="wsPort">
+					{chrome.i18n.getMessage('wsPort')}:
+				</label>
+				<input
+					type="number"
+					name="wsPort"
+					defaultValue={wsPort}
+					ref={wsPortInputRef}
+					aria-label={chrome.i18n.getMessage('wsPort')}
+				/>
+				<button type="submit" disabled={false}>
+					{chrome.i18n.getMessage('saveOptions')}
+				</button>
+			</form>
+		</div>
 	);
 };
 
@@ -181,7 +189,7 @@ const DebugOptions: React.FC = () => {
 		? chrome.i18n.getMessage('masterRole')
 		: chrome.i18n.getMessage('clientRole');
 	return (
-		<div>
+		<div className={styles['options-panel']}>
 			<div
 				data-testid="initial-state"
 				className={styles['initial-state']}
@@ -202,11 +210,19 @@ const DebugOptions: React.FC = () => {
 };
 
 const LayoutOptions: React.FC = () => {
-	return null;
+	return <div className={styles['options-panel']}></div>;
 };
 
 const ThemingOptions: React.FC = () => {
-	return null;
+	return <div className={styles['options-panel']}></div>;
+};
+
+const slideTransitionTimeout = 500;
+const slideTransitionClassNames = {
+	enter: styles['slide-transition-enter'],
+	enterActive: styles['slide-transition-enter-active'],
+	exit: styles['slide-transition-exit'],
+	exitActive: styles['slide-transition-exit-active'],
 };
 
 const OptionsMenu: React.FC = () => {
@@ -223,16 +239,13 @@ const OptionsMenu: React.FC = () => {
 		optionsVisible ? styles.active : '',
 	].join(' ');
 
-	const slideTransitionClassNames = {
-		enter: styles['slide-transition-enter'],
-		enterActive: styles['slide-transition-enter-active'],
-		exit: styles['slide-transition-exit'],
-		exitActive: styles['slide-transition-exit-active'],
-	};
-
-	// NEXT: Animation up and down motion
-
-	const slideTransitionTimeout = 500;
+	const selectedCategoryIs = useCallback(
+		(category: OptionCategories) => {
+			return selectedCategory === category;
+		},
+		[selectedCategory]
+	);
+	// TODO: transition wdyr problems
 
 	return (
 		<>
@@ -247,7 +260,7 @@ const OptionsMenu: React.FC = () => {
 				/>
 				<OptionsContent>
 					<CSSTransition
-						in={selectedCategory === 'Behavior'}
+						in={selectedCategoryIs('Behavior')}
 						timeout={slideTransitionTimeout}
 						classNames={slideTransitionClassNames}
 						unmountOnExit
@@ -256,7 +269,7 @@ const OptionsMenu: React.FC = () => {
 					</CSSTransition>
 
 					<CSSTransition
-						in={selectedCategory === 'Layout'}
+						in={selectedCategoryIs('Layout')}
 						timeout={slideTransitionTimeout}
 						classNames={slideTransitionClassNames}
 						unmountOnExit
@@ -265,7 +278,7 @@ const OptionsMenu: React.FC = () => {
 					</CSSTransition>
 
 					<CSSTransition
-						in={selectedCategory === 'Theming'}
+						in={selectedCategoryIs('Theming')}
 						timeout={slideTransitionTimeout}
 						classNames={slideTransitionClassNames}
 						unmountOnExit
@@ -274,7 +287,7 @@ const OptionsMenu: React.FC = () => {
 					</CSSTransition>
 
 					<CSSTransition
-						in={selectedCategory === 'Debug'}
+						in={selectedCategoryIs('Debug')}
 						timeout={slideTransitionTimeout}
 						classNames={slideTransitionClassNames}
 						unmountOnExit

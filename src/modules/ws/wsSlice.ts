@@ -145,7 +145,7 @@ listenerMiddleware.startListening({
 			);
 		});
 		Socket.on('error', (event) => {
-			console.error('Websocket error', event.data);
+			console.error('Websocket error', event);
 		});
 		Socket.on('message', (event) => {
 			const message = event.data;
