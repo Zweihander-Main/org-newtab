@@ -102,7 +102,7 @@ const OptionsContent: React.FC<OptionsContentProps> = ({ children }) => {
 	);
 };
 
-const BehaviorOptions: React.FC = () => {
+const BehaviorPanel: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const matchQuery = useAppSelector(selectedMatchQuery);
 	const wsPort = useAppSelector(selectedWSPort);
@@ -182,7 +182,7 @@ const BehaviorOptions: React.FC = () => {
 	);
 };
 
-const DebugOptions: React.FC = () => {
+const DebugPanel: React.FC = () => {
 	const isInitialStateResolved = useAppSelector(selectedStateResolved);
 	const amMasterRole = useAppSelector(selectedAmMasterRole);
 	const masterStatus = amMasterRole
@@ -209,11 +209,11 @@ const DebugOptions: React.FC = () => {
 	);
 };
 
-const LayoutOptions: React.FC = () => {
+const LayoutPanel: React.FC = () => {
 	return <div className={styles['options-panel']}></div>;
 };
 
-const ThemingOptions: React.FC = () => {
+const ThemingPanel: React.FC = () => {
 	return <div className={styles['options-panel']}></div>;
 };
 
@@ -265,7 +265,7 @@ const OptionsMenu: React.FC = () => {
 						classNames={slideTransitionClassNames}
 						unmountOnExit
 					>
-						<BehaviorOptions />
+						<BehaviorPanel />
 					</CSSTransition>
 
 					<CSSTransition
@@ -274,7 +274,7 @@ const OptionsMenu: React.FC = () => {
 						classNames={slideTransitionClassNames}
 						unmountOnExit
 					>
-						<LayoutOptions />
+						<LayoutPanel />
 					</CSSTransition>
 
 					<CSSTransition
@@ -283,7 +283,7 @@ const OptionsMenu: React.FC = () => {
 						classNames={slideTransitionClassNames}
 						unmountOnExit
 					>
-						<ThemingOptions />
+						<ThemingPanel />
 					</CSSTransition>
 
 					<CSSTransition
@@ -292,7 +292,7 @@ const OptionsMenu: React.FC = () => {
 						classNames={slideTransitionClassNames}
 						unmountOnExit
 					>
-						<DebugOptions />
+						<DebugPanel />
 					</CSSTransition>
 				</OptionsContent>
 			</div>
