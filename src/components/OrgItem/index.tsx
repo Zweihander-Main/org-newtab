@@ -10,6 +10,9 @@ import {
 import { selectedOrgItem, selectedTagsData } from 'modules/emacs/emacsSlice';
 
 //NEXT: flip out image with actual transparency
+//NEXT: well designed options menu
+//TODO: pull in other data from org item
+//TODO: better responsive design
 
 const OrgItem: React.FC = () => {
 	const tagsData = useAppSelector(selectedTagsData);

@@ -49,7 +49,6 @@ const StateResolver: React.FC<{ isInitialStateResolved: boolean }> = ({
 };
 
 const RootContextWrapper: React.FC = () => {
-	// TODO: Strict Mode
 	return (
 		<Provider store={store}>
 			<PersistGate persistor={persistor}>

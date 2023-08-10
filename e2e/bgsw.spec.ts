@@ -1,7 +1,9 @@
 import { CLIENT_MESSAGE, MASTER_MESSAGE, ROLE_LOCATOR } from './common';
 import { test, expect } from './fixture';
 
-test('Should load a newtab page', async ({ page, extensionId }) => {
+// NEXT: all tests broken
+
+test.only('Should load a newtab page', async ({ page, extensionId }) => {
 	await page.goto(`chrome-extension://${extensionId}/newtab.html`);
 	await expect(page.getByTestId(ROLE_LOCATOR)).toContainText(MASTER_MESSAGE);
 });

@@ -9,6 +9,10 @@ declare const styles: {
   readonly "button-bar3": string;
   readonly "websocket-role": string;
   readonly "initial-state": string;
+  readonly "close-button": string;
+  readonly "options-menu": string;
+  readonly "options-bar": string;
+  readonly "options-content": string;
 };
 export = styles;
 

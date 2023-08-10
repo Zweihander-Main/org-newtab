@@ -12,4 +12,5 @@ test('check accessibility', async ({ page, extensionId }) => {
 			},
 		},
 	});
+	// TODO: go through options menu
 });
