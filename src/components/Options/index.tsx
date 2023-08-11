@@ -1,5 +1,5 @@
 import * as styles from './style.module.css';
-import { useCallback, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 import { useAppSelector } from '../../app/hooks';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { OptionCategories, selectedOptionCategory } from 'modules/ui/uiSlice';
@@ -75,20 +75,29 @@ const OptionsPanel: React.FC<OptionsPanelProps> = ({ selectedCategory }) => {
 	);
 };
 
+const MemoizedCSSTransition = memo(CSSTransition, (prevProps, nextProps) => {
+	return (
+		prevProps.key === nextProps.key &&
+		prevProps.in === nextProps.in &&
+		prevProps.enter === nextProps.enter &&
+		prevProps.exit === nextProps.exit
+	);
+});
+
 const OptionsContent: React.FC = () => {
 	const selectedCategory = useAppSelector(selectedOptionCategory);
 	return (
 		<div className={styles['options-content-container']}>
 			<div className={styles['options-content']}>
 				<TransitionGroup component={null}>
-					<CSSTransition
+					<MemoizedCSSTransition
 						key={selectedCategory}
 						timeout={slideTransitionTimeout}
 						classNames={slideTransitionClassNames}
 						unmountOnExit
 					>
 						<OptionsPanel selectedCategory={selectedCategory} />
-					</CSSTransition>
+					</MemoizedCSSTransition>
 				</TransitionGroup>
 			</div>
 		</div>
