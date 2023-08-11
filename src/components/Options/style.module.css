@@ -115,6 +115,31 @@
 	transform: translateX(0);
 }
 
+.bar-button {
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	outline: none;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+.bar-button svg {
+	height: 2.5rem;
+	padding: 1.5rem 0 0.6rem;
+	width: auto;
+}
+
+.bar-button-label {
+	text-align: center;
+	font-size: 1rem;
+	padding-bottom: 1.5rem;
+	font-weight: 700;
+	color: var(--color-text);
+}
+
 .options-content-container {
 	position: relative;
 	height: 100vh;

@@ -11,6 +11,12 @@ import BehaviorPanel from 'components/BehaviorPanel';
 import LayoutPanel from 'components/LayoutPanel';
 import ThemingPanel from 'components/ThemingPanel';
 import DebugPanel from 'components/DebugPanel';
+import {
+	LuBrainCircuit,
+	LuLayoutDashboard,
+	LuPaintbrush,
+	LuCode,
+} from 'react-icons/lu';
 
 type OptionsButtonProps = {
 	optionsVisible: boolean;
@@ -43,6 +49,7 @@ const OptionsButton: React.FC<OptionsButtonProps> = ({
 				<div className={styles['button-bar3']}></div>
 			</button>
 			<button
+				aria-label={chrome.i18n.getMessage('closeOptionsMenu')}
 				className={optionsMenuCloseButtonClass}
 				onClick={toggleMenu}
 			>
@@ -68,17 +75,49 @@ const OptionsBar: React.FC = () => {
 
 	return (
 		<nav className={styles['options-bar']}>
-			<button data-category="Behavior" onClick={handleCategoryClick}>
-				Behavior
+			<button
+				className={styles['bar-button']}
+				aria-label={chrome.i18n.getMessage('behavior')}
+				data-category="Behavior"
+				onClick={handleCategoryClick}
+			>
+				<LuBrainCircuit />
+				<span className={styles['bar-button-label']}>
+					{chrome.i18n.getMessage('behavior')}
+				</span>
 			</button>
-			<button data-category="Layout" onClick={handleCategoryClick}>
-				Layout
+			<button
+				className={styles['bar-button']}
+				aria-label={chrome.i18n.getMessage('layout')}
+				data-category="Layout"
+				onClick={handleCategoryClick}
+			>
+				<LuLayoutDashboard />
+				<span className={styles['bar-button-label']}>
+					{chrome.i18n.getMessage('layout')}
+				</span>
 			</button>
-			<button data-category="Theming" onClick={handleCategoryClick}>
-				Theming
+			<button
+				className={styles['bar-button']}
+				aria-label={chrome.i18n.getMessage('theming')}
+				data-category="Theming"
+				onClick={handleCategoryClick}
+			>
+				<LuPaintbrush />
+				<span className={styles['bar-button-label']}>
+					{chrome.i18n.getMessage('theming')}
+				</span>
 			</button>
-			<button data-category="Debug" onClick={handleCategoryClick}>
-				Debug
+			<button
+				className={styles['bar-button']}
+				aria-label={chrome.i18n.getMessage('debug')}
+				data-category="Debug"
+				onClick={handleCategoryClick}
+			>
+				<LuCode />
+				<span className={styles['bar-button-label']}>
+					{chrome.i18n.getMessage('debug')}
+				</span>
 			</button>
 		</nav>
 	);

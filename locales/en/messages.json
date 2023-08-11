@@ -23,6 +23,26 @@
 		"message": "Options Menu",
 		"description": "Label for Options Menu"
 	},
+	"closeOptionsMenu": {
+		"message": "Close Options Menu",
+		"description": "Label for closing Options Menu"
+	},
+	"behavior": {
+		"message": "Behavior",
+		"description": "Name of options panel for app behavior options"
+	},
+	"layout": {
+		"message": "Layout",
+		"description": "Name of options panel for layout options"
+	},
+	"theming": {
+		"message": "Theming",
+		"description": "Name of options panel for theming options"
+	},
+	"debug": {
+		"message": "Debug",
+		"description": "Name of options panel with debug information"
+	},
 	"matchQuery": {
 		"message": "Match Query",
 		"description": "Name of match query input sent to Emacs"

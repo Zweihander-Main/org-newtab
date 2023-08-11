@@ -1,10 +1,7 @@
 declare const styles: {
-  readonly "menu": string;
-  readonly "active": string;
-  readonly "form": string;
-  readonly "json": string;
   readonly "button": string;
   readonly "close-button": string;
+  readonly "active": string;
   readonly "close-button-bar1": string;
   readonly "close-button-bar2": string;
   readonly "button-bar1": string;
@@ -12,6 +9,8 @@ declare const styles: {
   readonly "button-bar3": string;
   readonly "options-menu": string;
   readonly "options-bar": string;
+  readonly "bar-button": string;
+  readonly "bar-button-label": string;
   readonly "options-content-container": string;
   readonly "options-content": string;
   readonly "options-panel": string;
