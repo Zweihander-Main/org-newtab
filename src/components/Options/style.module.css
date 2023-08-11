@@ -141,7 +141,7 @@
 	width: 0%;
 	height: 0.6rem;
 	z-index: 2000;
-	background: rgba(255 0 0 /50%);
+	background: rgba(255 0 0 / 50%);
 	display: block;
 	transition: all 0.1s ease;
 	opacity: 0;
@@ -179,7 +179,7 @@
 	width: 6rem;
 	height: 0.5rem;
 	background: rgba(255 0 0 / 50%);
-	bottom: 1rem;
+	bottom: 1.35rem;
 	content: '';
 	display: block;
 	position: absolute;
