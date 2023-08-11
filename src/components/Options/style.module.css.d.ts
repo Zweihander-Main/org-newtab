@@ -8,11 +8,6 @@ declare const styles: {
   readonly "button-bar2": string;
   readonly "button-bar3": string;
   readonly "options-menu": string;
-  readonly "options-bar": string;
-  readonly "bar-button": string;
-  readonly "bar-button-label": string;
-  readonly "is-selected": string;
-  readonly "indicator": string;
   readonly "options-content-container": string;
   readonly "options-content": string;
   readonly "options-panel": string;

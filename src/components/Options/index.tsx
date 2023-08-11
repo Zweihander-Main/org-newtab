@@ -1,22 +1,13 @@
 import * as styles from './style.module.css';
 import { useCallback, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import { useAppSelector } from '../../app/hooks';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import {
-	OptionCategories,
-	selectedOptionCategory,
-	setOptCatTo,
-} from 'modules/ui/uiSlice';
+import { OptionCategories, selectedOptionCategory } from 'modules/ui/uiSlice';
 import BehaviorPanel from 'components/BehaviorPanel';
 import LayoutPanel from 'components/LayoutPanel';
 import ThemingPanel from 'components/ThemingPanel';
 import DebugPanel from 'components/DebugPanel';
-import {
-	LuBrainCircuit,
-	LuLayoutDashboard,
-	LuPaintbrush,
-	LuCode,
-} from 'react-icons/lu';
+import OptionsBar from 'components/OptBar';
 
 type OptionsButtonProps = {
 	optionsVisible: boolean;
@@ -57,78 +48,6 @@ const OptionsButton: React.FC<OptionsButtonProps> = ({
 				<div className={styles['close-button-bar2']}></div>
 			</button>
 		</>
-	);
-};
-
-const OptionsBar: React.FC = () => {
-	const dispatch = useAppDispatch();
-	const selectedCategory = useAppSelector(selectedOptionCategory);
-	const handleCategoryClick = useCallback(
-		(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-			const { currentTarget } = event;
-			const category = currentTarget.dataset.category as OptionCategories;
-			if (category) {
-				dispatch(setOptCatTo(category));
-			}
-		},
-		[dispatch]
-	);
-
-	const getButtonClass = useCallback(
-		(category: OptionCategories) =>
-			selectedCategory === category
-				? `${styles['is-selected']} ${styles['bar-button']}`
-				: styles['bar-button'],
-		[selectedCategory]
-	);
-
-	return (
-		<nav className={`${styles['options-bar']} ${styles['indicator']}`}>
-			<button
-				className={getButtonClass('Behavior')}
-				aria-label={chrome.i18n.getMessage('behavior')}
-				data-category="Behavior"
-				onClick={handleCategoryClick}
-			>
-				<LuBrainCircuit />
-				<span className={styles['bar-button-label']}>
-					{chrome.i18n.getMessage('behavior')}
-				</span>
-			</button>
-			<button
-				className={getButtonClass('Layout')}
-				aria-label={chrome.i18n.getMessage('layout')}
-				data-category="Layout"
-				onClick={handleCategoryClick}
-			>
-				<LuLayoutDashboard />
-				<span className={styles['bar-button-label']}>
-					{chrome.i18n.getMessage('layout')}
-				</span>
-			</button>
-			<button
-				className={getButtonClass('Theming')}
-				aria-label={chrome.i18n.getMessage('theming')}
-				data-category="Theming"
-				onClick={handleCategoryClick}
-			>
-				<LuPaintbrush />
-				<span className={styles['bar-button-label']}>
-					{chrome.i18n.getMessage('theming')}
-				</span>
-			</button>
-			<button
-				className={getButtonClass('Debug')}
-				aria-label={chrome.i18n.getMessage('debug')}
-				data-category="Debug"
-				onClick={handleCategoryClick}
-			>
-				<LuCode />
-				<span className={styles['bar-button-label']}>
-					{chrome.i18n.getMessage('debug')}
-				</span>
-			</button>
-		</nav>
 	);
 };
 
@@ -202,7 +121,7 @@ const Options: React.FC = () => {
 				toggleMenu={toggleMenu}
 			/>
 			<div className={optionsMenuClass}>
-				<OptionsBar />
+				<OptionsBar optionsVisible={optionsVisible} />
 				<OptionsContent />
 			</div>
 		</>
