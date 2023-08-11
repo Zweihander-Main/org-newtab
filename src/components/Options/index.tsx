@@ -77,13 +77,13 @@ const OptionsBar: React.FC = () => {
 	const getButtonClass = useCallback(
 		(category: OptionCategories) =>
 			selectedCategory === category
-				? `${styles['selected-button']} ${styles['bar-button']}`
+				? `${styles['is-selected']} ${styles['bar-button']}`
 				: styles['bar-button'],
 		[selectedCategory]
 	);
 
 	return (
-		<nav className={styles['options-bar']}>
+		<nav className={`${styles['options-bar']} ${styles['indicator']}`}>
 			<button
 				className={getButtonClass('Behavior')}
 				aria-label={chrome.i18n.getMessage('behavior')}

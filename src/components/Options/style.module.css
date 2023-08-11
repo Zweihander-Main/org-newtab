@@ -124,8 +124,32 @@
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	padding-bottom: 0.5rem;
+	padding: 0 0 0.5rem;
 	margin-bottom: 1.5rem;
+	width: 6rem;
+	position: relative;
+	bottom: 0;
+	transition:
+		color 0.2s ease,
+		bottom 0.5s ease;
+}
+
+.bar-button .bar-button-label::after {
+	content: '';
+	position: absolute;
+	bottom: 0;
+	width: 0%;
+	height: 0.6rem;
+	z-index: 2000;
+	background: rgba(255 0 0 /50%);
+	display: block;
+	transition: all 0.1s ease;
+	opacity: 0;
+}
+
+.bar-button:not(.is-selected):hover .bar-button-label::after {
+	opacity: 1;
+	width: 90%;
 }
 
 .bar-button svg {
@@ -139,13 +163,49 @@
 	font-size: 1rem;
 	font-weight: 700;
 	color: var(--color-text);
+	position: relative;
 }
 
-.selected-button {
+.is-selected {
 	color: red;
-	border-bottom: 5px solid rgba(255 0 0 / 50%);
-	position: relative;
 	bottom: 0.25rem;
+}
+
+.indicator {
+	position: relative;
+}
+
+.indicator::after {
+	width: 6rem;
+	height: 0.5rem;
+	background: rgba(255 0 0 / 50%);
+	bottom: 1rem;
+	content: '';
+	display: block;
+	position: absolute;
+	transition: all 0.5s ease;
+}
+
+/**
+* Even space for n tabs,
+* viewport divided by n+1 slices
+* minus tab width applicable to slice
+* plus close button padding applicable to slice
+*/
+.indicator:has(.bar-button:nth-child(1).is-selected)::after {
+	left: calc((100vw * 0.2) - (24rem * 0.2) + (5rem - (5rem * 0.2)));
+}
+
+.indicator:has(.bar-button:nth-child(2).is-selected)::after {
+	left: calc((100vw * 0.4) - (24rem * 0.15) + (5rem - (5rem * 0.4)));
+}
+
+.indicator:has(.bar-button:nth-child(3).is-selected)::after {
+	left: calc((100vw * 0.6) - (24rem * 0.1) + (5rem - (5rem * 0.6)));
+}
+
+.indicator:has(.bar-button:nth-child(4).is-selected)::after {
+	left: calc((100vw * 0.8) - (24rem * 0.05) + (5rem - (5rem * 0.8)));
 }
 
 .options-content-container {
