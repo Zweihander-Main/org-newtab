@@ -62,6 +62,7 @@ const OptionsButton: React.FC<OptionsButtonProps> = ({
 
 const OptionsBar: React.FC = () => {
 	const dispatch = useAppDispatch();
+	const selectedCategory = useAppSelector(selectedOptionCategory);
 	const handleCategoryClick = useCallback(
 		(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
 			const { currentTarget } = event;
@@ -73,10 +74,18 @@ const OptionsBar: React.FC = () => {
 		[dispatch]
 	);
 
+	const getButtonClass = useCallback(
+		(category: OptionCategories) =>
+			selectedCategory === category
+				? `${styles['selected-button']} ${styles['bar-button']}`
+				: styles['bar-button'],
+		[selectedCategory]
+	);
+
 	return (
 		<nav className={styles['options-bar']}>
 			<button
-				className={styles['bar-button']}
+				className={getButtonClass('Behavior')}
 				aria-label={chrome.i18n.getMessage('behavior')}
 				data-category="Behavior"
 				onClick={handleCategoryClick}
@@ -87,7 +96,7 @@ const OptionsBar: React.FC = () => {
 				</span>
 			</button>
 			<button
-				className={styles['bar-button']}
+				className={getButtonClass('Layout')}
 				aria-label={chrome.i18n.getMessage('layout')}
 				data-category="Layout"
 				onClick={handleCategoryClick}
@@ -98,7 +107,7 @@ const OptionsBar: React.FC = () => {
 				</span>
 			</button>
 			<button
-				className={styles['bar-button']}
+				className={getButtonClass('Theming')}
 				aria-label={chrome.i18n.getMessage('theming')}
 				data-category="Theming"
 				onClick={handleCategoryClick}
@@ -109,7 +118,7 @@ const OptionsBar: React.FC = () => {
 				</span>
 			</button>
 			<button
-				className={styles['bar-button']}
+				className={getButtonClass('Debug')}
 				aria-label={chrome.i18n.getMessage('debug')}
 				data-category="Debug"
 				onClick={handleCategoryClick}

@@ -124,6 +124,8 @@
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
+	padding-bottom: 0.5rem;
+	margin-bottom: 1.5rem;
 }
 
 .bar-button svg {
@@ -135,9 +137,15 @@
 .bar-button-label {
 	text-align: center;
 	font-size: 1rem;
-	padding-bottom: 1.5rem;
 	font-weight: 700;
 	color: var(--color-text);
+}
+
+.selected-button {
+	color: red;
+	border-bottom: 5px solid rgba(255 0 0 / 50%);
+	position: relative;
+	bottom: 0.25rem;
 }
 
 .options-content-container {

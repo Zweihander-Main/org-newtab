@@ -11,6 +11,7 @@ declare const styles: {
   readonly "options-bar": string;
   readonly "bar-button": string;
   readonly "bar-button-label": string;
+  readonly "selected-button": string;
   readonly "options-content-container": string;
   readonly "options-content": string;
   readonly "options-panel": string;
