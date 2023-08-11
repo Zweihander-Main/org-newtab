@@ -8,48 +8,7 @@ import LayoutPanel from 'components/LayoutPanel';
 import ThemingPanel from 'components/ThemingPanel';
 import DebugPanel from 'components/DebugPanel';
 import OptionsBar from 'components/OptBar';
-
-type OptionsButtonProps = {
-	optionsVisible: boolean;
-	toggleMenu: () => void;
-};
-
-const OptionsButton: React.FC<OptionsButtonProps> = ({
-	optionsVisible,
-	toggleMenu,
-}) => {
-	const optionsMenuButtonClass = [
-		styles.button,
-		optionsVisible ? styles.active : '',
-	].join(' ');
-
-	const optionsMenuCloseButtonClass = [
-		styles['close-button'],
-		optionsVisible ? styles.active : '',
-	].join(' ');
-
-	return (
-		<>
-			<button
-				aria-label={chrome.i18n.getMessage('optionsMenu')}
-				className={optionsMenuButtonClass}
-				onClick={toggleMenu}
-			>
-				<div className={styles['button-bar1']}></div>
-				<div className={styles['button-bar2']}></div>
-				<div className={styles['button-bar3']}></div>
-			</button>
-			<button
-				aria-label={chrome.i18n.getMessage('closeOptionsMenu')}
-				className={optionsMenuCloseButtonClass}
-				onClick={toggleMenu}
-			>
-				<div className={styles['close-button-bar1']}></div>
-				<div className={styles['close-button-bar2']}></div>
-			</button>
-		</>
-	);
-};
+import OptionsButton from 'components/OptButton';
 
 type OptionsPanelProps = {
 	selectedCategory: OptionCategories;
@@ -73,6 +32,14 @@ const OptionsPanel: React.FC<OptionsPanelProps> = ({ selectedCategory }) => {
 			<PanelToRender />
 		</div>
 	);
+};
+
+const slideTransitionTimeout = 500;
+const slideTransitionClassNames = {
+	enter: styles['slide-transition-enter'],
+	enterActive: styles['slide-transition-enter-active'],
+	exit: styles['slide-transition-exit'],
+	exitActive: styles['slide-transition-exit-active'],
 };
 
 const MemoizedCSSTransition = memo(CSSTransition, (prevProps, nextProps) => {
@@ -102,14 +69,6 @@ const OptionsContent: React.FC = () => {
 			</div>
 		</div>
 	);
-};
-
-const slideTransitionTimeout = 500;
-const slideTransitionClassNames = {
-	enter: styles['slide-transition-enter'],
-	enterActive: styles['slide-transition-enter-active'],
-	exit: styles['slide-transition-exit'],
-	exitActive: styles['slide-transition-exit-active'],
 };
 
 const Options: React.FC = () => {
