@@ -48,7 +48,7 @@
 		"description": "Name of match query input sent to Emacs"
 	},
 	"matchQueryTooltip": {
-		"message": "Default match query sent to Emacs. This will be used to find a task when no task is clocked in.<br /><br />See <a href=\"https://orgmode.org/manual/Matching-tags-and-properties.html\" target=\"_blank\">Org Manual: Matching tags and properties</a> for more information.<br /><br />Example:<br /><code>TODO=\"NEXT\"+PRIORITY=\"A\"-@down-@play-@end</code>",
+		"message": "Default task search string sent to Emacs. This will be used to find a task when no task is clocked in.<br /><br />See <a href=\"https://orgmode.org/manual/Matching-tags-and-properties.html\" target=\"_blank\">Org Manual: Matching tags and properties</a> for more information.<br /><br />Example:<br /><code>TODO=\"NEXT\"+PRIORITY=\"A\"-@down-@play-@end</code>",
 		"description": "Tooltip for match query input"
 	},
 	"wsPort": {
