@@ -3,7 +3,7 @@
 	justify-content: space-evenly;
 	align-items: center;
 	background: var(--color-ui);
-	min-height: 4rem;
+	height: 7rem;
 	padding-left: 5rem;
 	transform: translateX(-100%);
 	transition: all var(--animation-duration-options)
@@ -39,7 +39,7 @@
 	bottom: 0;
 	width: 0%;
 	height: 0.6rem;
-	z-index: 2000;
+	z-index: 200;
 	background: rgba(255 0 0 / 50%);
 	display: block;
 	transition: all 0.1s ease;
@@ -53,7 +53,7 @@
 
 .button svg {
 	height: 2.5rem;
-	padding: 1.5rem 0 0.6rem;
+	padding: 1.3rem 0 0.6rem;
 	width: auto;
 }
 
