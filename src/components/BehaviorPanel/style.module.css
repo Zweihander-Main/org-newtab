@@ -1,7 +1,7 @@
 .form {
 	display: grid;
 	grid-template-columns: 1fr;
-	grid-auto-rows: 1fr 4fr;
+	grid-auto-rows: 1fr 6fr;
 	margin: 2rem 5rem;
 	justify-items: start;
 	align-items: baseline;
@@ -30,20 +30,42 @@
 	height: 3rem;
 	font-size: 1.7rem;
 	padding: 0.5rem;
-	transition: all 0.2s ease;
+	transition: all 0.1s ease-in;
 }
 
 .form input:focus,
 .form input:active {
-	/* NEXT: Figure out slight blur, tweak */
 	transform: translate(-0.1rem, -0.1rem);
 	box-shadow: 4px 4px 0 0 var(--color-item-shadow);
 	outline: none;
 }
 
 .form button {
-	margin-top: 0.5rem;
-	justify-self: center;
-	padding: 0.25rem 2rem;
+	grid-row: span 2;
+	place-self: center center;
+	padding: 0.85rem 3rem;
 	cursor: pointer;
+	background: linear-gradient(180deg, #84fab0 0%, #8fd3f4 100%);
+	border: 2px solid var(--color-item-shadow);
+	box-shadow: 0.3rem 0.3rem 0 0 var(--color-item-shadow);
+	border-radius: 1.3rem;
+	font-size: 1.5rem;
+	font-weight: var(--font-weight-standard);
+	text-align: center;
+	transition: all 0.1s ease-in;
+}
+
+.form button:hover {
+	transform: translate(-0.05rem, -0.05rem);
+	box-shadow: 0.3em 0.3em;
+	background: white;
+	padding: 0.87rem 3.1rem;
+}
+
+.form button:active {
+	transform: translate(0.1em, 0.1em);
+	box-shadow: 0.15em 0.15em;
+	background: white;
+	transition: all 0.03s ease-in;
+	padding: 0.87rem 3.1rem;
 }
