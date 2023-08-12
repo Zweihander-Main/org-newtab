@@ -10,12 +10,12 @@ const OptButton: React.FC<OptionsButtonProps> = ({
 	toggleMenu,
 }) => {
 	const openButtonClass = [
-		styles.button,
+		styles.open,
 		optionsVisible ? styles['is-visible'] : '',
 	].join(' ');
 
 	const closeButtonClass = [
-		styles['close-button'],
+		styles.close,
 		optionsVisible ? styles['is-visible'] : '',
 	].join(' ');
 
@@ -26,17 +26,17 @@ const OptButton: React.FC<OptionsButtonProps> = ({
 				className={openButtonClass}
 				onClick={toggleMenu}
 			>
-				<div className={styles['button-bar1']}></div>
-				<div className={styles['button-bar2']}></div>
-				<div className={styles['button-bar3']}></div>
+				<div className={styles['open-bar1']}></div>
+				<div className={styles['open-bar2']}></div>
+				<div className={styles['open-bar3']}></div>
 			</button>
 			<button
 				aria-label={chrome.i18n.getMessage('closeOptionsMenu')}
 				className={closeButtonClass}
 				onClick={toggleMenu}
 			>
-				<div className={styles['close-button-bar1']}></div>
-				<div className={styles['close-button-bar2']}></div>
+				<div className={styles['close-bar1']}></div>
+				<div className={styles['close-bar2']}></div>
 			</button>
 		</>
 	);

@@ -1,12 +1,12 @@
 declare const styles: {
-  readonly "button": string;
-  readonly "close-button": string;
+  readonly "open": string;
+  readonly "close": string;
   readonly "is-visible": string;
-  readonly "close-button-bar1": string;
-  readonly "close-button-bar2": string;
-  readonly "button-bar1": string;
-  readonly "button-bar2": string;
-  readonly "button-bar3": string;
+  readonly "close-bar1": string;
+  readonly "close-bar2": string;
+  readonly "open-bar1": string;
+  readonly "open-bar2": string;
+  readonly "open-bar3": string;
 };
 export = styles;
 
