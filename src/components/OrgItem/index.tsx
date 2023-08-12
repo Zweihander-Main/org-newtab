@@ -9,10 +9,11 @@ import {
 } from 'modules/ws/wsSlice';
 import { selectedOrgItem, selectedTagsData } from 'modules/emacs/emacsSlice';
 
-//NEXT: flip out image with actual transparency
-//NEXT: well designed options menu
+//NEXT: Question mark on inputs
+//TODO: flip out image with actual transparency
 //TODO: pull in other data from org item
 //TODO: better responsive design
+//TODO: layout and theming options
 
 const OrgItem: React.FC = () => {
 	const tagsData = useAppSelector(selectedTagsData);

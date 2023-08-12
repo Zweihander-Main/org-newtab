@@ -9,7 +9,7 @@
 	width: max(50vw, 50rem);
 }
 
-.form label {
+.label {
 	font-weight: var(--font-weight-bold);
 	font-size: 0.875rem;
 	text-transform: uppercase;
@@ -19,7 +19,7 @@
 	margin-bottom: 0.2rem;
 }
 
-.form input {
+.input {
 	width: 100%;
 	font-family: var(--font-mono);
 	font-weight: var(--font-weight-light);
@@ -33,14 +33,14 @@
 	transition: all 0.1s ease-in;
 }
 
-.form input:focus,
-.form input:active {
+.input:focus,
+.input:active {
 	transform: translate(-0.1rem, -0.1rem);
 	box-shadow: 4px 4px 0 0 var(--color-item-shadow);
 	outline: none;
 }
 
-.form button {
+.button {
 	grid-row: span 2;
 	place-self: center center;
 	padding: 0.85rem 3rem;
@@ -55,14 +55,14 @@
 	transition: all 0.1s ease-in;
 }
 
-.form button:hover {
+.button:hover {
 	transform: translate(-0.05rem, -0.05rem);
 	box-shadow: 0.3em 0.3em;
 	background: white;
 	padding: 0.87rem 3.1rem;
 }
 
-.form button:active {
+.button:active {
 	transform: translate(0.1em, 0.1em);
 	box-shadow: 0.15em 0.15em;
 	background: white;

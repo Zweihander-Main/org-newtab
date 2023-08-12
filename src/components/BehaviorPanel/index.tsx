@@ -52,25 +52,29 @@ const BehaviorPanel: React.FC = () => {
 
 	return (
 		<form className={styles.form} method="post" onSubmit={handleFormSubmit}>
-			<label htmlFor="matchQuery">
+			<label className={styles.label} htmlFor="matchQuery">
 				{chrome.i18n.getMessage('matchQuery')}:{' '}
 			</label>
 			<input
+				className={styles.input}
 				type="text"
 				name="matchQuery"
 				defaultValue={matchQuery}
 				ref={matchQueryInputRef}
 				aria-label={chrome.i18n.getMessage('matchQuery')}
 			/>
-			<label htmlFor="wsPort">{chrome.i18n.getMessage('wsPort')}:</label>
+			<label className={styles.label} htmlFor="wsPort">
+				{chrome.i18n.getMessage('wsPort')}:
+			</label>
 			<input
+				className={styles.input}
 				type="number"
 				name="wsPort"
 				defaultValue={wsPort}
 				ref={wsPortInputRef}
 				aria-label={chrome.i18n.getMessage('wsPort')}
 			/>
-			<button type="submit" disabled={false}>
+			<button className={styles.button} type="submit" disabled={false}>
 				{chrome.i18n.getMessage('saveOptions')}
 			</button>
 		</form>
