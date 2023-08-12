@@ -28,7 +28,7 @@ const OptionsPanel: React.FC<OptionsPanelProps> = ({ selectedCategory }) => {
 		}
 	}, [selectedCategory]);
 	return (
-		<div className={styles['options-panel']}>
+		<div className={styles.panel}>
 			<PanelToRender />
 		</div>
 	);
@@ -36,10 +36,10 @@ const OptionsPanel: React.FC<OptionsPanelProps> = ({ selectedCategory }) => {
 
 const slideTransitionTimeout = 500;
 const slideTransitionClassNames = {
-	enter: styles['slide-transition-enter'],
-	enterActive: styles['slide-transition-enter-active'],
-	exit: styles['slide-transition-exit'],
-	exitActive: styles['slide-transition-exit-active'],
+	enter: styles['slide-enter'],
+	enterActive: styles['slide-enter-active'],
+	exit: styles['slide-exit'],
+	exitActive: styles['slide-exit-active'],
 };
 
 const MemoizedCSSTransition = memo(CSSTransition, (prevProps, nextProps) => {
@@ -54,8 +54,8 @@ const MemoizedCSSTransition = memo(CSSTransition, (prevProps, nextProps) => {
 const OptionsContent: React.FC = () => {
 	const selectedCategory = useAppSelector(selectedOptionCategory);
 	return (
-		<div className={styles['options-content-container']}>
-			<div className={styles['options-content']}>
+		<div className={styles['content-container']}>
+			<div className={styles['content']}>
 				<TransitionGroup component={null}>
 					<MemoizedCSSTransition
 						key={selectedCategory}
@@ -72,24 +72,24 @@ const OptionsContent: React.FC = () => {
 };
 
 const Options: React.FC = () => {
-	const [optionsVisible, setOptionsVisible] = useState(false);
+	const [menuVisible, setMenuVisible] = useState(false);
 	const toggleMenu = useCallback(() => {
-		setOptionsVisible(!optionsVisible);
-	}, [optionsVisible]);
+		setMenuVisible(!menuVisible);
+	}, [menuVisible]);
 
-	const optionsMenuClass = [
-		styles['options-menu'],
-		optionsVisible ? styles.active : '',
+	const menuClass = [
+		styles.menu,
+		menuVisible ? styles['is-visible'] : '',
 	].join(' ');
 
 	return (
 		<>
 			<OptionsButton
-				optionsVisible={optionsVisible}
+				optionsVisible={menuVisible}
 				toggleMenu={toggleMenu}
 			/>
-			<div className={optionsMenuClass}>
-				<OptionsBar optionsVisible={optionsVisible} />
+			<div className={menuClass}>
+				<OptionsBar menuVisible={menuVisible} />
 				<OptionsContent />
 			</div>
 		</>

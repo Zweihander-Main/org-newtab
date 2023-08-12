@@ -1,4 +1,4 @@
-.options-menu {
+.menu {
 	position: fixed;
 	z-index: 200;
 	width: 100vw;
@@ -6,17 +6,17 @@
 	visibility: hidden;
 }
 
-.options-menu.active {
+.menu.is-visible {
 	visibility: visible;
 }
 
-.options-content-container {
+.content-container {
 	position: relative;
 	height: 100vh;
 	overflow: hidden;
 }
 
-.options-content {
+.content {
 	background: linear-gradient(180deg, #cfd9df 0%, #e2ebf0 100%);
 	display: flex;
 	width: 100%;
@@ -29,7 +29,7 @@
 		var(--animation-timing-options);
 }
 
-.options-panel {
+.panel {
 	position: absolute;
 	display: flex;
 	width: 100%;
@@ -39,16 +39,16 @@
 	flex-direction: column;
 }
 
-.active .options-content {
+.is-visible .content {
 	transform: translateY(0);
 }
 
-.slide-transition-enter {
+.slide-enter {
 	transform: translateX(-100%);
 	opacity: 0;
 }
 
-.slide-transition-enter-active {
+.slide-enter-active {
 	transform: translateX(0);
 	opacity: 1;
 	transition:
@@ -56,12 +56,12 @@
 		opacity 0.5s ease;
 }
 
-.slide-transition-exit {
+.slide-exit {
 	transform: translateX(0);
 	opacity: 1;
 }
 
-.slide-transition-exit-active {
+.slide-exit-active {
 	transform: translateX(100%);
 	opacity: 0;
 	transition:

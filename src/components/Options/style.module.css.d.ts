@@ -1,13 +1,13 @@
 declare const styles: {
-  readonly "options-menu": string;
-  readonly "active": string;
-  readonly "options-content-container": string;
-  readonly "options-content": string;
-  readonly "options-panel": string;
-  readonly "slide-transition-enter": string;
-  readonly "slide-transition-enter-active": string;
-  readonly "slide-transition-exit": string;
-  readonly "slide-transition-exit-active": string;
+  readonly "menu": string;
+  readonly "is-visible": string;
+  readonly "content-container": string;
+  readonly "content": string;
+  readonly "panel": string;
+  readonly "slide-enter": string;
+  readonly "slide-enter-active": string;
+  readonly "slide-exit": string;
+  readonly "slide-exit-active": string;
 };
 export = styles;
 
