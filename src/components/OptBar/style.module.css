@@ -1,4 +1,4 @@
-.options-bar {
+.bar {
 	display: flex;
 	justify-content: space-evenly;
 	align-items: center;
@@ -14,7 +14,7 @@
 	transform: translateX(0);
 }
 
-.bar-button {
+.button {
 	background: transparent;
 	border: none;
 	cursor: pointer;
@@ -33,7 +33,7 @@
 		bottom 0.5s ease;
 }
 
-.bar-button .bar-button-label::after {
+.button .button-label::after {
 	content: '';
 	position: absolute;
 	bottom: 0;
@@ -46,18 +46,18 @@
 	opacity: 0;
 }
 
-.bar-button:not(.is-selected):hover .bar-button-label::after {
+.button:not(.is-selected):hover .button-label::after {
 	opacity: 1;
 	width: 90%;
 }
 
-.bar-button svg {
+.button svg {
 	height: 2.5rem;
 	padding: 1.5rem 0 0.6rem;
 	width: auto;
 }
 
-.bar-button-label {
+.button-label {
 	text-align: center;
 	font-size: 1rem;
 	font-weight: 700;
@@ -91,18 +91,18 @@
 * minus tab width applicable to slice
 * plus close button padding applicable to slice
 */
-.indicator:has(.bar-button:nth-child(1).is-selected)::after {
+.indicator:has(.button:nth-child(1).is-selected)::after {
 	left: calc((100vw * 0.2) - (24rem * 0.2) + (5rem - (5rem * 0.2)));
 }
 
-.indicator:has(.bar-button:nth-child(2).is-selected)::after {
+.indicator:has(.button:nth-child(2).is-selected)::after {
 	left: calc((100vw * 0.4) - (24rem * 0.15) + (5rem - (5rem * 0.4)));
 }
 
-.indicator:has(.bar-button:nth-child(3).is-selected)::after {
+.indicator:has(.button:nth-child(3).is-selected)::after {
 	left: calc((100vw * 0.6) - (24rem * 0.1) + (5rem - (5rem * 0.6)));
 }
 
-.indicator:has(.bar-button:nth-child(4).is-selected)::after {
+.indicator:has(.button:nth-child(4).is-selected)::after {
 	left: calc((100vw * 0.8) - (24rem * 0.05) + (5rem - (5rem * 0.8)));
 }

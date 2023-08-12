@@ -34,9 +34,10 @@ const OptButton: React.FC<OptButtonProps> = ({
 	handleClick,
 	icon,
 }) => {
-	const buttonClass = isSelected
-		? `${styles['is-selected']} ${styles['bar-button']}`
-		: styles['bar-button'];
+	const buttonClass = [
+		styles.button,
+		isSelected ? styles['is-selected'] : '',
+	].join(' ');
 
 	return (
 		<button
@@ -46,7 +47,7 @@ const OptButton: React.FC<OptButtonProps> = ({
 			onClick={handleClick}
 		>
 			<MemoizedIcon icon={icon} />
-			<span className={styles['bar-button-label']}>
+			<span className={styles['button-label']}>
 				{chrome.i18n.getMessage(category.toLowerCase())}
 			</span>
 		</button>
@@ -75,9 +76,11 @@ const OptBar: React.FC<OptBarProps> = ({ menuVisible }) => {
 		[dispatch]
 	);
 
-	const barClass = `${styles['options-bar']} ${styles['indicator']} ${
-		menuVisible ? styles['is-visible'] : ''
-	}`;
+	const barClass = [
+		styles['bar'],
+		styles['indicator'],
+		menuVisible ? styles['is-visible'] : '',
+	].join(' ');
 
 	return (
 		<nav className={barClass}>
