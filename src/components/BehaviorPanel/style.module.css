@@ -7,6 +7,7 @@
 	align-items: baseline;
 	height: fit-content;
 	width: max(50vw, 50rem);
+	position: relative;
 }
 
 .label {
@@ -29,15 +30,76 @@
 	box-shadow: 4px 4px 0 0 var(--color-options-form-input-box-shadow) inset;
 	height: 3rem;
 	font-size: 1.7rem;
-	padding: 0.5rem;
+	padding: 0.5rem 2.2rem 0.5rem 0.5rem;
 	transition: all 0.1s ease-in;
 }
 
 .input:focus,
 .input:active {
-	transform: translate(-0.1rem, -0.1rem);
-	box-shadow: 4px 4px 0 0 var(--color-item-shadow);
 	outline: none;
+	box-shadow: 4px 4px 0 0 var(--color-item-shadow);
+}
+
+.input-container {
+	width: 100%;
+	position: relative;
+	transition: all 0.1s ease-in;
+}
+
+.input-container:has(.input:focus),
+.input-container:has(.input:active) {
+	transform: translate(-0.1rem, -0.1rem);
+}
+
+.tooltip {
+	position: absolute;
+	right: 0;
+	top: 0.35rem;
+	font-size: 2rem;
+	opacity: 0.5;
+	padding: 0.1rem 0.7rem 0.1rem 0.5rem;
+	cursor: help;
+}
+
+.tooltip-text {
+	visibility: hidden;
+	max-width: 16rem;
+	border: 2px solid var(--color-item-shadow);
+	text-align: center;
+	padding: 1rem;
+	position: absolute;
+	z-index: 250;
+	top: 1.5rem;
+	right: 0.7rem;
+	font-size: 1rem;
+	font-weight: var(--font-weight-light);
+	background-color: white;
+	opacity: 0;
+	transition: all 0.2s ease-in;
+	cursor: help;
+}
+
+.tooltip:hover + .tooltip-text,
+.tooltip-text:hover {
+	visibility: visible;
+	opacity: 1;
+}
+
+.tooltip-text a {
+	color: var(--color-item-shadow);
+	font-weight: var(--font-weight-standard);
+	text-underline-offset: 0.2em;
+}
+
+.tooltip-text code,
+.tooltip-text pre {
+	font-weight: var(--font-weight-standard);
+	cursor: text;
+	word-break: break-word;
+}
+
+.tooltip-text a:hover {
+	text-decoration-thickness: 2px;
 }
 
 .button {

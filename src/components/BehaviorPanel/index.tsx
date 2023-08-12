@@ -55,25 +55,43 @@ const BehaviorPanel: React.FC = () => {
 			<label className={styles.label} htmlFor="matchQuery">
 				{chrome.i18n.getMessage('matchQuery')}:{' '}
 			</label>
-			<input
-				className={styles.input}
-				type="text"
-				name="matchQuery"
-				defaultValue={matchQuery}
-				ref={matchQueryInputRef}
-				aria-label={chrome.i18n.getMessage('matchQuery')}
-			/>
+			<div className={styles['input-container']}>
+				<input
+					className={styles.input}
+					type="text"
+					name="matchQuery"
+					defaultValue={matchQuery}
+					ref={matchQueryInputRef}
+					aria-label={chrome.i18n.getMessage('matchQuery')}
+				/>
+				<span className={styles.tooltip}>?</span>
+				<span
+					className={styles['tooltip-text']}
+					dangerouslySetInnerHTML={{
+						__html: chrome.i18n.getMessage('matchQueryTooltip'),
+					}}
+				></span>
+			</div>
 			<label className={styles.label} htmlFor="wsPort">
 				{chrome.i18n.getMessage('wsPort')}:
 			</label>
-			<input
-				className={styles.input}
-				type="number"
-				name="wsPort"
-				defaultValue={wsPort}
-				ref={wsPortInputRef}
-				aria-label={chrome.i18n.getMessage('wsPort')}
-			/>
+			<div className={styles['input-container']}>
+				<input
+					className={styles.input}
+					type="number"
+					name="wsPort"
+					defaultValue={wsPort}
+					ref={wsPortInputRef}
+					aria-label={chrome.i18n.getMessage('wsPort')}
+				/>
+				<span className={styles.tooltip}>?</span>
+				<span
+					className={styles['tooltip-text']}
+					dangerouslySetInnerHTML={{
+						__html: chrome.i18n.getMessage('wsPortTooltip'),
+					}}
+				></span>
+			</div>
 			<button className={styles.button} type="submit" disabled={false}>
 				{chrome.i18n.getMessage('saveOptions')}
 			</button>
