@@ -5,4 +5,5 @@
 	font-size: 0.85rem;
 	opacity: var(--opacity-ui);
 	color: var(--color-ui);
+	font-weight: var(--font-weight-light);
 }
