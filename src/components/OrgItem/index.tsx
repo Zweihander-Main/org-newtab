@@ -9,7 +9,7 @@ import {
 } from 'modules/ws/wsSlice';
 import { selectedOrgItem, selectedTagsData } from 'modules/emacs/emacsSlice';
 
-//NEXT: Question mark on inputs
+//NEXT: fix e2e
 //TODO: flip out image with actual transparency
 //TODO: pull in other data from org item
 //TODO: better responsive design
