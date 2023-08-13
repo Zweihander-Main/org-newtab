@@ -79,3 +79,10 @@ pre {
 	font-size: calc(1rem + 2vmin);
 	color: white;
 }
+
+@media (prefers-reduced-motion) {
+	* {
+		animation: none !important;
+		transition: none !important;
+	}
+}
