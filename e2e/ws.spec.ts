@@ -1,22 +1,21 @@
 /* eslint-disable @typescript-eslint/no-base-to-string */
 /* eslint-disable no-console */
 import {
-	CLIENT_MESSAGE,
 	CONNECTION_STATUS_LOCATOR,
 	CONNECTION_STATUS_OPEN,
 	GET_ITEM_COMMAND,
 	HOW_LONG_TO_WAIT_FOR_RESPONSE,
 	HOW_LONG_TO_WAIT_FOR_WEBSOCKET,
 	ITEM_TEXT_LOCATOR,
-	MASTER_MESSAGE,
 	MATCH_QUERY_LABEL,
-	ROLE_LOCATOR,
 	WSS_TEST_TEXT,
 	WS_PORT_LABEL,
-	INITIAL_STATE_LOCATOR,
-	INITIAL_STATE_RESOLVED,
 	HOW_LONG_TO_WAIT_FOR_STORAGE,
 	LOADING_BAR_LOCATOR,
+	storageIsResolved,
+	RETRIES_FOR_WEBSOCKET,
+	closeOptions,
+	gotoOptPanel,
 } from './common';
 import { test, expect } from './fixture';
 import WebSocket from 'ws';
@@ -94,15 +93,14 @@ async function setupWebsocketPort(
 	conn: Awaited<ReturnType<typeof openSocketConnection>>,
 	tab: Page
 ) {
-	await expect(tab.getByTestId(INITIAL_STATE_LOCATOR)).toContainText(
-		INITIAL_STATE_RESOLVED,
-		{ timeout: HOW_LONG_TO_WAIT_FOR_STORAGE }
-	);
-	await tab.getByLabel(WS_PORT_LABEL).fill(conn.port.toString());
-	await tab.getByLabel(WS_PORT_LABEL).press('Enter');
-	await expect(tab.getByLabel(WS_PORT_LABEL)).toHaveValue(
-		conn.port.toString()
-	);
+	await test.step('Setup websocket port', async () => {
+		await gotoOptPanel(tab, 'Behavior');
+		const portInput = tab.getByLabel(WS_PORT_LABEL);
+		await portInput.fill(conn.port.toString());
+		await portInput.press('Enter');
+		await expect(portInput).toHaveValue(conn.port.toString());
+		await closeOptions(tab);
+	});
 }
 
 function webSocketURL(conn: Awaited<ReturnType<typeof openSocketConnection>>) {
@@ -111,7 +109,7 @@ function webSocketURL(conn: Awaited<ReturnType<typeof openSocketConnection>>) {
 
 test.describe('WebSocket', () => {
 	test.describe.configure({
-		retries: 3,
+		retries: RETRIES_FOR_WEBSOCKET,
 		timeout:
 			HOW_LONG_TO_WAIT_FOR_STORAGE +
 			HOW_LONG_TO_WAIT_FOR_WEBSOCKET +
@@ -124,6 +122,8 @@ test.describe('WebSocket', () => {
 	}) => {
 		const conn = await openSocketConnection();
 		const tabMaster = await context.newPage();
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await storageIsResolved(tabMaster);
 
 		async function websocketOpened(): Promise<boolean> {
 			return new Promise(function (resolve) {
@@ -132,26 +132,15 @@ test.describe('WebSocket', () => {
 						resolve(true);
 					}
 				});
-				void expect(tabMaster.getByTestId(INITIAL_STATE_LOCATOR))
-					.toContainText(INITIAL_STATE_RESOLVED, {
-						timeout: HOW_LONG_TO_WAIT_FOR_STORAGE,
-					})
-					.then(() => {
-						setTimeout(
-							() => resolve(false),
-							HOW_LONG_TO_WAIT_FOR_WEBSOCKET
-						);
-					});
+				setTimeout(
+					() => resolve(false),
+					HOW_LONG_TO_WAIT_FOR_WEBSOCKET
+				);
 			});
 		}
 
 		const wsFunc = websocketOpened();
-
-		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
 		await setupWebsocketPort(conn, tabMaster);
-		await expect(tabMaster.getByTestId(ROLE_LOCATOR)).toContainText(
-			MASTER_MESSAGE
-		);
 		expect(await wsFunc).toBeTruthy();
 	});
 
@@ -162,6 +151,11 @@ test.describe('WebSocket', () => {
 		const conn = await openSocketConnection();
 		const tabMaster = await context.newPage();
 		const tabClient = await context.newPage();
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await tabClient.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await storageIsResolved(tabMaster);
+		await storageIsResolved(tabClient);
+
 		async function clientWebsocketOpened(): Promise<boolean> {
 			return new Promise(function (resolve) {
 				tabClient.on('websocket', (ws) => {
@@ -169,32 +163,18 @@ test.describe('WebSocket', () => {
 						resolve(true);
 					}
 				});
-				void expect(tabClient.getByTestId(INITIAL_STATE_LOCATOR))
-					.toContainText(INITIAL_STATE_RESOLVED, {
-						timeout: HOW_LONG_TO_WAIT_FOR_STORAGE,
-					})
-					.then(() => {
-						setTimeout(
-							() => resolve(false),
-							HOW_LONG_TO_WAIT_FOR_WEBSOCKET
-						);
-					});
+				setTimeout(
+					() => resolve(false),
+					HOW_LONG_TO_WAIT_FOR_WEBSOCKET
+				);
 			});
 		}
 
 		const wsFunc = clientWebsocketOpened();
-
-		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
-		await tabClient.goto(`chrome-extension://${extensionId}/newtab.html`);
 		await setupWebsocketPort(conn, tabClient);
+		await gotoOptPanel(tabMaster, 'Behavior');
 		await expect(tabMaster.getByLabel(WS_PORT_LABEL)).toHaveValue(
 			conn.port.toString()
-		);
-		await expect(tabMaster.getByTestId(ROLE_LOCATOR)).toContainText(
-			MASTER_MESSAGE
-		);
-		await expect(tabClient.getByTestId(ROLE_LOCATOR)).toContainText(
-			CLIENT_MESSAGE
 		);
 		expect(await wsFunc).toBeFalsy();
 	});
@@ -205,6 +185,8 @@ test.describe('WebSocket', () => {
 	}) => {
 		const conn = await openSocketConnection();
 		const tabMaster = await context.newPage();
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await storageIsResolved(tabMaster);
 		async function getItemMessageSent(): Promise<boolean> {
 			return new Promise(function (resolve) {
 				tabMaster.on('websocket', (ws) => {
@@ -221,25 +203,15 @@ test.describe('WebSocket', () => {
 						ws.on('socketerror', () => resolve(false));
 					}
 				});
-				void expect(tabMaster.getByTestId(INITIAL_STATE_LOCATOR))
-					.toContainText(INITIAL_STATE_RESOLVED, {
-						timeout: HOW_LONG_TO_WAIT_FOR_STORAGE,
-					})
-					.then(() => {
-						setTimeout(
-							() => resolve(false),
-							HOW_LONG_TO_WAIT_FOR_WEBSOCKET
-						);
-					});
+				setTimeout(
+					() => resolve(false),
+					HOW_LONG_TO_WAIT_FOR_WEBSOCKET
+				);
 			});
 		}
-		const wsFunc = getItemMessageSent();
 
-		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		const wsFunc = getItemMessageSent();
 		await setupWebsocketPort(conn, tabMaster);
-		await expect(tabMaster.getByTestId(ROLE_LOCATOR)).toContainText(
-			MASTER_MESSAGE
-		);
 		expect(await wsFunc).toBeTruthy();
 	});
 
@@ -247,9 +219,10 @@ test.describe('WebSocket', () => {
 		extensionId,
 		context,
 	}) => {
-		test.slow();
 		const conn = await openSocketConnection();
 		const tabMaster = await context.newPage();
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await storageIsResolved(tabMaster);
 
 		async function getAnyDataSent(): Promise<boolean> {
 			return new Promise(function (resolve) {
@@ -262,26 +235,16 @@ test.describe('WebSocket', () => {
 						ws.on('socketerror', () => resolve(false));
 					}
 				});
-				void expect(tabMaster.getByTestId(INITIAL_STATE_LOCATOR))
-					.toContainText(INITIAL_STATE_RESOLVED, {
-						timeout: HOW_LONG_TO_WAIT_FOR_STORAGE,
-					})
-					.then(() => {
-						setTimeout(
-							() => resolve(false),
-							HOW_LONG_TO_WAIT_FOR_WEBSOCKET
-						);
-					});
+				setTimeout(
+					() => resolve(false),
+					HOW_LONG_TO_WAIT_FOR_WEBSOCKET
+				);
 			});
 		}
 
 		const wsFunc = getAnyDataSent();
 
-		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
 		await setupWebsocketPort(conn, tabMaster);
-		await expect(tabMaster.getByTestId(ROLE_LOCATOR)).toContainText(
-			MASTER_MESSAGE
-		);
 		expect(await wsFunc).toBeTruthy();
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
 			WSS_TEST_TEXT,
@@ -296,6 +259,10 @@ test.describe('WebSocket', () => {
 		const conn = await openSocketConnection();
 		const tabMaster = await context.newPage();
 		const tabClient = await context.newPage();
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await tabClient.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await storageIsResolved(tabMaster);
+		await storageIsResolved(tabClient);
 
 		async function clientWebsocketOpened(): Promise<boolean> {
 			return new Promise(function (resolve) {
@@ -304,16 +271,10 @@ test.describe('WebSocket', () => {
 						resolve(true);
 					}
 				});
-				void expect(tabClient.getByTestId(INITIAL_STATE_LOCATOR))
-					.toContainText(INITIAL_STATE_RESOLVED, {
-						timeout: HOW_LONG_TO_WAIT_FOR_STORAGE,
-					})
-					.then(() => {
-						setTimeout(
-							() => resolve(false),
-							HOW_LONG_TO_WAIT_FOR_WEBSOCKET
-						);
-					});
+				setTimeout(
+					() => resolve(false),
+					HOW_LONG_TO_WAIT_FOR_WEBSOCKET
+				);
 			});
 		}
 
@@ -337,30 +298,17 @@ test.describe('WebSocket', () => {
 						});
 					}
 				});
-				void expect(tabMaster.getByTestId(INITIAL_STATE_LOCATOR))
-					.toContainText(INITIAL_STATE_RESOLVED, {
-						timeout: HOW_LONG_TO_WAIT_FOR_STORAGE,
-					})
-					.then(() => {
-						setTimeout(
-							() => resolve(false),
-							HOW_LONG_TO_WAIT_FOR_WEBSOCKET
-						);
-					});
+				setTimeout(
+					() => resolve(false),
+					HOW_LONG_TO_WAIT_FOR_WEBSOCKET
+				);
 			});
 		}
 
 		const masterSocketUpdate = masterWebSocketUpdatesQuery();
 		const clientSocketUpdate = clientWebsocketOpened();
-		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
-		await tabClient.goto(`chrome-extension://${extensionId}/newtab.html`);
 		await setupWebsocketPort(conn, tabClient);
-		await expect(tabMaster.getByTestId(ROLE_LOCATOR)).toContainText(
-			MASTER_MESSAGE
-		);
-		await expect(tabClient.getByTestId(ROLE_LOCATOR)).toContainText(
-			CLIENT_MESSAGE
-		);
+		await gotoOptPanel(tabClient, 'Behavior');
 		await tabClient.getByLabel(MATCH_QUERY_LABEL).fill(WSS_TEST_TEXT);
 		await tabClient.getByLabel(MATCH_QUERY_LABEL).press('Enter');
 		expect(await clientSocketUpdate).toBeFalsy();
@@ -375,14 +323,11 @@ test.describe('WebSocket', () => {
 		const tabMaster = await context.newPage();
 		const tabClient = await context.newPage();
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
-		await setupWebsocketPort(conn, tabMaster);
 		await tabClient.goto(`chrome-extension://${extensionId}/newtab.html`);
-		await expect(tabMaster.getByTestId(ROLE_LOCATOR)).toContainText(
-			MASTER_MESSAGE
-		);
-		await expect(tabClient.getByTestId(ROLE_LOCATOR)).toContainText(
-			CLIENT_MESSAGE
-		);
+		await storageIsResolved(tabMaster);
+		await storageIsResolved(tabClient);
+
+		await setupWebsocketPort(conn, tabMaster);
 		await expect(
 			tabMaster.getByTestId(CONNECTION_STATUS_LOCATOR)
 		).toContainText(CONNECTION_STATUS_OPEN);
@@ -399,19 +344,18 @@ test.describe('WebSocket', () => {
 		const tabMaster = await context.newPage();
 		const tabClient = await context.newPage();
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
-		await setupWebsocketPort(conn, tabMaster);
 		await tabClient.goto(`chrome-extension://${extensionId}/newtab.html`);
-		await expect(tabMaster.getByTestId(ROLE_LOCATOR)).toContainText(
-			MASTER_MESSAGE
-		);
-		await expect(tabClient.getByTestId(ROLE_LOCATOR)).toContainText(
-			CLIENT_MESSAGE
-		);
+		await storageIsResolved(tabMaster);
+		await storageIsResolved(tabClient);
+
+		await setupWebsocketPort(conn, tabMaster);
 		await expect(
 			tabMaster.getByTestId(CONNECTION_STATUS_LOCATOR)
 		).toContainText(CONNECTION_STATUS_OPEN);
+		await gotoOptPanel(tabClient, 'Behavior');
 		await tabClient.getByLabel(MATCH_QUERY_LABEL).fill(WSS_TEST_TEXT);
 		await tabClient.getByLabel(MATCH_QUERY_LABEL).press('Enter');
+		await closeOptions(tabClient);
 		await expect(tabClient.getByLabel(MATCH_QUERY_LABEL)).toHaveValue(
 			WSS_TEST_TEXT
 		);
@@ -426,15 +370,14 @@ test.describe('WebSocket', () => {
 	}) => {
 		const conn = await openSocketConnection();
 		const tabMaster = await context.newPage();
-
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await storageIsResolved(tabMaster);
+
 		await expect(
 			tabMaster.getByTestId(LOADING_BAR_LOCATOR)
 		).not.toBeVisible();
+
 		await setupWebsocketPort(conn, tabMaster);
-		await expect(tabMaster.getByTestId(ROLE_LOCATOR)).toContainText(
-			MASTER_MESSAGE
-		);
 		await expect(
 			tabMaster.getByTestId(CONNECTION_STATUS_LOCATOR)
 		).toContainText(CONNECTION_STATUS_OPEN);

@@ -25,6 +25,7 @@ const OptButton: React.FC<OptionsButtonProps> = ({
 				aria-label={chrome.i18n.getMessage('optionsMenu')}
 				className={openButtonClass}
 				onClick={toggleMenu}
+				data-testid="options-open-button"
 			>
 				<div className={styles['open-bar1']}></div>
 				<div className={styles['open-bar2']}></div>
@@ -34,6 +35,7 @@ const OptButton: React.FC<OptionsButtonProps> = ({
 				aria-label={chrome.i18n.getMessage('closeOptionsMenu')}
 				className={closeButtonClass}
 				onClick={toggleMenu}
+				data-testid="options-close-button"
 			>
 				<div className={styles['close-bar1']}></div>
 				<div className={styles['close-bar2']}></div>

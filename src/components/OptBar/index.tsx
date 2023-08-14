@@ -45,6 +45,7 @@ const OptButton: React.FC<OptButtonProps> = ({
 			aria-label={chrome.i18n.getMessage(category.toLowerCase())}
 			data-category={category}
 			onClick={handleClick}
+			data-testid={`${category.toLowerCase()}-button`}
 		>
 			<MemoizedIcon icon={icon} />
 			<span className={styles['button-label']}>

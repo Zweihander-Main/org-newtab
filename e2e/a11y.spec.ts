@@ -12,5 +12,5 @@ test('check accessibility', async ({ page, extensionId }) => {
 			},
 		},
 	});
-	// TODO: go through options menu
+	// TODO: go through options menu, and sample data
 });
