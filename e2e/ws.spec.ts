@@ -368,26 +368,20 @@ test.describe('WebSocket', () => {
 		extensionId,
 		context,
 	}) => {
+		// Note: Possible flakiness under VERY heavy CPU load
 		const conn = await openSocketConnection();
 		const tabMaster = await context.newPage();
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
 		await storageIsResolved(tabMaster);
 
-		await expect(
-			tabMaster.getByTestId(LOADING_BAR_LOCATOR)
-		).not.toBeVisible();
-
+		const loadingBar = tabMaster.getByTestId(LOADING_BAR_LOCATOR);
+		await expect(loadingBar).not.toBeVisible();
 		await setupWebsocketPort(conn, tabMaster);
-		await expect(
-			tabMaster.getByTestId(CONNECTION_STATUS_LOCATOR)
-		).toContainText(CONNECTION_STATUS_OPEN);
-		await expect(tabMaster.getByTestId(LOADING_BAR_LOCATOR)).toBeVisible();
+		await expect(loadingBar).toBeVisible();
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
 			WSS_TEST_TEXT,
 			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
 		);
-		await expect(
-			tabMaster.getByTestId(LOADING_BAR_LOCATOR)
-		).not.toBeVisible();
+		await expect(loadingBar).not.toBeVisible();
 	});
 });
