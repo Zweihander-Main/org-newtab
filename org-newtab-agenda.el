@@ -37,6 +37,8 @@
 
 (require 'cl-macs)
 (require 'org)
+(require 'org-element)
+(require 'org-duration)
 (require 'org-clock)
 (require 'color)
 (require 'json)
