@@ -1,6 +1,6 @@
 declare const styles: {
-  readonly "label": string;
-  readonly "checkbox": string;
+  readonly "form": string;
+  readonly "heading": string;
 };
 export = styles;
 
