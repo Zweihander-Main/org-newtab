@@ -46,10 +46,11 @@
 	transition: all 0.1s ease-in;
 }
 
-.input-container:has(.input:focus),
-.input-container:has(.input:active) {
+.input-container:has(.input:focus) .input,
+.input-container:has(.input:active) .input,
+.input-container:has(.input:focus) .tooltip,
+.input-container:has(.input:active) .tooltip {
 	transform: translate(-0.1rem, -0.1rem);
-	z-index: 255;
 }
 
 .tooltip {
@@ -60,6 +61,7 @@
 	opacity: 0.5;
 	padding: 0.1rem 0.7rem 0.1rem 0.5rem;
 	cursor: help;
+	transition: all 0.1s ease-in;
 }
 
 .tooltip-text {
@@ -69,7 +71,7 @@
 	text-align: center;
 	padding: 1rem;
 	position: absolute;
-	z-index: 250;
+	z-index: 255;
 	top: 1.5rem;
 	right: 0.7rem;
 	font-size: 1rem;
