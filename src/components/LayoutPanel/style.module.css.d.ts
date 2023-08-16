@@ -1,6 +1,8 @@
 declare const styles: {
-  readonly "form": string;
-  readonly "heading": string;
+  readonly "map": string;
+  readonly "area": string;
+  readonly "component": string;
+  readonly "remove": string;
 };
 export = styles;
 

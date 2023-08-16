@@ -1,4 +1,46 @@
-.form {
+.map {
+	height: 100%;
+	margin: 5rem 0;
+	width: 50vw;
+	background: var(--color-bg);
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: center;
+	padding: 2.5rem 0;
+	font-size: 1rem;
+	color: white;
+}
+
+.area {
+	border: 2px dashed white;
+	padding: 2rem 10rem;
+}
+
+.component {
+	border: 1px solid white;
+	padding: 1rem;
+	position: relative;
+	background: var(--color-bg);
+	touch-action: none;
+}
+
+.remove {
+	border-radius: 100%;
+	background: white;
+	color: var(--color-item-shadow);
+	width: 1.5rem;
+	height: 1.5rem;
+	position: absolute;
+	right: -0.75rem;
+	top: -0.75rem;
+	font-size: 0.7rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+/* .form {
 	display: grid;
 	grid-template-columns: 1fr;
 	grid-auto-rows: 1fr;
@@ -18,4 +60,4 @@
 	word-spacing: 0.29em;
 	align-self: end;
 	margin-bottom: 0.5rem;
-}
+} */

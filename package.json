@@ -32,6 +32,7 @@
 		"prepare": "husky install"
 	},
 	"dependencies": {
+		"@dnd-kit/core": "^6.0.8",
 		"@fontsource/public-sans": "^5.0.5",
 		"@plasmohq/redux-persist": "^6.1.0",
 		"@plasmohq/storage": "^1.7.2",
