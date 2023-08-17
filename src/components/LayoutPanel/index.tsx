@@ -38,9 +38,8 @@ const Droppable: React.FC<DroppableProps> = ({ children, id, dragging }) => {
 		</div>
 	);
 };
-
+// NEXT: Clean up, dedup code
 interface DraggableProps {
-	children?: React.ReactNode;
 	dragOverlay?: boolean;
 	dragging?: boolean;
 	listeners?: DraggableSyntheticListeners;
@@ -68,7 +67,7 @@ const Draggable = forwardRef<HTMLButtonElement, DraggableProps>(
 					{...listeners}
 					ref={ref}
 				>
-					{props.children}
+					Drag Me
 				</button>
 			</div>
 		);
@@ -88,9 +87,7 @@ const DraggableItem: React.FC = () => {
 			style={{
 				opacity: isDragging ? 0 : undefined,
 			}}
-		>
-			Drag me
-		</Draggable>
+		/>
 	);
 };
 
