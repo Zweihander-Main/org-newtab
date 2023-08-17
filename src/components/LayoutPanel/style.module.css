@@ -39,3 +39,105 @@
 	justify-content: center;
 	align-items: center;
 }
+
+.draggable {
+	position: relative;
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+	justify-content: center;
+	transition: transform 250ms ease;
+}
+
+.draggable button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 54px;
+	flex-shrink: 1;
+	appearance: none;
+	outline: none;
+	border: 0;
+	padding: 8px 18px;
+	background-color: #181a22;
+	border-radius: 5px;
+	box-shadow: var(--box-shadow);
+	transform: translate3d(var(--translate-x, 0), var(--translate-y, 0), 0)
+		scale(var(--scale, 1));
+	transition: box-shadow 300ms ease;
+}
+
+.draggable.dragging {
+	z-index: 1;
+	transition: none;
+}
+
+.draggable.dragging * {
+	cursor: grabbing;
+}
+
+.draggable.dragging > button {
+	--scale: 1.06;
+	--box-shadow: -1px 0 15px 0 rgba(34 33 81 / 1%),
+		0px 15px 15px 0 rgba(34 33 81 25%);
+}
+
+.draggable.dragging > button:focus-visible {
+	--box-shadow: 0 0px 10px 2px #4c9ffe;
+}
+
+.draggable.drag-overlay,
+.draggable.dragging > button {
+	animation: pop 250ms cubic-bezier(0.18, 0.67, 0.6, 1.22);
+}
+
+.droppable {
+	position: relative;
+	padding-top: 80px;
+	text-align: center;
+	border-radius: 10px;
+	width: 340px;
+	height: 340px;
+	box-sizing: border-box;
+	background-color: #fff;
+	box-shadow:
+		inset rgba(201 211 219 / 50%) 0 0 0 2px,
+		rgba(255 255 255 / 0%) 0 0 0 1px,
+		rgba(201 211 219 / 25%) 20px 14px 24px;
+	transition: box-shadow 250ms ease;
+}
+
+.droppable.over {
+	box-shadow:
+		inset #1eb99d 0 0 0 3px,
+		rgba(201 211 219 / 50%) 20px 14px 24px;
+}
+
+.droppable.over.dropped {
+	box-shadow:
+		inset rgba(201 211 219 / 70%) 0 0 0 3px,
+		rgba(201 211 219 / 50%) 20px 14px 24px;
+}
+
+@keyframes pulse {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes pop {
+	0% {
+		transform: translate3d(var(--translate-x, 0), var(--translate-y, 0), 0)
+			scale(1);
+	}
+
+	100% {
+		transform: translate3d(var(--translate-x, 0), var(--translate-y, 0), 0)
+			scale(var(--scale));
+		box-shadow: var(--box-shadow);
+	}
+}

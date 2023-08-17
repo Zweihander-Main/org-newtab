@@ -11,6 +11,7 @@ import {
 	DragOverlay,
 } from '@dnd-kit/core';
 import { createPortal } from 'react-dom';
+import classNames from 'classnames';
 
 interface DroppableProps {
 	children: React.ReactNode;
@@ -18,14 +19,21 @@ interface DroppableProps {
 	id: UniqueIdentifier;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Droppable: React.FC<DroppableProps> = ({ children, id, dragging }) => {
-	const { setNodeRef } = useDroppable({
+	const { isOver, setNodeRef } = useDroppable({
 		id,
 	});
 
 	return (
-		<div ref={setNodeRef} aria-label="Droppable region">
+		<div
+			className={classNames(styles.droppable, {
+				[styles.dragging]: dragging,
+				[styles.over]: isOver,
+				[styles.dropped]: children,
+			})}
+			ref={setNodeRef}
+			aria-label="Droppable region"
+		>
 			{children}
 		</div>
 	);
@@ -40,9 +48,16 @@ interface DraggableProps {
 }
 
 const Draggable = forwardRef<HTMLButtonElement, DraggableProps>(
-	function Draggable({ listeners, style, ...props }, ref) {
+	function Draggable(
+		{ listeners, style, dragOverlay, dragging, ...props },
+		ref
+	) {
 		return (
 			<div
+				className={classNames(styles.draggable, {
+					[styles['drag-overlay']]: dragOverlay,
+					[styles.dragging]: dragging,
+				})}
 				style={{
 					...style,
 				}}
