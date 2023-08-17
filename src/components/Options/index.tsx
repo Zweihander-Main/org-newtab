@@ -9,6 +9,7 @@ import ThemingPanel from 'components/ThemingPanel';
 import DebugPanel from 'components/DebugPanel';
 import OptionsBar from 'components/OptBar';
 import OptionsButton from 'components/OptButton';
+import classNames from 'classnames';
 
 type OptionsPanelProps = {
 	selectedCategory: OptionCategories;
@@ -77,18 +78,17 @@ const Options: React.FC = () => {
 		setMenuVisible(!menuVisible);
 	}, [menuVisible]);
 
-	const menuClass = [
-		styles.menu,
-		menuVisible ? styles['is-visible'] : '',
-	].join(' ');
-
 	return (
 		<>
 			<OptionsButton
 				optionsVisible={menuVisible}
 				toggleMenu={toggleMenu}
 			/>
-			<div className={menuClass}>
+			<div
+				className={classNames(styles.menu, {
+					[styles['is-visible']]: menuVisible,
+				})}
+			>
 				<OptionsBar menuVisible={menuVisible} />
 				<OptionsContent />
 			</div>

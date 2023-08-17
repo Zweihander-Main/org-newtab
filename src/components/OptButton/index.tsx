@@ -1,4 +1,5 @@
 import * as styles from './style.module.css';
+import classNames from 'classnames';
 
 type OptionsButtonProps = {
 	optionsVisible: boolean;
@@ -9,21 +10,13 @@ const OptButton: React.FC<OptionsButtonProps> = ({
 	optionsVisible,
 	toggleMenu,
 }) => {
-	const openButtonClass = [
-		styles.open,
-		optionsVisible ? styles['is-visible'] : '',
-	].join(' ');
-
-	const closeButtonClass = [
-		styles.close,
-		optionsVisible ? styles['is-visible'] : '',
-	].join(' ');
-
 	return (
 		<>
 			<button
 				aria-label={chrome.i18n.getMessage('optionsMenu')}
-				className={openButtonClass}
+				className={classNames(styles.open, {
+					[styles['is-visible']]: optionsVisible,
+				})}
 				onClick={toggleMenu}
 				data-testid="options-open-button"
 			>
@@ -33,7 +26,9 @@ const OptButton: React.FC<OptionsButtonProps> = ({
 			</button>
 			<button
 				aria-label={chrome.i18n.getMessage('closeOptionsMenu')}
-				className={closeButtonClass}
+				className={classNames(styles.close, {
+					[styles['is-visible']]: optionsVisible,
+				})}
 				onClick={toggleMenu}
 				data-testid="options-close-button"
 			>

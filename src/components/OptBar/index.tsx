@@ -12,6 +12,7 @@ import {
 	LuPaintbrush,
 	LuCode,
 } from 'react-icons/lu';
+import classNames from 'classnames';
 
 const Icon: React.FC<{ icon: React.ReactNode }> = ({ icon }) => {
 	return <>{icon}</>;
@@ -34,14 +35,11 @@ const OptButton: React.FC<OptButtonProps> = ({
 	handleClick,
 	icon,
 }) => {
-	const buttonClass = [
-		styles.button,
-		isSelected ? styles['is-selected'] : '',
-	].join(' ');
-
 	return (
 		<button
-			className={buttonClass}
+			className={classNames(styles.button, {
+				[styles['is-selected']]: isSelected,
+			})}
 			aria-label={chrome.i18n.getMessage(category.toLowerCase())}
 			data-category={category}
 			onClick={handleClick}
@@ -77,14 +75,12 @@ const OptBar: React.FC<OptBarProps> = ({ menuVisible }) => {
 		[dispatch]
 	);
 
-	const barClass = [
-		styles['bar'],
-		styles['indicator'],
-		menuVisible ? styles['is-visible'] : '',
-	].join(' ');
-
 	return (
-		<nav className={barClass}>
+		<nav
+			className={classNames(styles.bar, styles.indicator, {
+				[styles['is-visible']]: menuVisible,
+			})}
+		>
 			<MemoizedOptButton
 				category="Behavior"
 				isSelected={selectedCategory === 'Behavior'}
