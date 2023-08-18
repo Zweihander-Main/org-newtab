@@ -13,20 +13,20 @@ import {
 import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 
-interface DroppableProps {
+interface DropArea {
 	children: React.ReactNode;
 	dragging: boolean;
 	id: UniqueIdentifier;
 }
 
-const Droppable: React.FC<DroppableProps> = ({ children, id, dragging }) => {
+const DropArea: React.FC<DropArea> = ({ children, id, dragging }) => {
 	const { isOver, setNodeRef } = useDroppable({
 		id,
 	});
 
 	return (
 		<div
-			className={classNames(styles.droppable, {
+			className={classNames(styles['drop-area'], {
 				[styles.dragging]: dragging,
 				[styles.over]: isOver,
 				[styles.dropped]: children,
@@ -38,7 +38,6 @@ const Droppable: React.FC<DroppableProps> = ({ children, id, dragging }) => {
 		</div>
 	);
 };
-// NEXT: Clean up, dedup code
 interface DraggableProps {
 	dragOverlay?: boolean;
 	dragging?: boolean;
@@ -132,18 +131,28 @@ const LayoutPanel: React.FC = () => {
 			onDragCancel={handleDragCancel}
 		>
 			<div className={styles.map}>
-				<Droppable key={'top'} id={'top'} dragging={isDragging}>
-					{parent === 'top' ? item : null}
-					Top
-				</Droppable>
-				<Droppable key={'mid'} id={'mid'} dragging={isDragging}>
-					{parent === 'mid' ? item : null}
-					Mid
-				</Droppable>
-				<Droppable key={'bottom'} id={'bottom'} dragging={isDragging}>
-					{parent === 'bottom' ? item : null}
-					Bottom
-				</Droppable>
+				<div className={styles.area}>
+					<DropArea key={'top'} id={'top'} dragging={isDragging}>
+						{parent === 'top' ? item : null}
+					</DropArea>
+					<p>Top</p>
+				</div>
+				<div className={styles.area}>
+					<DropArea key={'mid'} id={'mid'} dragging={isDragging}>
+						{parent === 'mid' ? item : null}
+					</DropArea>
+					<p>Mid</p>
+				</div>
+				<div className={styles.area}>
+					<DropArea
+						key={'bottom'}
+						id={'bottom'}
+						dragging={isDragging}
+					>
+						{parent === 'bottom' ? item : null}
+					</DropArea>
+					<p>Bottom</p>
+				</div>
 				<DraggableOverlay />
 			</div>
 		</DndContext>
