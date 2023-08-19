@@ -39,6 +39,7 @@ const DropArea: React.FC<DropArea> = ({ children, id, dragging }) => {
 	);
 };
 interface WidgetProps {
+	children: React.ReactNode;
 	dragOverlay?: boolean;
 	dragging?: boolean;
 	listeners?: DraggableSyntheticListeners;
@@ -46,7 +47,7 @@ interface WidgetProps {
 }
 
 const Widget = forwardRef<HTMLButtonElement, WidgetProps>(function Draggable(
-	{ listeners, style, dragOverlay, dragging, ...props },
+	{ children, listeners, style, dragOverlay, dragging, ...props },
 	ref
 ) {
 	return (
@@ -60,13 +61,17 @@ const Widget = forwardRef<HTMLButtonElement, WidgetProps>(function Draggable(
 			}}
 		>
 			<button {...props} aria-label="Draggable" {...listeners} ref={ref}>
-				Drag Me
+				{children}
 			</button>
 		</div>
 	);
 });
 
-const DraggableWidget: React.FC = () => {
+interface DraggableWidgetProps {
+	children: React.ReactNode;
+}
+
+const DraggableWidget: React.FC<DraggableWidgetProps> = ({ children }) => {
 	const { isDragging, setNodeRef, listeners } = useDraggable({
 		id: 'draggable-item',
 	});
@@ -79,26 +84,48 @@ const DraggableWidget: React.FC = () => {
 			style={{
 				opacity: isDragging ? 0 : undefined,
 			}}
-		/>
+		>
+			{children}
+		</Widget>
 	);
 };
 
-const WidgetOverlay: React.FC = () => {
+interface WidgetOverlayProps {
+	children: React.ReactNode;
+}
+
+const WidgetOverlay: React.FC<WidgetOverlayProps> = ({ children }) => {
 	const { active } = useDndContext();
 
 	return createPortal(
 		<DragOverlay>
-			{active ? <Widget dragging dragOverlay /> : null}
+			{active ? (
+				<Widget dragging dragOverlay>
+					{children}
+				</Widget>
+			) : null}
 		</DragOverlay>,
 		document.body
 	);
+};
+
+type WidgetFactoryType = (children: React.ReactNode) => {
+	Overlay: React.ReactNode;
+	Widget: React.ReactNode;
+};
+
+const WidgetFactory: WidgetFactoryType = (children) => {
+	const Overlay = <WidgetOverlay>{children}</WidgetOverlay>;
+	const Widget = <DraggableWidget>{children}</DraggableWidget>;
+
+	return { Overlay, Widget };
 };
 
 const LayoutPanel: React.FC = () => {
 	const [isDragging, setIsDragging] = useState(false);
 	const [parent, setParent] = useState<UniqueIdentifier | null>(null);
 
-	const widget = <DraggableWidget />;
+	const { Overlay, Widget } = WidgetFactory(<p>Drag me</p>);
 
 	const handleDragStart = () => {
 		setIsDragging(true);
@@ -126,13 +153,13 @@ const LayoutPanel: React.FC = () => {
 			<div className={styles.map}>
 				<div className={styles.area}>
 					<DropArea key={'top'} id={'top'} dragging={isDragging}>
-						{parent === 'top' ? widget : null}
+						{parent === 'top' ? Widget : null}
 					</DropArea>
 					<p className={styles['area-label']}>Top</p>
 				</div>
 				<div className={styles.area}>
 					<DropArea key={'mid'} id={'mid'} dragging={isDragging}>
-						{parent === 'mid' ? widget : null}
+						{parent === 'mid' ? Widget : null}
 					</DropArea>
 					<p className={styles['area-label']}>Mid</p>
 				</div>
@@ -142,11 +169,11 @@ const LayoutPanel: React.FC = () => {
 						id={'bottom'}
 						dragging={isDragging}
 					>
-						{parent === 'bottom' ? widget : null}
+						{parent === 'bottom' ? Widget : null}
 					</DropArea>
 					<p className={styles['area-label']}>Bottom</p>
 				</div>
-				<WidgetOverlay />
+				{Overlay}
 			</div>
 		</DndContext>
 	);
