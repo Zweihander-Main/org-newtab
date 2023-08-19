@@ -15,12 +15,18 @@ export type LayoutPos = {
 
 export interface LayoutState {
 	connectionStatus: LayoutPos;
+	orgItem: LayoutPos;
 }
 
 export const name = 'layout';
 export const persistenceBlacklist: Array<keyof LayoutState> = [];
 
 const initialState: LayoutState = {
+	orgItem: {
+		visible: true,
+		order: 0,
+		area: Area.Mid,
+	},
 	connectionStatus: {
 		visible: true,
 		order: 0,
@@ -35,13 +41,19 @@ export const layoutSlice = createSlice({
 		setConnectionStatusAreaTo: (state, action: PayloadAction<Area>) => {
 			state.connectionStatus.area = action.payload;
 		},
+		setOrgItemAreaTo: (state, action: PayloadAction<Area>) => {
+			state.orgItem.area = action.payload;
+		},
 		resetLayout: () => initialState,
 	},
 });
 
-export const { setConnectionStatusAreaTo, resetLayout } = layoutSlice.actions;
+export const { setConnectionStatusAreaTo, setOrgItemAreaTo, resetLayout } =
+	layoutSlice.actions;
 
 export const selectedConnectionStatusArea = (state: RootState) =>
 	state.layout.connectionStatus.area;
+export const selectedOrgItemArea = (state: RootState) =>
+	state.layout.orgItem.area;
 
 export default layoutSlice.reducer;

@@ -6,23 +6,18 @@ import '@fontsource/public-sans/400.css';
 import '@fontsource/public-sans/700.css';
 import '@fontsource/public-sans/900.css';
 import './index.css';
-import ConnectionStatusIndicator from 'components/ConnectionStatusIndicator';
 import OptionsMenu from 'components/Options';
-import OrgItem from 'components/OrgItem';
 import LoadingBar from 'components/LoadingBar';
 import store, { persistor } from '../app/store';
-import { useAppDispatch, useAppSelector } from '../app/hooks';
+import { useAppDispatch } from '../app/hooks';
 import { setStateAsResolved } from 'modules/role/roleSlice';
 import { initMessaging } from 'modules/msg/msgSlice';
-import {
-	Area,
-	selectedConnectionStatusArea,
-} from '../modules/layout/layoutSlice';
+import { Area } from '../modules/layout/layoutSlice';
+import WidgetArea from 'components/WidgetArea';
 
 const IndexNewtab: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const isInitialRender = useRef(true);
-	const connectionStatusArea = useAppSelector(selectedConnectionStatusArea);
 
 	useEffect(() => {
 		if (isInitialRender.current) {
@@ -39,22 +34,9 @@ const IndexNewtab: React.FC = () => {
 		<main className="app">
 			<LoadingBar animationDuration={200} />
 			<OptionsMenu />
-			<div className="top">
-				{connectionStatusArea === Area.Top ? (
-					<ConnectionStatusIndicator />
-				) : null}
-			</div>
-			<div className="mid">
-				{connectionStatusArea === Area.Mid ? (
-					<ConnectionStatusIndicator />
-				) : null}
-				<OrgItem />
-			</div>
-			<div className="bottom">
-				{connectionStatusArea === Area.Bottom ? (
-					<ConnectionStatusIndicator />
-				) : null}
-			</div>
+			<WidgetArea loc={Area.Top} />
+			<WidgetArea loc={Area.Mid} />
+			<WidgetArea loc={Area.Bottom} />
 		</main>
 	);
 };
