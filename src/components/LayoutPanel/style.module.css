@@ -23,7 +23,7 @@
 	align-items: center;
 }
 
-.area p {
+.area-label {
 	position: absolute;
 	inset: 0;
 	z-index: 300;
@@ -33,7 +33,7 @@
 	align-items: center;
 }
 
-.drop-area {
+.area-drop-zone {
 	position: relative;
 	box-sizing: border-box;
 	width: 100%;
@@ -52,14 +52,6 @@
 	border: 2px dashed red;
 }
 
-.component {
-	border: 1px solid white;
-	padding: 1rem;
-	position: relative;
-	background: var(--color-bg);
-	touch-action: none;
-}
-
 .remove {
 	border-radius: 100%;
 	background: white;
@@ -75,7 +67,7 @@
 	align-items: center;
 }
 
-.draggable {
+.widget {
 	z-index: 302;
 	position: relative;
 	display: flex;
@@ -85,7 +77,7 @@
 	transition: transform 250ms ease;
 }
 
-.draggable button {
+.widget button {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -99,40 +91,31 @@
 	transform: translate3d(var(--translate-x, 0), var(--translate-y, 0), 0)
 		scale(var(--scale, 1));
 	transition: box-shadow 300ms ease;
+	cursor: grab;
 }
 
-.draggable.dragging {
+.widget.dragging {
 	z-index: 1;
 	transition: none;
 }
 
-.draggable.dragging * {
+.widget.dragging * {
 	cursor: grabbing;
 }
 
-.draggable.dragging > button {
+.widget.dragging > button {
 	--scale: 1.06;
 	--box-shadow: -1px 0 15px 0 rgba(34 33 81 / 1%),
 		0px 15px 15px 0 rgba(34 33 81 25%);
 }
 
-.draggable.dragging > button:focus-visible {
+.widget.dragging > button:focus-visible {
 	--box-shadow: 0 0px 10px 2px #4c9ffe;
 }
 
-.draggable.drag-overlay,
-.draggable.dragging > button {
-	animation: pop 250ms cubic-bezier(0.18, 0.67, 0.6, 1.22);
-}
-
-@keyframes pulse {
-	from {
-		opacity: 0;
-	}
-
-	to {
-		opacity: 1;
-	}
+.widget.widget-overlay,
+.widget.dragging > button {
+	animation: pop 200ms cubic-bezier(0.18, 0.67, 0.6, 1.22);
 }
 
 @keyframes pop {
