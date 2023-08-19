@@ -11,13 +11,18 @@ import OptionsMenu from 'components/Options';
 import OrgItem from 'components/OrgItem';
 import LoadingBar from 'components/LoadingBar';
 import store, { persistor } from '../app/store';
-import { useAppDispatch } from '../app/hooks';
+import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { setStateAsResolved } from 'modules/role/roleSlice';
 import { initMessaging } from 'modules/msg/msgSlice';
+import {
+	Area,
+	selectedConnectionStatusArea,
+} from '../modules/layout/layoutSlice';
 
 const IndexNewtab: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const isInitialRender = useRef(true);
+	const connectionStatusArea = useAppSelector(selectedConnectionStatusArea);
 
 	useEffect(() => {
 		if (isInitialRender.current) {
@@ -34,8 +39,22 @@ const IndexNewtab: React.FC = () => {
 		<main className="app">
 			<LoadingBar animationDuration={200} />
 			<OptionsMenu />
-			<ConnectionStatusIndicator />
-			<OrgItem />
+			<div className="top">
+				{connectionStatusArea === Area.Top ? (
+					<ConnectionStatusIndicator />
+				) : null}
+			</div>
+			<div className="mid">
+				{connectionStatusArea === Area.Mid ? (
+					<ConnectionStatusIndicator />
+				) : null}
+				<OrgItem />
+			</div>
+			<div className="bottom">
+				{connectionStatusArea === Area.Bottom ? (
+					<ConnectionStatusIndicator />
+				) : null}
+			</div>
 		</main>
 	);
 };

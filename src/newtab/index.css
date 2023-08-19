@@ -68,6 +68,13 @@ pre {
 	text-wrap: balance;
 }
 
+@media (prefers-reduced-motion) {
+	* {
+		animation: none !important;
+		transition: none !important;
+	}
+}
+
 .app {
 	text-align: center;
 	background-color: var(--color-bg);
@@ -75,14 +82,25 @@ pre {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	justify-content: center;
+	justify-content: space-between;
 	font-size: calc(1rem + 2vmin);
 	color: white;
 }
 
-@media (prefers-reduced-motion) {
-	* {
-		animation: none !important;
-		transition: none !important;
-	}
+.top {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+}
+
+.mid {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.bottom {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
 }

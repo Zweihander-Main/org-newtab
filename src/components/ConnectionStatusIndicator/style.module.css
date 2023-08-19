@@ -1,6 +1,4 @@
 .status {
-	position: absolute;
-	bottom: 0;
 	margin: 0.25rem;
 	font-size: 0.85rem;
 	opacity: var(--opacity-ui);
