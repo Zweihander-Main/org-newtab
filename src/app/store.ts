@@ -14,10 +14,8 @@ import { Storage } from '@plasmohq/storage';
 
 import middleware from './middleware';
 import persistedRootReducer, {
-	emacsPersistConfig,
 	mockRootReducer,
-	rootPersistConfig,
-	wsPersistConfig,
+	persistKeys,
 } from './rootReducer';
 
 const enhancers = [];
@@ -52,19 +50,22 @@ export const store = configureStore({
 export const persistor = persistStore(store);
 
 // This is what makes Redux sync properly with multiple pages
+
+const watchKeys = persistKeys.map((key) => `persist:${key}`);
+
+const watchObject = watchKeys.reduce(
+	(acc, key) => {
+		acc[key] = () => {
+			void persistor.resync();
+		};
+		return acc;
+	},
+	{} as Record<string, () => void>
+);
+
 new Storage({
 	area: 'local',
-}).watch({
-	[`persist:${rootPersistConfig.key}`]: () => {
-		void persistor.resync();
-	},
-	[`persist:${emacsPersistConfig.key}`]: () => {
-		void persistor.resync();
-	},
-	[`persist:${wsPersistConfig.key}`]: () => {
-		void persistor.resync();
-	},
-});
+}).watch(watchObject);
 
 export type RootState = ReturnType<typeof mockStore.getState>;
 

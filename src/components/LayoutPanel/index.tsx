@@ -238,6 +238,5 @@ const LayoutPanel: React.FC = () => {
 };
 
 // TODO: switch to message api
-// TODO: reread state msg -- otherwise, it doesn't update -- WHy?
 
 export default LayoutPanel;

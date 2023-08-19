@@ -85,6 +85,13 @@ export const rootPersistConfig = {
 
 const persistedRootReducer = persistReducer(rootPersistConfig, rootReducer);
 
+export const persistKeys = [
+	rootPersistConfig.key,
+	wsPersistConfig.key,
+	emacsPersistConfig.key,
+	layoutPersistConfig.key,
+];
+
 export const mockRootReducer = combineReducers({
 	[msgSliceName]: msgReducer,
 	[roleSliceName]: roleReducer,
