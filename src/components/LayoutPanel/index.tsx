@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useState } from 'react';
+import { forwardRef, useState } from 'react';
 import * as styles from './style.module.css';
 import {
 	useDraggable,
@@ -12,6 +12,12 @@ import {
 } from '@dnd-kit/core';
 import { createPortal } from 'react-dom';
 import classNames from 'classnames';
+import {
+	Area,
+	selectedConnectionStatusArea,
+	setConnectionStatusAreaTo,
+} from 'modules/layout/layoutSlice';
+import { useAppDispatch, useAppSelector } from 'app/hooks';
 
 interface DropArea {
 	children: React.ReactNode;
@@ -123,7 +129,8 @@ const WidgetFactory: WidgetFactoryType = (children) => {
 
 const LayoutPanel: React.FC = () => {
 	const [isDragging, setIsDragging] = useState(false);
-	const [parent, setParent] = useState<UniqueIdentifier | null>(null);
+	const connectionStatusArea = useAppSelector(selectedConnectionStatusArea);
+	const dispatch = useAppDispatch();
 
 	const { Overlay: ConnStatusOverlay, Widget: ConnStatusWidget } =
 		WidgetFactory(<p>Connection Status</p>);
@@ -134,16 +141,16 @@ const LayoutPanel: React.FC = () => {
 
 	const handleDragEnd = ({ over }: DragEndEvent) => {
 		setIsDragging(false);
-		setParent(over ? over.id : null);
+		if (over) {
+			dispatch(setConnectionStatusAreaTo(over.id as Area));
+		} else {
+			// TODO: visible
+		}
 	};
 
 	const handleDragCancel = () => {
 		setIsDragging(false);
 	};
-
-	useEffect(() => {
-		setParent('bottom');
-	}, []);
 
 	return (
 		<DndContext
@@ -153,24 +160,38 @@ const LayoutPanel: React.FC = () => {
 		>
 			<div className={styles.map}>
 				<div className={styles.area}>
-					<DropArea key={'top'} id={'top'} dragging={isDragging}>
-						{parent === 'top' ? ConnStatusWidget : null}
+					<DropArea
+						key={Area.Top}
+						id={Area.Top}
+						dragging={isDragging}
+					>
+						{connectionStatusArea === Area.Top
+							? ConnStatusWidget
+							: null}
 					</DropArea>
 					<p className={styles['area-label']}>Top</p>
 				</div>
 				<div className={styles.area}>
-					<DropArea key={'mid'} id={'mid'} dragging={isDragging}>
-						{parent === 'mid' ? ConnStatusWidget : null}
+					<DropArea
+						key={Area.Mid}
+						id={Area.Mid}
+						dragging={isDragging}
+					>
+						{connectionStatusArea === Area.Mid
+							? ConnStatusWidget
+							: null}
 					</DropArea>
 					<p className={styles['area-label']}>Mid</p>
 				</div>
 				<div className={styles.area}>
 					<DropArea
-						key={'bottom'}
-						id={'bottom'}
+						key={Area.Bottom}
+						id={Area.Bottom}
 						dragging={isDragging}
 					>
-						{parent === 'bottom' ? ConnStatusWidget : null}
+						{connectionStatusArea === Area.Bottom
+							? ConnStatusWidget
+							: null}
 					</DropArea>
 					<p className={styles['area-label']}>Bottom</p>
 				</div>
