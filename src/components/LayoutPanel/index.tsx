@@ -6,6 +6,7 @@ import {
 	UniqueIdentifier,
 	DraggableSyntheticListeners,
 	DragEndEvent,
+	DragStartEvent,
 	useDroppable,
 	useDndContext,
 	DragOverlay,
@@ -16,10 +17,13 @@ import {
 	Area,
 	resetLayout,
 	selectedConnectionStatusArea,
+	selectedOrgItemArea,
 	setConnectionStatusAreaTo,
+	setOrgItemAreaTo,
 } from 'modules/layout/layoutSlice';
 import { useAppDispatch, useAppSelector } from 'app/hooks';
 
+type WidgetName = 'connection-status' | 'org-item';
 interface DropArea {
 	children: React.ReactNode;
 	dragging: boolean;
@@ -74,13 +78,16 @@ const Widget = forwardRef<HTMLButtonElement, WidgetProps>(function Draggable(
 	);
 });
 
+// TODO: better labels
+
 interface DraggableWidgetProps {
 	children: React.ReactNode;
+	id: WidgetName;
 }
 
-const DraggableWidget: React.FC<DraggableWidgetProps> = ({ children }) => {
+const DraggableWidget: React.FC<DraggableWidgetProps> = ({ children, id }) => {
 	const { isDragging, setNodeRef, listeners } = useDraggable({
-		id: 'draggable-item',
+		id,
 	});
 
 	return (
@@ -116,41 +123,50 @@ const WidgetOverlay: React.FC<WidgetOverlayProps> = ({ children }) => {
 	);
 };
 
-type WidgetFactoryType = (children: React.ReactNode) => {
-	Overlay: React.ReactNode;
-	Widget: React.ReactNode;
-};
-
-const WidgetFactory: WidgetFactoryType = (children) => {
-	const Overlay = <WidgetOverlay>{children}</WidgetOverlay>;
-	const Widget = <DraggableWidget>{children}</DraggableWidget>;
-
-	return { Overlay, Widget };
-};
-
 const LayoutPanel: React.FC = () => {
 	const [isDragging, setIsDragging] = useState(false);
 	const connectionStatusArea = useAppSelector(selectedConnectionStatusArea);
+	const orgItemStatusArea = useAppSelector(selectedOrgItemArea);
 	const dispatch = useAppDispatch();
+	const [activeId, setActiveId] = useState<WidgetName | null>(null);
 
-	const { Overlay: ConnStatusOverlay, Widget: ConnStatusWidget } =
-		WidgetFactory(<p>Connection Status</p>);
+	const ConnStatusWidget = (
+		<DraggableWidget id="connection-status">
+			<p>Connection Status</p>
+		</DraggableWidget>
+	);
+	const OrgItemWidget = (
+		<DraggableWidget id="org-item">
+			<p>Org Item</p>
+		</DraggableWidget>
+	);
 
-	const handleDragStart = () => {
+	const handleDragStart = ({ active: { id } }: DragStartEvent) => {
 		setIsDragging(true);
+		setActiveId(id as WidgetName);
 	};
 
-	const handleDragEnd = ({ over }: DragEndEvent) => {
+	// TODO: clean this up considerably
+	const handleDragEnd = ({ over, active: { id } }: DragEndEvent) => {
 		setIsDragging(false);
 		if (over) {
-			dispatch(setConnectionStatusAreaTo(over.id as Area));
+			switch (id) {
+				case 'connection-status':
+					dispatch(setConnectionStatusAreaTo(over.id as Area));
+					break;
+				case 'org-item':
+					dispatch(setOrgItemAreaTo(over.id as Area));
+					break;
+			}
 		} else {
 			// TODO: visible
 		}
+		setActiveId(null);
 	};
 
 	const handleDragCancel = () => {
 		setIsDragging(false);
+		setActiveId(null);
 	};
 
 	const handleReset = () => {
@@ -173,6 +189,7 @@ const LayoutPanel: React.FC = () => {
 						{connectionStatusArea === Area.Top
 							? ConnStatusWidget
 							: null}
+						{orgItemStatusArea === Area.Top ? OrgItemWidget : null}
 					</DropArea>
 					<p className={styles['area-label']}>Top</p>
 				</div>
@@ -185,6 +202,7 @@ const LayoutPanel: React.FC = () => {
 						{connectionStatusArea === Area.Mid
 							? ConnStatusWidget
 							: null}
+						{orgItemStatusArea === Area.Mid ? OrgItemWidget : null}
 					</DropArea>
 					<p className={styles['area-label']}>Mid</p>
 				</div>
@@ -197,10 +215,20 @@ const LayoutPanel: React.FC = () => {
 						{connectionStatusArea === Area.Bottom
 							? ConnStatusWidget
 							: null}
+						{orgItemStatusArea === Area.Bottom
+							? OrgItemWidget
+							: null}
 					</DropArea>
 					<p className={styles['area-label']}>Bottom</p>
 				</div>
-				{ConnStatusOverlay}
+				<WidgetOverlay>
+					{activeId === 'connection-status' ? (
+						<p>Connection Status</p>
+					) : (
+						<p>Org Item</p>
+					)}
+					{/* TODO: DRY */}
+				</WidgetOverlay>
 			</div>
 			<button onClick={handleReset} aria-label="Reset">
 				Reset
@@ -210,5 +238,6 @@ const LayoutPanel: React.FC = () => {
 };
 
 // TODO: switch to message api
+// TODO: reread state msg -- otherwise, it doesn't update -- WHy?
 
 export default LayoutPanel;
