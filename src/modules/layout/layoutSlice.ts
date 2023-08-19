@@ -35,10 +35,11 @@ export const layoutSlice = createSlice({
 		setConnectionStatusAreaTo: (state, action: PayloadAction<Area>) => {
 			state.connectionStatus.area = action.payload;
 		},
+		resetLayout: () => initialState,
 	},
 });
 
-export const { setConnectionStatusAreaTo } = layoutSlice.actions;
+export const { setConnectionStatusAreaTo, resetLayout } = layoutSlice.actions;
 
 export const selectedConnectionStatusArea = (state: RootState) =>
 	state.layout.connectionStatus.area;

@@ -14,6 +14,7 @@ import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 import {
 	Area,
+	resetLayout,
 	selectedConnectionStatusArea,
 	setConnectionStatusAreaTo,
 } from 'modules/layout/layoutSlice';
@@ -152,6 +153,10 @@ const LayoutPanel: React.FC = () => {
 		setIsDragging(false);
 	};
 
+	const handleReset = () => {
+		dispatch(resetLayout());
+	};
+
 	return (
 		<DndContext
 			onDragStart={handleDragStart}
@@ -197,8 +202,13 @@ const LayoutPanel: React.FC = () => {
 				</div>
 				{ConnStatusOverlay}
 			</div>
+			<button onClick={handleReset} aria-label="Reset">
+				Reset
+			</button>
 		</DndContext>
 	);
 };
+
+// TODO: switch to message api
 
 export default LayoutPanel;
