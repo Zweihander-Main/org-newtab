@@ -125,7 +125,8 @@ const LayoutPanel: React.FC = () => {
 	const [isDragging, setIsDragging] = useState(false);
 	const [parent, setParent] = useState<UniqueIdentifier | null>(null);
 
-	const { Overlay, Widget } = WidgetFactory(<p>Drag me</p>);
+	const { Overlay: ConnStatusOverlay, Widget: ConnStatusWidget } =
+		WidgetFactory(<p>Connection Status</p>);
 
 	const handleDragStart = () => {
 		setIsDragging(true);
@@ -153,13 +154,13 @@ const LayoutPanel: React.FC = () => {
 			<div className={styles.map}>
 				<div className={styles.area}>
 					<DropArea key={'top'} id={'top'} dragging={isDragging}>
-						{parent === 'top' ? Widget : null}
+						{parent === 'top' ? ConnStatusWidget : null}
 					</DropArea>
 					<p className={styles['area-label']}>Top</p>
 				</div>
 				<div className={styles.area}>
 					<DropArea key={'mid'} id={'mid'} dragging={isDragging}>
-						{parent === 'mid' ? Widget : null}
+						{parent === 'mid' ? ConnStatusWidget : null}
 					</DropArea>
 					<p className={styles['area-label']}>Mid</p>
 				</div>
@@ -169,11 +170,11 @@ const LayoutPanel: React.FC = () => {
 						id={'bottom'}
 						dragging={isDragging}
 					>
-						{parent === 'bottom' ? Widget : null}
+						{parent === 'bottom' ? ConnStatusWidget : null}
 					</DropArea>
 					<p className={styles['area-label']}>Bottom</p>
 				</div>
-				{Overlay}
+				{ConnStatusOverlay}
 			</div>
 		</DndContext>
 	);

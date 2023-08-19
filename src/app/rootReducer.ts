@@ -13,6 +13,11 @@ import emacsReducer, {
 	name as emacsSliceName,
 	persistenceBlacklist as emacsSlicePersistenceBlacklist,
 } from '../modules/emacs/emacsSlice';
+import layoutReducer, {
+	LayoutState,
+	name as layoutSliceName,
+	persistenceBlacklist as layoutSlicePersistenceBlacklist,
+} from '../modules/layout/layoutSlice';
 import roleReducer, { name as roleSliceName } from '../modules/role/roleSlice';
 import msgReducer, { name as msgSliceName } from '../modules/msg/msgSlice';
 import uiReducer, { name as uiSliceName } from '../modules/ui/uiSlice';
@@ -42,11 +47,25 @@ const persistedEmacsReducer = persistReducer<EmacsState, AnyAction>(
 	emacsReducer
 );
 
+export const layoutPersistConfig = {
+	key: layoutSliceName,
+	version: 1,
+	storage: localStorage as StorageType,
+	blacklist: layoutSlicePersistenceBlacklist,
+	stateReconciler: autoMergeLevel2,
+};
+
+const persistedLayoutReducer = persistReducer<LayoutState, AnyAction>(
+	layoutPersistConfig,
+	layoutReducer
+);
+
 const rootReducer = combineReducers({
 	[msgSliceName]: msgReducer,
 	[roleSliceName]: roleReducer,
 	[wsSliceName]: persistedWSReducer,
 	[emacsSliceName]: persistedEmacsReducer,
+	[layoutSliceName]: persistedLayoutReducer,
 	[uiSliceName]: uiReducer,
 });
 
@@ -60,6 +79,7 @@ export const rootPersistConfig = {
 		wsSliceName,
 		emacsSliceName,
 		uiSliceName,
+		layoutSliceName,
 	],
 };
 
@@ -71,6 +91,7 @@ export const mockRootReducer = combineReducers({
 	[wsSliceName]: wsReducer,
 	[emacsSliceName]: emacsReducer,
 	[uiSliceName]: uiReducer,
+	[layoutSliceName]: layoutReducer,
 });
 
 export default persistedRootReducer;
