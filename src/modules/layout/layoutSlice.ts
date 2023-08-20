@@ -5,10 +5,10 @@ export enum Area {
 	Top = 'top',
 	Mid = 'mid',
 	Bottom = 'bottom',
+	None = 'none',
 }
 
 export type LayoutPos = {
-	visible: boolean;
 	order: number;
 	area: Area;
 };
@@ -23,12 +23,10 @@ export const persistenceBlacklist: Array<keyof LayoutState> = [];
 
 const initialState: LayoutState = {
 	orgItem: {
-		visible: true,
 		order: 0,
 		area: Area.Mid,
 	},
 	connectionStatus: {
-		visible: true,
 		order: 0,
 		area: Area.Bottom,
 	},
