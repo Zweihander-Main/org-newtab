@@ -44,12 +44,12 @@
 	align-items: center;
 }
 
-.area:has(> .over) {
-	border: 2px dashed green;
-}
-
 .area:has(> .dropped) {
 	border: 2px dashed red;
+}
+
+.area:has(> .over) {
+	border: 2px dashed green;
 }
 
 .remove {

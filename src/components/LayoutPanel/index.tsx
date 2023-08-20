@@ -1,5 +1,5 @@
 import * as styles from './style.module.css';
-import { forwardRef, useState } from 'react';
+import { forwardRef, useCallback, useState } from 'react';
 import {
 	useDraggable,
 	DndContext,
@@ -35,12 +35,25 @@ const DropArea: React.FC<DropArea> = ({ children, id, dragging }) => {
 		id,
 	});
 
+	const hasChildren = useCallback(() => {
+		if (!children) {
+			return false;
+		}
+		if (!Array.isArray(children)) {
+			return true;
+		}
+		return (
+			children.filter((child) => child !== null && child !== false)
+				.length > 0
+		);
+	}, [children]);
+
 	return (
 		<div
 			className={classNames(styles['area-drop-zone'], {
 				[styles.dragging]: dragging,
 				[styles.over]: isOver,
-				[styles.dropped]: children,
+				[styles.dropped]: hasChildren(),
 			})}
 			ref={setNodeRef}
 			aria-label="Droppable region"
@@ -130,16 +143,38 @@ const LayoutPanel: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const [activeId, setActiveId] = useState<WidgetName | null>(null);
 
-	const ConnStatusWidget = (
-		<DraggableWidget id="connection-status">
-			<p>Connection Status</p>
-		</DraggableWidget>
+	const ConnStatusInner = useCallback(() => <p>Connection Status</p>, []);
+
+	const OrgItemInner = useCallback(() => <p>Org Item</p>, []);
+
+	const ConnStatusWidget = useCallback(
+		() => (
+			<DraggableWidget id="connection-status">
+				<ConnStatusInner />
+			</DraggableWidget>
+		),
+		[ConnStatusInner]
 	);
-	const OrgItemWidget = (
-		<DraggableWidget id="org-item">
-			<p>Org Item</p>
-		</DraggableWidget>
+
+	const OrgItemWidget = useCallback(
+		() => (
+			<DraggableWidget id="org-item">
+				<OrgItemInner />
+			</DraggableWidget>
+		),
+		[OrgItemInner]
 	);
+
+	const WidgetOverlayInner = useCallback(() => {
+		switch (activeId) {
+			case 'connection-status':
+				return <ConnStatusWidget />;
+			case 'org-item':
+				return <OrgItemWidget />;
+			default:
+				return null;
+		}
+	}, [activeId, ConnStatusWidget, OrgItemWidget]);
 
 	const handleDragStart = ({ active: { id } }: DragStartEvent) => {
 		setIsDragging(true);
@@ -186,10 +221,10 @@ const LayoutPanel: React.FC = () => {
 						id={Area.Top}
 						dragging={isDragging}
 					>
-						{connectionStatusArea === Area.Top
-							? ConnStatusWidget
-							: null}
-						{orgItemStatusArea === Area.Top ? OrgItemWidget : null}
+						{connectionStatusArea === Area.Top && (
+							<ConnStatusWidget />
+						)}
+						{orgItemStatusArea === Area.Top && <OrgItemWidget />}
 					</DropArea>
 					<p className={styles['area-label']}>Top</p>
 				</div>
@@ -199,10 +234,10 @@ const LayoutPanel: React.FC = () => {
 						id={Area.Mid}
 						dragging={isDragging}
 					>
-						{connectionStatusArea === Area.Mid
-							? ConnStatusWidget
-							: null}
-						{orgItemStatusArea === Area.Mid ? OrgItemWidget : null}
+						{connectionStatusArea === Area.Mid && (
+							<ConnStatusWidget />
+						)}
+						{orgItemStatusArea === Area.Mid && <OrgItemWidget />}
 					</DropArea>
 					<p className={styles['area-label']}>Mid</p>
 				</div>
@@ -212,22 +247,15 @@ const LayoutPanel: React.FC = () => {
 						id={Area.Bottom}
 						dragging={isDragging}
 					>
-						{connectionStatusArea === Area.Bottom
-							? ConnStatusWidget
-							: null}
-						{orgItemStatusArea === Area.Bottom
-							? OrgItemWidget
-							: null}
+						{connectionStatusArea === Area.Bottom && (
+							<ConnStatusWidget />
+						)}
+						{orgItemStatusArea === Area.Bottom && <OrgItemWidget />}
 					</DropArea>
 					<p className={styles['area-label']}>Bottom</p>
 				</div>
 				<WidgetOverlay>
-					{activeId === 'connection-status' ? (
-						<p>Connection Status</p>
-					) : (
-						<p>Org Item</p>
-					)}
-					{/* TODO: DRY */}
+					<WidgetOverlayInner />
 				</WidgetOverlay>
 			</div>
 			<button onClick={handleReset} aria-label="Reset">
@@ -236,7 +264,5 @@ const LayoutPanel: React.FC = () => {
 		</DndContext>
 	);
 };
-
-// TODO: switch to message api
 
 export default LayoutPanel;
