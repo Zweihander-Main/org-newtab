@@ -115,7 +115,7 @@
 	background: linear-gradient(180deg, #84fab0 0%, #8fd3f4 100%);
 	border: 2px solid var(--color-item-shadow);
 	box-shadow: 0.3rem 0.3rem 0 0 var(--color-item-shadow);
-	border-radius: 1.3rem;
+	border-radius: 0.4rem;
 	font-size: 1.5rem;
 	font-weight: var(--font-weight-standard);
 	text-align: center;
