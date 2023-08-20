@@ -191,37 +191,43 @@ const LayoutPanel: React.FC = () => {
 		[connectionStatusArea, orgItemStatusArea]
 	);
 
-	const handleDragStart = ({ active: { id } }: DragStartEvent) => {
-		setIsDragging(true);
-		setActiveId(id as WidgetName);
-	};
+	const handleDragStart = useCallback(
+		({ active: { id } }: DragStartEvent) => {
+			setIsDragging(true);
+			setActiveId(id as WidgetName);
+		},
+		[]
+	);
 
-	const handleDragEnd = ({ over, active: { id } }: DragEndEvent) => {
-		setIsDragging(false);
-		if (over) {
-			switch (id) {
-				case 'connection-status':
-					dispatch(setConnectionStatusAreaTo(over.id as Area));
-					break;
-				case 'org-item':
-					dispatch(setOrgItemAreaTo(over.id as Area));
-					break;
+	const handleDragEnd = useCallback(
+		({ over, active: { id } }: DragEndEvent) => {
+			setIsDragging(false);
+			if (over) {
+				switch (id) {
+					case 'connection-status':
+						dispatch(setConnectionStatusAreaTo(over.id as Area));
+						break;
+					case 'org-item':
+						dispatch(setOrgItemAreaTo(over.id as Area));
+						break;
+				}
+			} else {
+				// TODO: clean this up considerably
+				// TODO: visible
 			}
-		} else {
-			// TODO: clean this up considerably
-			// TODO: visible
-		}
-		setActiveId(null);
-	};
+			setActiveId(null);
+		},
+		[dispatch]
+	);
 
-	const handleDragCancel = () => {
+	const handleDragCancel = useCallback(() => {
 		setIsDragging(false);
 		setActiveId(null);
-	};
+	}, []);
 
-	const handleReset = () => {
+	const handleReset = useCallback(() => {
 		dispatch(resetLayout());
-	};
+	}, [dispatch]);
 
 	return (
 		<DndContext
