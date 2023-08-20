@@ -22,8 +22,18 @@ import {
 import { useAppDispatch, useAppSelector } from 'app/hooks';
 
 type WidgetName = 'connection-status' | 'org-item';
+
+enum WidgetText {
+	ConnectionStatus = 'Connection Status',
+	OrgItem = 'Org Item',
+}
+
+const WidgetTextMap: Record<WidgetName, WidgetText> = {
+	'connection-status': WidgetText.ConnectionStatus,
+	'org-item': WidgetText.OrgItem,
+};
 interface WidgetProps {
-	children: React.ReactNode;
+	name: WidgetName;
 	dragOverlay?: boolean;
 	dragging?: boolean;
 	listeners?: DraggableSyntheticListeners;
@@ -31,7 +41,7 @@ interface WidgetProps {
 }
 
 const Widget = forwardRef<HTMLButtonElement, WidgetProps>(function Draggable(
-	{ children, listeners, style, dragOverlay, dragging, ...props },
+	{ name, listeners, style, dragOverlay, dragging, ...props },
 	ref
 ) {
 	return (
@@ -45,7 +55,7 @@ const Widget = forwardRef<HTMLButtonElement, WidgetProps>(function Draggable(
 			}}
 		>
 			<button {...props} aria-label="Draggable" {...listeners} ref={ref}>
-				{children}
+				<p>{WidgetTextMap[name]}</p>
 			</button>
 		</div>
 	);
@@ -54,44 +64,26 @@ const Widget = forwardRef<HTMLButtonElement, WidgetProps>(function Draggable(
 // TODO: better labels
 
 interface DraggableWidgetProps {
-	children: React.ReactNode;
-	id: WidgetName;
+	name: WidgetName;
 }
 
-const DraggableWidget: React.FC<DraggableWidgetProps> = ({ children, id }) => {
+const DraggableWidget: React.FC<DraggableWidgetProps> = ({ name }) => {
 	const { isDragging, setNodeRef, listeners } = useDraggable({
-		id,
+		id: name,
 	});
 
 	return (
 		<Widget
+			name={name}
 			dragging={isDragging}
 			ref={setNodeRef}
 			listeners={listeners}
 			style={{
 				opacity: isDragging ? 0 : undefined,
 			}}
-		>
-			{children}
-		</Widget>
+		/>
 	);
 };
-
-const ConnectionStatusText: React.FC = () => <p>Connection Status</p>;
-
-const OrgItemText: React.FC = () => <p>Org Item</p>;
-
-const ConnectionStatusDraggableWidget: React.FC = () => (
-	<DraggableWidget id="connection-status">
-		<ConnectionStatusText />
-	</DraggableWidget>
-);
-
-const OrgItemDraggableWidget: React.FC = () => (
-	<DraggableWidget id="org-item">
-		<OrgItemText />
-	</DraggableWidget>
-);
 interface DropArea {
 	dragging: boolean;
 	area: Area;
@@ -120,32 +112,20 @@ const DropArea: React.FC<DropArea> = ({ area, dragging }) => {
 			aria-label="Droppable region"
 		>
 			{connectionStatusArea === area && (
-				<ConnectionStatusDraggableWidget />
+				<DraggableWidget name="connection-status" />
 			)}
-			{orgItemStatusArea === area && <OrgItemDraggableWidget />}
+			{orgItemStatusArea === area && <DraggableWidget name="org-item" />}
 		</div>
 	);
 };
 
 const WidgetOverlay: React.FC = () => {
 	const { active } = useDndContext();
-	const WidgetToRender = useCallback(() => {
-		switch (active?.id) {
-			case 'connection-status':
-				return <ConnectionStatusDraggableWidget />;
-			case 'org-item':
-				return <OrgItemDraggableWidget />;
-			default:
-				return null;
-		}
-	}, [active]);
 
 	return createPortal(
 		<DragOverlay>
 			{active ? (
-				<Widget dragging dragOverlay>
-					<WidgetToRender />
-				</Widget>
+				<Widget dragging dragOverlay name={active?.id as WidgetName} />
 			) : null}
 		</DragOverlay>,
 		document.body
@@ -164,7 +144,7 @@ const LayoutPanel: React.FC = () => {
 		({ over, active: { id } }: DragEndEvent) => {
 			setIsDragging(false);
 			if (over) {
-				switch (id) {
+				switch (id as WidgetName) {
 					case 'connection-status':
 						dispatch(setConnectionStatusAreaTo(over.id as Area));
 						break;
