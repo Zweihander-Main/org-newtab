@@ -23,16 +23,6 @@
 	align-items: center;
 }
 
-.area-label {
-	position: absolute;
-	inset: 0;
-	z-index: 300;
-	margin: auto;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-
 .area-drop-zone {
 	position: relative;
 	box-sizing: border-box;
