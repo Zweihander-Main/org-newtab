@@ -27,33 +27,21 @@ type WidgetName = 'connection-status' | 'org-item';
 interface DropArea {
 	children: React.ReactNode;
 	dragging: boolean;
+	dropped?: boolean;
 	id: UniqueIdentifier;
 }
 
-const DropArea: React.FC<DropArea> = ({ children, id, dragging }) => {
+const DropArea: React.FC<DropArea> = ({ children, id, dragging, dropped }) => {
 	const { isOver, setNodeRef } = useDroppable({
 		id,
 	});
-
-	const hasChildren = useCallback(() => {
-		if (!children) {
-			return false;
-		}
-		if (!Array.isArray(children)) {
-			return true;
-		}
-		return (
-			children.filter((child) => child !== null && child !== false)
-				.length > 0
-		);
-	}, [children]);
 
 	return (
 		<div
 			className={classNames(styles['area-drop-zone'], {
 				[styles.dragging]: dragging,
 				[styles.over]: isOver,
-				[styles.dropped]: hasChildren(),
+				[styles.dropped]: dropped,
 			})}
 			ref={setNodeRef}
 			aria-label="Droppable region"
@@ -176,12 +164,38 @@ const LayoutPanel: React.FC = () => {
 		}
 	}, [activeId, ConnStatusWidget, OrgItemWidget]);
 
+	const DropAreaInner = useCallback(
+		({ area }: { area: Area }) => {
+			return (
+				<>
+					{connectionStatusArea === area && <ConnStatusWidget />}
+					{orgItemStatusArea === area && <OrgItemWidget />}
+				</>
+			);
+		},
+		[
+			ConnStatusWidget,
+			OrgItemWidget,
+			connectionStatusArea,
+			orgItemStatusArea,
+		]
+	);
+
+	const areaHasChildren = useCallback(
+		(area: Area) => {
+			if (connectionStatusArea === area || orgItemStatusArea === area) {
+				return true;
+			}
+			return false;
+		},
+		[connectionStatusArea, orgItemStatusArea]
+	);
+
 	const handleDragStart = ({ active: { id } }: DragStartEvent) => {
 		setIsDragging(true);
 		setActiveId(id as WidgetName);
 	};
 
-	// TODO: clean this up considerably
 	const handleDragEnd = ({ over, active: { id } }: DragEndEvent) => {
 		setIsDragging(false);
 		if (over) {
@@ -194,6 +208,7 @@ const LayoutPanel: React.FC = () => {
 					break;
 			}
 		} else {
+			// TODO: clean this up considerably
 			// TODO: visible
 		}
 		setActiveId(null);
@@ -220,11 +235,9 @@ const LayoutPanel: React.FC = () => {
 						key={Area.Top}
 						id={Area.Top}
 						dragging={isDragging}
+						dropped={areaHasChildren(Area.Top)}
 					>
-						{connectionStatusArea === Area.Top && (
-							<ConnStatusWidget />
-						)}
-						{orgItemStatusArea === Area.Top && <OrgItemWidget />}
+						<DropAreaInner area={Area.Top} />
 					</DropArea>
 					<p className={styles['area-label']}>Top</p>
 				</div>
@@ -233,11 +246,9 @@ const LayoutPanel: React.FC = () => {
 						key={Area.Mid}
 						id={Area.Mid}
 						dragging={isDragging}
+						dropped={areaHasChildren(Area.Mid)}
 					>
-						{connectionStatusArea === Area.Mid && (
-							<ConnStatusWidget />
-						)}
-						{orgItemStatusArea === Area.Mid && <OrgItemWidget />}
+						<DropAreaInner area={Area.Mid} />
 					</DropArea>
 					<p className={styles['area-label']}>Mid</p>
 				</div>
@@ -246,11 +257,9 @@ const LayoutPanel: React.FC = () => {
 						key={Area.Bottom}
 						id={Area.Bottom}
 						dragging={isDragging}
+						dropped={areaHasChildren(Area.Bottom)}
 					>
-						{connectionStatusArea === Area.Bottom && (
-							<ConnStatusWidget />
-						)}
-						{orgItemStatusArea === Area.Bottom && <OrgItemWidget />}
+						<DropAreaInner area={Area.Bottom} />
 					</DropArea>
 					<p className={styles['area-label']}>Bottom</p>
 				</div>
