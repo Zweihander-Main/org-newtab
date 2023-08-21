@@ -23,8 +23,8 @@ import { useAppDispatch, useAppSelector } from 'app/hooks';
 type WidgetName = keyof LayoutState;
 
 const WidgetTextMap: Record<WidgetName, string> = {
-	connectionStatus: 'Connection Status',
-	orgItem: 'Org Item',
+	connectionStatus: chrome.i18n.getMessage('layoutWidgetConnectionStatus'),
+	orgItem: chrome.i18n.getMessage('layoutWidgetOrgItem'),
 };
 
 interface WidgetProps {
@@ -51,7 +51,9 @@ const Widget = forwardRef<HTMLButtonElement, WidgetProps>(function Draggable(
 		>
 			<button
 				{...props}
-				aria-label={`Draggable widget: ${WidgetTextMap[name]}`}
+				aria-label={`${chrome.i18n.getMessage(
+					'layoutWidgetDraggableArea'
+				)}: ${WidgetTextMap[name]}`}
 				{...listeners}
 				ref={ref}
 			>
@@ -106,7 +108,9 @@ const DropArea: React.FC<DropArea> = ({ area, dragging }) => {
 				[styles.dropped]: areaHasChildren(),
 			})}
 			ref={setNodeRef}
-			aria-label={`Dropzone for area: ${area}`}
+			aria-label={`${chrome.i18n.getMessage(
+				'layoutWidgetDroppableArea'
+			)}: ${area}`}
 		>
 			{widgetsInArea.map((widget) => (
 				<DraggableWidget key={widget} name={widget} />
@@ -189,8 +193,11 @@ const LayoutPanel: React.FC = () => {
 				</div>
 				<WidgetOverlay />
 			</div>
-			<button onClick={handleReset} aria-label="Reset layout to default">
-				Reset
+			<button
+				onClick={handleReset}
+				aria-label={chrome.i18n.getMessage('layoutResetLabel')}
+			>
+				{chrome.i18n.getMessage('layoutReset')}
 			</button>
 		</DndContext>
 	);

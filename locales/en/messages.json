@@ -98,5 +98,29 @@
 	"connectionStatusUninstantiated": {
 		"message": "Initializing",
 		"description": "Label for initializing websocket connection status"
+	},
+	"layoutWidgetConnectionStatus": {
+		"message": "Connection Status",
+		"description": "Label for connection status widget"
+	},
+	"layoutWidgetOrgItem": {
+		"message": "Org Item",
+		"description": "Label for org item widget"
+	},
+	"layoutWidgetDraggableArea": {
+		"message": "Draggable widget",
+		"description": "Label for draggable area widget"
+	},
+	"layoutWidgetDroppableArea": {
+		"message": "Dropzone for area",
+		"description": "Label for drop zone for widgets"
+	},
+	"layoutReset": {
+		"message": "Reset",
+		"description": "Label for reset layout button"
+	},
+	"layoutResetLabel": {
+		"message": "Reset layout to default",
+		"description": "Label for reset layout button aria-label"
 	}
 }
