@@ -49,14 +49,17 @@ const Widget = forwardRef<HTMLButtonElement, WidgetProps>(function Draggable(
 				...style,
 			}}
 		>
-			<button {...props} aria-label="Draggable" {...listeners} ref={ref}>
+			<button
+				{...props}
+				aria-label={`Draggable widget: ${WidgetTextMap[name]}`}
+				{...listeners}
+				ref={ref}
+			>
 				<p>{WidgetTextMap[name]}</p>
 			</button>
 		</div>
 	);
 });
-
-// NEXT: better labels, use messaging API
 
 interface DraggableWidgetProps {
 	name: WidgetName;
@@ -103,7 +106,7 @@ const DropArea: React.FC<DropArea> = ({ area, dragging }) => {
 				[styles.dropped]: areaHasChildren(),
 			})}
 			ref={setNodeRef}
-			aria-label="Droppable region"
+			aria-label={`Dropzone for area: ${area}`}
 		>
 			{widgetsInArea.map((widget) => (
 				<DraggableWidget key={widget} name={widget} />
@@ -186,7 +189,7 @@ const LayoutPanel: React.FC = () => {
 				</div>
 				<WidgetOverlay />
 			</div>
-			<button onClick={handleReset} aria-label="Reset">
+			<button onClick={handleReset} aria-label="Reset layout to default">
 				Reset
 			</button>
 		</DndContext>
