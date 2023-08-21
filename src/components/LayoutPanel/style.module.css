@@ -92,65 +92,80 @@
 }
 
 .widget {
-	z-index: 302;
-	position: relative;
+	--scale: 1;
+
 	display: flex;
 	align-items: center;
 	flex-direction: column;
 	justify-content: center;
-	transition: transform 250ms ease;
+	transition: transform 200ms ease;
+	will-change: transform;
 }
 
 .widget button {
+	appearance: none;
+	border: none;
+	outline: none;
+	cursor: grab;
+	position: relative;
+	z-index: 355;
+	background: transparent;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	min-height: 54px;
-	flex-shrink: 1;
-	appearance: none;
-	outline: none;
-	border: 0;
-	padding: 8px 18px;
-	box-shadow: var(--box-shadow);
-	transform: translate3d(var(--translate-x, 0), var(--translate-y, 0), 0)
-		scale(var(--scale, 1));
-	transition: box-shadow 300ms ease;
-	cursor: grab;
+	transform: scale(var(--scale, 1));
+}
+
+.widget button:hover {
+	transform: translate(-0.05rem, -0.05rem);
+}
+
+.widget button::after {
+	content: '';
+	position: absolute;
+	z-index: -1;
+	width: calc(100% - 2px);
+	height: calc(100% - 2px);
+	background: white;
+	border: 2px solid var(--color-item-shadow);
+}
+
+.widget button::before {
+	content: '';
+	position: absolute;
+	z-index: -1;
+	width: calc(100% - 2px);
+	height: calc(100% - 2px);
+	top: 0.15rem;
+	left: 0.15rem;
+	background: white;
+	border: 2px solid var(--color-item-shadow);
+	transform: transform 200ms ease;
+}
+
+.widget button:hover::before {
+	transform: translate(0.05rem, 0.05rem);
 }
 
 .widget.dragging {
+	--scale: 1.06;
+
 	z-index: 1;
 	transition: none;
-}
-
-.widget.dragging * {
 	cursor: grabbing;
 }
 
-.widget.dragging > button {
-	--scale: 1.06;
-	--box-shadow: -1px 0 15px 0 rgba(34 33 81 / 1%),
-		0px 15px 15px 0 rgba(34 33 81 25%);
-}
-
-.widget.dragging > button:focus-visible {
-	--box-shadow: 0 0px 10px 2px #4c9ffe;
-}
-
 .widget.widget-overlay,
-.widget.dragging > button {
+.widget.dragging {
 	animation: pop 200ms cubic-bezier(0.18, 0.67, 0.6, 1.22);
 }
 
 @keyframes pop {
 	0% {
-		transform: translate3d(var(--translate-x, 0), var(--translate-y, 0), 0)
-			scale(1);
+		transform: scale(1);
 	}
 
 	100% {
-		transform: translate3d(var(--translate-x, 0), var(--translate-y, 0), 0)
-			scale(var(--scale));
-		box-shadow: var(--box-shadow);
+		transform: scale(var(--scale));
 	}
 }
