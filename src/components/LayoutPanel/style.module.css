@@ -1,22 +1,52 @@
-.map {
-	height: 100%;
-	margin: 5rem 0;
+.maps {
+	display: grid;
 	width: 50vw;
-	background: var(--color-bg);
+	margin: 5rem auto;
+	grid-template:
+		'activeMap inactiveMap' 1fr
+		'activeMap inactiveMap' 1fr
+		'activeMap controls' 1fr / 5fr 3fr;
+	grid-gap: 2rem;
+}
+
+.active-map {
+	height: 100%;
+	width: auto;
+	grid-area: activeMap;
+	border: 2px solid var(--color-item-shadow);
+	background: linear-gradient(180deg, #51565a 0%, #262b2d 100%);
+	box-shadow: 0.15rem 0.15rem 0 0 var(--color-item-shadow);
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
 	align-items: center;
-	padding: 2.5rem 0;
-	font-size: 1rem;
 	color: white;
 }
 
+.inactive-map {
+	height: 100%;
+	width: auto;
+	grid-area: inactiveMap;
+	border: 2px solid var(--color-item-shadow);
+	background: linear-gradient(180deg, #f5f5f5 0%, #bebebe 100%);
+	box-shadow: 0.15rem 0.15rem 0 0 var(--color-item-shadow);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.controls {
+	grid-area: controls;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
 .area {
-	border: 2px dashed white;
 	text-align: center;
-	width: 10rem;
-	height: 10rem;
+	padding: 2.5rem 0;
+	width: min(50%, 20rem);
+	height: 8rem;
 	position: relative;
 	display: flex;
 	justify-content: center;
@@ -32,14 +62,18 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	border-radius: 0.3rem;
+	background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='5' ry='5' stroke='%23838383' stroke-width='4' stroke-dasharray='10' stroke-dashoffset='5' stroke-linecap='round'/%3e%3c/svg%3e");
 }
 
-.area:has(> .dropped) {
-	border: 2px dashed red;
+.area-drop-zone.dropped {
+	background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='5' ry='5' stroke='white' stroke-width='4' stroke-dasharray='10' stroke-dashoffset='5' stroke-linecap='round'/%3e%3c/svg%3e");
+	padding: 1.5rem 0;
+	height: auto;
 }
 
-.area:has(> .over) {
-	border: 2px dashed green;
+.area-drop-zone.over {
+	background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='5' ry='5' stroke='red' stroke-width='4' stroke-dasharray='10' stroke-dashoffset='5' stroke-linecap='round'/%3e%3c/svg%3e");
 }
 
 .remove {

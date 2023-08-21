@@ -169,36 +169,50 @@ const LayoutPanel: React.FC = () => {
 			onDragEnd={handleDragEnd}
 			onDragCancel={handleDragCancel}
 		>
-			<div className={styles.map}>
-				<div className={styles.area}>
-					<DropArea
-						key={Area.Top}
-						area={Area.Top}
-						dragging={isDragging}
-					/>
+			<div className={styles.maps}>
+				<div className={styles['active-map']}>
+					<div className={styles.area}>
+						<DropArea
+							key={Area.Top}
+							area={Area.Top}
+							dragging={isDragging}
+						/>
+					</div>
+					<div className={styles.area}>
+						<DropArea
+							key={Area.Mid}
+							area={Area.Mid}
+							dragging={isDragging}
+						/>
+					</div>
+					<div className={styles.area}>
+						<DropArea
+							key={Area.Bottom}
+							area={Area.Bottom}
+							dragging={isDragging}
+						/>
+					</div>
 				</div>
-				<div className={styles.area}>
-					<DropArea
-						key={Area.Mid}
-						area={Area.Mid}
-						dragging={isDragging}
-					/>
+				<div className={styles['inactive-map']}>
+					<p>Inactive</p>
+					<div className={styles.area}>
+						<DropArea
+							key={Area.None}
+							area={Area.None}
+							dragging={isDragging}
+						/>
+					</div>
 				</div>
-				<div className={styles.area}>
-					<DropArea
-						key={Area.Bottom}
-						area={Area.Bottom}
-						dragging={isDragging}
-					/>
+				<div className={styles.controls}>
+					<button
+						onClick={handleReset}
+						aria-label={chrome.i18n.getMessage('layoutResetLabel')}
+					>
+						{chrome.i18n.getMessage('layoutReset')}
+					</button>
 				</div>
 				<WidgetOverlay />
 			</div>
-			<button
-				onClick={handleReset}
-				aria-label={chrome.i18n.getMessage('layoutResetLabel')}
-			>
-				{chrome.i18n.getMessage('layoutReset')}
-			</button>
 		</DndContext>
 	);
 };
