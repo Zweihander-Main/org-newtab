@@ -1,5 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { RootState } from 'app/store';
+import { Entries } from 'lib/types';
 
 export enum Area {
 	Top = 'top',
@@ -42,16 +43,36 @@ export const layoutSlice = createSlice({
 		setOrgItemAreaTo: (state, action: PayloadAction<Area>) => {
 			state.orgItem.area = action.payload;
 		},
+		setWidgetAreaTo(
+			state,
+			action: PayloadAction<{ widget: keyof LayoutState; area: Area }>
+		) {
+			state[action.payload.widget].area = action.payload.area;
+		},
 		resetLayout: () => initialState,
 	},
 });
 
-export const { setConnectionStatusAreaTo, setOrgItemAreaTo, resetLayout } =
-	layoutSlice.actions;
+// NEXT: move the name and logic for WidgetName here
+
+export type LayoutSliceActions = keyof typeof layoutSlice.actions;
+
+export const {
+	setConnectionStatusAreaTo,
+	setOrgItemAreaTo,
+	setWidgetAreaTo,
+	resetLayout,
+} = layoutSlice.actions;
 
 export const selectedConnectionStatusArea = (state: RootState) =>
 	state.layout.connectionStatus.area;
 export const selectedOrgItemArea = (state: RootState) =>
 	state.layout.orgItem.area;
+export const selectedWidgetsInArea = (area: Area) => {
+	return (state: RootState) =>
+		(Object.entries(state.layout) as Entries<typeof state.layout>)
+			.filter(([, value]) => value.area === area)
+			.map(([widget]) => widget);
+};
 
 export default layoutSlice.reducer;

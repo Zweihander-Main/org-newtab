@@ -13,25 +13,20 @@ import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 import {
 	Area,
+	LayoutState,
 	resetLayout,
-	selectedConnectionStatusArea,
-	selectedOrgItemArea,
-	setConnectionStatusAreaTo,
-	setOrgItemAreaTo,
+	selectedWidgetsInArea,
+	setWidgetAreaTo,
 } from 'modules/layout/layoutSlice';
 import { useAppDispatch, useAppSelector } from 'app/hooks';
 
-type WidgetName = 'connection-status' | 'org-item';
+type WidgetName = keyof LayoutState;
 
-enum WidgetText {
-	ConnectionStatus = 'Connection Status',
-	OrgItem = 'Org Item',
-}
-
-const WidgetTextMap: Record<WidgetName, WidgetText> = {
-	'connection-status': WidgetText.ConnectionStatus,
-	'org-item': WidgetText.OrgItem,
+const WidgetTextMap: Record<WidgetName, string> = {
+	connectionStatus: 'Connection Status',
+	orgItem: 'Org Item',
 };
+
 interface WidgetProps {
 	name: WidgetName;
 	dragOverlay?: boolean;
@@ -61,7 +56,7 @@ const Widget = forwardRef<HTMLButtonElement, WidgetProps>(function Draggable(
 	);
 });
 
-// TODO: better labels
+// NEXT: better labels, use messaging API
 
 interface DraggableWidgetProps {
 	name: WidgetName;
@@ -90,15 +85,14 @@ interface DropArea {
 }
 
 const DropArea: React.FC<DropArea> = ({ area, dragging }) => {
-	const connectionStatusArea = useAppSelector(selectedConnectionStatusArea);
-	const orgItemStatusArea = useAppSelector(selectedOrgItemArea);
+	const widgetsInArea = useAppSelector(selectedWidgetsInArea(area));
 	const { isOver, setNodeRef } = useDroppable({
 		id: area,
 	});
 
 	const areaHasChildren = useCallback(
-		() => connectionStatusArea === area || orgItemStatusArea === area,
-		[area, connectionStatusArea, orgItemStatusArea]
+		() => widgetsInArea.length > 0,
+		[widgetsInArea]
 	);
 
 	return (
@@ -111,10 +105,9 @@ const DropArea: React.FC<DropArea> = ({ area, dragging }) => {
 			ref={setNodeRef}
 			aria-label="Droppable region"
 		>
-			{connectionStatusArea === area && (
-				<DraggableWidget name="connection-status" />
-			)}
-			{orgItemStatusArea === area && <DraggableWidget name="org-item" />}
+			{widgetsInArea.map((widget) => (
+				<DraggableWidget key={widget} name={widget} />
+			))}
 		</div>
 	);
 };
@@ -144,14 +137,12 @@ const LayoutPanel: React.FC = () => {
 		({ over, active: { id } }: DragEndEvent) => {
 			setIsDragging(false);
 			if (over) {
-				switch (id as WidgetName) {
-					case 'connection-status':
-						dispatch(setConnectionStatusAreaTo(over.id as Area));
-						break;
-					case 'org-item':
-						dispatch(setOrgItemAreaTo(over.id as Area));
-						break;
-				}
+				dispatch(
+					setWidgetAreaTo({
+						widget: id as WidgetName,
+						area: over.id as Area,
+					})
+				);
 			}
 		},
 		[dispatch]
