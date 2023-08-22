@@ -1,0 +1,34 @@
+.button {
+	padding: 0.85rem 3rem;
+	cursor: pointer;
+	border: 2px solid var(--color-item-shadow);
+	box-shadow: 0.3rem 0.3rem 0 0 var(--color-item-shadow);
+	border-radius: 0.4rem;
+	font-size: 1.5rem;
+	font-weight: var(--font-weight-standard);
+	text-align: center;
+	transition: all 0.1s ease-in;
+}
+
+.button:hover {
+	transform: translate(-0.05rem, -0.05rem);
+	box-shadow: 0.3em 0.3em;
+	background: white;
+	padding: 0.87rem 3.1rem;
+}
+
+.button:active {
+	transform: translate(0.1em, 0.1em);
+	box-shadow: 0.15em 0.15em;
+	background: white;
+	transition: all 0.03s ease-in;
+	padding: 0.87rem 3.1rem;
+}
+
+.primary {
+	background: linear-gradient(180deg, #84fab0 0%, #8fd3f4 100%);
+}
+
+.reset {
+	background: linear-gradient(180deg, #868f96 0%, #596164 100%);
+}

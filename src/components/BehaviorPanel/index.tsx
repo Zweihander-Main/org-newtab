@@ -1,3 +1,4 @@
+import Button from 'components/Button';
 import * as styles from './style.module.css';
 import { useAppDispatch, useAppSelector } from 'app/hooks';
 import { selectedMatchQuery, setMatchQueryTo } from 'modules/emacs/emacsSlice';
@@ -92,9 +93,9 @@ const BehaviorPanel: React.FC = () => {
 					}}
 				></span>
 			</div>
-			<button className={styles.button} type="submit" disabled={false}>
+			<Button style="primary" type="submit" className={styles.button}>
 				{chrome.i18n.getMessage('saveOptions')}
-			</button>
+			</Button>
 		</form>
 	);
 };
