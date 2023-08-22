@@ -2,6 +2,7 @@ declare const styles: {
   readonly "maps": string;
   readonly "active-map": string;
   readonly "inactive-map": string;
+  readonly "map-label": string;
   readonly "controls": string;
   readonly "area": string;
   readonly "area-drop-zone": string;

@@ -35,6 +35,17 @@
 	align-items: center;
 }
 
+.map-label {
+	font-size: 0.875rem;
+	font-weight: var(--font-weight-bold);
+	letter-spacing: 0.29em;
+	word-spacing: 0.29em;
+	text-transform: uppercase;
+	margin: 1.5rem 2.5rem 0;
+	place-self: baseline;
+	color: #838383;
+}
+
 .controls {
 	grid-area: controls;
 	display: flex;
@@ -45,9 +56,10 @@
 
 .area {
 	text-align: center;
-	padding: 2.5rem 0;
-	width: min(50%, 20rem);
-	height: 8rem;
+	box-sizing: border-box;
+	padding: 2.5rem;
+	width: 100%;
+	min-height: 14rem;
 	position: relative;
 	display: flex;
 	justify-content: center;
@@ -75,6 +87,12 @@
 
 .area-drop-zone.over {
 	background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='5' ry='5' stroke='red' stroke-width='4' stroke-dasharray='10' stroke-dashoffset='5' stroke-linecap='round'/%3e%3c/svg%3e");
+}
+
+.inactive-map .area {
+	min-height: initial;
+	height: 100%;
+	padding-top: 0.5rem;
 }
 
 .remove {

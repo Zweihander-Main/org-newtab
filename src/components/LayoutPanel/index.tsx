@@ -199,7 +199,10 @@ const LayoutPanel: React.FC = () => {
 					</div>
 				</div>
 				<div className={styles['inactive-map']}>
-					<p>Inactive</p>
+					<p className={styles['map-label']}>
+						{chrome.i18n.getMessage('layoutInactive')}
+						{':'}
+					</p>
 					<div className={styles.area}>
 						<DropArea
 							key={Area.None}
