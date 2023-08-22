@@ -6,7 +6,7 @@ type OptionsButtonProps = {
 	toggleMenu: () => void;
 };
 
-const OptButton: React.FC<OptionsButtonProps> = ({
+const OptionsToggle: React.FC<OptionsButtonProps> = ({
 	optionsVisible,
 	toggleMenu,
 }) => {
@@ -39,4 +39,4 @@ const OptButton: React.FC<OptionsButtonProps> = ({
 	);
 };
 
-export default OptButton;
+export default OptionsToggle;

@@ -7,8 +7,8 @@ import BehaviorPanel from 'components/BehaviorPanel';
 import LayoutPanel from 'components/LayoutPanel';
 import ThemingPanel from 'components/ThemingPanel';
 import DebugPanel from 'components/DebugPanel';
-import OptionsBar from 'components/OptBar';
-import OptionsButton from 'components/OptButton';
+import TabBar from 'components/TabBar';
+import OptionsToggle from 'components/OptionsToggle';
 import classNames from 'classnames';
 
 type OptionsPanelProps = {
@@ -80,7 +80,7 @@ const Options: React.FC = () => {
 
 	return (
 		<>
-			<OptionsButton
+			<OptionsToggle
 				optionsVisible={menuVisible}
 				toggleMenu={toggleMenu}
 			/>
@@ -89,7 +89,7 @@ const Options: React.FC = () => {
 					[styles['is-visible']]: menuVisible,
 				})}
 			>
-				<OptionsBar menuVisible={menuVisible} />
+				<TabBar menuVisible={menuVisible} />
 				<OptionsContent />
 			</div>
 		</>

@@ -57,11 +57,11 @@ const MemoizedOptButton = memo(OptButton, (prevProps, nextProps) => {
 	return prevProps.isSelected === nextProps.isSelected;
 });
 
-type OptBarProps = {
+type TabBarProps = {
 	menuVisible: boolean;
 };
 
-const OptBar: React.FC<OptBarProps> = ({ menuVisible }) => {
+const TabBar: React.FC<TabBarProps> = ({ menuVisible }) => {
 	const dispatch = useAppDispatch();
 	const selectedCategory = useAppSelector(selectedOptionCategory);
 	const handleCategoryClick = useCallback(
@@ -109,4 +109,4 @@ const OptBar: React.FC<OptBarProps> = ({ menuVisible }) => {
 	);
 };
 
-export default OptBar;
+export default TabBar;
