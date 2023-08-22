@@ -20,6 +20,7 @@ import {
 } from 'modules/layout/layoutSlice';
 import { useAppDispatch, useAppSelector } from 'app/hooks';
 import Button from 'components/Button';
+import { RxDragHandleDots1 } from 'react-icons/rx';
 
 type WidgetName = keyof LayoutState;
 
@@ -58,7 +59,10 @@ const Widget = forwardRef<HTMLButtonElement, WidgetProps>(function Draggable(
 				{...listeners}
 				ref={ref}
 			>
-				<p>{WidgetTextMap[name]}</p>
+				<p className={styles['button-text']}>
+					<RxDragHandleDots1 className={styles['drag-icon']} />
+					{WidgetTextMap[name]}
+				</p>
 			</button>
 		</div>
 	);

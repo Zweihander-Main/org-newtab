@@ -107,18 +107,19 @@
 	appearance: none;
 	border: none;
 	outline: none;
-	cursor: grab;
+	padding: 0;
 	position: relative;
 	z-index: 355;
 	background: transparent;
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	cursor: grab;
 	transform: scale(var(--scale, 1));
 }
 
 .widget button:hover {
-	transform: translate(-0.05rem, -0.05rem);
+	transform: translate(-0.075rem, -0.075rem);
 }
 
 .widget button::after {
@@ -137,15 +138,30 @@
 	z-index: -1;
 	width: calc(100% - 2px);
 	height: calc(100% - 2px);
-	top: 0.15rem;
-	left: 0.15rem;
+	top: 0.2rem;
+	left: 0.2rem;
 	background: white;
 	border: 2px solid var(--color-item-shadow);
 	transform: transform 200ms ease;
 }
 
 .widget button:hover::before {
-	transform: translate(0.05rem, 0.05rem);
+	transform: translate(0.075rem, 0.075rem);
+}
+
+.button-text {
+	font-size: 1.5rem;
+	font-weight: var(--font-weight-standard);
+	margin: 0 0.6rem 0 0;
+	display: flex;
+	align-items: center;
+	user-select: none;
+}
+
+.drag-icon {
+	font-size: 1.75rem;
+	margin: 0.25rem;
+	vertical-align: middle;
 }
 
 .widget.dragging {

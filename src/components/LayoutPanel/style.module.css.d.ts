@@ -9,6 +9,8 @@ declare const styles: {
   readonly "over": string;
   readonly "remove": string;
   readonly "widget": string;
+  readonly "button-text": string;
+  readonly "drag-icon": string;
   readonly "dragging": string;
   readonly "widget-overlay": string;
   readonly "pop": string;
