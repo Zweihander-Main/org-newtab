@@ -31,4 +31,9 @@
 
 .reset {
 	background: linear-gradient(180deg, #868f96 0%, #596164 100%);
+	color: white;
+}
+
+.reset:hover {
+	color: black;
 }

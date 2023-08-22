@@ -93,7 +93,12 @@ const BehaviorPanel: React.FC = () => {
 					}}
 				></span>
 			</div>
-			<Button style="primary" type="submit" className={styles.button}>
+			<Button
+				styleType="primary"
+				type="submit"
+				className={styles.button}
+				aria-label={chrome.i18n.getMessage('saveBehaviorOptionsLabel')}
+			>
 				{chrome.i18n.getMessage('saveOptions')}
 			</Button>
 		</form>

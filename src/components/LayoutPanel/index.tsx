@@ -19,6 +19,7 @@ import {
 	setWidgetAreaTo,
 } from 'modules/layout/layoutSlice';
 import { useAppDispatch, useAppSelector } from 'app/hooks';
+import Button from 'components/Button';
 
 type WidgetName = keyof LayoutState;
 
@@ -204,12 +205,13 @@ const LayoutPanel: React.FC = () => {
 					</div>
 				</div>
 				<div className={styles.controls}>
-					<button
+					<Button
+						styleType="reset"
 						onClick={handleReset}
 						aria-label={chrome.i18n.getMessage('layoutResetLabel')}
 					>
 						{chrome.i18n.getMessage('layoutReset')}
-					</button>
+					</Button>
 				</div>
 				<WidgetOverlay />
 			</div>

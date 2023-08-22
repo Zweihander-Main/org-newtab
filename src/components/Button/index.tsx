@@ -1,26 +1,23 @@
 import classNames from 'classnames';
 import * as styles from './style.module.css';
 
-type ButtonProps = {
-	children: React.ReactNode;
-	style: 'primary' | 'reset';
-	className?: string;
-	type?: 'button' | 'submit' | 'reset';
-};
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+	styleType: 'primary' | 'reset';
+}
 
 const Button: React.FC<ButtonProps> = ({
+	styleType,
 	children,
-	style,
 	className,
-	type = 'button',
+	...props
 }) => {
 	return (
 		<button
+			{...props}
 			className={classNames(className, styles.button, {
-				[styles.primary]: style === 'primary',
-				[styles.reset]: style === 'reset',
+				[styles.primary]: styleType === 'primary',
+				[styles.reset]: styleType === 'reset',
 			})}
-			type={type}
 		>
 			{children}
 		</button>

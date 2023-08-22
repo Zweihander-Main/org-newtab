@@ -63,6 +63,10 @@
 		"message": "Update",
 		"description": "Label for save options form button"
 	},
+	"saveBehaviorOptionsLabel": {
+		"message": "Update behavior options",
+		"description": "Label to save the behavior options"
+	},
 	"storageStatus": {
 		"message": "Storage",
 		"description": "Label for storage status"
