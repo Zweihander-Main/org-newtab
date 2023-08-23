@@ -20,6 +20,8 @@
 
 -   [x] Browser storage
 -   [x] Persistent default match query
+-   [x] Layout editor
+-   [ ] Sortable layout elements
 -   [ ] Display priority and clock status in browser
 -   [ ] Mark items as done from browser
 -   [ ] Clock in and out from browser
@@ -32,7 +34,6 @@
 -   [ ] Icons for connection status
 -   [ ] Hooks on Emacs actions (TODO change, clock change, ect.)
 -   [ ] Deeper agenda integration
--   [ ] Basic styling as options
 -   [ ] Multiple themes
 -   [ ] Built-out documentation (README or separate site)
 -   [ ] Provide sorting beyond what match query provides
