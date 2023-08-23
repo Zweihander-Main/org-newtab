@@ -6,8 +6,8 @@ import {
 	DraggableSyntheticListeners,
 	DragEndEvent,
 	useDroppable,
-	useDndContext,
 	DragOverlay,
+	DragStartEvent,
 } from '@dnd-kit/core';
 import { createPortal } from 'react-dom';
 import classNames from 'classnames';
@@ -133,14 +133,15 @@ const DropArea: React.FC<DropArea> = ({ area, dragging }) => {
 	);
 };
 
-const WidgetOverlay: React.FC = () => {
-	const { active } = useDndContext();
+type WidgetOverlayProps = {
+	isDragging: boolean;
+	name: WidgetName;
+};
 
+const WidgetOverlay: React.FC<WidgetOverlayProps> = ({ isDragging, name }) => {
 	return createPortal(
 		<DragOverlay>
-			{active ? (
-				<Widget dragging dragOverlay name={active?.id as WidgetName} />
-			) : null}
+			{isDragging ? <Widget dragging dragOverlay name={name} /> : null}
 		</DragOverlay>,
 		document.body
 	);
@@ -148,15 +149,21 @@ const WidgetOverlay: React.FC = () => {
 
 const LayoutPanel: React.FC = () => {
 	const [isDragging, setIsDragging] = useState(false);
+	const [draggingId, setDraggingId] = useState<WidgetName | null>(null);
 	const dispatch = useAppDispatch();
 
-	const handleDragStart = useCallback(() => {
-		setIsDragging(true);
-	}, []);
+	const handleDragStart = useCallback(
+		({ active: { id } }: DragStartEvent) => {
+			setDraggingId(id as WidgetName);
+			setIsDragging(true);
+		},
+		[]
+	);
 
 	const handleDragEnd = useCallback(
 		({ over, active: { id } }: DragEndEvent) => {
 			setIsDragging(false);
+			setDraggingId(null);
 			if (over) {
 				dispatch(
 					setWidgetAreaTo({
@@ -171,6 +178,7 @@ const LayoutPanel: React.FC = () => {
 
 	const handleDragCancel = useCallback(() => {
 		setIsDragging(false);
+		setDraggingId(null);
 	}, []);
 
 	const handleReset = useCallback(() => {
@@ -233,7 +241,10 @@ const LayoutPanel: React.FC = () => {
 						{chrome.i18n.getMessage('layoutReset')}
 					</Button>
 				</div>
-				<WidgetOverlay />
+				<WidgetOverlay
+					isDragging={isDragging}
+					name={draggingId || 'orgItem'}
+				/>
 			</div>
 		</DndContext>
 	);
