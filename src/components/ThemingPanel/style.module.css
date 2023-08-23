@@ -1,0 +1,16 @@
+.panel {
+	width: min(50vw, 50rem);
+}
+
+.label {
+	font-size: 0.875rem;
+	font-weight: var(--font-weight-bold);
+	letter-spacing: 0.29em;
+	word-spacing: 0.29em;
+	text-transform: uppercase;
+}
+
+.picker {
+	width: 10rem;
+	height: 10rem;
+}
