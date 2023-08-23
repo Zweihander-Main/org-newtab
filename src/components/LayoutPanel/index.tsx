@@ -1,5 +1,5 @@
 import * as styles from './style.module.css';
-import React, { forwardRef, useCallback, useState } from 'react';
+import React, { forwardRef, useCallback, useMemo, useState } from 'react';
 import {
 	useDraggable,
 	DndContext,
@@ -80,9 +80,13 @@ interface DraggableWidgetProps {
 }
 
 const DraggableWidget: React.FC<DraggableWidgetProps> = ({ name }) => {
-	const { isDragging, setNodeRef, listeners } = useDraggable({
-		id: name,
-	});
+	const { isDragging, setNodeRef, listeners } = useDraggable({ id: name });
+
+	const memoizedStyle = useMemo(() => {
+		return {
+			opacity: isDragging ? 0 : undefined,
+		};
+	}, [isDragging]);
 
 	return (
 		<Widget
@@ -90,9 +94,7 @@ const DraggableWidget: React.FC<DraggableWidgetProps> = ({ name }) => {
 			dragging={isDragging}
 			ref={setNodeRef}
 			listeners={listeners}
-			style={{
-				opacity: isDragging ? 0 : undefined,
-			}}
+			style={memoizedStyle}
 		/>
 	);
 };
