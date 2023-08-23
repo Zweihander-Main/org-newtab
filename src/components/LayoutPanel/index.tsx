@@ -102,7 +102,9 @@ interface DropArea {
 }
 
 const DropArea: React.FC<DropArea> = ({ area, dragging }) => {
-	const widgetsInArea = useAppSelector(selectedWidgetsInArea(area));
+	const widgetsInArea = useAppSelector((state) =>
+		selectedWidgetsInArea(state, area)
+	);
 	const { isOver, setNodeRef } = useDroppable({
 		id: area,
 	});

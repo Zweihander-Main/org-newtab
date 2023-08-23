@@ -1,4 +1,4 @@
-import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { PayloadAction, createSelector, createSlice } from '@reduxjs/toolkit';
 import { RootState } from 'app/store';
 import { Entries } from 'lib/types';
 
@@ -68,11 +68,13 @@ export const selectedConnectionStatusArea = (state: RootState) =>
 	state.layout.connectionStatus.area;
 export const selectedOrgItemArea = (state: RootState) =>
 	state.layout.orgItem.area;
-export const selectedWidgetsInArea = (area: Area) => {
-	return (state: RootState) =>
-		(Object.entries(state.layout) as Entries<typeof state.layout>)
+export const selectedLayoutState = (state: RootState) => state.layout;
+export const selectedWidgetsInArea = createSelector(
+	[selectedLayoutState, (_state: RootState, area: Area) => area],
+	(layout: LayoutState, area: Area) =>
+		(Object.entries(layout) as Entries<typeof layout>)
 			.filter(([, value]) => value.area === area)
-			.map(([widget]) => widget);
-};
+			.map(([widget]) => widget)
+);
 
 export default layoutSlice.reducer;
