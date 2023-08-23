@@ -25,8 +25,8 @@ const WidgetArea: React.FC<WidgetAreaProps> = ({ loc }) => {
 				[styles.top]: loc === Area.Top,
 			})}
 		>
-			{loc === connectionStatusArea && <ConnectionStatusIndicator />}
 			{loc === orgItemArea && <OrgItem />}
+			{loc === connectionStatusArea && <ConnectionStatusIndicator />}
 		</div>
 	);
 };
