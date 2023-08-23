@@ -1,6 +1,6 @@
 .maps {
 	display: grid;
-	width: 50vw;
+	width: max(50vw, 50rem);
 	margin: 5rem auto;
 	grid-template:
 		'activeMap inactiveMap' 1fr
