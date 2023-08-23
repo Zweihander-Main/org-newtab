@@ -176,6 +176,10 @@ const LayoutPanel: React.FC = () => {
 		>
 			<div className={styles.maps}>
 				<div className={styles['active-map']}>
+					<p className={styles['map-label']}>
+						{chrome.i18n.getMessage('layoutActive')}
+						{':'}
+					</p>
 					<div className={styles.area}>
 						<DropArea
 							key={Area.Top}
@@ -225,5 +229,9 @@ const LayoutPanel: React.FC = () => {
 		</DndContext>
 	);
 };
+
+// NEXT: active label
+// TODO: width of inactive
+// TODO: ordering
 
 export default LayoutPanel;

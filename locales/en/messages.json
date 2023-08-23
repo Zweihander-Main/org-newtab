@@ -127,6 +127,10 @@
 		"message": "Reset layout to default",
 		"description": "Label for reset layout button aria-label"
 	},
+	"layoutActive": {
+		"message": "Active",
+		"description": "Label for active drop zones"
+	},
 	"layoutInactive": {
 		"message": "Inactive",
 		"description": "Label for inactive drop zone"
