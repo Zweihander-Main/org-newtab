@@ -21,6 +21,7 @@ import {
 import { useAppDispatch, useAppSelector } from 'app/hooks';
 import Button from 'components/Button';
 import { RxDragHandleDots1 } from 'react-icons/rx';
+import Icon from 'lib/Icon';
 
 type WidgetName = keyof LayoutState;
 
@@ -60,7 +61,13 @@ const Widget = forwardRef<HTMLButtonElement, WidgetProps>(function Draggable(
 				ref={ref}
 			>
 				<p className={styles['button-text']}>
-					<RxDragHandleDots1 className={styles['drag-icon']} />
+					<Icon
+						icon={
+							<RxDragHandleDots1
+								className={styles['drag-icon']}
+							/>
+						}
+					/>
 					{WidgetTextMap[name]}
 				</p>
 			</button>
@@ -229,9 +236,5 @@ const LayoutPanel: React.FC = () => {
 		</DndContext>
 	);
 };
-
-// NEXT: active label
-// TODO: width of inactive
-// TODO: ordering
 
 export default LayoutPanel;

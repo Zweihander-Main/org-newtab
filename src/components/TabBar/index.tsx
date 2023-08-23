@@ -13,12 +13,7 @@ import {
 	LuCode,
 } from 'react-icons/lu';
 import classNames from 'classnames';
-
-const Icon: React.FC<{ icon: React.ReactNode }> = ({ icon }) => {
-	return <>{icon}</>;
-};
-
-const MemoizedIcon = memo(Icon, () => true);
+import Icon from 'lib/Icon';
 
 type OptButtonProps = {
 	category: OptionCategories;
@@ -45,7 +40,7 @@ const OptButton: React.FC<OptButtonProps> = ({
 			onClick={handleClick}
 			data-testid={`${category.toLowerCase()}-button`}
 		>
-			<MemoizedIcon icon={icon} />
+			<Icon icon={icon} />
 			<span className={styles['button-label']}>
 				{chrome.i18n.getMessage(category.toLowerCase())}
 			</span>

@@ -76,6 +76,8 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	flex-direction: column;
+	gap: 1rem;
 	border-radius: 0.3rem;
 	background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='5' ry='5' stroke='%23838383' stroke-width='4' stroke-dasharray='10' stroke-dashoffset='5' stroke-linecap='round'/%3e%3c/svg%3e");
 }

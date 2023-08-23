@@ -104,7 +104,7 @@
 		"description": "Label for initializing websocket connection status"
 	},
 	"layoutWidgetConnectionStatus": {
-		"message": "Connection Status",
+		"message": "Connection",
 		"description": "Label for connection status widget"
 	},
 	"layoutWidgetOrgItem": {
