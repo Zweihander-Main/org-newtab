@@ -78,6 +78,7 @@ listenerMiddleware.startListening({
 	effect: (action) => {
 		const { payload } = action as RehydrateUIState;
 		const { untaggedItemBGColor } = payload;
+		if (!untaggedItemBGColor) return;
 		document.documentElement.style.setProperty(
 			'--color-untagged-item-bg',
 			untaggedItemBGColor
