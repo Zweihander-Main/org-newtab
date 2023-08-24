@@ -27,7 +27,7 @@ const ThemingPanel: React.FC = () => {
 	return (
 		<div className={styles.panel}>
 			<label className={styles.label} htmlFor="untaggedItemBG">
-				Untagged Item Background:
+				{chrome.i18n.getMessage('themingUntaggedItemBG')}
 			</label>
 			<div className={styles.picker}>
 				<HexColorPicker

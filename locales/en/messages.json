@@ -139,6 +139,10 @@
 		"message": "Inactive",
 		"description": "Label for inactive drop zone"
 	},
+	"themingUntaggedItemBG": {
+		"message": "Untagged Item Background",
+		"description": "Label for untagged item background color input"
+	},
 	"themingResetUntaggedItemBG": {
 		"message": "Reset untagged item background color",
 		"description": "Label for reset untagged item background color button aria-label"
