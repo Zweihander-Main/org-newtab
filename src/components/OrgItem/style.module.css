@@ -1,6 +1,6 @@
 .item {
 	max-width: calc(50vw - 6rem);
-	background: var(--color-item-bg-default);
+	background: var(--color-untagged-item-bg);
 	padding: 2.8rem;
 	border-radius: 2rem;
 	border: 0.4rem solid var(--color-item-shadow);

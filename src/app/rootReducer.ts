@@ -13,6 +13,11 @@ import emacsReducer, {
 	name as emacsSliceName,
 	persistenceBlacklist as emacsSlicePersistenceBlacklist,
 } from '../modules/emacs/emacsSlice';
+import uiReducer, {
+	UIState,
+	name as uiSliceName,
+	persistenceBlacklist as uiSlicePersistenceBlacklist,
+} from '../modules/ui/uiSlice';
 import layoutReducer, {
 	LayoutState,
 	name as layoutSliceName,
@@ -20,7 +25,6 @@ import layoutReducer, {
 } from '../modules/layout/layoutSlice';
 import roleReducer, { name as roleSliceName } from '../modules/role/roleSlice';
 import msgReducer, { name as msgSliceName } from '../modules/msg/msgSlice';
-import uiReducer, { name as uiSliceName } from '../modules/ui/uiSlice';
 
 export const wsPersistConfig = {
 	key: wsSliceName,
@@ -60,13 +64,26 @@ const persistedLayoutReducer = persistReducer<LayoutState, AnyAction>(
 	layoutReducer
 );
 
+export const uiPersistConfig = {
+	key: uiSliceName,
+	version: 1,
+	storage: localStorage as StorageType,
+	blacklist: uiSlicePersistenceBlacklist,
+	stateReconciler: autoMergeLevel2,
+};
+
+const persistedUiReducer = persistReducer<UIState, AnyAction>(
+	uiPersistConfig,
+	uiReducer
+);
+
 const rootReducer = combineReducers({
 	[msgSliceName]: msgReducer,
 	[roleSliceName]: roleReducer,
 	[wsSliceName]: persistedWSReducer,
 	[emacsSliceName]: persistedEmacsReducer,
 	[layoutSliceName]: persistedLayoutReducer,
-	[uiSliceName]: uiReducer,
+	[uiSliceName]: persistedUiReducer,
 });
 
 export const rootPersistConfig = {
@@ -89,6 +106,7 @@ export const persistKeys = [
 	rootPersistConfig.key,
 	wsPersistConfig.key,
 	emacsPersistConfig.key,
+	uiPersistConfig.key,
 	layoutPersistConfig.key,
 ];
 

@@ -24,6 +24,7 @@ const OrgItem: React.FC = () => {
 	);
 	const itemText = orgItem?.ITEM;
 
+	// TODO: move most of this into redux
 	const sanitizeTagsAndMatchData = useCallback(
 		(allTagsData?: AllTagsRecv) => {
 			let allTags: Array<string> | string | undefined;

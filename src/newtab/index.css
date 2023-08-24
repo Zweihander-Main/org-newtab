@@ -1,6 +1,6 @@
 :root {
 	--color-bg: #35373b;
-	--color-item-bg-default: #484848;
+	--color-untagged-item-bg: #484848;
 	--color-item-shadow: black;
 	--color-loading-bar: #29d;
 	--color-options-menu-bg: hsl(0deg 0% 75%);
