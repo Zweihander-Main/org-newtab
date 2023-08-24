@@ -1,7 +1,23 @@
-.websocket-role {
-	font-size: 1rem;
+.panel {
+	width: min(50vw, 50rem);
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
 }
 
-.initial-state {
+.item {
 	font-size: 1rem;
+	text-align: left;
+	font-weight: var(--font-weight-light);
+}
+
+.name {
+	font-weight: var(--font-weight-standard);
+}
+
+.item pre {
+	background: white;
+	word-break: break-word;
+	width: fit-content;
+	padding: 1rem;
 }

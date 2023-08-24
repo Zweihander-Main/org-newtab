@@ -1,6 +1,7 @@
 declare const styles: {
-  readonly "websocket-role": string;
-  readonly "initial-state": string;
+  readonly "panel": string;
+  readonly "item": string;
+  readonly "name": string;
 };
 export = styles;
 

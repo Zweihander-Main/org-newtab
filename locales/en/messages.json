@@ -83,6 +83,10 @@
 		"message": "WebSocket Role",
 		"description": "Label for websocket role status"
 	},
+	"tagsData": {
+		"message": "Tags Data",
+		"description": "Label for tags data debug info"
+	},
 	"connectionStatusConnecting": {
 		"message": "Connecting",
 		"description": "Label for connecting websocket connection status"
