@@ -21,6 +21,36 @@ function pickTextColorBasedOnBgColor(bgColor: string) {
 	const L = 0.2126 * comps[0] + 0.7152 * comps[1] + 0.0722 * comps[2];
 	return L > 0.179 ? '#000000' : '#FFFFFF';
 }
+
+type ColorPickerProps = {
+	color: string;
+	onChange: (color: string) => void;
+	onReset: () => void;
+	ariaLabel: string;
+};
+
+const ColorPicker: React.FC<ColorPickerProps> = ({
+	color,
+	onChange,
+	onReset,
+	ariaLabel,
+}) => {
+	return (
+		<div className={styles.picker}>
+			<HexColorPicker color={color} onChange={onChange} />
+			<Button
+				small={true}
+				className={styles.reset}
+				styleType="reset"
+				onClick={onReset}
+				aria-label={ariaLabel}
+			>
+				{chrome.i18n.getMessage('reset')}
+			</Button>
+		</div>
+	);
+};
+
 const ThemingPanel: React.FC = () => {
 	const untaggedItemBG = useAppSelector(selectedUntaggedItemBGColor);
 	const dispatch = useAppDispatch();
@@ -36,10 +66,9 @@ const ThemingPanel: React.FC = () => {
 		dispatch(resetUntaggedItemBGColor());
 	}, [dispatch]);
 
-	const untaggedItemBGInputTextColor = useMemo(
-		() => pickTextColorBasedOnBgColor(untaggedItemBG),
-		[untaggedItemBG]
-	);
+	const untaggedItemBGInputStyle = useMemo(() => {
+		return { color: pickTextColorBasedOnBgColor(untaggedItemBG) };
+	}, [untaggedItemBG]);
 
 	return (
 		<div className={styles.panel}>
@@ -52,27 +81,14 @@ const ThemingPanel: React.FC = () => {
 				prefixed={true}
 				color={untaggedItemBG}
 				onChange={handleUntaggedUIItemBGColorChange}
-				style={{
-					color: untaggedItemBGInputTextColor,
-				}}
+				style={untaggedItemBGInputStyle}
 			/>
-			<div className={styles.picker}>
-				<HexColorPicker
-					color={untaggedItemBG}
-					onChange={handleUntaggedUIItemBGColorChange}
-				/>
-				<Button
-					small={true}
-					className={styles.reset}
-					styleType="reset"
-					onClick={handleUntaggedUIItemReset}
-					aria-label={chrome.i18n.getMessage(
-						'themingResetUntaggedItemBG'
-					)}
-				>
-					{chrome.i18n.getMessage('reset')}
-				</Button>
-			</div>
+			<ColorPicker
+				color={untaggedItemBG}
+				onChange={handleUntaggedUIItemBGColorChange}
+				onReset={handleUntaggedUIItemReset}
+				ariaLabel={chrome.i18n.getMessage('themingUntaggedItemBG')}
+			/>
 		</div>
 	);
 };
