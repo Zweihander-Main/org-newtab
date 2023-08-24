@@ -1,17 +1,19 @@
-.top {
+.top,
+.mid,
+.bottom {
 	display: flex;
 	flex-direction: column;
+	align-items: center;
+}
+
+.top {
 	justify-content: flex-start;
 }
 
 .mid {
-	display: flex;
-	flex-direction: column;
 	justify-content: center;
 }
 
 .bottom {
-	display: flex;
-	flex-direction: column;
 	justify-content: flex-end;
 }
