@@ -76,19 +76,22 @@ const ThemingPanel: React.FC = () => {
 				{chrome.i18n.getMessage('themingUntaggedItemBG')}
 				{':'}
 			</label>
-			<HexColorInput
-				id="input-untagged-item-bg"
-				prefixed={true}
-				color={untaggedItemBG}
-				onChange={handleUntaggedUIItemBGColorChange}
-				style={untaggedItemBGInputStyle}
-			/>
-			<ColorPicker
-				color={untaggedItemBG}
-				onChange={handleUntaggedUIItemBGColorChange}
-				onReset={handleUntaggedUIItemReset}
-				ariaLabel={chrome.i18n.getMessage('themingUntaggedItemBG')}
-			/>
+			<div className={styles['input-container']}>
+				<HexColorInput
+					className={styles.input}
+					id="input-untagged-item-bg"
+					prefixed={true}
+					color={untaggedItemBG}
+					onChange={handleUntaggedUIItemBGColorChange}
+					style={untaggedItemBGInputStyle}
+				/>
+				<ColorPicker
+					color={untaggedItemBG}
+					onChange={handleUntaggedUIItemBGColorChange}
+					onReset={handleUntaggedUIItemReset}
+					ariaLabel={chrome.i18n.getMessage('themingUntaggedItemBG')}
+				/>
+			</div>
 		</div>
 	);
 };

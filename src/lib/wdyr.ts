@@ -8,6 +8,7 @@ if (process.env.NODE_ENV === 'development') {
 		include: [/.*/],
 		exclude: [
 			/^Transition$/,
+			/* DnDKit */
 			/^DraggableWidget$/,
 			/^DndContext$/,
 			/^LiveRegion$/,
@@ -17,6 +18,10 @@ if (process.env.NODE_ENV === 'development') {
 			/^NullifiedContextProvider$/,
 			/^HiddenText$/,
 			/^Unknown$/,
+			/** React-colorful */
+			/^U$/,
+			/^p$/,
+			/^ke$/,
 		],
 		collapseGroups: true,
 		diffNameColor: 'darkturquoise',

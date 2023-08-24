@@ -1,6 +1,10 @@
 /* stylelint-disable selector-class-pattern */
 .panel {
-	width: min(50vw, 50rem);
+	width: min(40vw, 40rem);
+	display: grid;
+	grid-template: 1fr / 1fr 1fr;
+	align-items: center;
+	grid-gap: 2rem;
 }
 
 .label {
@@ -9,20 +13,102 @@
 	letter-spacing: 0.29em;
 	word-spacing: 0.29em;
 	text-transform: uppercase;
+	text-align: right;
 }
 
-:global(#input-untagged-item-bg) {
+.input {
 	background: var(--color-untagged-item-bg);
-	font-size: 1.5rem;
+	font-size: 1.7rem;
+	font-family: var(--font-mono);
+	font-weight: var(--font-weight-light);
+	width: 100%;
+	border: 2px solid var(--color-item-shadow);
+	box-sizing: border-box;
+	text-align: center;
+	box-shadow: 4px 4px 0 0 var(--color-options-form-input-box-shadow) inset;
+	height: 3rem;
+	padding: 0.5rem 2.2rem 0.5rem 0.5rem;
+	transition: all 0.1s ease-in;
+	position: relative;
+}
+
+.input:focus,
+.input:active,
+.input:has(+ .picker:active),
+.input:has(+ .picker:focus),
+.input:has(+ .picker:hover) {
+	outline: none;
+	box-shadow: 4px 4px 0 0 var(--color-item-shadow);
+}
+
+.input-container {
+	width: 100%;
+	position: relative;
+	transition: all 0.1s ease-in;
+}
+
+.input-container:has(.input:focus) .input,
+.input-container:has(.input:active) .input,
+.input-container:has(.picker:active) .input,
+.input-container:has(.picker:focus) .input,
+.input-container:has(.picker:hover) .input {
+	transform: translate(-0.1rem, -0.1rem);
+}
+
+.input + .picker {
+	visibility: hidden;
+	opacity: 0;
+}
+
+.input:focus + .picker,
+.picker:active,
+.picker:focus,
+.picker:hover {
+	visibility: visible;
+	opacity: 1;
+}
+
+.picker::before {
+	content: '';
+	position: absolute;
+	height: 0;
+	width: 0;
+	border-top: 1rem solid transparent;
+	border-bottom: 1rem solid black;
+	border-right: 1rem solid transparent;
+	border-left: 1rem solid transparent;
+	top: -2rem;
+	left: calc(50% - 1rem);
+	border-style: solid;
+}
+
+.picker::after {
+	content: '';
+	position: absolute;
+	height: 0;
+	width: 0;
+	border-top: 0.9rem solid transparent;
+	border-bottom: 0.9rem solid white;
+	border-right: 0.9rem solid transparent;
+	border-left: 0.9rem solid transparent;
+	top: -1.75rem;
+	left: calc(50% - 0.9rem);
+	border-style: solid;
 }
 
 .picker {
-	width: 20rem;
-	height: 75%;
+	width: 100%;
+	height: auto;
+	position: absolute;
 	border: 2px solid var(--color-item-shadow);
 	box-shadow: 0.4rem 0.4rem 0 var(--color-item-shadow);
 	display: grid;
-	grid-template: 4fr 1fr / 1fr;
+	grid-template: 3fr 1fr / 1fr;
+	background: white;
+	box-sizing: border-box;
+	right: 0;
+	top: 3.9rem;
+	transition: all 0.2s ease;
 }
 
 .picker :global(.react-colorful) {
