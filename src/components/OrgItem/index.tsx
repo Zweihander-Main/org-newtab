@@ -58,6 +58,8 @@ const OrgItem: React.FC = () => {
 		if (foundTag) {
 			const tagColor = tagsData?.[foundTag];
 			tagColor && setForegroundColor(tagColor);
+		} else {
+			setForegroundColor(undefined);
 		}
 	}, [sanitizeTagsAndMatchData, orgItem, tagsData]);
 
