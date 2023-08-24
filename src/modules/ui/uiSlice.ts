@@ -40,6 +40,9 @@ export const uiSlice = createSlice({
 		setUntaggedItemBGColor: (state, action: PayloadAction<string>) => {
 			state.untaggedItemBGColor = action.payload;
 		},
+		resetUntaggedItemBGColor: (state) => {
+			state.untaggedItemBGColor = initialState.untaggedItemBGColor;
+		},
 	},
 });
 
@@ -50,6 +53,7 @@ export const {
 	selectThemingOptCat,
 	selectDebugOptCat,
 	setUntaggedItemBGColor,
+	resetUntaggedItemBGColor,
 } = uiSlice.actions;
 
 export const selectedOptionCategory = (state: RootState) =>

@@ -240,7 +240,7 @@ const LayoutPanel: React.FC = () => {
 						onClick={handleReset}
 						aria-label={chrome.i18n.getMessage('layoutResetLabel')}
 					>
-						{chrome.i18n.getMessage('layoutReset')}
+						{chrome.i18n.getMessage('reset')}
 					</Button>
 				</div>
 				<WidgetOverlay

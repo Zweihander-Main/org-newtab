@@ -123,9 +123,9 @@
 		"message": "Dropzone for area",
 		"description": "Label for drop zone for widgets"
 	},
-	"layoutReset": {
+	"reset": {
 		"message": "Reset",
-		"description": "Label for reset layout button"
+		"description": "Label for reset buttons (in layout for example)"
 	},
 	"layoutResetLabel": {
 		"message": "Reset layout to default",
@@ -138,5 +138,9 @@
 	"layoutInactive": {
 		"message": "Inactive",
 		"description": "Label for inactive drop zone"
+	},
+	"themingResetUntaggedItemBG": {
+		"message": "Reset untagged item background color",
+		"description": "Label for reset untagged item background color button aria-label"
 	}
 }
