@@ -1,4 +1,6 @@
 .button {
+	--scale: 1;
+
 	padding: 0.85rem 3rem;
 	cursor: pointer;
 	border: 2px solid var(--color-item-shadow);
@@ -8,17 +10,18 @@
 	font-weight: var(--font-weight-standard);
 	text-align: center;
 	transition: all 0.1s ease-in;
+	transform: scale(var(--scale));
 }
 
 .button:hover {
-	transform: translate(-0.05rem, -0.05rem);
+	transform: translate(-0.05rem, -0.05rem) scale(var(--scale));
 	box-shadow: 0.3em 0.3em;
 	background: white;
 	padding: 0.87rem 3.1rem;
 }
 
 .button:active {
-	transform: translate(0.1em, 0.1em);
+	transform: translate(0.1em, 0.1em) scale(var(--scale));
 	box-shadow: 0.15em 0.15em;
 	background: white;
 	transition: all 0.03s ease-in;
@@ -36,4 +39,8 @@
 
 .reset:hover {
 	color: black;
+}
+
+.small {
+	--scale: 0.75;
 }

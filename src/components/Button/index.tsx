@@ -3,10 +3,12 @@ import * as styles from './style.module.css';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 	styleType: 'primary' | 'reset';
+	small?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({
 	styleType,
+	small,
 	children,
 	className,
 	...props
@@ -17,6 +19,7 @@ const Button: React.FC<ButtonProps> = ({
 			className={classNames(className, styles.button, {
 				[styles.primary]: styleType === 'primary',
 				[styles.reset]: styleType === 'reset',
+				[styles.small]: small,
 			})}
 		>
 			{children}

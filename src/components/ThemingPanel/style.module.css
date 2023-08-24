@@ -11,11 +11,18 @@
 	text-transform: uppercase;
 }
 
+:global(#input-untagged-item-bg) {
+	background: var(--color-untagged-item-bg);
+	font-size: 1.5rem;
+}
+
 .picker {
-	width: 15rem;
-	height: 15rem;
+	width: 20rem;
+	height: 75%;
 	border: 2px solid var(--color-item-shadow);
-	box-shadow: 5px 5px 0 var(--color-item-shadow);
+	box-shadow: 0.4rem 0.4rem 0 var(--color-item-shadow);
+	display: grid;
+	grid-template: 4fr 1fr / 1fr;
 }
 
 .picker :global(.react-colorful) {
@@ -52,4 +59,13 @@
 .picker :global(.react-colorful__hue-pointer),
 .picker :global(.react-colorful__alpha-pointer) {
 	width: 1rem;
+}
+
+.reset {
+	margin: 1rem;
+}
+
+.reset:hover,
+.reset:active {
+	margin: 0.98rem;
 }
