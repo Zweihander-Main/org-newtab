@@ -2,6 +2,8 @@
 
 > 🗃️ Supercharge your browser's New Tab with Org-Agenda
 
+Org-NewTab is a Chrome extension which talks to your Emacs org-agenda and sets the task you should be working on as your new tab page.
+
 ## Dev Notes
 
 ### Technologies used:
