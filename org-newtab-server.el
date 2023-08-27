@@ -70,9 +70,7 @@ This serves the web-build and API over HTTP."
 
 (defun org-newtab--debug-mode ()
   "Turn on every debug setting."
-  (if org-newtab--debug-mode
-      (setq org-newtab--debug-mode nil)
-    (setq org-newtab--debug-mode t))
+  (setq org-newtab--debug-mode (not org-newtab--debug-mode))
   (setq debug-on-error org-newtab--debug-mode
         websocket-callback-debug-on-error org-newtab--debug-mode
         async-debug org-newtab--debug-mode))
