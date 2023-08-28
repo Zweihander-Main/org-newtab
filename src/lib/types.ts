@@ -78,6 +78,16 @@ export type EmacsItemMsg = {
 	data: {
 		ITEM: string;
 		ALLTAGS?: AllTagsRecv;
+		CATEGORY?: string;
+		LAST_REPEAT?: string;
+		EFFORT?: string;
+		TIMESTAMP_IA?: string;
+		SCHEDULED?: string;
+		DEADLINE?: string;
+		FILE?: string;
+		PRIORITY?: string;
+		TODO?: string;
+		CLOCKED_MINUTES?: number;
 	};
 	resid?: number;
 };
