@@ -67,7 +67,9 @@ Add CLOKED minutes if CLOCKED is non-nil."
     (when clocked
       (setq props
             (append props
-                    `(("CLOCKED_MINUTES" . ,(org-clock-get-clocked-time))))))
+                    `(("CLOCKED_MINUTES" . ,(org-clock-get-clocked-time))
+                      ("CLOCK_START_TIMESTAMP" .
+                       ,(format-time-string "%s" org-clock-start-time))))))
     props))
 
 (defun org-newtab--string-color-to-hex (string)
