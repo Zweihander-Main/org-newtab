@@ -87,8 +87,9 @@ export type EmacsItemMsg = {
 		FILE?: string;
 		PRIORITY?: string;
 		TODO?: string;
-		CLOCKED_MINUTES?: number;
-		CLOCK_START_TIMESTAMP?: string;
+		CURRENTLY_CLOCKED_MINUTES?: number;
+		PREVIOUSLY_CLOCKED_MINUTES?: number;
+		CURRENT_CLOCK_START_TIMESTAMP?: string;
 	};
 	resid?: number;
 };

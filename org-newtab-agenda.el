@@ -67,8 +67,9 @@ Add CLOKED minutes if CLOCKED is non-nil."
     (when clocked
       (setq props
             (append props
-                    `(("CLOCKED_MINUTES" . ,(org-clock-get-clocked-time))
-                      ("CLOCK_START_TIMESTAMP" .
+                    `(("CURRENTLY_CLOCKED_MINUTES" . ,(org-clock-get-clocked-time))
+                      ("PREVIOUSLY_CLOCKED_MINUTES" . ,(or org-clock-total-time 0))
+                      ("CURRENT_CLOCK_START_TIMESTAMP" .
                        ,(format-time-string "%s" org-clock-start-time))))))
     props))
 
