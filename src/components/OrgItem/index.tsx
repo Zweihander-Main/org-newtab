@@ -7,24 +7,27 @@ import {
 	selectedIsWaitingForResponse,
 	selectedReadyState,
 } from 'modules/ws/wsSlice';
-import { selectedOrgItem, selectedTagsData } from 'modules/emacs/emacsSlice';
+import {
+	selectedItemText,
+	selectedOrgItem,
+	selectedTagsData,
+} from 'modules/emacs/emacsSlice';
 
 //TODO: flip out image with actual transparency
 //TODO: pull in other data from org item
 //TODO: better responsive design
-//TODO: layout and theming options
 
 const OrgItem: React.FC = () => {
 	const tagsData = useAppSelector(selectedTagsData);
 	const orgItem = useAppSelector(selectedOrgItem);
+	const itemText = useAppSelector(selectedItemText);
 	const readyState = useAppSelector(selectedReadyState);
 	const isWaitingForResponse = useAppSelector(selectedIsWaitingForResponse);
 	const [foregroundColor, setForegroundColor] = useState<string | undefined>(
 		undefined
 	);
-	const itemText = orgItem?.ITEM;
 
-	// TODO: move most of this into redux
+	// NEXT: move most of this into redux
 	const sanitizeTagsAndMatchData = useCallback(
 		(allTagsData?: AllTagsRecv) => {
 			let allTags: Array<string> | string | undefined;
