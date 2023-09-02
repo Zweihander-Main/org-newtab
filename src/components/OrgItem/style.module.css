@@ -37,3 +37,7 @@
 	opacity: 0.75;
 	filter: contrast(0.75);
 }
+
+.clock {
+	font-weight: var(--font-weight-bold);
+}

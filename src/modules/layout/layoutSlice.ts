@@ -53,8 +53,6 @@ export const layoutSlice = createSlice({
 	},
 });
 
-// NEXT: move the name and logic for WidgetName here
-
 export type LayoutSliceActions = keyof typeof layoutSlice.actions;
 
 export const {

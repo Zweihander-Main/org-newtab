@@ -6,7 +6,13 @@ import {
 	selectedIsWaitingForResponse,
 	selectedReadyState,
 } from 'modules/ws/wsSlice';
-import { selectedItemText, selectedTagColor } from 'modules/emacs/emacsSlice';
+import {
+	selectedItemClockStartTimeMS,
+	selectedItemPreviouslyClockedMinutes,
+	selectedItemText,
+	selectedTagColor,
+} from 'modules/emacs/emacsSlice';
+import { useCallback, useEffect, useState } from 'react';
 
 //TODO: flip out image with actual transparency
 //TODO: pull in other data from org item
@@ -17,6 +23,38 @@ const OrgItem: React.FC = () => {
 	const tagColor = useAppSelector(selectedTagColor);
 	const readyState = useAppSelector(selectedReadyState);
 	const isWaitingForResponse = useAppSelector(selectedIsWaitingForResponse);
+	const itemClockStartTime = useAppSelector(selectedItemClockStartTimeMS);
+	const itemPreviouslyClockedMinutes = useAppSelector(
+		selectedItemPreviouslyClockedMinutes
+	);
+
+	const isClockedIn = itemClockStartTime !== null;
+	const [minutesClockedIn, setMinutesClockedIn] = useState(
+		itemPreviouslyClockedMinutes
+	);
+	const minutesToTimeString = useCallback((minutes: number): string => {
+		const hours = Math.floor(minutes / 60);
+		const remainingMinutes = minutes % 60;
+
+		const formattedHours = hours.toString();
+		const formattedMinutes = remainingMinutes.toString().padStart(2, '0');
+
+		return `${formattedHours}:${formattedMinutes}`;
+	}, []);
+
+	useEffect(() => {
+		let interval: NodeJS.Timeout;
+		if (isClockedIn) {
+			interval = setInterval(() => {
+				const now = new Date().getTime();
+				const start = new Date(itemClockStartTime).getTime();
+				const diff = Math.floor((now - start) / 1000 / 60);
+				const total = diff + itemPreviouslyClockedMinutes;
+				setMinutesClockedIn(total);
+			}, 5000);
+		}
+		return () => clearInterval(interval);
+	}, [isClockedIn, itemClockStartTime, itemPreviouslyClockedMinutes]);
 
 	const classString = `${styles.item}${
 		readyState !== WSReadyState.OPEN || isWaitingForResponse
@@ -33,6 +71,11 @@ const OrgItem: React.FC = () => {
 					data-testid="item-text"
 				>
 					{itemText}
+					{isClockedIn && (
+						<span className={styles.clock}>
+							{minutesToTimeString(minutesClockedIn)}
+						</span>
+					)}
 				</h1>
 			) : (
 				<img src={logo} className={styles.logo} alt="logo" />

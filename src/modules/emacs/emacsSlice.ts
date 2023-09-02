@@ -13,12 +13,16 @@ type MatchQuery = string | undefined;
 type TagFaces = { [key: string]: string | null };
 type ItemText = string | null;
 type ItemTags = Array<string>;
+type ItemClockStartTimeMS = number | null;
+type ItemPreviouslyClockedMinutes = number;
 
 export interface EmacsState {
 	matchQuery: MatchQuery;
 	tagFaces: TagFaces;
 	itemText: ItemText;
 	itemTags: ItemTags;
+	itemClockStartTimeMS: ItemClockStartTimeMS;
+	itemPreviouslyClockedMinutes: ItemPreviouslyClockedMinutes;
 }
 
 export const name = 'emacs';
@@ -29,6 +33,8 @@ const initialState: EmacsState = {
 	tagFaces: {},
 	itemText: null,
 	itemTags: [],
+	itemClockStartTimeMS: null,
+	itemPreviouslyClockedMinutes: 0,
 };
 
 const extractTagsFromItemAllTags = (allTagsData?: AllTagsRecv): ItemTags => {
@@ -64,12 +70,21 @@ const emacsSlice = createSlice({
 		_recvMsgFromEmacs: (state, action: PayloadAction<EmacsRecvMsg>) => {
 			const { payload } = action;
 			if (payload === null) return;
+			const itemClockStartTimeSec =
+				payload?.data?.CURRENT_CLOCK_START_TIMESTAMP;
 			switch (payload.type) {
 				case 'ITEM':
 					state.itemText = payload?.data?.ITEM || null;
 					state.itemTags = extractTagsFromItemAllTags(
 						payload?.data?.ALLTAGS
 					);
+					state.itemClockStartTimeMS = itemClockStartTimeSec
+						? new Date(
+								parseInt(itemClockStartTimeSec, 10) * 1000
+						  ).getTime()
+						: null;
+					state.itemPreviouslyClockedMinutes =
+						payload?.data?.PREVIOUSLY_CLOCKED_MINUTES || 0;
 					break;
 				case 'TAGS':
 					state.tagFaces = payload?.data || {};
@@ -81,6 +96,8 @@ const emacsSlice = createSlice({
 		},
 	},
 });
+
+// TODO: previously clocked minutes not accurate if item clock start time not sent
 
 export const selectedMatchQuery = (state: RootState) => state.emacs.matchQuery;
 export const selectedTagsData = (state: RootState) => state.emacs.tagFaces;
@@ -95,6 +112,10 @@ export const selectedTagColor = createSelector(
 		return foundTag ? tagsData[foundTag] : null;
 	}
 );
+export const selectedItemClockStartTimeMS = (state: RootState) =>
+	state.emacs.itemClockStartTimeMS;
+export const selectedItemPreviouslyClockedMinutes = (state: RootState) =>
+	state.emacs.itemPreviouslyClockedMinutes;
 
 export const {
 	setMatchQueryTo,
