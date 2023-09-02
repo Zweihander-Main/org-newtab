@@ -7,23 +7,16 @@ import {
 } from '@reduxjs/toolkit';
 import { listenerMiddleware } from 'app/middleware';
 import { RootState } from 'app/store';
-import {
-	EmacsSendMsg,
-	type EmacsItemMsg,
-	EmacsRecvMsg,
-	AllTagsRecv,
-} from 'lib/types';
+import { EmacsSendMsg, EmacsRecvMsg, AllTagsRecv } from 'lib/types';
 
 type MatchQuery = string | undefined;
 type Tags = { [key: string]: string | null };
-type OrgItem = EmacsItemMsg['data'] | null;
 type ItemText = string | null;
 type ItemTags = Array<string>;
 
 export interface EmacsState {
 	matchQuery: MatchQuery;
 	tagsData: Tags;
-	orgItem: OrgItem;
 	itemText: ItemText;
 	itemTags: ItemTags;
 }
@@ -34,7 +27,6 @@ export const persistenceBlacklist: Array<keyof EmacsState> = [];
 const initialState: EmacsState = {
 	matchQuery: 'TODO="TODO"',
 	tagsData: {},
-	orgItem: null,
 	itemText: null,
 	itemTags: [],
 };
@@ -67,9 +59,6 @@ const emacsSlice = createSlice({
 		setTagsDataTo: (state, action: PayloadAction<Tags>) => {
 			state.tagsData = action.payload;
 		},
-		setOrgItemTo: (state, action: PayloadAction<OrgItem>) => {
-			state.orgItem = action.payload;
-		},
 		getItem: () => {},
 		_sendMsgToEmacs: (_state, _action: PayloadAction<EmacsSendMsg>) => {},
 		_recvMsgFromEmacs: (state, action: PayloadAction<EmacsRecvMsg>) => {
@@ -77,7 +66,6 @@ const emacsSlice = createSlice({
 			if (payload === null) return;
 			switch (payload.type) {
 				case 'ITEM':
-					state.orgItem = payload?.data || null;
 					state.itemText = payload?.data?.ITEM || null;
 					state.itemTags = extractTagsFromItemAllTags(
 						payload?.data?.ALLTAGS
@@ -96,7 +84,6 @@ const emacsSlice = createSlice({
 
 export const selectedMatchQuery = (state: RootState) => state.emacs.matchQuery;
 export const selectedTagsData = (state: RootState) => state.emacs.tagsData;
-export const selectedOrgItem = (state: RootState) => state.emacs.orgItem;
 export const selectedItemText = (state: RootState) => state.emacs.itemText;
 export const selectedItemTags = (state: RootState) => state.emacs.itemTags;
 export const selectedTagColor = createSelector(
@@ -112,7 +99,6 @@ export const selectedTagColor = createSelector(
 export const {
 	setMatchQueryTo,
 	setTagsDataTo,
-	setOrgItemTo,
 	getItem,
 	_sendMsgToEmacs,
 	_recvMsgFromEmacs,
