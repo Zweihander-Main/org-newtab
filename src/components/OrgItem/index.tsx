@@ -7,7 +7,7 @@ import {
 	selectedReadyState,
 } from 'modules/ws/wsSlice';
 import {
-	selectedItemClockStartTimeMS,
+	selectedItemClockStartTime,
 	selectedItemEffortMinutes,
 	selectedItemPreviouslyClockedMinutes,
 	selectedItemText,
@@ -24,7 +24,7 @@ const OrgItem: React.FC = () => {
 	const tagColor = useAppSelector(selectedTagColor);
 	const readyState = useAppSelector(selectedReadyState);
 	const isWaitingForResponse = useAppSelector(selectedIsWaitingForResponse);
-	const itemClockStartTime = useAppSelector(selectedItemClockStartTimeMS);
+	const itemClockStartTime = useAppSelector(selectedItemClockStartTime);
 	const itemPreviouslyClockedMinutes = useAppSelector(
 		selectedItemPreviouslyClockedMinutes
 	);
@@ -61,6 +61,7 @@ const OrgItem: React.FC = () => {
 		return () => clearInterval(interval);
 	}, [isClockedIn, calculateMinutesClockedIn]);
 	// TODO: mark overtime
+	// TODO: Own component
 
 	const classString = `${styles.item}${
 		readyState !== WSReadyState.OPEN || isWaitingForResponse

@@ -13,7 +13,7 @@ type MatchQuery = string | undefined;
 type TagFaces = { [key: string]: string | null };
 type ItemText = string | null;
 type ItemTags = Array<string>;
-type ItemClockStartTimeMS = number | null;
+type ItemClockStartTime = number | null;
 type ItemPreviouslyClockedMinutes = number;
 type ItemEffortMinutes = number | null;
 
@@ -22,14 +22,14 @@ export interface EmacsState {
 	tagFaces: TagFaces;
 	itemText: ItemText;
 	itemTags: ItemTags;
-	itemClockStartTimeMS: ItemClockStartTimeMS;
+	itemClockStartTime: ItemClockStartTime;
 	itemPreviouslyClockedMinutes: ItemPreviouslyClockedMinutes;
 	itemEffortMinutes: ItemEffortMinutes;
 }
 
 export const name = 'emacs';
 export const persistenceBlacklist: Array<keyof EmacsState> = [
-	'itemClockStartTimeMS',
+	'itemClockStartTime',
 ];
 
 const initialState: EmacsState = {
@@ -37,7 +37,7 @@ const initialState: EmacsState = {
 	tagFaces: {},
 	itemText: null,
 	itemTags: [],
-	itemClockStartTimeMS: null,
+	itemClockStartTime: null,
 	itemPreviouslyClockedMinutes: 0,
 	itemEffortMinutes: null,
 };
@@ -81,7 +81,7 @@ const emacsSlice = createSlice({
 					state.itemTags = extractTagsFromItemAllTags(
 						payload?.data?.ALLTAGS
 					);
-					state.itemClockStartTimeMS =
+					state.itemClockStartTime =
 						payload?.data?.CURRENT_CLOCK_START_TIMESTAMP || null;
 					state.itemPreviouslyClockedMinutes =
 						payload?.data?.PREVIOUSLY_CLOCKED_MINUTES || 0;
@@ -114,8 +114,8 @@ export const selectedTagColor = createSelector(
 		return foundTag ? tagsData[foundTag] : null;
 	}
 );
-export const selectedItemClockStartTimeMS = (state: RootState) =>
-	state.emacs.itemClockStartTimeMS;
+export const selectedItemClockStartTime = (state: RootState) =>
+	state.emacs.itemClockStartTime;
 export const selectedItemPreviouslyClockedMinutes = (state: RootState) =>
 	state.emacs.itemPreviouslyClockedMinutes;
 export const selectedItemEffortMinutes = (state: RootState) =>

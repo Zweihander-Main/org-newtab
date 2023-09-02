@@ -23,8 +23,10 @@ Org-NewTab is a Chrome extension which talks to your Emacs org-agenda and sets t
 -   [x] Browser storage
 -   [x] Persistent default match query
 -   [x] Layout editor
+-   [x] Display clock status in browser
 -   [ ] Sortable layout elements
--   [ ] Display priority and clock status in browser
+-   [ ] Display priority
+-   [ ] Display schedule/deadline info
 -   [ ] Mark items as done from browser
 -   [ ] Clock in and out from browser
 -   [ ] Match query builder
