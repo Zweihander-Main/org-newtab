@@ -8,6 +8,7 @@ import {
 } from 'modules/ws/wsSlice';
 import {
 	selectedItemClockStartTimeMS,
+	selectedItemEffortMinutes,
 	selectedItemPreviouslyClockedMinutes,
 	selectedItemText,
 	selectedTagColor,
@@ -27,6 +28,7 @@ const OrgItem: React.FC = () => {
 	const itemPreviouslyClockedMinutes = useAppSelector(
 		selectedItemPreviouslyClockedMinutes
 	);
+	const itemEffortMinutes = useAppSelector(selectedItemEffortMinutes);
 
 	const isClockedIn = itemClockStartTime !== null;
 	const [minutesClockedIn, setMinutesClockedIn] = useState(
@@ -42,19 +44,23 @@ const OrgItem: React.FC = () => {
 		return `${formattedHours}:${formattedMinutes}`;
 	}, []);
 
+	const calculateMinutesClockedIn = useCallback(() => {
+		const now = new Date().getTime();
+		const start = new Date(itemClockStartTime as number).getTime();
+		const diff = Math.floor((now - start) / 1000 / 60);
+		const total = diff + itemPreviouslyClockedMinutes;
+		setMinutesClockedIn(total);
+	}, [itemClockStartTime, itemPreviouslyClockedMinutes]);
+
 	useEffect(() => {
 		let interval: NodeJS.Timeout;
 		if (isClockedIn) {
-			interval = setInterval(() => {
-				const now = new Date().getTime();
-				const start = new Date(itemClockStartTime).getTime();
-				const diff = Math.floor((now - start) / 1000 / 60);
-				const total = diff + itemPreviouslyClockedMinutes;
-				setMinutesClockedIn(total);
-			}, 5000);
+			calculateMinutesClockedIn();
+			interval = setInterval(calculateMinutesClockedIn, 5000);
 		}
 		return () => clearInterval(interval);
-	}, [isClockedIn, itemClockStartTime, itemPreviouslyClockedMinutes]);
+	}, [isClockedIn, calculateMinutesClockedIn]);
+	// TODO: mark overtime
 
 	const classString = `${styles.item}${
 		readyState !== WSReadyState.OPEN || isWaitingForResponse
@@ -74,6 +80,12 @@ const OrgItem: React.FC = () => {
 					{isClockedIn && (
 						<span className={styles.clock}>
 							{minutesToTimeString(minutesClockedIn)}
+							{itemEffortMinutes && (
+								<>
+									{' / '}
+									{minutesToTimeString(itemEffortMinutes)}
+								</>
+							)}
 						</span>
 					)}
 				</h1>

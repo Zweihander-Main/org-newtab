@@ -15,6 +15,7 @@ type ItemText = string | null;
 type ItemTags = Array<string>;
 type ItemClockStartTimeMS = number | null;
 type ItemPreviouslyClockedMinutes = number;
+type ItemEffortMinutes = number | null;
 
 export interface EmacsState {
 	matchQuery: MatchQuery;
@@ -23,10 +24,13 @@ export interface EmacsState {
 	itemTags: ItemTags;
 	itemClockStartTimeMS: ItemClockStartTimeMS;
 	itemPreviouslyClockedMinutes: ItemPreviouslyClockedMinutes;
+	itemEffortMinutes: ItemEffortMinutes;
 }
 
 export const name = 'emacs';
-export const persistenceBlacklist: Array<keyof EmacsState> = [];
+export const persistenceBlacklist: Array<keyof EmacsState> = [
+	'itemClockStartTimeMS',
+];
 
 const initialState: EmacsState = {
 	matchQuery: 'TODO="TODO"',
@@ -35,6 +39,7 @@ const initialState: EmacsState = {
 	itemTags: [],
 	itemClockStartTimeMS: null,
 	itemPreviouslyClockedMinutes: 0,
+	itemEffortMinutes: null,
 };
 
 const extractTagsFromItemAllTags = (allTagsData?: AllTagsRecv): ItemTags => {
@@ -70,21 +75,18 @@ const emacsSlice = createSlice({
 		_recvMsgFromEmacs: (state, action: PayloadAction<EmacsRecvMsg>) => {
 			const { payload } = action;
 			if (payload === null) return;
-			const itemClockStartTimeSec =
-				payload?.data?.CURRENT_CLOCK_START_TIMESTAMP;
 			switch (payload.type) {
 				case 'ITEM':
 					state.itemText = payload?.data?.ITEM || null;
 					state.itemTags = extractTagsFromItemAllTags(
 						payload?.data?.ALLTAGS
 					);
-					state.itemClockStartTimeMS = itemClockStartTimeSec
-						? new Date(
-								parseInt(itemClockStartTimeSec, 10) * 1000
-						  ).getTime()
-						: null;
+					state.itemClockStartTimeMS =
+						payload?.data?.CURRENT_CLOCK_START_TIMESTAMP || null;
 					state.itemPreviouslyClockedMinutes =
 						payload?.data?.PREVIOUSLY_CLOCKED_MINUTES || 0;
+					state.itemEffortMinutes =
+						payload?.data?.EFFORT_MINUTES || null;
 					break;
 				case 'TAGS':
 					state.tagFaces = payload?.data || {};
@@ -116,6 +118,8 @@ export const selectedItemClockStartTimeMS = (state: RootState) =>
 	state.emacs.itemClockStartTimeMS;
 export const selectedItemPreviouslyClockedMinutes = (state: RootState) =>
 	state.emacs.itemPreviouslyClockedMinutes;
+export const selectedItemEffortMinutes = (state: RootState) =>
+	state.emacs.itemEffortMinutes;
 
 export const {
 	setMatchQueryTo,

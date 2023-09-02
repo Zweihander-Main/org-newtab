@@ -40,4 +40,6 @@
 
 .clock {
 	font-weight: var(--font-weight-bold);
+	font-size: 1rem;
+	display: block;
 }

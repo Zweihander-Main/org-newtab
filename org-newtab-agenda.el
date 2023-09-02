@@ -67,10 +67,13 @@ Add CLOKED minutes if CLOCKED is non-nil."
     (when clocked
       (setq props
             (append props
-                    `(("CURRENTLY_CLOCKED_MINUTES" . ,(org-clock-get-clocked-time))
-                      ("PREVIOUSLY_CLOCKED_MINUTES" . ,(or org-clock-total-time 0))
+                    `(("EFFORT_MINUTES" .
+                       ,(org-duration-to-minutes
+                         (org-entry-get (point) org-effort-property)))
+                      ("PREVIOUSLY_CLOCKED_MINUTES" .
+                       ,(or org-clock-total-time 0))
                       ("CURRENT_CLOCK_START_TIMESTAMP" .
-                       ,(format-time-string "%s" org-clock-start-time))))))
+                       ,(* (time-convert org-clock-start-time 'integer) 1000))))))
     props))
 
 (defun org-newtab--string-color-to-hex (string)
