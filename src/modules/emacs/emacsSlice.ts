@@ -1,19 +1,31 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { PayloadAction, createSlice, isAnyOf } from '@reduxjs/toolkit';
+import {
+	PayloadAction,
+	createSelector,
+	createSlice,
+	isAnyOf,
+} from '@reduxjs/toolkit';
 import { listenerMiddleware } from 'app/middleware';
 import { RootState } from 'app/store';
-import { EmacsSendMsg, type EmacsItemMsg, EmacsRecvMsg } from 'lib/types';
+import {
+	EmacsSendMsg,
+	type EmacsItemMsg,
+	EmacsRecvMsg,
+	AllTagsRecv,
+} from 'lib/types';
 
 type MatchQuery = string | undefined;
 type Tags = { [key: string]: string | null };
 type OrgItem = EmacsItemMsg['data'] | null;
 type ItemText = string | null;
+type ItemTags = Array<string>;
 
 export interface EmacsState {
 	matchQuery: MatchQuery;
 	tagsData: Tags;
 	orgItem: OrgItem;
 	itemText: ItemText;
+	itemTags: ItemTags;
 }
 
 export const name = 'emacs';
@@ -24,6 +36,25 @@ const initialState: EmacsState = {
 	tagsData: {},
 	orgItem: null,
 	itemText: null,
+	itemTags: [],
+};
+
+const extractTagsFromItemAllTags = (allTagsData?: AllTagsRecv): ItemTags => {
+	let allTags: Array<string> | string | undefined;
+	if (Array.isArray(allTagsData)) {
+		allTags = [];
+		allTagsData
+			.filter(
+				(tag): tag is string => typeof tag === 'string' && tag !== ''
+			)
+			.forEach((tag) => {
+				const splitTags = tag.split(':').filter((tag) => tag !== '');
+				(allTags as Array<string>).push(...splitTags);
+			});
+	} else {
+		allTags = allTagsData?.split(':').filter((tag) => tag !== '');
+	}
+	return allTags || [];
 };
 
 const emacsSlice = createSlice({
@@ -48,6 +79,9 @@ const emacsSlice = createSlice({
 				case 'ITEM':
 					state.orgItem = payload?.data || null;
 					state.itemText = payload?.data?.ITEM || null;
+					state.itemTags = extractTagsFromItemAllTags(
+						payload?.data?.ALLTAGS
+					);
 					break;
 				case 'TAGS':
 					state.tagsData = payload?.data || {};
@@ -64,6 +98,16 @@ export const selectedMatchQuery = (state: RootState) => state.emacs.matchQuery;
 export const selectedTagsData = (state: RootState) => state.emacs.tagsData;
 export const selectedOrgItem = (state: RootState) => state.emacs.orgItem;
 export const selectedItemText = (state: RootState) => state.emacs.itemText;
+export const selectedItemTags = (state: RootState) => state.emacs.itemTags;
+export const selectedTagColor = createSelector(
+	[selectedItemTags, selectedTagsData],
+	(itemTags, tagsData) => {
+		const foundTag = itemTags
+			?.map((tag) => tag.replace(/^:(.*):$/i, '$1'))
+			?.find((tag) => Object.keys(tagsData).includes(tag));
+		return foundTag ? tagsData[foundTag] : null;
+	}
+);
 
 export const {
 	setMatchQueryTo,

@@ -1,70 +1,22 @@
-import { useCallback, useEffect, useState } from 'react';
 import * as styles from './style.module.css';
-import { WSReadyState, type AllTagsRecv } from '../../lib/types';
+import { WSReadyState } from '../../lib/types';
 import logo from 'data-base64:~assets/icon-1024x1024.png';
 import { useAppSelector } from '../../app/hooks';
 import {
 	selectedIsWaitingForResponse,
 	selectedReadyState,
 } from 'modules/ws/wsSlice';
-import {
-	selectedItemText,
-	selectedOrgItem,
-	selectedTagsData,
-} from 'modules/emacs/emacsSlice';
+import { selectedItemText, selectedTagColor } from 'modules/emacs/emacsSlice';
 
 //TODO: flip out image with actual transparency
 //TODO: pull in other data from org item
 //TODO: better responsive design
 
 const OrgItem: React.FC = () => {
-	const tagsData = useAppSelector(selectedTagsData);
-	const orgItem = useAppSelector(selectedOrgItem);
 	const itemText = useAppSelector(selectedItemText);
+	const tagColor = useAppSelector(selectedTagColor);
 	const readyState = useAppSelector(selectedReadyState);
 	const isWaitingForResponse = useAppSelector(selectedIsWaitingForResponse);
-	const [foregroundColor, setForegroundColor] = useState<string | undefined>(
-		undefined
-	);
-
-	// NEXT: move most of this into redux
-	const sanitizeTagsAndMatchData = useCallback(
-		(allTagsData?: AllTagsRecv) => {
-			let allTags: Array<string> | string | undefined;
-			if (Array.isArray(allTagsData)) {
-				allTags = [];
-				allTagsData
-					.filter(
-						(tag): tag is string =>
-							typeof tag === 'string' && tag !== ''
-					)
-					.forEach((tag) => {
-						const splitTags = tag
-							.split(':')
-							.filter((tag) => tag !== '');
-						(allTags as Array<string>).push(...splitTags);
-					});
-			} else {
-				allTags = allTagsData?.split(':').filter((tag) => tag !== '');
-			}
-			const foundTag = allTags
-				?.map((tag) => tag.replace(/^:(.*):$/i, '$1'))
-				?.find((tag) => Object.keys(tagsData).includes(tag));
-			return foundTag || undefined;
-		},
-		[tagsData]
-	);
-
-	useEffect(() => {
-		const allTags = orgItem?.ALLTAGS || '';
-		const foundTag = sanitizeTagsAndMatchData(allTags);
-		if (foundTag) {
-			const tagColor = tagsData?.[foundTag];
-			tagColor && setForegroundColor(tagColor);
-		} else {
-			setForegroundColor(undefined);
-		}
-	}, [sanitizeTagsAndMatchData, orgItem, tagsData]);
 
 	const classString = `${styles.item}${
 		readyState !== WSReadyState.OPEN || isWaitingForResponse
@@ -77,7 +29,7 @@ const OrgItem: React.FC = () => {
 			{itemText ? (
 				<h1
 					className={classString}
-					style={{ backgroundColor: foregroundColor }}
+					style={{ backgroundColor: tagColor || undefined }}
 					data-testid="item-text"
 				>
 					{itemText}
