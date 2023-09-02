@@ -10,13 +10,13 @@ import { RootState } from 'app/store';
 import { EmacsSendMsg, EmacsRecvMsg, AllTagsRecv } from 'lib/types';
 
 type MatchQuery = string | undefined;
-type Tags = { [key: string]: string | null };
+type TagFaces = { [key: string]: string | null };
 type ItemText = string | null;
 type ItemTags = Array<string>;
 
 export interface EmacsState {
 	matchQuery: MatchQuery;
-	tagsData: Tags;
+	tagFaces: TagFaces;
 	itemText: ItemText;
 	itemTags: ItemTags;
 }
@@ -26,7 +26,7 @@ export const persistenceBlacklist: Array<keyof EmacsState> = [];
 
 const initialState: EmacsState = {
 	matchQuery: 'TODO="TODO"',
-	tagsData: {},
+	tagFaces: {},
 	itemText: null,
 	itemTags: [],
 };
@@ -56,8 +56,8 @@ const emacsSlice = createSlice({
 		setMatchQueryTo: (state, action: PayloadAction<string>) => {
 			state.matchQuery = action.payload;
 		},
-		setTagsDataTo: (state, action: PayloadAction<Tags>) => {
-			state.tagsData = action.payload;
+		setTagsDataTo: (state, action: PayloadAction<TagFaces>) => {
+			state.tagFaces = action.payload;
 		},
 		getItem: () => {},
 		_sendMsgToEmacs: (_state, _action: PayloadAction<EmacsSendMsg>) => {},
@@ -72,7 +72,7 @@ const emacsSlice = createSlice({
 					);
 					break;
 				case 'TAGS':
-					state.tagsData = payload?.data || {};
+					state.tagFaces = payload?.data || {};
 					break;
 				default:
 					console.error('[NewTab] Unknown message: ', payload);
@@ -83,7 +83,7 @@ const emacsSlice = createSlice({
 });
 
 export const selectedMatchQuery = (state: RootState) => state.emacs.matchQuery;
-export const selectedTagsData = (state: RootState) => state.emacs.tagsData;
+export const selectedTagsData = (state: RootState) => state.emacs.tagFaces;
 export const selectedItemText = (state: RootState) => state.emacs.itemText;
 export const selectedItemTags = (state: RootState) => state.emacs.itemTags;
 export const selectedTagColor = createSelector(
