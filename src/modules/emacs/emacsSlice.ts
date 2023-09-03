@@ -28,9 +28,7 @@ export interface EmacsState {
 }
 
 export const name = 'emacs';
-export const persistenceBlacklist: Array<keyof EmacsState> = [
-	'itemClockStartTime',
-];
+export const persistenceBlacklist: Array<keyof EmacsState> = [];
 
 const initialState: EmacsState = {
 	matchQuery: 'TODO="TODO"',
