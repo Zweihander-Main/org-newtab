@@ -14,10 +14,13 @@ import {
 	selectedTagColor,
 } from 'modules/emacs/emacsSlice';
 import { useCallback, useEffect, useState } from 'react';
+import classNames from 'classnames';
 
 //TODO: flip out image with actual transparency
 //TODO: pull in other data from org item
 //TODO: better responsive design
+//TODO: fix number shadow issue
+//TODO: figma implement overtime, position, ect.
 
 const ClockedTime: React.FC = () => {
 	const itemPreviouslyClockedMinutes = useAppSelector(
@@ -52,16 +55,28 @@ const ClockedTime: React.FC = () => {
 		const interval = setInterval(calculateMinutesClockedIn, 5000);
 		return () => clearInterval(interval);
 	}, [calculateMinutesClockedIn]);
+
+	let overtime = false;
+	if (
+		itemEffortMinutes &&
+		itemClockStartTime &&
+		itemClockStartTime > itemEffortMinutes
+	) {
+		overtime = true;
+	}
+
 	return (
-		<span className={styles.clock}>
-			{minutesToTimeString(minutesClockedIn)}
+		<div className={styles.clock}>
+			<span className={classNames({ [styles.overtime]: overtime })}>
+				{minutesToTimeString(minutesClockedIn)}
+			</span>
 			{itemEffortMinutes && (
 				<>
 					{' / '}
 					{minutesToTimeString(itemEffortMinutes)}
 				</>
 			)}
-		</span>
+		</div>
 	);
 };
 
@@ -73,9 +88,6 @@ const OrgItem: React.FC = () => {
 	const itemClockStartTime = useAppSelector(selectedItemClockStartTime);
 
 	const isClockedIn = itemClockStartTime !== null;
-	// TODO: mark overtime
-	// TODO: fix number shadow issue
-
 	const classString = `${styles.item}${
 		readyState !== WSReadyState.OPEN || isWaitingForResponse
 			? ' ' + styles.stale
