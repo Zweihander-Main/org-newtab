@@ -19,18 +19,13 @@ import { useCallback, useEffect, useState } from 'react';
 //TODO: pull in other data from org item
 //TODO: better responsive design
 
-const OrgItem: React.FC = () => {
-	const itemText = useAppSelector(selectedItemText);
-	const tagColor = useAppSelector(selectedTagColor);
-	const readyState = useAppSelector(selectedReadyState);
-	const isWaitingForResponse = useAppSelector(selectedIsWaitingForResponse);
-	const itemClockStartTime = useAppSelector(selectedItemClockStartTime);
+const ClockedTime: React.FC = () => {
 	const itemPreviouslyClockedMinutes = useAppSelector(
 		selectedItemPreviouslyClockedMinutes
 	);
 	const itemEffortMinutes = useAppSelector(selectedItemEffortMinutes);
+	const itemClockStartTime = useAppSelector(selectedItemClockStartTime);
 
-	const isClockedIn = itemClockStartTime !== null;
 	const [minutesClockedIn, setMinutesClockedIn] = useState(
 		itemPreviouslyClockedMinutes
 	);
@@ -53,15 +48,33 @@ const OrgItem: React.FC = () => {
 	}, [itemClockStartTime, itemPreviouslyClockedMinutes]);
 
 	useEffect(() => {
-		let interval: NodeJS.Timeout;
-		if (isClockedIn) {
-			calculateMinutesClockedIn();
-			interval = setInterval(calculateMinutesClockedIn, 5000);
-		}
+		calculateMinutesClockedIn();
+		const interval = setInterval(calculateMinutesClockedIn, 5000);
 		return () => clearInterval(interval);
-	}, [isClockedIn, calculateMinutesClockedIn]);
+	}, [calculateMinutesClockedIn]);
+	return (
+		<span className={styles.clock}>
+			{minutesToTimeString(minutesClockedIn)}
+			{itemEffortMinutes && (
+				<>
+					{' / '}
+					{minutesToTimeString(itemEffortMinutes)}
+				</>
+			)}
+		</span>
+	);
+};
+
+const OrgItem: React.FC = () => {
+	const itemText = useAppSelector(selectedItemText);
+	const tagColor = useAppSelector(selectedTagColor);
+	const readyState = useAppSelector(selectedReadyState);
+	const isWaitingForResponse = useAppSelector(selectedIsWaitingForResponse);
+	const itemClockStartTime = useAppSelector(selectedItemClockStartTime);
+
+	const isClockedIn = itemClockStartTime !== null;
 	// TODO: mark overtime
-	// TODO: Own component
+	// TODO: fix number shadow issue
 
 	const classString = `${styles.item}${
 		readyState !== WSReadyState.OPEN || isWaitingForResponse
@@ -78,17 +91,7 @@ const OrgItem: React.FC = () => {
 					data-testid="item-text"
 				>
 					{itemText}
-					{isClockedIn && (
-						<span className={styles.clock}>
-							{minutesToTimeString(minutesClockedIn)}
-							{itemEffortMinutes && (
-								<>
-									{' / '}
-									{minutesToTimeString(itemEffortMinutes)}
-								</>
-							)}
-						</span>
-					)}
+					{isClockedIn && <ClockedTime />}
 				</h1>
 			) : (
 				<img src={logo} className={styles.logo} alt="logo" />
