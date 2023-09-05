@@ -88,23 +88,22 @@ const OrgItem: React.FC = () => {
 	const isWaitingForResponse = useAppSelector(selectedIsWaitingForResponse);
 	const itemClockStartTime = useAppSelector(selectedItemClockStartTime);
 
+	const isInSync = readyState === WSReadyState.OPEN && !isWaitingForResponse;
+
 	const isClockedIn = itemClockStartTime !== null;
-	const classString = `${styles.item}${
-		readyState !== WSReadyState.OPEN || isWaitingForResponse
-			? ' ' + styles.stale
-			: ''
-	}`;
 
 	return (
 		<>
 			{itemText ? (
 				<h1
-					className={classString}
+					className={classNames(styles.item, {
+						[styles.stale]: !isInSync,
+					})}
 					style={{ backgroundColor: tagColor || undefined }}
 					data-testid="item-text"
 				>
 					{itemText}
-					{isClockedIn && <ClockedTime />}
+					{isClockedIn && isInSync && <ClockedTime />}
 				</h1>
 			) : (
 				<img src={logo} className={styles.logo} alt="logo" />
