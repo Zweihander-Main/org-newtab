@@ -21,7 +21,6 @@ import classNames from 'classnames';
 //TODO: better responsive design
 //TODO: fix number shadow issue
 //TODO: figma implement overtime, position, ect.
-//TODO: don't show current time if not synced with server
 
 const ClockedTime: React.FC = () => {
 	const itemPreviouslyClockedMinutes = useAppSelector(

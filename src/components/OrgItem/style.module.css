@@ -15,12 +15,18 @@
 			var(--color-item-shadow),
 		var(--width-item-stroke) var(--width-item-stroke) 0
 			var(--color-item-shadow);
-	-webkit-text-stroke: calc(var(--width-item-stroke) / 1.5)
-		var(--color-item-shadow);
 	z-index: 10;
 	line-height: 1.25;
 	letter-spacing: 0.0125em;
 	overflow-wrap: break-word;
+}
+
+.item::after {
+	content: attr(value);
+	position: relative;
+	left: 0;
+	-webkit-text-stroke: 0;
+	pointer-events: none;
 }
 
 .logo {
