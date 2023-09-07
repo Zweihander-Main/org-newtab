@@ -52,6 +52,8 @@ function startTestWebSocketServer(port: number) {
 		ws.on('close', () => {
 			console.log('Client disconnected');
 		});
+
+		ws.on('error', console.error);
 	});
 	return wss;
 }
@@ -224,11 +226,12 @@ test.describe('WebSocket', () => {
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
 		await storageIsResolved(tabMaster);
 
-		async function getAnyDataSent(): Promise<boolean> {
+		async function getAnyDataRecv(): Promise<boolean> {
 			return new Promise(function (resolve) {
 				tabMaster.on('websocket', (ws) => {
 					if (ws.url() === webSocketURL(conn)) {
-						ws.on('framesent', () => {
+						ws.on('framereceived', () => {
+							console.log('Received data from server');
 							resolve(true);
 						});
 						ws.on('close', () => resolve(false));
@@ -242,8 +245,7 @@ test.describe('WebSocket', () => {
 			});
 		}
 
-		const wsFunc = getAnyDataSent();
-
+		const wsFunc = getAnyDataRecv();
 		await setupWebsocketPort(conn, tabMaster);
 		expect(await wsFunc).toBeTruthy();
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
