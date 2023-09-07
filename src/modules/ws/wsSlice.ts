@@ -18,24 +18,18 @@ export interface WSState {
 	readyState: WSReadyState;
 	responsesWaitingFor: Array<number>;
 	wsPort: number;
-	reconnectionAttempt: number;
-	reconnectionTimeout: NodeJS.Timeout | null;
 }
 
 export const name = 'ws';
 export const persistenceBlacklist: Array<keyof WSState> = [
 	'readyState',
 	'responsesWaitingFor',
-	'reconnectionAttempt',
-	'reconnectionTimeout',
 ];
 
 const initialState: WSState = {
 	readyState: WSReadyState.UNINSTANTIATED,
 	responsesWaitingFor: [],
 	wsPort: DEFAULT_WEBSOCKET_PORT,
-	reconnectionAttempt: 0,
-	reconnectionTimeout: null,
 };
 
 export const wsSlice = createSlice({
@@ -65,17 +59,6 @@ export const wsSlice = createSlice({
 		) => {
 			state.responsesWaitingFor = action.payload;
 		},
-		_setReconnectionAttemptAndTimeoutTo: (
-			state,
-			action: PayloadAction<{
-				reconnectionAttempt: number;
-				reconnectionTimeout: NodeJS.Timeout | null;
-			}>
-		) => {
-			const { reconnectionAttempt, reconnectionTimeout } = action.payload;
-			state.reconnectionAttempt = reconnectionAttempt;
-			state.reconnectionTimeout = reconnectionTimeout;
-		},
 		_openWS: () => {},
 		_closeWS: () => {},
 		_resetWS: () => {},
@@ -88,7 +71,6 @@ export const {
 	_removeFromResponsesWaitingFor,
 	_addToResponsesWaitingFor,
 	_setResponsesWaitingForTo,
-	_setReconnectionAttemptAndTimeoutTo,
 	_openWS,
 	_closeWS,
 	_resetWS,
@@ -112,43 +94,21 @@ listenerMiddleware.startListening({
 		const { dispatch } = listenerApi;
 		const getState = listenerApi.getState.bind(this);
 		const {
-			ws: { wsPort, reconnectionAttempt, reconnectionTimeout },
+			ws: { wsPort },
 		} = getState();
 		dispatch(_setReadyStateTo(WSReadyState.CONNECTING));
 		Socket.connect(`ws://localhost:${wsPort}/`);
 		Socket.on('open', () => {
-			if (reconnectionTimeout) clearTimeout(reconnectionTimeout);
-			dispatch(
-				_setReconnectionAttemptAndTimeoutTo({
-					reconnectionAttempt: 0,
-					reconnectionTimeout: null,
-				})
-			);
 			dispatch(_setReadyStateTo(WSReadyState.OPEN));
 		});
 		Socket.on('close', () => {
 			dispatch(_setReadyStateTo(WSReadyState.CLOSED));
 			dispatch(_setResponsesWaitingForTo([]));
-			// Algo: Exponential Backoff
-			const newReconnectionAttempt = Math.min(
-				reconnectionAttempt + 1,
-				16
-			); // 2^16 secs = ~18 hours
-			const interval = Math.pow(2, newReconnectionAttempt) * 1000;
-			const newReconnectionTimeout = setTimeout(() => {
-				dispatch(_resetWS());
-			}, interval);
-			dispatch(
-				_setReconnectionAttemptAndTimeoutTo({
-					reconnectionAttempt: newReconnectionAttempt,
-					reconnectionTimeout: newReconnectionTimeout,
-				})
-			);
 		});
 		Socket.on('error', (event) => {
 			console.error('Websocket error', event);
 		});
-		Socket.on('message', (event) => {
+		Socket.on('message', (event: MessageEvent<string>) => {
 			const message = event.data;
 			const parsed = JSON.parse(message) as EmacsRecvMsg;
 			if (parsed === null) return;

@@ -1,6 +1,12 @@
+import ReconnectingWebSocket from 'reconnecting-websocket';
+import { RECONNECTION_ATTEMPT_GROWTH_FACTOR } from './constants';
+
+const WebSocketOptions = {
+	reconnectionDelayGrowFactor: RECONNECTION_ATTEMPT_GROWTH_FACTOR,
+};
 class Socket {
 	private static _instance: Socket;
-	private _socket: WebSocket | null;
+	private _socket: ReconnectingWebSocket | null;
 
 	private constructor() {
 		if (Socket._instance) {
@@ -16,7 +22,7 @@ class Socket {
 
 	public connect(url: string) {
 		if (!this._socket) {
-			this._socket = new WebSocket(url);
+			this._socket = new ReconnectingWebSocket(url, [], WebSocketOptions);
 		}
 	}
 
@@ -35,13 +41,12 @@ class Socket {
 
 	public on<T extends keyof WebSocketEventMap>(
 		eventName: T,
-		callback: (this: WebSocket, ev: MessageEvent<T>) => void
+		listener: Parameters<
+			typeof ReconnectingWebSocket.prototype.addEventListener<T>
+		>[1]
 	) {
 		if (this._socket) {
-			this._socket.addEventListener<T>(
-				eventName,
-				callback as EventListener
-			);
+			this._socket.addEventListener<T>(eventName, listener);
 		}
 	}
 }
