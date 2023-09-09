@@ -1,6 +1,6 @@
 import * as styles from './style.module.css';
+import { TIME_WARNING_THRESHOLD } from '../../lib/constants';
 import { useAppSelector } from 'app/hooks';
-import classNames from 'classnames';
 import {
 	selectedIsClockedIn,
 	selectedItemClockStartTime,
@@ -47,13 +47,24 @@ const ClockedTime: React.FC = () => {
 		return () => clearInterval(interval);
 	}, [calculateMinutesClockedIn]);
 
-	let overtime = false;
+	let overtimeStrokeColor = undefined;
 	if (
 		itemEffortMinutes &&
 		itemClockStartTime &&
-		itemClockStartTime > itemEffortMinutes
+		minutesClockedIn > itemEffortMinutes * TIME_WARNING_THRESHOLD
 	) {
-		overtime = true;
+		if (minutesClockedIn > itemEffortMinutes) {
+			overtimeStrokeColor = 'rgb(255, 0, 0)';
+		} else {
+			const numberOfWarningMinutes =
+				itemEffortMinutes - itemEffortMinutes * TIME_WARNING_THRESHOLD;
+			const minutesLeft = itemEffortMinutes - minutesClockedIn;
+			const percentageLeft =
+				1 -
+				(numberOfWarningMinutes - minutesLeft) / numberOfWarningMinutes;
+			const color = Math.floor(255 * percentageLeft);
+			overtimeStrokeColor = `rgb(255, ${color}, ${color})`;
+		}
 	}
 
 	if (!isInSync || !isClockedIn) {
@@ -61,10 +72,11 @@ const ClockedTime: React.FC = () => {
 	}
 
 	return (
-		<div className={styles.clock}>
-			<span className={classNames({ [styles.overtime]: overtime })}>
-				{minutesToTimeString(minutesClockedIn)}
-			</span>
+		<div
+			className={styles.clock}
+			style={{ WebkitTextStrokeColor: overtimeStrokeColor }}
+		>
+			{minutesToTimeString(minutesClockedIn)}
 			{itemEffortMinutes && (
 				<>
 					{' / '}

@@ -2,14 +2,11 @@
 	position: fixed;
 	right: 0;
 	bottom: 0;
-	-webkit-text-stroke: 1px rgba(255 255 255 / 25%);
+	-webkit-text-stroke: 0.08vw white;
 	color: transparent;
+	opacity: 0.3;
 	font-weight: var(--font-weight-bold);
 	font-style: italic;
 	font-size: 7.5vw;
 	line-height: 0.8; /* Using tabular numbers */
-}
-
-.overtime {
-	-webkit-text-stroke-color: rgba(255 0 0 / 25%);
 }
