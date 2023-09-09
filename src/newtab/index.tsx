@@ -14,6 +14,7 @@ import { setStateAsResolved } from 'modules/role/roleSlice';
 import { initMessaging } from 'modules/msg/msgSlice';
 import { Area } from '../modules/layout/layoutSlice';
 import WidgetArea from 'components/WidgetArea';
+import Time from 'components/Time';
 
 const IndexNewtab: React.FC = () => {
 	const dispatch = useAppDispatch();
@@ -37,6 +38,7 @@ const IndexNewtab: React.FC = () => {
 			<WidgetArea loc={Area.Top} />
 			<WidgetArea loc={Area.Mid} />
 			<WidgetArea loc={Area.Bottom} />
+			<Time />
 		</main>
 	);
 };
