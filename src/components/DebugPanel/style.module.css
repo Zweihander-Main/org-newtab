@@ -21,3 +21,20 @@
 	width: fit-content;
 	padding: 1rem;
 }
+
+.pitch {
+	background: white;
+	font-weight: var(--font-weight-light);
+	width: min(30vw, 30rem);
+	align-self: center;
+	padding: 1rem;
+	border-radius: 1rem;
+	margin-top: 5rem;
+	box-shadow: 0.4rem 0.4rem 0 0 var(--color-item-shadow);
+	border: 2px solid var(--color-item-shadow);
+}
+
+.pitch a {
+	font-weight: var(--font-weight-standard);
+	color: red;
+}

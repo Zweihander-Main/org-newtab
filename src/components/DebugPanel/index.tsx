@@ -35,6 +35,12 @@ const DebugPanel: React.FC = () => {
 				</span>
 				<pre>{JSON.stringify(tagsData, null, 2)}</pre>
 			</div>
+			<div
+				className={styles.pitch}
+				dangerouslySetInnerHTML={{
+					__html: chrome.i18n.getMessage('pitch'),
+				}}
+			></div>
 		</div>
 	);
 };
