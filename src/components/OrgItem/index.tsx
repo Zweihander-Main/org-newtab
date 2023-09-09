@@ -1,12 +1,9 @@
 import * as styles from './style.module.css';
-import { WSReadyState } from '../../lib/types';
 import logo from 'data-base64:~assets/icon-1024x1024.png';
 import { useAppSelector } from '../../app/hooks';
+import { selectedIsInSync } from 'modules/ws/wsSlice';
 import {
-	selectedIsWaitingForResponse,
-	selectedReadyState,
-} from 'modules/ws/wsSlice';
-import {
+	selectedIsClockedIn,
 	selectedItemClockStartTime,
 	selectedItemEffortMinutes,
 	selectedItemPreviouslyClockedMinutes,
@@ -83,13 +80,8 @@ const ClockedTime: React.FC = () => {
 const OrgItem: React.FC = () => {
 	const itemText = useAppSelector(selectedItemText);
 	const tagColor = useAppSelector(selectedTagColor);
-	const readyState = useAppSelector(selectedReadyState);
-	const isWaitingForResponse = useAppSelector(selectedIsWaitingForResponse);
-	const itemClockStartTime = useAppSelector(selectedItemClockStartTime);
-
-	const isInSync = readyState === WSReadyState.OPEN && !isWaitingForResponse;
-
-	const isClockedIn = itemClockStartTime !== null;
+	const isInSync = useAppSelector(selectedIsInSync);
+	const isClockedIn = useAppSelector(selectedIsClockedIn);
 
 	return (
 		<>

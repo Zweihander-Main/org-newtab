@@ -82,6 +82,9 @@ export const selectedIsWaitingForResponse = (state: RootState) =>
 export const selectedResponsesWaitingFor = (state: RootState) =>
 	state.ws.responsesWaitingFor;
 export const selectedWSPort = (state: RootState) => state.ws.wsPort;
+export const selectedIsInSync = (state: RootState) =>
+	state.ws.readyState === WSReadyState.OPEN &&
+	!selectedIsWaitingForResponse(state);
 
 export default wsSlice.reducer;
 

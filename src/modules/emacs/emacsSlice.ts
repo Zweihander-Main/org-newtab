@@ -118,6 +118,8 @@ export const selectedItemPreviouslyClockedMinutes = (state: RootState) =>
 	state.emacs.itemPreviouslyClockedMinutes;
 export const selectedItemEffortMinutes = (state: RootState) =>
 	state.emacs.itemEffortMinutes;
+export const selectedIsClockedIn = (state: RootState) =>
+	state.emacs.itemClockStartTime;
 
 export const {
 	setMatchQueryTo,
