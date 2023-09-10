@@ -2,6 +2,7 @@
 
 (eldev-require-version "1.2")
 (eldev-use-package-archive 'melpa)
+(eldev-add-loading-roots 'test "lisp")
 (setf eldev-project-main-file "lisp/org-newtab.el")
 (setf eldev-main-fileset "./lisp/*.el")
 (setq sentence-end-double-space nil)
