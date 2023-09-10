@@ -1,4 +1,4 @@
-;;; org-newtab.el --- WIP -*-lexical-binding:t-*-
+;;; org-newtab-mode.el --- WIP -*-lexical-binding:t-*-
 
 ;; Copyright (C) 2023, Zweihänder <zweidev@zweihander.me>
 ;;
@@ -31,39 +31,29 @@
 ;;
 ;;; Code:
 
-(require 'cl-lib)
+(require 'org-newtab-server)
 
-(defgroup org-newtab nil
-  "A browser new tab page linked to `org-agenda'."
+;;;###autoload
+(define-minor-mode
+  org-newtab-mode
+  "Enable `org-newtab'.
+Start the websocket server and add hooks in."
+  :lighter " org-newtab"
+  :global t
   :group 'org-newtab
-  :prefix "org-newtab-"
-  :link `(url-link :tag "Github" "https://github.com/Zweihander-Main/org-newtab"))
+  :init-value nil
+  (cond
+   (org-newtab-mode
+    (org-newtab--start-server)
+    (add-hook 'org-clock-in-hook #'org-newtab--on-msg-send-clocked-in))
+   (t
+    (org-newtab--close-server)
+    (remove-hook 'org-clock-in-hook #'org-newtab--on-msg-send-clocked-in))))
 
-(defcustom org-newtab-ws-port
-  35942
-  "Port to server websocket server on."
-  :type 'integer
-  :group 'org-newtab)
-
-(defun org-newtab--log (format-string &rest args)
-  "Log FORMAT-STRING and ARGS to `org-newtab-log-buffer'."
-  (with-current-buffer (get-buffer-create "*org-newtab-log*")
-    (goto-char (point-max))
-    (insert (apply #'format format-string args))
-    (insert "\n")))
-
-(provide 'org-newtab)
-
-(cl-eval-when (load eval)
-  (let ((dir (expand-file-name default-directory)))
-    (if (not (memq dir load-path))
-        (add-to-list 'load-path dir))) ; TODO: Remove for packaging?
-  (require 'org-newtab-mode))
+(provide 'org-newtab-mode)
 
 ;; Local Variables:
 ;; coding: utf-8
-;; flycheck-enabled-checkers: (emacs-lisp-package emacs-lisp-checkdoc elisp-eldev)
-;; flycheck-disabled-checkers: nil
 ;; End:
 
-;;; org-newtab.el ends here
+;;; org-newtab-mode.el ends here

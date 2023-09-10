@@ -46,36 +46,27 @@
 (defvar org-newtab--debug-mode nil
   "Whether or not to turn on every debugging tool.")
 
-;;;###autoload
-(define-minor-mode
-  org-newtab-mode
-  "Enable `org-newtab'.
-This serves the web-build and API over HTTP."
-  :lighter " org-newtab"
-  :global t
-  :group 'org-newtab
-  :init-value nil
-  (cond
-   (org-newtab-mode
-    (setq org-newtab--ws-server
-          (websocket-server
-           org-newtab-ws-port
-           :host 'local
-           :on-open #'org-newtab--ws-on-open
-           :on-message #'org-newtab--ws-on-message
-           :on-close #'org-newtab--ws-on-close
-           :on-error #'org-newtab--ws-on-error))
-    (add-hook 'org-clock-in-hook #'org-newtab--on-msg-send-clocked-in))
-   (t
-    (websocket-server-close org-newtab--ws-server)
-    (remove-hook 'org-clock-in-hook #'org-newtab--on-msg-send-clocked-in))))
-
 (defun org-newtab--debug-mode ()
   "Turn on every debug setting."
   (setq org-newtab--debug-mode (not org-newtab--debug-mode))
   (setq debug-on-error org-newtab--debug-mode
         websocket-callback-debug-on-error org-newtab--debug-mode
         async-debug org-newtab--debug-mode))
+
+(defun org-newtab--start-server()
+  "Start websocket server."
+  (setq org-newtab--ws-server
+        (websocket-server
+         org-newtab-ws-port
+         :host 'local
+         :on-open #'org-newtab--ws-on-open
+         :on-message #'org-newtab--ws-on-message
+         :on-close #'org-newtab--ws-on-close
+         :on-error #'org-newtab--ws-on-error)))
+
+(defun org-newtab--close-server()
+  "Close websocket server."
+  (websocket-server-close org-newtab--ws-server))
 
 (defun org-newtab--ws-on-open (ws)
   "Open the WebSocket WS and send initial data."
