@@ -31,7 +31,7 @@
 ;;; Code:
 
 (require 'buttercup)
-(require 'org-newtab)
+(require 'lisp/org-newtab)
 
 (describe "Testing"
   (it "works."
