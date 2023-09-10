@@ -64,9 +64,11 @@ This serves the web-build and API over HTTP."
            :on-open #'org-newtab--ws-on-open
            :on-message #'org-newtab--ws-on-message
            :on-close #'org-newtab--ws-on-close
-           :on-error #'org-newtab--ws-on-error)))
+           :on-error #'org-newtab--ws-on-error))
+    (add-hook 'org-clock-in-hook #'org-newtab--on-msg-send-clocked-in))
    (t
-    (websocket-server-close org-newtab--ws-server))))
+    (websocket-server-close org-newtab--ws-server)
+    (remove-hook 'org-clock-in-hook #'org-newtab--on-msg-send-clocked-in))))
 
 (defun org-newtab--debug-mode ()
   "Turn on every debug setting."
@@ -148,6 +150,7 @@ This serves the web-build and API over HTTP."
          (json-array-type 'list)
          (json (json-read-from-string frame-text))) ;; TODO: error handling for "\261R\30\7", missing data, command, etc.
     json))
+
 
 (provide 'org-newtab-server)
 
