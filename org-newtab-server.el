@@ -92,7 +92,7 @@ This serves the web-build and API over HTTP."
       (cond ((org-clocking-p)
              (org-newtab--on-msg-send-clocked-in resid))
             ((string= command "getItem")
-             (org-newtab--on-msg-send-match-query resid (plist-get json-data :data)))
+             (org-newtab--on-msg-send-match-query (plist-get json-data :data) resid))
             (t
              (org-newtab--log "[Server] %s" "Unknown command from client"))))))
 
@@ -102,14 +102,16 @@ This serves the web-build and API over HTTP."
          (data-packet (list :type "TAGS" :data tags)))
     (org-newtab--send-data (json-encode data-packet))))
 
-(defun org-newtab--on-msg-send-clocked-in (resid)
-  "Send the current clocked-in item to the client with RESID."
+(defun org-newtab--on-msg-send-clocked-in (&optional resid)
+  "Send the current clocked-in item to the client -- with RESID if provided."
   (let* ((item (org-newtab--get-clocked-in-item))
-         (data-packet (list :type "ITEM" :data item :resid resid)))
+         (data-packet (list :type "ITEM" :data item)))
+    (when resid
+      (setq data-packet (plist-put data-packet :resid resid)))
     (org-newtab--send-data (json-encode data-packet))))
 
-(defun org-newtab--on-msg-send-match-query (resid data)
-  "Send the current match for query DATA to the client with RESID."
+(defun org-newtab--on-msg-send-match-query (data &optional resid)
+  "Send the current match for query DATA to the client -- with RESID if provided."
   (async-start
    `(lambda () ; TODO: if it becomes interactive (asks for prompt), it freezes
       ,(async-inject-variables "\\`load-path\\'") ;  TODO: Reliant on load path being set to agenda dir
@@ -118,7 +120,9 @@ This serves the web-build and API over HTTP."
       (require 'org-newtab-agenda)
       (org-newtab--get-one-agenda-item ',data))
    `(lambda (result)
-      (let ((data-packet (list :type "ITEM" :data result :resid ,resid)))
+      (let ((data-packet (list :type "ITEM" :data result)))
+        (when ,resid
+          (setq data-packet (plist-put data-packet :resid ,resid)))
         (org-newtab--send-data (json-encode data-packet))))))
 
 (defun org-newtab--ws-on-close (_ws)
