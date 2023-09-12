@@ -33,10 +33,25 @@
 
 (require 'org-newtab-server)
 
+(defun org-newtab--save-all-agenda-buffers ()
+  "Save all Org agenda buffers without user confirmation.
+Necessary to allow for async queries to use fresh data."
+  (save-some-buffers t (lambda () (org-agenda-file-p))))
+
 (defun org-newtab--send-new-match-query ()
   "Send new item to client using last recorded match query."
+  (org--newtab--save-all-agenda-buffers)
   (org-newtab--on-msg-send-match-query org-newtab--last-match-query))
 
+(defun org-newtab--items-modified (&optional change-data)
+  "From `org-trigger-hook', check CHANGE-DATA state change, send new query if changed."
+  (when change-data
+    (let ((to (substring-no-properties (plist-get change-data :to)))
+          (from (substring-no-properties (plist-get change-data :from))))
+      (unless (string-match-p from to)
+        (org-newtab--send-new-match-query)))))
+
+;; TODO: Need function to check for clocked in for the other queries
 ;; TODO: Append hook to edit-headline function
 
 ;;;###autoload
@@ -53,23 +68,23 @@ Start the websocket server and add hooks in."
     (org-newtab--start-server)
     (add-hook 'org-clock-in-hook #'org-newtab--on-msg-send-clocked-in)
     (add-hook 'org-clock-out-hook #'org-newtab--send-new-match-query)
-    (add-hook 'org-clock-cancel-hook #'org-newtab--send-new-match-query))
-   ;; (add-hook 'org-trigger-hook #'org-newtab--send-new-match-query))
+    (add-hook 'org-clock-cancel-hook #'org-newtab--send-new-match-query)
+    (add-hook 'org-trigger-hook #'org-newtab--items-modified))
    ;; (add-hook 'org-after-tags-change-hook #'org-newtab--send-new-match-query)
    ;; (add-hook 'org-after-refile-insert-hook #'org-newtab--send-new-match-query))
    (t
     (org-newtab--close-server)
     (remove-hook 'org-clock-in-hook #'org-newtab--on-msg-send-clocked-in)
     (remove-hook 'org-clock-out-hook #'org-newtab--send-new-match-query)
-    (remove-hook 'org-clock-cancel-hook #'org-newtab--send-new-match-query))))
-    ;; (remove-hook 'org-trigger-hook #'org-newtab--send-new-match-query))))
-   ;; (remove-hook 'org-after-tags-change-hook #'org-newtab--send-new-match-query)
-   ;; (remove-hook 'org-after-refile-insert-hook #'org-newtab--send-new-match-query))))
+    (remove-hook 'org-clock-cancel-hook #'org-newtab--send-new-match-query)
+    (remove-hook 'org-trigger-hook #'org-newtab--items-modified))))
+;; (remove-hook 'org-after-tags-change-hook #'org-newtab--send-new-match-query)
+;; (remove-hook 'org-after-refile-insert-hook #'org-newtab--send-new-match-query))))
 
-   (provide 'org-newtab-mode)
+(provide 'org-newtab-mode)
 
-   ;; Local Variables:
-   ;; coding: utf-8
-   ;; End:
+;; Local Variables:
+;; coding: utf-8
+;; End:
 
 ;;; org-newtab-mode.el ends here
