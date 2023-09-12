@@ -41,7 +41,10 @@ Necessary to allow for async queries to use fresh data."
 (defun org-newtab--send-new-match-query ()
   "Send new item to client using last recorded match query."
   (org--newtab--save-all-agenda-buffers)
-  (org-newtab--on-msg-send-match-query org-newtab--last-match-query))
+  (cond ((org-clocking-p)
+         (org-newtab--on-msg-send-clocked-in))
+        (t
+         (org-newtab--on-msg-send-match-query org-newtab--last-match-query))))
 
 (defun org-newtab--items-modified (&optional change-data)
   "From `org-trigger-hook', check CHANGE-DATA state change, send new query if changed."
@@ -51,7 +54,8 @@ Necessary to allow for async queries to use fresh data."
       (unless (string-match-p from to)
         (org-newtab--send-new-match-query)))))
 
-;; TODO: Need function to check for clocked in for the other queries
+;; TODO: rename items-modified
+;; TODO: DRY send-new-match-query
 ;; TODO: Append hook to edit-headline function
 
 ;;;###autoload
