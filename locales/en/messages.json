@@ -148,7 +148,7 @@
 		"description": "Label for reset untagged item background color button aria-label"
 	},
 	"pitch": {
-		"message": "<em>Hey, real quick!</em><br />I do frontend development and B2B startup consulting so if you like this extension and need something built, drop me a line:<br /><a href=\"mailto:hi@zweisolutions.com\">hi@zweisolutions.com</a>",
+		"message": "<em>Hey, real quick!</em><br />I'm a frontend developer and also help B2B startups looking to grow their sales teams. If you need something built, scaled, or debugged, drop me a line:<br /><a href=\"mailto:hi@zweisolutions.com\">hi@zweisolutions.com</a>",
 		"description": "Developer pitch"
 	}
 }
