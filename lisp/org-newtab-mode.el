@@ -33,6 +33,12 @@
 
 (require 'org-newtab-server)
 
+(defun org-newtab--send-new-match-query ()
+  "Send new item to client using last recorded match query."
+  (org-newtab--on-msg-send-match-query org-newtab--last-match-query))
+
+;; TODO: Append hook to edit-headline function
+
 ;;;###autoload
 (define-minor-mode
   org-newtab-mode
@@ -45,15 +51,25 @@ Start the websocket server and add hooks in."
   (cond
    (org-newtab-mode
     (org-newtab--start-server)
-    (add-hook 'org-clock-in-hook #'org-newtab--on-msg-send-clocked-in))
+    (add-hook 'org-clock-in-hook #'org-newtab--on-msg-send-clocked-in)
+    (add-hook 'org-clock-out-hook #'org-newtab--send-new-match-query)
+    (add-hook 'org-clock-cancel-hook #'org-newtab--send-new-match-query))
+   ;; (add-hook 'org-trigger-hook #'org-newtab--send-new-match-query))
+   ;; (add-hook 'org-after-tags-change-hook #'org-newtab--send-new-match-query)
+   ;; (add-hook 'org-after-refile-insert-hook #'org-newtab--send-new-match-query))
    (t
     (org-newtab--close-server)
-    (remove-hook 'org-clock-in-hook #'org-newtab--on-msg-send-clocked-in))))
+    (remove-hook 'org-clock-in-hook #'org-newtab--on-msg-send-clocked-in)
+    (remove-hook 'org-clock-out-hook #'org-newtab--send-new-match-query)
+    (remove-hook 'org-clock-cancel-hook #'org-newtab--send-new-match-query))))
+    ;; (remove-hook 'org-trigger-hook #'org-newtab--send-new-match-query))))
+   ;; (remove-hook 'org-after-tags-change-hook #'org-newtab--send-new-match-query)
+   ;; (remove-hook 'org-after-refile-insert-hook #'org-newtab--send-new-match-query))))
 
-(provide 'org-newtab-mode)
+   (provide 'org-newtab-mode)
 
-;; Local Variables:
-;; coding: utf-8
-;; End:
+   ;; Local Variables:
+   ;; coding: utf-8
+   ;; End:
 
 ;;; org-newtab-mode.el ends here
