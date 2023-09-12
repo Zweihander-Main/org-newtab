@@ -96,6 +96,4 @@ const ThemingPanel: React.FC = () => {
 	);
 };
 
-// NEXT: Style as in figma (figure out how to style picker, put it box)
-
 export default ThemingPanel;

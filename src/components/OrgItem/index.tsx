@@ -5,12 +5,6 @@ import { selectedIsInSync } from 'modules/ws/wsSlice';
 import { selectedItemText, selectedTagColor } from 'modules/emacs/emacsSlice';
 import classNames from 'classnames';
 
-//TODO: flip out image with actual transparency
-//TODO: pull in other data from org item
-//TODO: better responsive design
-//TODO: fix number shadow issue
-//TODO: figma implement overtime, position, ect.
-
 const OrgItem: React.FC = () => {
 	const itemText = useAppSelector(selectedItemText);
 	const tagColor = useAppSelector(selectedTagColor);
