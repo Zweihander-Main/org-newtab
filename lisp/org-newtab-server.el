@@ -46,6 +46,9 @@
 (defvar org-newtab--debug-mode nil
   "Whether or not to turn on every debugging tool.")
 
+(defvar org-newtab--last-match-query nil
+  "The last match query received from the extension.")
+
 (defun org-newtab--debug-mode ()
   "Turn on every debug setting."
   (setq org-newtab--debug-mode (not org-newtab--debug-mode))
@@ -54,7 +57,7 @@
         async-debug org-newtab--debug-mode))
 
 (defun org-newtab--start-server()
-  "Start websocket server."
+  "Start WebSocket server."
   (setq org-newtab--ws-server
         (websocket-server
          org-newtab-ws-port
@@ -65,7 +68,7 @@
          :on-error #'org-newtab--ws-on-error)))
 
 (defun org-newtab--close-server()
-  "Close websocket server."
+  "Close WebSocket server."
   (websocket-server-close org-newtab--ws-server))
 
 (defun org-newtab--ws-on-open (ws)
@@ -85,7 +88,9 @@
       (cond ((org-clocking-p)
              (org-newtab--on-msg-send-clocked-in resid))
             ((string= command "getItem")
-             (org-newtab--on-msg-send-match-query (plist-get json-data :data) resid))
+             (let ((query (plist-get json-data :data)))
+               (setq org-newtab--last-match-query query)
+               (org-newtab--on-msg-send-match-query query resid)))
             (t
              (org-newtab--log "[Server] %s" "Unknown command from client"))))))
 
@@ -103,15 +108,15 @@
       (setq data-packet (plist-put data-packet :resid resid)))
     (org-newtab--send-data (json-encode data-packet))))
 
-(defun org-newtab--on-msg-send-match-query (data &optional resid)
-  "Send the current match for query DATA to the client -- with RESID if provided."
+(defun org-newtab--on-msg-send-match-query (query &optional resid)
+  "Send the current match for query QUERY to the client -- with RESID if provided."
   (async-start
    `(lambda () ; TODO: if it becomes interactive (asks for prompt), it freezes
       ,(async-inject-variables "\\`load-path\\'") ;  TODO: Reliant on load path being set to agenda dir
       ,(async-inject-variables "\\`org-agenda-files\\'")
       ,(async-inject-variables "\\`org-todo-keywords\\'")
       (require 'org-newtab-agenda)
-      (org-newtab--get-one-agenda-item ',data))
+      (org-newtab--get-one-agenda-item ',query))
    `(lambda (result)
       (let ((data-packet (list :type "ITEM" :data result)))
         (when ,resid
