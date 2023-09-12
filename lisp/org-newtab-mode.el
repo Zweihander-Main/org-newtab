@@ -57,6 +57,9 @@ Necessary to allow for async queries to use fresh data."
 ;; TODO: rename items-modified
 ;; TODO: DRY send-new-match-query
 ;; TODO: Append hook to edit-headline function
+;; TODO: Append hook to priority shift functions
+;; TODO: Append hook to edit effort functions
+;; TODO: Let client know async function is running (send resid)
 
 ;;;###autoload
 (define-minor-mode
@@ -73,17 +76,17 @@ Start the websocket server and add hooks in."
     (add-hook 'org-clock-in-hook #'org-newtab--on-msg-send-clocked-in)
     (add-hook 'org-clock-out-hook #'org-newtab--send-new-match-query)
     (add-hook 'org-clock-cancel-hook #'org-newtab--send-new-match-query)
-    (add-hook 'org-trigger-hook #'org-newtab--items-modified))
-   ;; (add-hook 'org-after-tags-change-hook #'org-newtab--send-new-match-query)
-   ;; (add-hook 'org-after-refile-insert-hook #'org-newtab--send-new-match-query))
+    (add-hook 'org-trigger-hook #'org-newtab--items-modified)
+    (add-hook 'org-after-tags-change-hook #'org-newtab--send-new-match-query)
+    (add-hook 'org-after-refile-insert-hook #'org-newtab--send-new-match-query))
    (t
     (org-newtab--close-server)
     (remove-hook 'org-clock-in-hook #'org-newtab--on-msg-send-clocked-in)
     (remove-hook 'org-clock-out-hook #'org-newtab--send-new-match-query)
     (remove-hook 'org-clock-cancel-hook #'org-newtab--send-new-match-query)
-    (remove-hook 'org-trigger-hook #'org-newtab--items-modified))))
-;; (remove-hook 'org-after-tags-change-hook #'org-newtab--send-new-match-query)
-;; (remove-hook 'org-after-refile-insert-hook #'org-newtab--send-new-match-query))))
+    (remove-hook 'org-trigger-hook #'org-newtab--items-modified)
+    (remove-hook 'org-after-tags-change-hook #'org-newtab--send-new-match-query)
+    (remove-hook 'org-after-refile-insert-hook #'org-newtab--send-new-match-query))))
 
 (provide 'org-newtab-mode)
 
