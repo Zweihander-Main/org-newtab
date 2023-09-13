@@ -2,9 +2,16 @@
 .panel {
 	width: min(40vw, 40rem);
 	display: grid;
-	grid-template: 1fr / 1fr 1fr;
 	align-items: center;
-	grid-gap: 2rem;
+	grid-template: 1fr / 1fr;
+	grid-gap: 0.2rem;
+}
+
+@media (width >= 50rem) {
+	.panel {
+		grid-template: 1fr / 1fr 1fr;
+		grid-gap: 2rem;
+	}
 }
 
 .label {
@@ -13,7 +20,13 @@
 	letter-spacing: 0.29em;
 	word-spacing: 0.29em;
 	text-transform: uppercase;
-	text-align: right;
+	text-align: left;
+}
+
+@media (width >= 50rem) {
+	.label {
+		text-align: right;
+	}
 }
 
 .input {
