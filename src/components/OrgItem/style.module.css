@@ -1,5 +1,5 @@
 .item {
-	max-width: calc(50vw - 6rem);
+	max-width: calc(80vw - 6rem);
 	background: var(--color-untagged-item-bg);
 	padding: 2.8rem;
 	border-radius: 2rem;
@@ -21,6 +21,12 @@
 	line-height: 1.25;
 	letter-spacing: 0.0125em;
 	overflow-wrap: break-word;
+}
+
+@media (width >= 60rem) {
+	.item {
+		max-width: calc(50vw - 6rem);
+	}
 }
 
 .item::after {
