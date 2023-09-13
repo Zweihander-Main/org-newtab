@@ -56,7 +56,6 @@
 }
 
 .input + .picker {
-	visibility: hidden;
 	opacity: 0;
 }
 
@@ -64,7 +63,6 @@
 .picker:active,
 .picker:focus,
 .picker:hover {
-	visibility: visible;
 	opacity: 1;
 }
 
