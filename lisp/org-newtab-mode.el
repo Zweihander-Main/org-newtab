@@ -40,7 +40,7 @@ Necessary to allow for async queries to use fresh data."
 
 (defun org-newtab--send-new-match-query ()
   "Send new item to client using last recorded match query."
-  (org--newtab--save-all-agenda-buffers)
+  (org-newtab--save-all-agenda-buffers)
   (cond ((org-clocking-p)
          (org-newtab--on-msg-send-clocked-in))
         (t
