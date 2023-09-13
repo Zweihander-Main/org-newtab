@@ -1,12 +1,20 @@
 .clock {
 	position: fixed;
-	right: 0;
 	bottom: 0;
-	-webkit-text-stroke: 0.08vw white;
 	color: transparent;
 	opacity: 0.3;
 	font-weight: var(--font-weight-bold);
 	font-style: italic;
-	font-size: 7.5vw;
+	font-size: 14vw;
+	-webkit-text-stroke-color: white;
+	-webkit-text-stroke-width: 0.12vw;
 	line-height: 0.8; /* Using tabular numbers */
+}
+
+@media (width >= 40rem) {
+	.clock {
+		-webkit-text-stroke-width: 0.08vw;
+		font-size: 7.5vw;
+		right: 0;
+	}
 }
