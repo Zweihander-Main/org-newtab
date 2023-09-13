@@ -1,8 +1,14 @@
 .panel {
-	width: min(50vw, 50rem);
+	width: auto;
 	display: grid;
 	justify-content: center;
-	margin: 2rem 0;
+	margin: 2rem;
+}
+
+@media (width >= 50rem) {
+	.panel {
+		width: min(50vw, 50rem);
+	}
 }
 
 .item {
@@ -25,16 +31,23 @@
 .pitch {
 	background: white;
 	font-weight: var(--font-weight-light);
-	width: min(30vw, 30rem);
+	width: calc(100% - 3.5rem);
 	align-self: center;
 	padding: 1rem;
 	border-radius: 1rem;
 	margin-top: 5rem;
 	box-shadow: 0.4rem 0.4rem 0 0 var(--color-item-shadow);
 	border: 2px solid var(--color-item-shadow);
+	justify-self: center;
 }
 
 .pitch a {
 	font-weight: var(--font-weight-standard);
 	color: red;
+}
+
+@media (width >= 50rem) {
+	.pitch {
+		width: min(30vw, 30rem);
+	}
 }
