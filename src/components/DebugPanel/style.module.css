@@ -1,8 +1,8 @@
 .panel {
 	width: min(50vw, 50rem);
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
+	display: grid;
+	justify-content: center;
+	margin: 2rem 0;
 }
 
 .item {
