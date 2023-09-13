@@ -2,12 +2,19 @@
 	display: grid;
 	grid-template-columns: 1fr;
 	grid-auto-rows: 1fr 6fr;
-	margin: 2rem 5rem;
 	justify-items: start;
 	align-items: baseline;
 	height: fit-content;
-	width: max(50vw, 50rem);
 	position: relative;
+	width: auto;
+	margin: 2rem;
+}
+
+@media (width >= 50rem) {
+	.form {
+		width: max(50vw, 45rem);
+		margin: 2rem 5rem;
+	}
 }
 
 .label {
