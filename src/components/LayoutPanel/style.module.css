@@ -1,12 +1,22 @@
 .maps {
 	display: grid;
-	width: max(50vw, 50rem);
 	margin: 5rem auto;
-	grid-template:
-		'activeMap inactiveMap' 1fr
-		'activeMap inactiveMap' 1fr
-		'activeMap controls' 1fr / 5fr 3fr;
 	grid-gap: 2rem;
+	width: 100%;
+	grid-template:
+		'activeMap' 5fr
+		'inactiveMap' 3fr
+		'controls' 1fr / 1fr;
+}
+
+@media (width >= 45rem) {
+	.maps {
+		width: max(50vw, 50rem);
+		grid-template:
+			'activeMap inactiveMap' 1fr
+			'activeMap inactiveMap' 1fr
+			'activeMap controls' 1fr / 5fr 3fr;
+	}
 }
 
 .active-map {
@@ -80,6 +90,7 @@
 	gap: 1rem;
 	border-radius: 0.3rem;
 	background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='5' ry='5' stroke='%23838383' stroke-width='4' stroke-dasharray='10' stroke-dashoffset='5' stroke-linecap='round'/%3e%3c/svg%3e");
+	min-width: 15rem;
 }
 
 .area-drop-zone.dropped {
