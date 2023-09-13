@@ -40,8 +40,7 @@
 .logo {
 	position: absolute;
 	z-index: 5;
-	mix-blend-mode: lighten;
-	filter: opacity(0.15) grayscale(1);
+	opacity: 0.4;
 	max-width: min(50vw, 25rem);
 	height: auto;
 	width: auto;
