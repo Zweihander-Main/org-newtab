@@ -1,4 +1,4 @@
-import { logMsg } from './logging';
+import { logMsg, logMsgErr } from './logging';
 import {
 	LogLoc,
 	LogMsgDir,
@@ -64,11 +64,20 @@ export const sendMsgToTab = (
 		getMsgToTabType(type),
 		data ? data : ''
 	);
-	void chrome.tabs.sendMessage<MsgToTab>(tabId, {
-		direction: MsgDirection.TO_NEWTAB,
-		type,
-		data,
-	});
+	chrome.tabs
+		.sendMessage<MsgToTab>(tabId, {
+			direction: MsgDirection.TO_NEWTAB,
+			type,
+			data,
+		})
+		.catch((err) => {
+			logMsgErr(
+				LogLoc.NEWTAB,
+				LogMsgDir.SEND,
+				'Error sending message to master tab:',
+				err
+			);
+		});
 };
 
 export const sendMsgToAllTabs = (type: MsgToTabType, data?: WSStateMsg) => {
@@ -79,11 +88,20 @@ export const sendMsgToAllTabs = (type: MsgToTabType, data?: WSStateMsg) => {
 		getMsgToTabType(type),
 		data ? data : ''
 	);
-	void chrome.runtime.sendMessage<MsgToTab>({
-		direction: MsgDirection.TO_NEWTAB,
-		type,
-		data,
-	});
+	chrome.runtime
+		.sendMessage<MsgToTab>({
+			direction: MsgDirection.TO_NEWTAB,
+			type,
+			data,
+		})
+		.catch((err) => {
+			logMsgErr(
+				LogLoc.NEWTAB,
+				LogMsgDir.SEND,
+				'Error sending message to all tabs:',
+				err
+			);
+		});
 };
 
 /**
