@@ -4,14 +4,17 @@
 
 Org-NewTab is a browser extension which sets the org-agenda task you should be working on as your new tab page.
 
+**Current Status:** Functional, usable, little messy but getting close to a first release
+
 ## Dev Notes
 
 ### Technologies used:
 
 -   Emacs:
-    -   Buttercup for testing
-    -   websocket and async
--   Plasmo Browser Extension framework
+    -   [Eldev](https://github.com/emacs-eldev/eldev) for project management
+    -   [Buttercup](https://github.com/jorgenschaefer/emacs-buttercup/) for testing
+    -   [websocket](https://github.com/ahyatt/emacs-websocket) and [async](https://github.com/jwiegley/emacs-async) libs
+-   [Plasmo](https://www.plasmo.com/) Browser Extension framework
     -   React
     -   TypeScript
     -   Playwright for E2E integration testing
@@ -44,6 +47,7 @@ Org-NewTab is a browser extension which sets the org-agenda task you should be w
 -   [ ] Built-out documentation (README or separate site)
 -   [ ] Provide sorting beyond what match query provides
 -   [ ] Firefox compatibility
+-   [ ] In-app tutorial/getting started
 
 ### Misc
 
