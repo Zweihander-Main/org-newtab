@@ -249,14 +249,11 @@
 	"manifest": {
 		"default_locale": "en",
 		"name": "__MSG_extensionName__",
-		"host_permissions": [
-			"https://*/*"
-		],
 		"permissions": [
 			"tabs"
 		],
 		"content_security_policy": {
-			"extension_pages": "script-src 'self' http://localhost http://localhost:8097; object-src 'self'"
+			"extension_pages": "script-src 'self'; object-src 'self'"
 		}
 	}
 }
