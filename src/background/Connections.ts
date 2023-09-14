@@ -1,7 +1,8 @@
 import type { BaseStorage } from '@plasmohq/storage';
 import { confirmTabIdAlive } from './messaging';
 import Storage from './Storage';
-import { LogLoc, log } from 'lib/logging';
+import { log } from 'lib/logging';
+import { LogLoc } from 'lib/types';
 
 type connectedTabIds = Set<number>;
 
@@ -47,9 +48,8 @@ class Connections {
 	}
 
 	public async loadFromStorage() {
-		const loadedConnectedTabIds = await this._storage.get<Array<number>>(
-			'connectedTabIds'
-		);
+		const loadedConnectedTabIds =
+			await this._storage.get<Array<number>>('connectedTabIds');
 		if (loadedConnectedTabIds && Array.isArray(loadedConnectedTabIds)) {
 			for (const tabId of loadedConnectedTabIds) {
 				const isAlive = await confirmTabIdAlive(tabId);

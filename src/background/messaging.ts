@@ -6,8 +6,10 @@ import {
 	type MsgToTab,
 	getMsgToTabType,
 	getMsgToBGSWType,
+	LogLoc,
+	LogMsgDir,
 } from '../lib/types';
-import { LogLoc, LogMsgDir, logMsg, log, logMsgErr } from 'lib/logging';
+import { logMsg, log, logMsgErr } from 'lib/logging';
 import connections from './Connections';
 import masterWs from './MasterWS';
 

@@ -1,3 +1,17 @@
+/*
+ * Message logging
+ */
+export enum LogLoc {
+	BGSW = 'BGSW',
+	NEWTAB = 'NewTab',
+	NONE = 'NONE',
+}
+
+export enum LogMsgDir {
+	SEND = '=>',
+	RECV = '<=',
+}
+
 /**
  * BGSW messages
  */

@@ -1,4 +1,5 @@
-import { LogLoc, log } from './logging';
+import { log } from './logging';
+import { LogLoc } from './types';
 
 class Port {
 	private static _instance: Port;

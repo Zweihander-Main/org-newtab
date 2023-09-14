@@ -1,5 +1,7 @@
-import { LogLoc, LogMsgDir, logMsg } from './logging';
+import { logMsg } from './logging';
 import {
+	LogLoc,
+	LogMsgDir,
 	MsgDirection,
 	type MsgToTab,
 	MsgToTabType,

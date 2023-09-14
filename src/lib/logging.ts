@@ -1,17 +1,7 @@
 /* eslint-disable no-console */
 
-export enum LogLoc {
-	BGSW = 'BGSW',
-	NEWTAB = 'NewTab',
-	NONE = 'NONE',
-}
-
-export enum LogMsgDir {
-	SEND = '=>',
-	RECV = '<=',
-}
-
-const ENABLE_LOGGING: LogLoc = LogLoc.NONE;
+import { ENABLE_LOGGING } from './constants';
+import { LogLoc, LogMsgDir } from './types';
 
 export const log = (loc: LogLoc, ...args: Parameters<typeof console.log>) => {
 	if (ENABLE_LOGGING === loc) {

@@ -2,7 +2,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { resetData } from 'app/actions';
 import { listenerMiddleware } from 'app/middleware';
-import { LogLoc, LogMsgDir, logMsg, logMsgErr } from 'lib/logging';
+import { logMsg, logMsgErr } from 'lib/logging';
 import {
 	SendResponseType,
 	handleConfirmingAlive,
@@ -12,6 +12,8 @@ import {
 } from 'lib/messages';
 import {
 	EmacsSendMsg,
+	LogLoc,
+	LogMsgDir,
 	MsgDirection,
 	MsgToTab,
 	MsgToTabType,

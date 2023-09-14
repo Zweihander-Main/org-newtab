@@ -1,8 +1,8 @@
 import type { BaseStorage } from '@plasmohq/storage';
 import { sendMsgToTab, confirmTabIdAlive } from './messaging';
-import { MsgToTabType } from '../lib/types';
+import { MsgToTabType, LogLoc } from '../lib/types';
 import Storage from './Storage';
-import { LogLoc, log } from 'lib/logging';
+import { log } from 'lib/logging';
 
 type masterWS = number | null;
 
@@ -36,9 +36,8 @@ class MasterWS {
 	}
 
 	public async loadFromStorage() {
-		const loadedMasterWSTabId = await this._storage.get<number>(
-			'masterWSTabId'
-		);
+		const loadedMasterWSTabId =
+			await this._storage.get<number>('masterWSTabId');
 		if (loadedMasterWSTabId) {
 			const isAlive = await confirmTabIdAlive(loadedMasterWSTabId);
 			if (

@@ -1,8 +1,13 @@
-import { MsgToBGSWType, type MsgToBGSW, MsgToTabType } from '../lib/types';
+import {
+	MsgToBGSWType,
+	type MsgToBGSW,
+	MsgToTabType,
+	LogLoc,
+} from '../lib/types';
 import { isMsgExpected, sendMsgToTab, setAsMaster } from './messaging';
 import connections from './Connections';
 import masterWs from './MasterWS';
-import { log, LogLoc } from 'lib/logging';
+import { log } from 'lib/logging';
 
 /**
  * Some notes about this background script:
