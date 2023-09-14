@@ -28,6 +28,10 @@
 	padding: 1rem;
 }
 
+.reset {
+	margin-top: 3rem;
+}
+
 .pitch {
 	background: white;
 	font-weight: var(--font-weight-light);

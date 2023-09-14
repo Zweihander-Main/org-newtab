@@ -1,4 +1,5 @@
 import { createSlice, isAnyOf } from '@reduxjs/toolkit';
+import { resetData } from 'app/actions';
 import { listenerMiddleware } from 'app/middleware';
 import { RootState } from 'app/store';
 import Port from 'lib/Port';
@@ -51,6 +52,7 @@ export const persistenceBlacklist: Array<keyof RoleState> = Object.keys(
 export const roleSlice = createSlice({
 	name,
 	initialState,
+	extraReducers: (builder) => builder.addCase(resetData, () => initialState),
 	reducers: {
 		establishRole: () => {},
 		setStateAsResolved: (state) => {

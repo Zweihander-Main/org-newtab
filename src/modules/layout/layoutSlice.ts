@@ -1,4 +1,5 @@
 import { PayloadAction, createSelector, createSlice } from '@reduxjs/toolkit';
+import { resetData } from 'app/actions';
 import { RootState } from 'app/store';
 import { Entries } from 'lib/types';
 
@@ -36,6 +37,7 @@ const initialState: LayoutState = {
 export const layoutSlice = createSlice({
 	name,
 	initialState,
+	extraReducers: (builder) => builder.addCase(resetData, () => initialState),
 	reducers: {
 		setConnectionStatusAreaTo: (state, action: PayloadAction<Area>) => {
 			state.connectionStatus.area = action.payload;

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { resetData } from 'app/actions';
 import { listenerMiddleware } from 'app/middleware';
 import { LogLoc, LogMsgDir, logMsg, logMsgErr } from 'lib/logging';
 import {
@@ -58,6 +59,7 @@ export const persistenceBlacklist: Array<keyof MsgState> = Object.keys(
 export const msgSlice = createSlice({
 	name,
 	initialState,
+	extraReducers: (builder) => builder.addCase(resetData, () => initialState),
 	reducers: {
 		initMessaging: () => {},
 		_handlerIsConnected: (state) => {

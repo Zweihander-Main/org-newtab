@@ -14,6 +14,7 @@ import {
 	DEFAULT_WEBSOCKET_PORT,
 	MAXIMUM_TIME_TO_WAIT_FOR_RESPONSE,
 } from 'lib/constants';
+import { resetData } from 'app/actions';
 export interface WSState {
 	readyState: WSReadyState;
 	responsesWaitingFor: Array<number>;
@@ -35,6 +36,7 @@ const initialState: WSState = {
 export const wsSlice = createSlice({
 	name,
 	initialState,
+	extraReducers: (builder) => builder.addCase(resetData, () => initialState),
 	reducers: {
 		setWSPortTo: (state, action: PayloadAction<number>) => {
 			state.wsPort = action.payload;

@@ -2,6 +2,7 @@ import { Action, PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { listenerMiddleware } from 'app/middleware';
 import { RootState } from 'app/store';
 import { REHYDRATE } from '@plasmohq/redux-persist';
+import { resetData } from 'app/actions';
 
 export type OptionCategories = 'Behavior' | 'Layout' | 'Theming' | 'Debug';
 
@@ -21,6 +22,7 @@ const initialState: UIState = {
 export const uiSlice = createSlice({
 	name,
 	initialState,
+	extraReducers: (builder) => builder.addCase(resetData, () => initialState),
 	reducers: {
 		setOptCatTo: (state, action: PayloadAction<OptionCategories>) => {
 			state.optionCategory = action.payload;

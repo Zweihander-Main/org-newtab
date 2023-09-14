@@ -6,6 +6,7 @@ import {
 	isAnyOf,
 } from '@reduxjs/toolkit';
 import { listenerMiddleware } from 'app/middleware';
+import { resetData } from 'app/actions';
 import { RootState } from 'app/store';
 import { EmacsSendMsg, EmacsRecvMsg, AllTagsRecv } from 'lib/types';
 
@@ -61,6 +62,7 @@ const extractTagsFromItemAllTags = (allTagsData?: AllTagsRecv): ItemTags => {
 const emacsSlice = createSlice({
 	name,
 	initialState,
+	extraReducers: (builder) => builder.addCase(resetData, () => initialState),
 	reducers: {
 		setMatchQueryTo: (state, action: PayloadAction<string>) => {
 			state.matchQuery = action.payload;

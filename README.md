@@ -27,6 +27,7 @@ Org-NewTab is a browser extension which sets the org-agenda task you should be w
 -   [x] Hooks on Emacs actions (TODO change, clock change, ect.)
 -   [ ] Clock in and out from browser
 -   [ ] Mark items as done from browser
+-   [ ] Smart caching for match query lookups
 -   [ ] Sortable layout elements
 -   [ ] Allow moving layout elements left/right
 -   [ ] Display schedule/deadline info
