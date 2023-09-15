@@ -53,10 +53,10 @@
 	transition: all 0.1s ease-in;
 }
 
-.input-container:has(.input:focus) .input,
-.input-container:has(.input:active) .input,
-.input-container:has(.input:focus) .tooltip,
-.input-container:has(.input:active) .tooltip {
+.input-container .input:focus,
+.input-container .input:active,
+.input-container .input:focus ~ .tooltip,
+.input-container .input:active ~ .tooltip {
 	transform: translate(-0.1rem, -0.1rem);
 }
 
