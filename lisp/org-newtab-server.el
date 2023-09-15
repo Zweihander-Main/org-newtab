@@ -49,6 +49,9 @@
 (defvar org-newtab--last-match-query nil
   "The last match query received from the extension.")
 
+(defvar org-newtab--async-priority-task nil
+  "Async task which currently has priority.")
+
 (defun org-newtab--debug-mode ()
   "Turn on every debug setting."
   (setq org-newtab--debug-mode (not org-newtab--debug-mode))
@@ -102,6 +105,7 @@
 
 (defun org-newtab--on-msg-send-clocked-in (&optional resid)
   "Send the current clocked-in item to the client -- with RESID if provided."
+  (setq org-newtab--async-priority-task nil)
   (let* ((item (org-newtab--get-clocked-in-item))
          (data-packet (list :type "ITEM" :data item)))
     (when resid
@@ -110,18 +114,24 @@
 
 (defun org-newtab--on-msg-send-match-query (query &optional resid)
   "Send the current match for query QUERY to the client -- with RESID if provided."
-  (async-start
-   `(lambda () ; TODO: if it becomes interactive (asks for prompt), it freezes
-      ,(async-inject-variables "\\`load-path\\'") ;  TODO: Reliant on load path being set to agenda dir
-      ,(async-inject-variables "\\`org-agenda-files\\'")
-      ,(async-inject-variables "\\`org-todo-keywords\\'")
-      (require 'org-newtab-agenda)
-      (org-newtab--get-one-agenda-item ',query))
-   `(lambda (result)
-      (let ((data-packet (list :type "ITEM" :data result)))
-        (when ,resid
-          (setq data-packet (plist-put data-packet :resid ,resid)))
-        (org-newtab--send-data (json-encode data-packet))))))
+  (setq org-newtab--async-priority-task (or resid (random t)))
+  (let ((own-task org-newtab--async-priority-task))
+    (async-start
+     `(lambda () ; TODO: if it becomes interactive (asks for prompt), it freezes
+        ,(async-inject-variables "\\`load-path\\'") ;  TODO: Reliant on load path being set to agenda dir
+        ,(async-inject-variables "\\`org-agenda-files\\'")
+        ,(async-inject-variables "\\`org-todo-keywords\\'")
+        (require 'org-newtab-agenda)
+        (org-newtab--get-one-agenda-item ',query))
+     `(lambda (result)
+        (let ((data-packet (list :type "ITEM" :data result)))
+          (when ,resid
+            (setq data-packet (plist-put data-packet :resid ,resid)))
+          (if (equal ,own-task org-newtab--async-priority-task)
+              (progn (org-newtab--send-data (json-encode data-packet))
+                     (setq org-newtab--async-priority-task nil))
+            (org-newtab--log
+             "[Server] %s" "Async task priority changed, older request dropped")))))))
 
 (defun org-newtab--ws-on-close (_ws)
   "Perform when WS is closed."
