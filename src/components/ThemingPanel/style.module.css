@@ -7,7 +7,7 @@
 	grid-gap: 0.2rem;
 }
 
-@media (width >= 50rem) {
+@media (width >= 60rem) {
 	.panel {
 		grid-template: 1fr / 1fr 1fr;
 		grid-gap: 2rem;
@@ -23,7 +23,7 @@
 	text-align: left;
 }
 
-@media (width >= 50rem) {
+@media (width >= 60rem) {
 	.label {
 		text-align: right;
 	}
@@ -47,9 +47,9 @@
 
 .input:focus,
 .input:active,
-.input:has(+ .picker:active),
-.input:has(+ .picker:focus),
-.input:has(+ .picker:hover) {
+.picker:active ~ .input,
+.picker:focus ~ .input,
+.picker:hover ~ .input {
 	outline: none;
 	box-shadow: 4px 4px 0 0 var(--color-item-shadow);
 }
@@ -60,11 +60,11 @@
 	transition: all 0.1s ease-in;
 }
 
-.input-container:has(.input:focus) .input,
-.input-container:has(.input:active) .input,
-.input-container:has(.picker:active) .input,
-.input-container:has(.picker:focus) .input,
-.input-container:has(.picker:hover) .input {
+.input-container .input:focus,
+.input-container .input:active,
+.input-container .picker:active ~ .input,
+.input-container .picker:focus ~ .input,
+.input-container .picker:hover ~ .input {
 	transform: translate(-0.1rem, -0.1rem);
 }
 
