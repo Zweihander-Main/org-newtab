@@ -74,6 +74,10 @@ const TabBar: React.FC<TabBarProps> = ({ menuVisible }) => {
 		<nav
 			className={classNames(styles.bar, styles.indicator, {
 				[styles['is-visible']]: menuVisible,
+				[styles['button-1-selected']]: selectedCategory === 'Behavior',
+				[styles['button-2-selected']]: selectedCategory === 'Layout',
+				[styles['button-3-selected']]: selectedCategory === 'Theming',
+				[styles['button-4-selected']]: selectedCategory === 'Debug',
 			})}
 		>
 			<MemoizedOptButton

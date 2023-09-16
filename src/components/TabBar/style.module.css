@@ -90,19 +90,22 @@
 * viewport divided by n+1 slices
 * minus tab width applicable to slice
 * plus close button padding applicable to slice
+*
+* When :has has Firefox support:
+* .indicator:has(.button:nth-child(1).is-selected)::after
 */
-.indicator:has(.button:nth-child(1).is-selected)::after {
+.indicator.button-1-selected::after {
 	left: calc((100vw * 0.2) - (24rem * 0.2) + (5rem - (5rem * 0.2)));
 }
 
-.indicator:has(.button:nth-child(2).is-selected)::after {
+.indicator.button-2-selected::after {
 	left: calc((100vw * 0.4) - (24rem * 0.15) + (5rem - (5rem * 0.4)));
 }
 
-.indicator:has(.button:nth-child(3).is-selected)::after {
+.indicator.button-3-selected::after {
 	left: calc((100vw * 0.6) - (24rem * 0.1) + (5rem - (5rem * 0.6)));
 }
 
-.indicator:has(.button:nth-child(4).is-selected)::after {
+.indicator.button-4-selected::after {
 	left: calc((100vw * 0.8) - (24rem * 0.05) + (5rem - (5rem * 0.8)));
 }
