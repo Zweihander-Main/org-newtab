@@ -50,6 +50,10 @@ class Socket {
 			this._socket.addEventListener<T>(eventName, listener);
 		}
 	}
+
+	public get exists() {
+		return this._socket !== null;
+	}
 }
 
 export default Socket.getInstance();

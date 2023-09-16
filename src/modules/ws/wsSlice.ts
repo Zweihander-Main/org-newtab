@@ -91,7 +91,7 @@ export const selectedIsInSync = (state: RootState) =>
 export default wsSlice.reducer;
 
 /**
- * Open the websocket
+ * Open the websocket, idempotent
  */
 listenerMiddleware.startListening({
 	actionCreator: _openWS,
@@ -101,27 +101,31 @@ listenerMiddleware.startListening({
 		const {
 			ws: { wsPort },
 		} = getState();
-		dispatch(_setReadyStateTo(WSReadyState.CONNECTING));
-		Socket.connect(`ws://localhost:${wsPort}/`);
-		Socket.on('open', () => {
-			dispatch(_setReadyStateTo(WSReadyState.OPEN));
-		});
-		Socket.on('close', () => {
-			dispatch(_setReadyStateTo(WSReadyState.CLOSED));
-			dispatch(_setResponsesWaitingForTo([]));
-		});
-		Socket.on('error', (event) => {
-			console.error('Websocket error', event);
-		});
-		Socket.on('message', (event: MessageEvent<string>) => {
-			const message = event.data;
-			const parsed = JSON.parse(message) as EmacsRecvMsg;
-			if (parsed === null) return;
-			dispatch(_recvMsgFromEmacs(parsed));
-			if ('resid' in parsed) {
-				dispatch(_removeFromResponsesWaitingFor(parsed?.resid || -1));
-			}
-		});
+		if (!Socket.exists) {
+			dispatch(_setReadyStateTo(WSReadyState.CONNECTING));
+			Socket.connect(`ws://localhost:${wsPort}/`);
+			Socket.on('open', () => {
+				dispatch(_setReadyStateTo(WSReadyState.OPEN));
+			});
+			Socket.on('close', () => {
+				dispatch(_setReadyStateTo(WSReadyState.CLOSED));
+				dispatch(_setResponsesWaitingForTo([]));
+			});
+			Socket.on('error', (event) => {
+				console.error('Websocket error', event);
+			});
+			Socket.on('message', (event: MessageEvent<string>) => {
+				const message = event.data;
+				const parsed = JSON.parse(message) as EmacsRecvMsg;
+				if (parsed === null) return;
+				dispatch(_recvMsgFromEmacs(parsed));
+				if ('resid' in parsed) {
+					dispatch(
+						_removeFromResponsesWaitingFor(parsed?.resid || -1)
+					);
+				}
+			});
+		}
 	},
 });
 

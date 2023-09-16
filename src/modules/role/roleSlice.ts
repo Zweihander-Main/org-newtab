@@ -91,12 +91,9 @@ listenerMiddleware.startListening({
 		const { dispatch } = listenerApi;
 		const getState = listenerApi.getState.bind(this);
 		const {
-			role: { amMasterRole: wasMasterRole },
-		} = listenerApi.getOriginalState();
-		const {
 			role: { amMasterRole, stateResolved },
 		} = getState();
-		if (!wasMasterRole && amMasterRole && stateResolved) {
+		if (amMasterRole && stateResolved) {
 			dispatch(_openWS());
 		}
 	},
