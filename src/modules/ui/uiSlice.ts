@@ -66,8 +66,13 @@ export const selectedUntaggedItemBGColor = (state: RootState) =>
 export default uiSlice.reducer;
 
 interface RehydrateUIState extends Action<typeof REHYDRATE> {
+	type: typeof REHYDRATE;
 	payload?: Partial<UIState>;
 }
+
+type BGColorMiddlewareAction =
+	| RehydrateUIState
+	| ReturnType<typeof setUntaggedItemBGColor>;
 
 /**
  * Set the item background color for untagged items (or items which have tags
@@ -77,9 +82,14 @@ listenerMiddleware.startListening({
 	predicate: (action) =>
 		(action.type === REHYDRATE && action.key === 'ui') ||
 		action.type === setUntaggedItemBGColor.type,
-	effect: (action) => {
-		const { payload } = action as RehydrateUIState;
-		const untaggedItemBGColor = payload?.untaggedItemBGColor;
+	effect: (action: BGColorMiddlewareAction) => {
+		const { payload } = action;
+		let untaggedItemBGColor: string | undefined;
+		if (action.type === REHYDRATE && typeof payload === 'object') {
+			untaggedItemBGColor = payload?.untaggedItemBGColor;
+		} else if (typeof payload === 'string') {
+			untaggedItemBGColor = payload;
+		}
 		if (!untaggedItemBGColor) return;
 		document.documentElement.style.setProperty(
 			'--color-untagged-item-bg',
