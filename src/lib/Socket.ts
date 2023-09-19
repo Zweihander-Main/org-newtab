@@ -3,7 +3,7 @@ import { RECONNECTION_ATTEMPT_GROWTH_FACTOR } from './constants';
 
 const WebSocketOptions = {
 	reconnectionDelayGrowFactor: RECONNECTION_ATTEMPT_GROWTH_FACTOR,
-	debug: true,
+	debug: false,
 };
 class Socket {
 	private static _instance: Socket;
