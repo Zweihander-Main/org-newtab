@@ -10,7 +10,7 @@ import {
 	REHYDRATE,
 	RESYNC,
 } from '@plasmohq/redux-persist';
-import { Storage } from '@plasmohq/storage';
+import { Storage, StorageCallbackMap } from '@plasmohq/storage';
 
 import middleware from './middleware';
 import persistedRootReducer, {
@@ -53,15 +53,40 @@ export const persistor = persistStore(store);
 
 const watchKeys = persistKeys.map((key) => `persist:${key}`);
 
-const watchObject = watchKeys.reduce(
-	(acc, key) => {
-		acc[key] = () => {
+/**
+ * Assumption: Items nested past the first level are strings. Therefore shallow
+ * comparison is sufficient to determine if the value has changed.
+ */
+interface ReduxChangeObject extends chrome.storage.StorageChange {
+	oldValue?: Record<string, string>;
+	newValue?: Record<string, string>;
+}
+
+/**
+ * Manually confirming values have changed as Firefox and Chrome differ in
+ * triggering onChanged events. Firefox triggers it for every setItem call,
+ * whereas Chrome/Safari only trigger it when values have changed.
+ */
+const watchObject = watchKeys.reduce((acc, key) => {
+	acc[key] = (change: ReduxChangeObject) => {
+		const { oldValue, newValue } = change;
+		const updatedKeys = [];
+		for (const key in oldValue) {
+			if (oldValue[key] !== newValue?.[key]) {
+				updatedKeys.push(key);
+			}
+		}
+		for (const key in newValue) {
+			if (oldValue?.[key] !== newValue[key]) {
+				updatedKeys.push(key);
+			}
+		}
+		if (updatedKeys.length > 0) {
 			void persistor.resync();
-		};
-		return acc;
-	},
-	{} as Record<string, () => void>
-);
+		}
+	};
+	return acc;
+}, {} as StorageCallbackMap);
 
 new Storage({
 	area: 'local',
