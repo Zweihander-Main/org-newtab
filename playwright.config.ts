@@ -36,7 +36,7 @@ export default defineConfig({
 			name: 'chromium',
 			use: { ...devices['Desktop Chrome'] },
 		},
-
+		// Waiting on https://github.com/microsoft/playwright/issues/7297
 		// {
 		// 	name: 'firefox',
 		// 	use: { ...devices['Desktop Firefox'] },

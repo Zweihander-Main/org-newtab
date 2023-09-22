@@ -52,6 +52,7 @@ Org-NewTab is a browser extension which sets the org-agenda task you should be w
 ### Misc
 
 -   `chrome.storage.local.get(console.log)` to get extension storage
+-   Development is done against Chrome -- there is some flaky behavior when using `pnpm run dev --target=firefox-mv3` though a production build is checked against for every release
 
 ## Available for Hire
 
