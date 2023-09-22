@@ -387,3 +387,5 @@ test.describe('WebSocket', () => {
 		await expect(loadingBar).not.toBeVisible();
 	});
 });
+
+// TODO: Reduce flakiness when org-newtab-mode on default port is enabled
