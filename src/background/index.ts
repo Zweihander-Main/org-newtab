@@ -121,3 +121,5 @@ if (!chrome.runtime.onConnect.hasListener(handlePortConnect)) {
 // Load connections from storage, should be run if the BGSW is reloaded
 void connections.loadFromStorage();
 void masterWs.loadFromStorage();
+
+// TODO: Flaky behavior when building for Firefox-mv2
