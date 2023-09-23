@@ -2,13 +2,11 @@
 
 ;; Copyright (C) 2023, Zweihänder <zweidev@zweihander.me>
 ;;
-;; Author: Zweihänder
-;; Keywords: outlines
-;; Homepage: https://github.com/Zweihander-Main/org-newtab
-;; Version: 0.0.1
-;; Package-Requires: ((emacs "27.1") (websocket "1.7") (async "1.9.4"))
+;; Author: Zweihänder <zweidev@zweihander.me>
 
 ;; This file is not part of GNU Emacs.
+
+;; SPDX-License-Identifier: AGPL-3.0-or-later
 
 ;;; License:
 
@@ -50,7 +48,7 @@ Necessary to allow for async queries to use fresh data."
          (org-newtab--on-msg-send-match-query org-newtab--last-match-query))))
 
 (defun org-newtab--items-modified (&optional change-data)
-  "From `org-trigger-hook', check CHANGE-DATA state change, send new query if changed."
+  "From `org-trigger-hook', send new query if CHANGE-DATA changed."
   (when change-data
     (let ((to (substring-no-properties (plist-get change-data :to)))
           (from (substring-no-properties (plist-get change-data :from))))
