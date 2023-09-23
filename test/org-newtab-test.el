@@ -95,7 +95,6 @@
 
 ;; Local Variables:
 ;; coding: utf-8
-;; flycheck-disabled-checkers: 'emacs-lisp-elsa
 ;; End:
 
 ;;; org-newtab-test.el ends here

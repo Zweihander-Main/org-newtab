@@ -64,8 +64,6 @@
 
 ;; Local Variables:
 ;; coding: utf-8
-;; flycheck-enabled-checkers: (emacs-lisp-package emacs-lisp-checkdoc elisp-eldev)
-;; flycheck-disabled-checkers: nil
 ;; End:
 
 ;;; org-newtab.el ends here
