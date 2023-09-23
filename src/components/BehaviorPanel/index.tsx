@@ -61,6 +61,7 @@ const BehaviorPanel: React.FC = () => {
 					className={styles.input}
 					type="text"
 					name="matchQuery"
+					id="matchQuery"
 					defaultValue={matchQuery}
 					ref={matchQueryInputRef}
 					aria-label={chrome.i18n.getMessage('matchQuery')}
@@ -81,6 +82,7 @@ const BehaviorPanel: React.FC = () => {
 					className={styles.input}
 					type="number"
 					name="wsPort"
+					id="wsPort"
 					defaultValue={wsPort}
 					ref={wsPortInputRef}
 					aria-label={chrome.i18n.getMessage('wsPort')}
