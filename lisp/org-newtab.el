@@ -2,13 +2,15 @@
 
 ;; Copyright (C) 2023, Zweihänder <zweidev@zweihander.me>
 ;;
-;; Author: Zweihänder
+;; Author: Zweihänder <zweidev@zweihander.me>
 ;; Keywords: outlines
 ;; Homepage: https://github.com/Zweihander-Main/org-newtab
 ;; Version: 0.0.1
 ;; Package-Requires: ((emacs "27.1") (websocket "1.7") (async "1.9.4"))
 
 ;; This file is not part of GNU Emacs.
+
+;; SPDX-License-Identifier: AGPL-3.0-or-later
 
 ;;; License:
 

@@ -1,11 +1,13 @@
 ;;; org-newtab-test.el --- Tests for org-newtab-*-lexical-binding:t-*-
 
-;; Copyright (C) 2021, Zweihänder <zweidev@zweihander.me>
+;; Copyright (C) 2023, Zweihänder <zweidev@zweihander.me>
 ;;
-;; Author: Zweihänder
-;; Keywords: org-mode
+;; Author: Zweihänder <zweidev@zweihander.me>
+;; Keywords: outlines
 ;; Homepage: https://github.com/Zweihander-Main/org-newtab
 ;; Version: 0.0.1
+
+;; SPDX-License-Identifier: AGPL-3.0-or-later
 
 ;; This file is not part of GNU Emacs.
 
