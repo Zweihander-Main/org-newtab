@@ -7,8 +7,7 @@ _Supercharge your browser's New Tab with Org-Agenda_
 
 🗃️ Org-NewTab is a browser extension which sets the org-agenda task you should be working on as your new tab page.
 
-https://github.com/Zweihander-Main/org-newtab/assets/1928813/8d3134fb-97bd-40ee-95bb-09d64af7eefb
-
+https://github.com/Zweihander-Main/org-newtab/assets/1928813/d638a915-2ca1-4b5b-9de2-0af16b902f24
 
 ![GitHub Repo stars](https://img.shields.io/github/stars/Zweihander-Main/org-newtab?style=for-the-badge&color=ae5a95)
 ![GitHub issues](https://img.shields.io/github/issues/Zweihander-Main/org-newtab?style=for-the-badge&color=ae5a95)
