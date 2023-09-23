@@ -1,10 +1,19 @@
+<div align="center">
+	<img src="./assets/icon-300x300-min.png" alt="Org-NewTab Logo" width="300" />
+
 # Org-NewTab
 
-> 🗃️ Supercharge your browser's New Tab with Org-Agenda
+_Supercharge your browser's New Tab with Org-Agenda_
 
-Org-NewTab is a browser extension which sets the org-agenda task you should be working on as your new tab page.
+🗃️ Org-NewTab is a browser extension which sets the org-agenda task you should be working on as your new tab page.
+
+![GitHub Repo stars](https://img.shields.io/github/stars/Zweihander-Main/org-newtab?style=for-the-badge&color=ae5a95)
+![GitHub issues](https://img.shields.io/github/issues/Zweihander-Main/org-newtab?style=for-the-badge&color=ae5a95)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/Zweihander-Main/org-newtab?style=for-the-badge&color=ae5a95)
 
 **Current Status:** Functional, usable, little messy but getting close to a first release
+
+</div>
 
 ## Dev Notes
 
