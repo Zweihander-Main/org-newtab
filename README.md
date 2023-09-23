@@ -13,7 +13,7 @@ https://github.com/Zweihander-Main/org-newtab/assets/1928813/d638a915-2ca1-4b5b-
 ![GitHub issues](https://img.shields.io/github/issues/Zweihander-Main/org-newtab?style=for-the-badge&color=ae5a95)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/Zweihander-Main/org-newtab?style=for-the-badge&color=ae5a95)
 
-**Current Status:** Functional, usable, little messy but getting close to a first release
+**Current Status:** Functional, installation still very dodgy/difficult, getting close to a first release
 
 </div>
 
