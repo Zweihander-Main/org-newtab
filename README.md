@@ -45,7 +45,7 @@ To control what shows up when a task isn't clocked in, hit the menu button in th
 
 The background of the item that shows up is controlled by the `org-tag-faces` variable and which tags apply to the item. For now, the assumption is that only one colored tag will be applied to each item.
 
-## Dev Notes
+## 🖥️ Dev Notes
 
 ### Technologies used:
 
@@ -93,7 +93,7 @@ The background of the item that shows up is controlled by the `org-tag-faces` va
 -   `chrome.storage.local.get(console.log)` to get extension storage
 -   Development is done against Chrome -- there is some flaky behavior when using `pnpm run dev --target=firefox-mv3` though a production build is checked against for every release
 
-## Available for Hire
+## 💼 Available for Hire
 
 I'm available for freelance, contracts, and consulting both remotely and in the Hudson Valley, NY (USA) area. [Some more about me](https://www.zweisolutions.com/about.html) and [what I can do for you](https://www.zweisolutions.com/services.html).
 
@@ -103,7 +103,7 @@ Feel free to drop me a message at:
 hi [a+] zweisolutions {●} com
 ```
 
-## License
+## ⚖️ License
 
 [AGPLv3](./LICENSE)
 
