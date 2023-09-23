@@ -31,6 +31,9 @@
 ;;
 ;;; Code:
 
+(eval-when-compile
+  (cl-pushnew (expand-file-name default-directory) load-path))
+
 (require 'org-newtab)
 (require 'org-newtab-agenda)
 (require 'org-clock)

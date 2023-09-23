@@ -31,6 +31,9 @@
 ;;
 ;;; Code:
 
+(eval-when-compile
+  (cl-pushnew (expand-file-name default-directory) load-path))
+
 (require 'org-newtab-server)
 
 (defun org-newtab--save-all-agenda-buffers ()
