@@ -18,9 +18,35 @@ _Supercharge your browser's New Tab with Org-Agenda_
 
 **Current Status:** Functional, usable, little messy but getting close to a first release
 
+</div>
+
 ## 🚀 Getting Started
 
-</div>
+### Installation:
+
+Until the extension is available from all the repositories and stores, you'll have to set it up manually:
+
+1. Add the lisp files into your Emacs. Sample Doom config:
+
+```elisp
+;; packages.el
+(package! org-newtab
+  :recipe '(:host github :repo "Zweihander-Main/org-newtab"
+            :files ("lisp/org-newtab*.el" "LICENSE")))
+;; config.el
+(use-package! org-newtab-mode)
+```
+
+2. Clone this repo and run `pnpm run build` for Chrome, `pnpm run build --target=firefox-mv3` for Firefox.
+3. In Chrome, head to `chrome://extensions/`, enabled Developer Mode, and `Load unpacked` the `./build/chrome-mv3-prod` directory.
+   In Firefox, head to `about:debugging#/runtime/this-firefox` and `Load Temporary Add-on` the `./build/firefox-mv3-prod` directory. Note that you'll have to do this every time you restart Firefox until this is on the extension store (soon hopefully!). Alternatively, follow the `web-ext` instructions [from here](https://stackoverflow.com/questions/62237202/firefox-add-ons-how-to-install-my-own-local-add-on-extension-permanently-in-f).
+4. `M-x org-newtab-mode`
+
+### Usage:
+
+To control what shows up when a task isn't clocked in, hit the menu button in the top left and change the `Match Query` under the `Behavior` tab. Instructions for creating match queries [can be found here](https://orgmode.org/manual/Matching-tags-and-properties.html).
+
+The background of the item that shows up is controlled by the `org-tag-faces` variable and which tags apply to the item. For now, the assumption is that only one colored tag will be applied to each item.
 
 ## Dev Notes
 
