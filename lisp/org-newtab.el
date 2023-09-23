@@ -43,7 +43,7 @@
 
 (defcustom org-newtab-ws-port
   35942
-  "Port to server websocket server on."
+  "Port to server WebSocket server on."
   :type 'integer
   :group 'org-newtab)
 
