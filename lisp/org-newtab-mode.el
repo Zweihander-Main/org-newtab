@@ -62,6 +62,15 @@ Necessary to allow for async queries to use fresh data."
 ;; TODO: Append hook to edit effort functions
 ;; TODO: Let client know async function is running (send resid)
 
+(defvar org-newtab--hook-assocs
+  '(('org-clock-in-hook . #'org-newtab--on-msg-send-clocked-in)
+    ('org-clock-out-hook . #'org-newtab--send-new-match-query)
+    ('org-clock-cancel-hook . #'org-newtab--send-new-match-query)
+    ('org-trigger-hook . #'org-newtab--items-modified)
+    ('org-after-tags-change-hook . #'org-newtab--send-new-match-query)
+    ('org-after-refile-insert-hook . #'org-newtab--send-new-match-query))
+  "Association list of hooks and functions to append to them.")
+
 ;;;###autoload
 (define-minor-mode
   org-newtab-mode
@@ -74,20 +83,12 @@ Start the websocket server and add hooks in."
   (cond
    (org-newtab-mode
     (org-newtab--start-server)
-    (add-hook 'org-clock-in-hook #'org-newtab--on-msg-send-clocked-in)
-    (add-hook 'org-clock-out-hook #'org-newtab--send-new-match-query)
-    (add-hook 'org-clock-cancel-hook #'org-newtab--send-new-match-query)
-    (add-hook 'org-trigger-hook #'org-newtab--items-modified)
-    (add-hook 'org-after-tags-change-hook #'org-newtab--send-new-match-query)
-    (add-hook 'org-after-refile-insert-hook #'org-newtab--send-new-match-query))
+    (dolist (assoc org-newtab--hook-assocs)
+      (add-hook (car assoc) (cdr assoc))))
    (t
     (org-newtab--close-server)
-    (remove-hook 'org-clock-in-hook #'org-newtab--on-msg-send-clocked-in)
-    (remove-hook 'org-clock-out-hook #'org-newtab--send-new-match-query)
-    (remove-hook 'org-clock-cancel-hook #'org-newtab--send-new-match-query)
-    (remove-hook 'org-trigger-hook #'org-newtab--items-modified)
-    (remove-hook 'org-after-tags-change-hook #'org-newtab--send-new-match-query)
-    (remove-hook 'org-after-refile-insert-hook #'org-newtab--send-new-match-query))))
+    (dolist (assoc org-newtab--hook-assocs)
+      (remove-hook (car assoc) (cdr assoc))))))
 
 (provide 'org-newtab-mode)
 
