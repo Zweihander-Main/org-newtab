@@ -63,12 +63,12 @@ Necessary to allow for async queries to use fresh data."
 ;; TODO: Let client know async function is running (send resid)
 
 (defvar org-newtab--hook-assocs
-  '(('org-clock-in-hook . #'org-newtab--on-msg-send-clocked-in)
-    ('org-clock-out-hook . #'org-newtab--send-new-match-query)
-    ('org-clock-cancel-hook . #'org-newtab--send-new-match-query)
-    ('org-trigger-hook . #'org-newtab--items-modified)
-    ('org-after-tags-change-hook . #'org-newtab--send-new-match-query)
-    ('org-after-refile-insert-hook . #'org-newtab--send-new-match-query))
+  '((org-clock-in-hook . #'org-newtab--on-msg-send-clocked-in)
+    (org-clock-out-hook . #'org-newtab--send-new-match-query)
+    (org-clock-cancel-hook . #'org-newtab--send-new-match-query)
+    (org-trigger-hook . #'org-newtab--items-modified)
+    (org-after-tags-change-hook . #'org-newtab--send-new-match-query)
+    (org-after-refile-insert-hook . #'org-newtab--send-new-match-query))
   "Association list of hooks and functions to append to them.")
 
 ;;;###autoload
