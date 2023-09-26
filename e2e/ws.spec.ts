@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-base-to-string */
 /* eslint-disable no-console */
 import {
 	CONNECTION_STATUS_LOCATOR,
@@ -16,98 +15,11 @@ import {
 	RETRIES_FOR_WEBSOCKET,
 	closeOptions,
 	gotoOptPanel,
+	openSocketConnection,
+	webSocketURL,
+	setupWebsocketPort,
 } from './common';
 import { test, expect } from './fixture';
-import WebSocket from 'ws';
-import net from 'net';
-import { Page } from '@playwright/test';
-import { DEFAULT_WEBSOCKET_PORT } from 'lib/constants';
-
-function startTestWebSocketServer(port: number) {
-	const wss = new WebSocket.Server({ port: port });
-
-	wss.on('connection', (ws) => {
-		ws.on('message', (message) => {
-			console.log('Received message from client: %s', message);
-			let resid = -1;
-			try {
-				const parsed = JSON.parse(message.toString()) as {
-					command: string;
-					data: string;
-					resid: number;
-				};
-				resid = parsed?.resid || -1;
-			} catch {
-				console.log('Could not parse message, not JSON.');
-			}
-			const toSend = JSON.stringify({
-				type: 'ITEM',
-				data: { ITEM: WSS_TEST_TEXT },
-				resid,
-			});
-			console.log('Sending response', toSend);
-			ws.send(toSend);
-		});
-
-		ws.on('close', () => {
-			console.log('Client disconnected');
-		});
-
-		ws.on('error', console.error);
-	});
-	return wss;
-}
-
-async function isPortInUse(port: number) {
-	return new Promise((resolve) => {
-		const server = net.createServer();
-		server.once('error', (err: Error & { code: string }) => {
-			if (err.code === 'EADDRINUSE') {
-				resolve(true);
-			} else {
-				resolve(false);
-			}
-		});
-		server.once('listening', () => {
-			server.close();
-			resolve(false);
-		});
-		server.listen(port);
-	});
-}
-
-async function pickARandomPort() {
-	const port = Math.floor(Math.random() * (55000 - 10000 + 1)) + 10000;
-	if (!(await isPortInUse(port)) && port !== DEFAULT_WEBSOCKET_PORT) {
-		return port;
-	} else {
-		return pickARandomPort();
-	}
-}
-
-async function openSocketConnection() {
-	const port = await pickARandomPort();
-	const wss = startTestWebSocketServer(port);
-	return { port, wss };
-}
-
-async function setupWebsocketPort(
-	conn: Awaited<ReturnType<typeof openSocketConnection>>,
-	tab: Page
-) {
-	await test.step('Setup websocket port', async () => {
-		await gotoOptPanel(tab, 'Behavior');
-		const portInput = tab.getByLabel(WS_PORT_LABEL);
-		await portInput.fill(conn.port.toString());
-		await portInput.press('Enter');
-		await expect(portInput).toHaveValue(conn.port.toString());
-		await closeOptions(tab);
-	});
-}
-
-function webSocketURL(conn: Awaited<ReturnType<typeof openSocketConnection>>) {
-	return `ws://localhost:${conn.port}/`;
-}
 
 test.describe('WebSocket', () => {
 	test.describe.configure({

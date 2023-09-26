@@ -1,13 +1,12 @@
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-base-to-string */
 import { Page } from '@playwright/test';
 import { test, expect } from './fixture';
 import fs from 'fs';
 import { OptionCategories } from 'modules/ui/uiSlice';
-const locale = 'en';
-
-type Message = {
-	message: string;
-	description: string;
-};
+import WebSocket from 'ws';
+import net from 'net';
+import { DEFAULT_WEBSOCKET_PORT } from 'lib/constants';
 
 function loadMessagesJson(locale: string): Record<string, Message> {
 	const filePath = `locales/${locale}/messages.json`;
@@ -16,16 +15,17 @@ function loadMessagesJson(locale: string): Record<string, Message> {
 }
 
 const getMessage = (id: string): string => {
-	const messages = loadMessagesJson(locale);
+	const messages = loadMessagesJson(LOCALE);
 	return (messages[id] && messages[id]?.message) || '';
 };
 
-// VSCode test environment is slower than CLI
 export const QUICK_TIMEOUT = 50;
 export const HOW_LONG_TO_WAIT_FOR_STORAGE = 20000;
 export const HOW_LONG_TO_WAIT_FOR_WEBSOCKET = 15000;
 export const HOW_LONG_TO_WAIT_FOR_RESPONSE = 20000;
 export const RETRIES_FOR_WEBSOCKET = 0;
+
+export const LOCALE = 'en';
 
 export const MASTER_MESSAGE = getMessage('masterRole');
 export const CLIENT_MESSAGE = getMessage('clientRole');
@@ -48,6 +48,11 @@ export const BEHAVIOR_BUTTON_LOCATOR = 'behavior-button';
 export const LAYOUT_BUTTON_LOCATOR = 'layout-button';
 export const THEMING_BUTTON_LOCATOR = 'theming-button';
 export const DEBUG_BUTTON_LOCATOR = 'debug-button';
+
+type Message = {
+	message: string;
+	description: string;
+};
 
 export const openOptions = async (page: Page) => {
 	await test.step('Open menu', async () => {
@@ -94,3 +99,91 @@ export const storageIsResolved = async (page: Page) => {
 		await closeOptions(page);
 	});
 };
+
+export function startTestWebSocketServer(port: number) {
+	const wss = new WebSocket.Server({ port: port });
+
+	wss.on('connection', (ws) => {
+		ws.on('message', (message) => {
+			console.log('Received message from client: %s', message);
+			let resid = -1;
+			try {
+				const parsed = JSON.parse(message.toString()) as {
+					command: string;
+					data: string;
+					resid: number;
+				};
+				resid = parsed?.resid || -1;
+			} catch {
+				console.log('Could not parse message, not JSON.');
+			}
+			const toSend = JSON.stringify({
+				type: 'ITEM',
+				data: { ITEM: WSS_TEST_TEXT },
+				resid,
+			});
+			console.log('Sending response', toSend);
+			ws.send(toSend);
+		});
+
+		ws.on('close', () => {
+			console.log('Client disconnected');
+		});
+
+		ws.on('error', console.error);
+	});
+	return wss;
+}
+
+export async function isPortInUse(port: number) {
+	return new Promise((resolve) => {
+		const server = net.createServer();
+		server.once('error', (err: Error & { code: string }) => {
+			if (err.code === 'EADDRINUSE') {
+				resolve(true);
+			} else {
+				resolve(false);
+			}
+		});
+		server.once('listening', () => {
+			server.close();
+			resolve(false);
+		});
+		server.listen(port);
+	});
+}
+
+export async function pickARandomPort() {
+	const port = Math.floor(Math.random() * (55000 - 10000 + 1)) + 10000;
+	if (!(await isPortInUse(port)) && port !== DEFAULT_WEBSOCKET_PORT) {
+		return port;
+	} else {
+		return pickARandomPort();
+	}
+}
+
+export async function openSocketConnection() {
+	const port = await pickARandomPort();
+	const wss = startTestWebSocketServer(port);
+	return { port, wss };
+}
+
+export async function setupWebsocketPort(
+	conn: Awaited<ReturnType<typeof openSocketConnection>>,
+	tab: Page
+) {
+	await test.step('Setup websocket port', async () => {
+		await gotoOptPanel(tab, 'Behavior');
+		const portInput = tab.getByLabel(WS_PORT_LABEL);
+		await portInput.fill(conn.port.toString());
+		await portInput.press('Enter');
+		await expect(portInput).toHaveValue(conn.port.toString());
+		await closeOptions(tab);
+	});
+}
+
+export function webSocketURL(
+	conn: Awaited<ReturnType<typeof openSocketConnection>>
+) {
+	return `ws://localhost:${conn.port}/`;
+}
