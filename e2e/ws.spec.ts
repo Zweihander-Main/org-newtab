@@ -287,11 +287,12 @@ test.describe('WebSocket', () => {
 		const tabMaster = await context.newPage();
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
 		await storageIsResolved(tabMaster);
-
 		const loadingBar = tabMaster.getByTestId(LOADING_BAR_LOCATOR);
-		await expect(loadingBar).not.toBeVisible();
-		await setupWebsocketPort(conn, tabMaster);
-		await expect(loadingBar).toBeVisible();
+
+		await Promise.all([
+			await expect(loadingBar).toBeVisible(),
+			await setupWebsocketPort(conn, tabMaster),
+		]);
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
 			WSS_TEST_TEXT,
 			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
@@ -299,5 +300,3 @@ test.describe('WebSocket', () => {
 		await expect(loadingBar).not.toBeVisible();
 	});
 });
-
-// TODO: Reduce flakiness when org-newtab-mode on default port is enabled

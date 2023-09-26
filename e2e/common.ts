@@ -19,7 +19,6 @@ const getMessage = (id: string): string => {
 	return (messages[id] && messages[id]?.message) || '';
 };
 
-export const QUICK_TIMEOUT = 50;
 export const HOW_LONG_TO_WAIT_FOR_STORAGE = 20000;
 export const HOW_LONG_TO_WAIT_FOR_WEBSOCKET = 15000;
 export const HOW_LONG_TO_WAIT_FOR_RESPONSE = 20000;
