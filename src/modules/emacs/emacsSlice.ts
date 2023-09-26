@@ -133,16 +133,38 @@ export const {
 
 export default emacsSlice.reducer;
 
+/**
+ * Get the current item from Emacs on request
+ */
 listenerMiddleware.startListening({
-	matcher: isAnyOf(getItem, setMatchQueryTo),
+	actionCreator: getItem,
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
 		const getState = listenerApi.getState.bind(this);
-		const { matchQuery } = getState().emacs;
+		const {
+			emacs: { matchQuery },
+		} = getState();
 		const jsonMessage = {
 			command: 'getItem',
 			data: matchQuery,
 		} as EmacsSendMsg;
 		dispatch(_sendMsgToEmacs(jsonMessage));
+	},
+});
+
+/**
+ * Ask for current item if the match query changes
+ */
+listenerMiddleware.startListening({
+	actionCreator: setMatchQueryTo,
+	effect: (action, listenerApi) => {
+		const { dispatch } = listenerApi;
+		const {
+			emacs: { matchQuery: prevMatchQuery },
+		} = listenerApi.getOriginalState();
+		const currMatchQuery = action.payload;
+		if (prevMatchQuery !== currMatchQuery) {
+			dispatch(getItem());
+		}
 	},
 });
