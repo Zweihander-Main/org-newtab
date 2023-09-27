@@ -57,9 +57,7 @@
 (provide 'org-newtab)
 
 (cl-eval-when (load eval)
-  (let ((dir (expand-file-name default-directory)))
-    (if (not (memq dir load-path))
-        (add-to-list 'load-path dir))) ; TODO: Remove for packaging?
+  (cl-pushnew (expand-file-name default-directory) load-path)
   (require 'org-newtab-mode))
 
 ;; Local Variables:
