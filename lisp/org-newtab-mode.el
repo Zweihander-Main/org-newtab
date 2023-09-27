@@ -1,4 +1,4 @@
-;;; org-newtab-mode.el --- WIP -*-lexical-binding:t-*-
+;;; org-newtab-mode.el --- Toggle WebSocket server and hooks -*-lexical-binding:t-*-
 
 ;; Copyright (C) 2023, Zweihänder <zweidev@zweihander.me>
 ;;
@@ -24,9 +24,10 @@
 ;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;;
-;; WIP
-;;
+
+;; This file provides a minor mode to toggle the WebSocket server and org hooks.
+;; Hook related code primarily goes here.
+
 ;;; Code:
 
 (eval-when-compile

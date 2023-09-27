@@ -1,4 +1,4 @@
-;;; org-newtab-server.el --- WIP -*-lexical-binding:t-*-
+;;; org-newtab-server.el --- WebSocket server to talk to the browser -*-lexical-binding:t-*-
 
 ;; Copyright (C) 2023, Zweihänder <zweidev@zweihander.me>
 ;;
@@ -24,9 +24,11 @@
 ;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;;
-;; WIP
-;;
+
+;; This file provides the WebSocket server and related callback functions for
+;; dealing with receiving/sending messages. Asynchronous tasks are also handled
+;; here.
+
 ;;; Code:
 
 (eval-when-compile

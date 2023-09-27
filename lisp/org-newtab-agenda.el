@@ -1,4 +1,4 @@
-;;; org-newtab-agenda.el --- WIP -*-lexical-binding:t-*-
+;;; org-newtab-agenda.el --- Library function for agenda interaction -*-lexical-binding:t-*-
 
 ;; Copyright (C) 2023, Zweihänder <zweidev@zweihander.me>
 ;;
