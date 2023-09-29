@@ -48,7 +48,7 @@ Necessary to allow for async queries to use fresh data."
         (t
          (org-newtab--on-msg-send-match-query org-newtab--last-match-query))))
 
-(defun org-newtab--items-modified (&optional change-data)
+(defun org-newtab--on-state-change (&optional change-data)
   "From `org-trigger-hook', send new query if CHANGE-DATA changed."
   (when change-data
     (let ((to (substring-no-properties (plist-get change-data :to)))
@@ -56,7 +56,6 @@ Necessary to allow for async queries to use fresh data."
       (unless (string-match-p from to)
         (org-newtab--send-new-match-query)))))
 
-;; TODO: rename items-modified
 ;; TODO: DRY send-new-match-query
 ;; TODO: Append hook to edit-headline function
 ;; TODO: Append hook to priority shift functions
@@ -67,7 +66,7 @@ Necessary to allow for async queries to use fresh data."
   '((org-clock-in-hook . org-newtab--on-msg-send-clocked-in)
     (org-clock-out-hook . org-newtab--send-new-match-query)
     (org-clock-cancel-hook . org-newtab--send-new-match-query)
-    (org-trigger-hook . org-newtab--items-modified)
+    (org-trigger-hook . org-newtab--on-state-change)
     (org-after-tags-change-hook . org-newtab--send-new-match-query)
     (org-after-refile-insert-hook . org-newtab--send-new-match-query))
   "Association list of hooks and functions to append to them.")
