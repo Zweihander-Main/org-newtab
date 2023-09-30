@@ -120,12 +120,13 @@
   (setq org-newtab--async-priority-task (or resid (random t)))
   (let ((own-task org-newtab--async-priority-task))
     (async-start
-     `(lambda () ; TODO: if it becomes interactive (asks for prompt), it freezes
-        ,(async-inject-variables "\\`load-path\\'") ;  TODO: Reliant on load path being set to agenda dir
+     `(lambda ()
+        ,(async-inject-variables "\\`load-path\\'")
         ,(async-inject-variables "\\`org-agenda-files\\'")
         ,(async-inject-variables "\\`org-todo-keywords\\'")
-        (require 'org-newtab-agenda)
-        (org-newtab--get-one-agenda-item ',query))
+        (let ((inhibit-message t)) ; TODO: freezes if prompted for input -- test further
+          (require 'org-newtab-agenda)
+          (org-newtab--get-one-agenda-item ',query)))
      `(lambda (result)
         (let ((data-packet (list :type "ITEM" :data result)))
           (when ,resid
