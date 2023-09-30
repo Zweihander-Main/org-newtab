@@ -31,7 +31,7 @@
 
 ;; Org-NewTab is a browser extension which sets the org-agenda task you should
 ;; be working on as your new tab page. It's comprised of two parts: a browser
-;; extensionand an Emacs package. The Emacs package runs a WebSocket server
+;; extension and an Emacs package. The Emacs package runs a WebSocket server
 ;; which the browser extension talks to.
 
 ;; The Emacs side is invoked with `org-newtab-mode'. This starts a WebSocket
