@@ -122,7 +122,9 @@ export function startTestWebSocketServer(port: number) {
 				resid,
 			});
 			console.log('Sending response', toSend);
-			ws.send(toSend);
+			setTimeout(() => {
+				ws.send(toSend);
+			}, 500);
 		});
 
 		ws.on('close', () => {
