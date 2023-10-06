@@ -249,9 +249,6 @@
 	"manifest": {
 		"default_locale": "en",
 		"name": "__MSG_extensionName__",
-		"permissions": [
-			"tabs"
-		],
 		"content_security_policy": {
 			"extension_pages": "script-src 'self'; object-src 'self'"
 		},
