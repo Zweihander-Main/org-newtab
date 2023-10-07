@@ -9,6 +9,11 @@ _Supercharge your browser's New Tab with Org-Agenda_
 
 https://github.com/Zweihander-Main/org-newtab/assets/1928813/79b44915-2a1a-42af-828e-f31105c2e5be
 
+<p align="center">
+	<a href="https://chrome.google.com/webstore/detail/org-newtab/ojpofmnbleffgacihnocmcaefbmehehj"><img src="https://user-images.githubusercontent.com/585534/107280622-91a8ea80-6a26-11eb-8d07-77c548b28665.png" alt="Get uBlock Origin for Chromium"></a>
+	<a href="https://addons.mozilla.org/en-US/firefox/addon/org-newtab/"><img src="https://user-images.githubusercontent.com/585534/107280546-7b9b2a00-6a26-11eb-8f9f-f95932f4bfec.png" alt="Get uBlock Origin for Firefox"></a>
+</p>
+
 ![GitHub Repo stars](https://img.shields.io/github/stars/Zweihander-Main/org-newtab?style=for-the-badge&color=ae5a95)
 ![GitHub issues](https://img.shields.io/github/issues/Zweihander-Main/org-newtab?style=for-the-badge&color=ae5a95)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/Zweihander-Main/org-newtab?style=for-the-badge&color=ae5a95)
