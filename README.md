@@ -26,7 +26,13 @@ https://github.com/Zweihander-Main/org-newtab/assets/1928813/79b44915-2a1a-42af-
 
 ### Installation:
 
-Until the extension is available from all the repositories and stores, you'll have to set it up manually:
+## Recommended way:
+
+1. **(Coming soon)** Install package from MELPA
+2. Install [Chrome](https://chrome.google.com/webstore/detail/org-newtab/ojpofmnbleffgacihnocmcaefbmehehj) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/org-newtab/) extension
+3. `M-x org-newtab-mode`
+
+## For development:
 
 1. Add the lisp files into your Emacs. Sample Doom config:
 
@@ -72,6 +78,7 @@ The background of the item that shows up is controlled by the `org-tag-faces` va
 -   [x] Layout editor
 -   [x] Display clock status in browser
 -   [x] Hooks on Emacs actions (TODO change, clock change, ect.)
+-   [x] Firefox compatibility
 -   [ ] Clock in and out from browser
 -   [ ] Mark items as done from browser
 -   [ ] Smart caching for match query lookups
@@ -88,9 +95,8 @@ The background of the item that shows up is controlled by the `org-tag-faces` va
 -   [ ] Icons for connection status
 -   [ ] Deeper agenda integration
 -   [ ] Multiple themes
--   [ ] Built-out documentation (README or separate site)
+-   [ ] Built-out documentation (separate site)
 -   [ ] Provide sorting beyond what match query provides
--   [ ] Firefox compatibility
 -   [ ] In-app tutorial/getting started
 
 ### Misc
