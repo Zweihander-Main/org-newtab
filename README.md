@@ -26,13 +26,17 @@ https://github.com/Zweihander-Main/org-newtab/assets/1928813/79b44915-2a1a-42af-
 
 ### Installation:
 
-## Recommended way:
-
 1. **(Coming soon)** Install package from MELPA
 2. Install [Chrome](https://chrome.google.com/webstore/detail/org-newtab/ojpofmnbleffgacihnocmcaefbmehehj) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/org-newtab/) extension
 3. `M-x org-newtab-mode`
 
-## For development:
+### Usage:
+
+To control what shows up when a task isn't clocked in, hit the menu button in the top left and change the `Match Query` under the `Behavior` tab. Instructions for creating match queries [can be found here](https://orgmode.org/manual/Matching-tags-and-properties.html).
+
+The background of the item that shows up is controlled by the `org-tag-faces` variable and which tags apply to the item. For now, the assumption is that only one colored tag will be applied to each item.
+
+### Development setup:
 
 1. Add the lisp files into your Emacs. Sample Doom config:
 
@@ -49,12 +53,6 @@ https://github.com/Zweihander-Main/org-newtab/assets/1928813/79b44915-2a1a-42af-
 3. In Chrome, head to `chrome://extensions/`, enabled Developer Mode, and `Load unpacked` the `./build/chrome-mv3-prod` directory.
    In Firefox, head to `about:debugging#/runtime/this-firefox` and `Load Temporary Add-on` the `./build/firefox-mv3-prod` directory. Note that you'll have to do this every time you restart Firefox until this is on the extension store (soon hopefully!). Alternatively, follow the `web-ext` instructions [from here](https://stackoverflow.com/questions/62237202/firefox-add-ons-how-to-install-my-own-local-add-on-extension-permanently-in-f).
 4. `M-x org-newtab-mode`
-
-### Usage:
-
-To control what shows up when a task isn't clocked in, hit the menu button in the top left and change the `Match Query` under the `Behavior` tab. Instructions for creating match queries [can be found here](https://orgmode.org/manual/Matching-tags-and-properties.html).
-
-The background of the item that shows up is controlled by the `org-tag-faces` variable and which tags apply to the item. For now, the assumption is that only one colored tag will be applied to each item.
 
 ## 🖥️ Dev Notes
 
