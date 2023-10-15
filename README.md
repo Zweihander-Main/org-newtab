@@ -90,7 +90,7 @@ With the next sample you can install the package directly from the source
 repository:
 
 ```emacs-lisp
-(package! org-roam
+(package! org-newtab
   :recipe (:host github :repo "Zweihander-Main/org-newtab"
            :files (:defaults)))
 ```
@@ -99,7 +99,7 @@ And if you plan to use your own local fork for the development or contribution,
 the next sample will get you there:
 
 ```emacs-lisp
-(package! org-roam
+(package! org-newtab
   :recipe (:local-repo "/path/to/org-newtab-fork"
            :files (:defaults)
            :build (:not compile)))
