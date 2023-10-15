@@ -26,7 +26,107 @@ https://github.com/Zweihander-Main/org-newtab/assets/1928813/79b44915-2a1a-42af-
 
 ### Installation:
 
-1. **(Coming soon)** Install package from MELPA
+1. Install package from MELPA
+ <details>
+ <summary>Using `package.el`</summary>
+
+You can install `org-newtab` from [MELPA](https://melpa.org/) or [MELPA
+Stable](https://stable.melpa.org/) using `package.el`:
+
+```
+M-x package-install RET org-newtab RET
+```
+
+</details>
+
+<details>
+<summary>Using `straight.el`</summary>
+
+Installation from MELPA or MELPA Stable using `straight.el`:
+
+```emacs-lisp
+(straight-use-package 'org-newtab)
+```
+
+Or with `use-package`:
+
+```emacs-lisp
+(use-package org-newtab
+  :straight t
+  ...)
+```
+
+If you need to install the package directly from the source repository, instead
+of from MELPA, the next sample shows how to do so:
+
+```emacs-lisp
+(use-package org-newtab
+  :straight (:host github :repo "Zweihander-Main/org-newtab"
+             :files (:defaults))
+  ...)
+```
+
+If you plan to use your own local fork for the development and contribution, the
+next sample will get you there:
+
+```emacs-lisp
+(use-package org-newtab
+  :straight (:local-repo "/path/to/org-newtab-fork"
+             :files (:defaults)
+             :build (:not compile))
+  ...)
+```
+
+</details>
+
+<details>
+<summary>Using Doom Emacs</summary>
+
+```emacs-lisp
+(package! org-newtab)
+```
+
+With the next sample you can install the package directly from the source
+repository:
+
+```emacs-lisp
+(package! org-roam
+  :recipe (:host github :repo "Zweihander-Main/org-newtab"
+           :files (:defaults)))
+```
+
+And if you plan to use your own local fork for the development or contribution,
+the next sample will get you there:
+
+```emacs-lisp
+(package! org-roam
+  :recipe (:local-repo "/path/to/org-newtab-fork"
+           :files (:defaults)
+           :build (:not compile)))
+```
+
+</details>
+
+<details>
+<summary>Without a package manager</summary>
+
+Uou will need to ensure that you have all the required dependencies. These include:
+
+-   websocket
+-   async
+
+After installing the package, you will need to properly setup `load-path` to the
+package:
+
+```emacs-lisp
+(add-to-list 'load-path "/path/to/org-newtab/lisp/")
+```
+
+After which you should be able to resolve `(require 'org-newtab)` call without any
+problems.
+
+</details>
+
 2. Install [Chrome](https://chrome.google.com/webstore/detail/org-newtab/ojpofmnbleffgacihnocmcaefbmehehj) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/org-newtab/) extension
 3. `M-x org-newtab-mode`
 
@@ -38,17 +138,7 @@ The background of the item that shows up is controlled by the `org-tag-faces` va
 
 ### Development setup:
 
-1. Add the lisp files into your Emacs. Sample Doom config:
-
-```elisp
-;; packages.el
-(package! org-newtab
-  :recipe '(:host github :repo "Zweihander-Main/org-newtab"
-            :files ("lisp/org-newtab*.el" "LICENSE")))
-;; config.el
-(use-package! org-newtab-mode)
-```
-
+1. Add the lisp files into your Emacs as outlined above.
 2. Clone this repo and run `pnpm run build` for Chrome, `pnpm run build --target=firefox-mv3` for Firefox.
 3. In Chrome, head to `chrome://extensions/`, enabled Developer Mode, and `Load unpacked` the `./build/chrome-mv3-prod` directory.
    In Firefox, head to `about:debugging#/runtime/this-firefox` and `Load Temporary Add-on` the `./build/firefox-mv3-prod` directory. Note that you'll have to do this every time you restart Firefox until this is on the extension store (soon hopefully!). Alternatively, follow the `web-ext` instructions [from here](https://stackoverflow.com/questions/62237202/firefox-add-ons-how-to-install-my-own-local-add-on-extension-permanently-in-f).
