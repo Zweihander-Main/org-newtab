@@ -141,8 +141,8 @@ The background of the item that shows up is controlled by the `org-tag-faces` va
 
 1. Add the lisp files into your Emacs as outlined above.
 2. Clone this repo and run `pnpm run build` for Chrome, `pnpm run build --target=firefox-mv3` for Firefox.
-3. In Chrome, head to `chrome://extensions/`, enabled Developer Mode, and `Load unpacked` the `./build/chrome-mv3-prod` directory.
-   In Firefox, head to `about:debugging#/runtime/this-firefox` and `Load Temporary Add-on` the `./build/firefox-mv3-prod` directory. Note that you'll have to do this every time you restart Firefox until this is on the extension store (soon hopefully!). Alternatively, follow the `web-ext` instructions [from here](https://stackoverflow.com/questions/62237202/firefox-add-ons-how-to-install-my-own-local-add-on-extension-permanently-in-f).
+3. In Chrome, head to `chrome://extensions/`, enable Developer Mode, and `Load unpacked` the `./build/chrome-mv3-prod` directory.
+   In Firefox, head to `about:debugging#/runtime/this-firefox` and `Load Temporary Add-on` the `./build/firefox-mv3-prod` directory. Note that you'll have to do this every time you restart Firefox.
 4. `M-x org-newtab-mode`
 
 ## 🖥️ Dev Notes
