@@ -111,7 +111,7 @@ the next sample will get you there:
 <details>
 <summary>Without a package manager</summary>
 
-Uou will need to ensure that you have all the required dependencies. These include:
+You will need to ensure that you have all the required dependencies. These include:
 
 -   websocket
 -   async
