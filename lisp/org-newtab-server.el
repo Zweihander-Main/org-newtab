@@ -90,13 +90,18 @@
          (json-data (org-newtab--decipher-message-from-frame-text frame-text)))
     (org-newtab--log "[Server] Received %S from client" json-data)
     (let ((command (plist-get json-data :command))
-          (resid (plist-get json-data :resid)))
+          (resid (plist-get json-data :resid))
+          query)
+      ;; Always capture the match query in case it's needed later
+      ;; (for example, being able to send back data after clock out without
+      ;; having to ask the extension for the query again)
+      (when (string= command "getItem")
+        (setq query (plist-get json-data :data))
+        (setq org-newtab--last-match-query query))
       (cond ((org-clocking-p)
              (org-newtab--on-msg-send-clocked-in resid))
             ((string= command "getItem")
-             (let ((query (plist-get json-data :data)))
-               (setq org-newtab--last-match-query query)
-               (org-newtab--on-msg-send-match-query query resid)))
+             (org-newtab--on-msg-send-match-query query resid))
             (t
              (org-newtab--log "[Server] %s" "Unknown command from client"))))))
 
