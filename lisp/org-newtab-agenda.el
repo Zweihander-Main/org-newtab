@@ -61,13 +61,13 @@
   "Get an org marker and return a JSONable form of its properties.
 Add CLOKED minutes if CLOCKED is non-nil."
   (let ((props (org-entry-properties))
-        (json-null json-false))
+        (json-null json-false)
+        (effort (org-entry-get (point) org-effort-property)))
     (when clocked
       (setq props
             (append props
                     `(("EFFORT_MINUTES" .
-                       ,(org-duration-to-minutes
-                         (org-entry-get (point) org-effort-property)))
+                       ,(if effort (org-duration-to-minutes effort) nil))
                       ("PREVIOUSLY_CLOCKED_MINUTES" .
                        ,(or org-clock-total-time 0))
                       ("CURRENT_CLOCK_START_TIMESTAMP" .
