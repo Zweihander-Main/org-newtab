@@ -1,5 +1,4 @@
-; -*- mode: emacs-lisp; lexical-binding: t -*-
-
+; -*- mode: emacs-lisp; lexical-binding: t; no-byte-compile: t -*-
 (eldev-require-version "1.2")
 (eldev-use-package-archive 'melpa)
 (eldev-add-loading-roots 'test "lisp")
