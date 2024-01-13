@@ -5,7 +5,7 @@
 ;; Author: Zweihänder <zweidev@zweihander.me>
 ;; Keywords: outlines
 ;; Homepage: https://github.com/Zweihander-Main/org-newtab
-;; Version: 0.0.1
+;; Version: 0.0.2
 ;; Package-Requires: ((emacs "27.1") (websocket "1.14") (async "1.9.7"))
 
 ;; This file is not part of GNU Emacs.
