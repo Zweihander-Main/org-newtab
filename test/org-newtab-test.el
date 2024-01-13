@@ -5,7 +5,7 @@
 ;; Author: Zweihänder <zweidev@zweihander.me>
 ;; Keywords: outlines
 ;; Homepage: https://github.com/Zweihander-Main/org-newtab
-;; Version: 0.0.2
+;; Version: 0.0.3
 
 ;; SPDX-License-Identifier: AGPL-3.0-or-later
 
