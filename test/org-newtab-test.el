@@ -93,6 +93,8 @@
     (let ((org-tag-faces nil))
       (expect (org-newtab--get-tag-faces) :to-equal nil))))
 
+(provide 'org-newtab-test)
+
 ;; Local Variables:
 ;; coding: utf-8
 ;; End:
