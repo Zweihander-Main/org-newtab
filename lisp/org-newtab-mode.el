@@ -1,6 +1,6 @@
 ;;; org-newtab-mode.el --- Toggle WebSocket server and hooks -*-lexical-binding:t-*-
 
-;; Copyright (C) 2023, Zweihänder <zweidev@zweihander.me>
+;; Copyright (C) 2023-2024, Zweihänder <zweidev@zweihander.me>
 ;;
 ;; Author: Zweihänder <zweidev@zweihander.me>
 
