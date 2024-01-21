@@ -2,6 +2,7 @@
 ;; 1.8 for source directory support
 (eldev-require-version "1.8")
 
+(eldev-use-package-archive 'gnu-elpa)
 (eldev-use-package-archive 'melpa)
 
 ;; Main files
