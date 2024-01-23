@@ -170,7 +170,7 @@ export async function openSocketConnection() {
 }
 
 export async function setupWebsocketPort(
-	conn: Awaited<ReturnType<typeof openSocketConnection>>,
+	conn: Awaited<ReturnType<typeof openSocketConnection>> | { port: number },
 	tab: Page
 ) {
 	await test.step('Setup websocket port', async () => {

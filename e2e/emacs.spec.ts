@@ -1,34 +1,56 @@
-import { exec } from 'child_process';
-import { test, expect } from '@playwright/test';
+/* eslint-disable no-console */
+import { spawn } from 'child_process';
+import { test, expect } from './fixture';
+import {
+	CONNECTION_STATUS_LOCATOR,
+	CONNECTION_STATUS_OPEN,
+	HOW_LONG_TO_WAIT_FOR_RESPONSE,
+	ITEM_TEXT_LOCATOR,
+	setupWebsocketPort,
+} from './common';
 
-async function runEmacs(sexp: string) {
-	return new Promise((resolve, reject) => {
-		exec(
-			[
-				'emacs',
-				'--batch',
-				'-l',
-				`${process.cwd()}/lisp/org-newtab-agenda.el`,
-				'--eval',
-				'"(progn',
-				`(setq org-agenda-files (list \\"${process.cwd()}/e2e/emacs/\\"))`,
-				`${sexp})"`,
-			].join(' '),
-			(error, stdout, stderr) => {
-				if (error || stderr) {
-					reject(error);
-				}
-				resolve(stdout);
-			}
-		);
+const baseDir = process.cwd();
+
+function emacsProcess() {
+	const emacs = spawn('emacs', [
+		'--batch',
+		'--quick',
+		'-l',
+		`${baseDir}/e2e/emacs/init.el`,
+		'-l',
+		`${baseDir}/e2e/emacs/setup-mode.el`,
+	]);
+
+	/* prin1, princ, print to stdout
+	    	message and error both to stderr :| */
+	emacs.stdout.on('data', (data) => {
+		console.log(`stdout: ${data}`);
 	});
+
+	emacs.stderr.on('data', (data) => {
+		console.log(`stderr: ${data}`);
+	});
+
+	emacs.on('close', (code) => {
+		console.log(`emacs exited with code ${code}`);
+	});
+
+	return emacs;
 }
 
-test('pulls agenda item', async () => {
-	const emacsOut = await runEmacs(
-		'(prin1 (org-newtab--get-one-agenda-item \\"TODO=\\\\\\"TODO\\\\\\"\\"))'
+test('pulls agenda item', async ({ context, extensionId }) => {
+	const emacs = emacsProcess();
+	const tabMaster = await context.newPage();
+	await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+	await setupWebsocketPort({ port: 35943 }, tabMaster);
+	await expect(
+		tabMaster.getByTestId(CONNECTION_STATUS_LOCATOR)
+	).toContainText(CONNECTION_STATUS_OPEN);
+	await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
+		'Sample todo item',
+		{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
 	);
-	expect(emacsOut).toEqual(
-		`(("CATEGORY" . "agenda") ("BLOCKED" . "") ("FILE" . "${process.cwd()}/e2e/emacs/agenda.org") ("PRIORITY" . "B") ("TODO" . "TODO") ("ITEM" . "Sample todo item"))`
-	);
+	emacs.kill();
 });
+
+// TODO: select random port
