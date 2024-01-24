@@ -30,7 +30,7 @@ test.describe('WebSocket', () => {
 			HOW_LONG_TO_WAIT_FOR_RESPONSE,
 	});
 
-	test('Should open a connection to emacs from the master tab', async ({
+	test('should open a connection to the websocket from the master tab', async ({
 		extensionId,
 		context,
 	}) => {
@@ -58,7 +58,7 @@ test.describe('WebSocket', () => {
 		expect(await wsFunc).toBeTruthy();
 	});
 
-	test('Should not open a connection to emacs from a client tab', async ({
+	test('should not open a connection to the websocket from a client tab', async ({
 		extensionId,
 		context,
 	}) => {
@@ -93,7 +93,7 @@ test.describe('WebSocket', () => {
 		expect(await wsFunc).toBeFalsy();
 	});
 
-	test('Should ask for item after opening', async ({
+	test('should ask for item after opening', async ({
 		extensionId,
 		context,
 	}) => {
@@ -129,7 +129,7 @@ test.describe('WebSocket', () => {
 		expect(await wsFunc).toBeTruthy();
 	});
 
-	test('Should update item text based on data from server', async ({
+	test('should update item text based on data from server', async ({
 		extensionId,
 		context,
 	}) => {
@@ -166,7 +166,7 @@ test.describe('WebSocket', () => {
 		);
 	});
 
-	test('Should send an update match query request from client through master', async ({
+	test('should send an update match query request from client through master', async ({
 		extensionId,
 		context,
 	}) => {
@@ -229,7 +229,7 @@ test.describe('WebSocket', () => {
 		expect(await masterSocketUpdate).toBeTruthy();
 	});
 
-	test('Should sync websocket state between tabs', async ({
+	test('should sync websocket state between tabs', async ({
 		extensionId,
 		context,
 	}) => {
@@ -250,7 +250,7 @@ test.describe('WebSocket', () => {
 		).toContainText(CONNECTION_STATUS_OPEN);
 	});
 
-	test('Should sync match query between roles', async ({
+	test('should sync match query between roles', async ({
 		extensionId,
 		context,
 	}) => {
@@ -278,7 +278,7 @@ test.describe('WebSocket', () => {
 		);
 	});
 
-	test('Should add and remove waiting responses', async ({
+	test('should add and remove waiting responses', async ({
 		extensionId,
 		context,
 	}) => {
