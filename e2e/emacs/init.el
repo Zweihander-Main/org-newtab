@@ -5,7 +5,8 @@
 
 (require 'package)
 (package-initialize)
-(package-refresh-contents)
+(unless package-archive-contents                            ; unless packages are not available locally, dont refresh package archives
+  (package-refresh-contents))
 (package-install-file (expand-file-name "org-newtab.el" default-directory))
 
 (load "org-newtab.el")
