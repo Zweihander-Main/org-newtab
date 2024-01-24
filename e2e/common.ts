@@ -23,6 +23,8 @@ export const HOW_LONG_TO_WAIT_FOR_STORAGE = 20000;
 export const HOW_LONG_TO_WAIT_FOR_WEBSOCKET = 15000;
 export const HOW_LONG_TO_WAIT_FOR_RESPONSE = 20000;
 export const RETRIES_FOR_WEBSOCKET = 0;
+export const RETRIES_FOR_EMACS = 3;
+export const MAX_RETRIES_FOR_EMACS_CONNECTION = 3;
 
 export const LOCALE = 'en';
 
@@ -184,7 +186,7 @@ export async function setupWebsocketPort(
 }
 
 export function webSocketURL(
-	conn: Awaited<ReturnType<typeof openSocketConnection>>
+	conn: Awaited<ReturnType<typeof openSocketConnection>> | { port: number }
 ) {
 	return `ws://localhost:${conn.port}/`;
 }

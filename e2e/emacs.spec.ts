@@ -5,15 +5,20 @@ import {
 	CONNECTION_STATUS_LOCATOR,
 	CONNECTION_STATUS_OPEN,
 	HOW_LONG_TO_WAIT_FOR_RESPONSE,
+	HOW_LONG_TO_WAIT_FOR_STORAGE,
+	HOW_LONG_TO_WAIT_FOR_WEBSOCKET,
 	ITEM_TEXT_LOCATOR,
+	MAX_RETRIES_FOR_EMACS_CONNECTION,
+	RETRIES_FOR_EMACS,
 	pickARandomPort,
 	setupWebsocketPort,
+	storageIsResolved,
 } from './common';
 
 const baseDir = process.cwd();
 
-function emacsProcess(port: number) {
-	const emacs = spawn('emacs', [
+function emacsProcess(port: number, retries = 0) {
+	let emacs = spawn('emacs', [
 		'--batch',
 		'--quick',
 		'--eval',
@@ -35,27 +40,53 @@ function emacsProcess(port: number) {
 	});
 
 	emacs.on('close', (code) => {
-		console.log(`emacs exited with code ${code}`);
+		console.log(`emacs running on port ${port} exited with code ${code}`);
+		// 255 may occur due to file locks
+		if (code === 255 && retries < MAX_RETRIES_FOR_EMACS_CONNECTION) {
+			console.log('emacs exited with code 255, retrying');
+			emacs = emacsProcess(port, retries + 1);
+		}
 	});
 
 	return emacs;
 }
 
-test('pulls agenda item from running emacs process and displays it', async ({
-	context,
-	extensionId,
-}) => {
-	const port = await pickARandomPort();
-	const emacs = emacsProcess(port);
-	const tabMaster = await context.newPage();
-	await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
-	await setupWebsocketPort({ port }, tabMaster);
-	await expect(
-		tabMaster.getByTestId(CONNECTION_STATUS_LOCATOR)
-	).toContainText(CONNECTION_STATUS_OPEN);
-	await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
-		'Sample todo item',
-		{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
-	);
-	emacs.kill();
+test.describe('Emacs', () => {
+	test.describe.configure({
+		retries: RETRIES_FOR_EMACS,
+		timeout:
+			HOW_LONG_TO_WAIT_FOR_STORAGE +
+			HOW_LONG_TO_WAIT_FOR_WEBSOCKET +
+			HOW_LONG_TO_WAIT_FOR_RESPONSE,
+	});
+
+	let port: number;
+	let emacs: ReturnType<typeof emacsProcess>;
+
+	test.beforeEach(async () => {
+		port = await pickARandomPort();
+		emacs = emacsProcess(port);
+	});
+
+	test.afterEach(() => {
+		emacs.kill();
+	});
+
+	test('should send an agenda item which the master tab displays', async ({
+		context,
+		extensionId,
+	}) => {
+		const tabMaster = await context.newPage();
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await storageIsResolved(tabMaster);
+		await setupWebsocketPort({ port }, tabMaster);
+
+		await expect(
+			tabMaster.getByTestId(CONNECTION_STATUS_LOCATOR)
+		).toContainText(CONNECTION_STATUS_OPEN);
+		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
+			'Sample todo item',
+			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
+		);
+	});
 });
