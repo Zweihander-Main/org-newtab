@@ -22,8 +22,9 @@ const getMessage = (id: string): string => {
 export const HOW_LONG_TO_WAIT_FOR_STORAGE = 20000;
 export const HOW_LONG_TO_WAIT_FOR_WEBSOCKET = 15000;
 export const HOW_LONG_TO_WAIT_FOR_RESPONSE = 20000;
+export const HOW_LONG_TO_TEST_CONNECTION_FOR = 5000;
 export const RETRIES_FOR_WEBSOCKET = 0;
-export const RETRIES_FOR_EMACS = 3;
+export const RETRIES_FOR_EMACS = 0;
 export const MAX_RETRIES_FOR_EMACS_CONNECTION = 3;
 
 export const LOCALE = 'en';
@@ -37,6 +38,7 @@ export const CONNECTION_STATUS_OPEN = getMessage('connectionStatusOpen');
 
 export const GET_ITEM_COMMAND = 'getItem';
 export const WSS_TEST_TEXT = 'WSS test message';
+export const AGENDA_ITEM_TEXT = 'Sample todo item';
 
 export const ROLE_LOCATOR = 'websocket-role';
 export const ITEM_TEXT_LOCATOR = 'item-text';

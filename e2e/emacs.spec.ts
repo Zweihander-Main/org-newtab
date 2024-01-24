@@ -2,8 +2,10 @@
 import { spawn } from 'child_process';
 import { test, expect } from './fixture';
 import {
+	AGENDA_ITEM_TEXT,
 	CONNECTION_STATUS_LOCATOR,
 	CONNECTION_STATUS_OPEN,
+	HOW_LONG_TO_TEST_CONNECTION_FOR,
 	HOW_LONG_TO_WAIT_FOR_RESPONSE,
 	HOW_LONG_TO_WAIT_FOR_STORAGE,
 	HOW_LONG_TO_WAIT_FOR_WEBSOCKET,
@@ -90,7 +92,7 @@ test.describe('Emacs', () => {
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
 		await storageIsResolved(tabMaster);
 		await setupWebsocketPort({ port }, tabMaster);
-		await tabMaster.waitForTimeout(5000); // TODO: use constant
+		await tabMaster.waitForTimeout(HOW_LONG_TO_TEST_CONNECTION_FOR);
 		await expect(
 			tabMaster.getByTestId(CONNECTION_STATUS_LOCATOR)
 		).toContainText(CONNECTION_STATUS_OPEN);
@@ -106,7 +108,7 @@ test.describe('Emacs', () => {
 		await setupWebsocketPort({ port }, tabMaster);
 
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
-			'Sample todo item',
+			AGENDA_ITEM_TEXT,
 			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
 		);
 	});

@@ -6,4 +6,4 @@
 
 (org-newtab-mode)
 
-(sleep-for 30)
+(sleep-for 60)
