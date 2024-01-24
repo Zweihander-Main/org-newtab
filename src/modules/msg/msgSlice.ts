@@ -28,11 +28,6 @@ import {
 	establishRole,
 } from 'modules/role/roleSlice';
 import {
-	_addToResponsesWaitingFor,
-	_closeWS,
-	_openWS,
-	_removeFromResponsesWaitingFor,
-	_resetWS,
 	_setReadyStateTo,
 	_setResponsesWaitingForTo,
 	setWSPortTo,

@@ -1,10 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import {
-	PayloadAction,
-	createSelector,
-	createSlice,
-	isAnyOf,
-} from '@reduxjs/toolkit';
+import { PayloadAction, createSelector, createSlice } from '@reduxjs/toolkit';
 import { listenerMiddleware } from 'app/middleware';
 import { resetData } from 'app/actions';
 import { RootState } from 'app/store';
