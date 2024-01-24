@@ -136,7 +136,11 @@ listenerMiddleware.startListening({
 	actionCreator: _closeWS,
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
-		dispatch(_setReadyStateTo(WSReadyState.CLOSING));
+		const currentReadyState = listenerApi.getState().ws.readyState;
+		// Don't assume it isn't already closed
+		if (currentReadyState !== WSReadyState.CLOSED) {
+			dispatch(_setReadyStateTo(WSReadyState.CLOSING));
+		}
 		dispatch(_setResponsesWaitingForTo([]));
 		Socket.disconnect();
 	},
@@ -147,9 +151,13 @@ listenerMiddleware.startListening({
  */
 listenerMiddleware.startListening({
 	actionCreator: _resetWS,
-	effect: (_action, listenerApi) => {
+	effect: async (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
 		dispatch(_closeWS());
+		// Wait for the websocket to fully close before opening it again
+		await listenerApi.condition((_action, currentState) => {
+			return currentState.ws.readyState === WSReadyState.CLOSED;
+		});
 		dispatch(_openWS());
 	},
 });
