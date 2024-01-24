@@ -72,6 +72,30 @@ test.describe('Emacs', () => {
 		emacs.kill();
 	});
 
+	test('should connect to emacs', async ({ context, extensionId }) => {
+		const tabMaster = await context.newPage();
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await storageIsResolved(tabMaster);
+		await setupWebsocketPort({ port }, tabMaster);
+		await expect(
+			tabMaster.getByTestId(CONNECTION_STATUS_LOCATOR)
+		).toContainText(CONNECTION_STATUS_OPEN);
+	});
+
+	test('should stay connected to emacs once connected', async ({
+		context,
+		extensionId,
+	}) => {
+		const tabMaster = await context.newPage();
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await storageIsResolved(tabMaster);
+		await setupWebsocketPort({ port }, tabMaster);
+		await tabMaster.waitForTimeout(5000); // TODO: use constant
+		await expect(
+			tabMaster.getByTestId(CONNECTION_STATUS_LOCATOR)
+		).toContainText(CONNECTION_STATUS_OPEN);
+	});
+
 	test('should send an agenda item which the master tab displays', async ({
 		context,
 		extensionId,
