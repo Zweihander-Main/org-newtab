@@ -6,15 +6,18 @@ import {
 	CONNECTION_STATUS_OPEN,
 	HOW_LONG_TO_WAIT_FOR_RESPONSE,
 	ITEM_TEXT_LOCATOR,
+	pickARandomPort,
 	setupWebsocketPort,
 } from './common';
 
 const baseDir = process.cwd();
 
-function emacsProcess() {
+function emacsProcess(port: number) {
 	const emacs = spawn('emacs', [
 		'--batch',
 		'--quick',
+		'--eval',
+		`(setq org-newtab-ws-port ${port})`,
 		'-l',
 		`${baseDir}/e2e/emacs/init.el`,
 		'-l',
@@ -38,11 +41,15 @@ function emacsProcess() {
 	return emacs;
 }
 
-test('pulls agenda item', async ({ context, extensionId }) => {
-	const emacs = emacsProcess();
+test('pulls agenda item from running emacs process and displays it', async ({
+	context,
+	extensionId,
+}) => {
+	const port = await pickARandomPort();
+	const emacs = emacsProcess(port);
 	const tabMaster = await context.newPage();
 	await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
-	await setupWebsocketPort({ port: 35943 }, tabMaster);
+	await setupWebsocketPort({ port }, tabMaster);
 	await expect(
 		tabMaster.getByTestId(CONNECTION_STATUS_LOCATOR)
 	).toContainText(CONNECTION_STATUS_OPEN);
@@ -52,5 +59,3 @@ test('pulls agenda item', async ({ context, extensionId }) => {
 	);
 	emacs.kill();
 });
-
-// TODO: select random port
