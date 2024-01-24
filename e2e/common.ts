@@ -38,7 +38,9 @@ export const CONNECTION_STATUS_OPEN = getMessage('connectionStatusOpen');
 
 export const GET_ITEM_COMMAND = 'getItem';
 export const WSS_TEST_TEXT = 'WSS test message';
-export const AGENDA_ITEM_TEXT = 'Sample todo item';
+export const AGENDA_ITEM_TEXT_TODO = 'Sample todo item';
+export const AGENDA_ITEM_TEXT_NEXT = 'Sample next item';
+export const MATCH_QUERY_NEXT = 'TODO="NEXT"';
 
 export const ROLE_LOCATOR = 'websocket-role';
 export const ITEM_TEXT_LOCATOR = 'item-text';

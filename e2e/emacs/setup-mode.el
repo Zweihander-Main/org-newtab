@@ -4,6 +4,9 @@
 
 (advice-add 'org-newtab--log :before #'output-debug-to-console)
 
+(setq org-agenda-files (list (expand-file-name "e2e/emacs" base-dir)))
+(setq org-todo-keywords '((sequence "TODO" "NEXT" "DONE")))
+
 (org-newtab-mode)
 
 (sleep-for 60)

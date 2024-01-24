@@ -1,2 +1,3 @@
 #+TITLE: Inbox
 * TODO Sample todo item
+* NEXT Sample next item
