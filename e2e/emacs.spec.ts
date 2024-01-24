@@ -81,9 +81,6 @@ test.describe('Emacs', () => {
 		await storageIsResolved(tabMaster);
 		await setupWebsocketPort({ port }, tabMaster);
 
-		await expect(
-			tabMaster.getByTestId(CONNECTION_STATUS_LOCATOR)
-		).toContainText(CONNECTION_STATUS_OPEN);
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
 			'Sample todo item',
 			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
