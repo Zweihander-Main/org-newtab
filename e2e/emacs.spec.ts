@@ -242,7 +242,7 @@ test.describe('Emacs', () => {
 		);
 	});
 
-	test('should send effort data for clocked items and clock out', async ({
+	test('should send effort data for clocked in items', async ({
 		context,
 		extensionId,
 	}) => {
@@ -300,16 +300,18 @@ test.describe('Emacs', () => {
 		await storageIsResolved(tabMaster);
 		await setupWebsocketPort({ port }, tabMaster);
 
-		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toBeVisible();
+		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toBeVisible({
+			timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE,
+		});
 
 		await gotoOptPanel(tabMaster, 'Behavior');
 		await tabMaster.getByLabel(MATCH_QUERY_LABEL).fill('2#NEWTAG');
 		await tabMaster.getByLabel(MATCH_QUERY_LABEL).press('Enter');
 		await closeOptions(tabMaster);
 
-		await expect(
-			tabMaster.getByTestId(ITEM_TEXT_LOCATOR)
-		).not.toBeVisible();
+		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).not.toBeVisible({
+			timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE,
+		});
 
 		await fs.copyFile(
 			`${baseDir}/e2e/emacs/change-tags.el`,
