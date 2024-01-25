@@ -124,6 +124,12 @@ listenerMiddleware.startListening({
 						_removeFromResponsesWaitingFor(parsed?.resid || -1)
 					);
 				}
+				// TODO: Hack to stop quick changes in match query or slow responses
+				// Will occur when a getItem has been sent and overriden by a clock in
+				// in Emacs.
+				if (parsed.data?.CURRENT_CLOCK_START_TIMESTAMP) {
+					dispatch(_setResponsesWaitingForTo([]));
+				}
 			});
 		}
 	},
