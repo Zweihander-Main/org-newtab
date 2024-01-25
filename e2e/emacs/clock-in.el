@@ -1,4 +1,4 @@
-(let ((buffer (generate-new-buffer "foo")))
+(let ((buffer (generate-new-buffer "clock-in")))
   (with-current-buffer buffer
     (insert-file-contents (expand-file-name "e2e/emacs/clock.org" base-dir))
     (org-mode)

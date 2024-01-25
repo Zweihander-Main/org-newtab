@@ -37,6 +37,9 @@ const extraTestCodeFile = `${baseDir}/e2e/emacs/extra-testing-code-`;
 const testFileName = (port: number) =>
 	`${extraTestCodeFile}${port.toString()}.el`;
 
+const changeTagsFileName = (port: number) =>
+	`${baseDir}/e2e/emacs/change-tags-${port.toString()}.org`;
+
 function emacsProcess(port: number, retries = 0) {
 	let emacs = spawn('emacs', [
 		'--batch',
@@ -86,12 +89,14 @@ test.describe('Emacs', () => {
 	test.beforeEach(async () => {
 		port = await pickARandomPort();
 		fs.unlink(testFileName(port)).catch(() => {});
+		fs.unlink(changeTagsFileName(port)).catch(() => {});
 		emacs = emacsProcess(port);
 	});
 
 	test.afterEach(() => {
 		emacs.kill();
 		fs.unlink(testFileName(port)).catch(() => {});
+		fs.unlink(changeTagsFileName(port)).catch(() => {});
 	});
 
 	test('should connect to emacs', async ({ context, extensionId }) => {
@@ -261,7 +266,7 @@ test.describe('Emacs', () => {
 		);
 	});
 
-	test.only('should send match query after clock out', async ({
+	test('should send match query after clock out', async ({
 		context,
 		extensionId,
 	}) => {
@@ -286,10 +291,34 @@ test.describe('Emacs', () => {
 		);
 	});
 
-	// test('should automatically send updates when agenda item changes', async ({
-	// 	context,
-	// 	extensionId,
-	// }) => {
-	// 	// TODO
-	// });
+	test('should automatically send updates when agenda item changes', async ({
+		context,
+		extensionId,
+	}) => {
+		const tabMaster = await context.newPage();
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await storageIsResolved(tabMaster);
+		await setupWebsocketPort({ port }, tabMaster);
+
+		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toBeVisible();
+
+		await gotoOptPanel(tabMaster, 'Behavior');
+		await tabMaster.getByLabel(MATCH_QUERY_LABEL).fill('2#NEWTAG');
+		await tabMaster.getByLabel(MATCH_QUERY_LABEL).press('Enter');
+		await closeOptions(tabMaster);
+
+		await expect(
+			tabMaster.getByTestId(ITEM_TEXT_LOCATOR)
+		).not.toBeVisible();
+
+		await fs.copyFile(
+			`${baseDir}/e2e/emacs/change-tags.el`,
+			testFileName(port)
+		);
+
+		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
+			AGENDA_ITEM_TEXT_TAGGED,
+			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
+		);
+	});
 });
