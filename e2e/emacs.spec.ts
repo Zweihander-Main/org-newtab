@@ -13,14 +13,17 @@ import {
 	ITEM_TEXT_LOCATOR,
 	MATCH_QUERY_LABEL,
 	MATCH_QUERY_NEXT,
+	MATCH_QUERY_TAG,
 	MAX_RETRIES_FOR_EMACS_CONNECTION,
 	RETRIES_FOR_EMACS,
+	TAG_COLOR,
 	closeOptions,
 	gotoOptPanel,
 	pickARandomPort,
 	roleIs,
 	setupWebsocketPort,
 	storageIsResolved,
+	toRGB,
 } from './common';
 
 const baseDir = process.cwd();
@@ -170,11 +173,6 @@ test.describe('Emacs', () => {
 		await storageIsResolved(tabMaster);
 		await setupWebsocketPort({ port }, tabMaster);
 
-		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
-			AGENDA_ITEM_TEXT_TODO,
-			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
-		);
-
 		await gotoOptPanel(tabMaster, 'Behavior');
 		await tabMaster.getByLabel(MATCH_QUERY_LABEL).fill(MATCH_QUERY_NEXT);
 		await tabMaster.getByLabel(MATCH_QUERY_LABEL).press('Enter');
@@ -186,9 +184,22 @@ test.describe('Emacs', () => {
 		);
 	});
 
-	// test('should send tag data', async ({ context, extensionId }) => {
-	// 	// TODO
-	// });
+	test('should send and use tag data', async ({ context, extensionId }) => {
+		const tabMaster = await context.newPage();
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await storageIsResolved(tabMaster);
+		await setupWebsocketPort({ port }, tabMaster);
+
+		await gotoOptPanel(tabMaster, 'Behavior');
+		await tabMaster.getByLabel(MATCH_QUERY_LABEL).fill(MATCH_QUERY_TAG);
+		await tabMaster.getByLabel(MATCH_QUERY_LABEL).press('Enter');
+		await closeOptions(tabMaster);
+		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toHaveCSS(
+			'background-color',
+			toRGB(TAG_COLOR),
+			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
+		);
+	});
 
 	// test('should send along expected response ids', async ({
 	// 	context,

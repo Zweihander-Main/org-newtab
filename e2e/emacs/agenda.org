@@ -1,3 +1,4 @@
 #+TITLE: Inbox
 * TODO Sample todo item
 * NEXT Sample next item
+* TODO Sample tagged item :1#SAMPLETAG:

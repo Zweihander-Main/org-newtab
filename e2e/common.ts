@@ -41,6 +41,8 @@ export const WSS_TEST_TEXT = 'WSS test message';
 export const AGENDA_ITEM_TEXT_TODO = 'Sample todo item';
 export const AGENDA_ITEM_TEXT_NEXT = 'Sample next item';
 export const MATCH_QUERY_NEXT = 'TODO="NEXT"';
+export const MATCH_QUERY_TAG = '1#SAMPLETAG';
+export const TAG_COLOR = '#42A5F5';
 
 export const ROLE_LOCATOR = 'websocket-role';
 export const ITEM_TEXT_LOCATOR = 'item-text';
@@ -194,3 +196,15 @@ export function webSocketURL(
 ) {
 	return `ws://localhost:${conn.port}/`;
 }
+
+export const toRGB = (color: string) => {
+	const colorArray = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
+	const colorObj = colorArray
+		? {
+				r: parseInt(colorArray[1], 16),
+				g: parseInt(colorArray[2], 16),
+				b: parseInt(colorArray[3], 16),
+		  }
+		: null;
+	return colorObj ? `rgb(${colorObj.r}, ${colorObj.g}, ${colorObj.b})` : '';
+};
