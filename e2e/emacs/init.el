@@ -2,17 +2,18 @@
 (setq default-directory (expand-file-name "lisp" base-dir))
 (add-to-list 'load-path default-directory)
 
+(setq exec-recurse-count 0)
 (defun exec-when-file-isnt-locked (file fn)
-  (if (and (file-exists-p file) (file-readable-p file) (not (file-locked-p file)))
-      (condition-case nil
-          (progn
-            (funcall fn))
-        (error (exec-when-file-isnt-locked file fn)))
-    ;; Recurse this function until the file is unlocked
-    (run-with-idle-timer 0.1 nil
-                         (lambda (file fn)
-                           (exec-when-file-isnt-locked file fn))
-                         file fn)))
+  "Executes the function FN when the file FILE is not locked."
+  (setq exec-recurse-count (1+ exec-recurse-count))
+  (if (> exec-recurse-count 100)
+      (error "File %s is locked or inaccessible" file)
+    (if (and (file-exists-p file) (file-readable-p file) (not (file-locked-p file)))
+        (condition-case nil
+            (funcall fn)
+          (error (exec-when-file-isnt-locked file fn)))
+      ;; Recurse this function until the file is unlocked
+      (exec-when-file-isnt-locked file fn))))
 
 (require 'package)
 (package-initialize)
