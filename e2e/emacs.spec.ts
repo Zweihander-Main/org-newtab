@@ -1,9 +1,14 @@
 /* eslint-disable no-console */
 import { spawn } from 'child_process';
+import { promises as fs } from 'fs';
 import { test, expect } from './fixture';
 import {
+	AGENDA_ITEM_TEXT_CLOCKED,
 	AGENDA_ITEM_TEXT_NEXT,
+	AGENDA_ITEM_TEXT_TAGGED,
 	AGENDA_ITEM_TEXT_TODO,
+	CLOCKED_TIME,
+	CLOCKED_TIME_LOCATOR,
 	CONNECTION_STATUS_LOCATOR,
 	CONNECTION_STATUS_OPEN,
 	HOW_LONG_TO_TEST_CONNECTION_FOR,
@@ -27,6 +32,10 @@ import {
 } from './common';
 
 const baseDir = process.cwd();
+const extraTestCodeFile = `${baseDir}/e2e/emacs/extra-testing-code-`;
+
+const testFileName = (port: number) =>
+	`${extraTestCodeFile}${port.toString()}.el`;
 
 function emacsProcess(port: number, retries = 0) {
 	let emacs = spawn('emacs', [
@@ -76,11 +85,13 @@ test.describe('Emacs', () => {
 
 	test.beforeEach(async () => {
 		port = await pickARandomPort();
+		fs.unlink(testFileName(port)).catch(() => {});
 		emacs = emacsProcess(port);
 	});
 
 	test.afterEach(() => {
 		emacs.kill();
+		fs.unlink(testFileName(port)).catch(() => {});
 	});
 
 	test('should connect to emacs', async ({ context, extensionId }) => {
@@ -226,15 +237,31 @@ test.describe('Emacs', () => {
 		);
 	});
 
+	test('should send effort data for clocked items', async ({
+		context,
+		extensionId,
+	}) => {
+		const tabMaster = await context.newPage();
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await storageIsResolved(tabMaster);
+		await setupWebsocketPort({ port }, tabMaster);
+
+		await fs.copyFile(
+			`${baseDir}/e2e/emacs/clock-in.el`,
+			testFileName(port)
+		);
+
+		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
+			AGENDA_ITEM_TEXT_CLOCKED,
+			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
+		);
+
+		await expect(tabMaster.getByTestId(CLOCKED_TIME_LOCATOR)).toContainText(
+			CLOCKED_TIME
+		);
+	});
 
 	// test('should automatically send updates when agenda item changes', async ({
-	// 	context,
-	// 	extensionId,
-	// }) => {
-	// 	// TODO
-	// });
-
-	// test('should send effort data for clocked items', async ({
 	// 	context,
 	// 	extensionId,
 	// }) => {

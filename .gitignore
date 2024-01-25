@@ -273,3 +273,6 @@ keys.json
 /test-results/
 /playwright-report/
 /playwright/.cache/
+
+# testing file for lisp loading
+e2e/emacs/extra-testing-code*

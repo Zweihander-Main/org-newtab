@@ -41,6 +41,8 @@ export const WSS_TEST_TEXT = 'WSS test message';
 export const AGENDA_ITEM_TEXT_TODO = 'Sample todo item';
 export const AGENDA_ITEM_TEXT_NEXT = 'Sample next item';
 export const AGENDA_ITEM_TEXT_TAGGED = 'Sample tagged item';
+export const AGENDA_ITEM_TEXT_CLOCKED = 'Sample clocked item';
+export const CLOCKED_TIME = '0:01 / 1:23';
 export const MATCH_QUERY_NEXT = 'TODO="NEXT"';
 export const MATCH_QUERY_TAG = '1#SAMPLETAG';
 export const TAG_COLOR = '#42A5F5';
@@ -56,6 +58,7 @@ export const BEHAVIOR_BUTTON_LOCATOR = 'behavior-button';
 export const LAYOUT_BUTTON_LOCATOR = 'layout-button';
 export const THEMING_BUTTON_LOCATOR = 'theming-button';
 export const DEBUG_BUTTON_LOCATOR = 'debug-button';
+export const CLOCKED_TIME_LOCATOR = 'clocked-time';
 
 type Message = {
 	message: string;

@@ -75,6 +75,7 @@ const ClockedTime: React.FC = () => {
 		<div
 			className={styles.clock}
 			style={{ WebkitTextStrokeColor: overtimeStrokeColor }}
+			data-testid="clocked-time"
 		>
 			{minutesToTimeString(minutesClockedIn)}
 			{itemEffortMinutes && (
