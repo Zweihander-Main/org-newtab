@@ -178,6 +178,11 @@ listenerMiddleware.startListening({
 		if (amMasterRole && readyState === WSReadyState.OPEN) {
 			const resid = Math.floor(Math.random() * 1000000000);
 			const toSend: EmacsSendMsgWithResid = { ...data, resid };
+			// TODO: Hack to stop quick changes in match query or slow responses
+			// from emacs causing dropped responses (as they override each other)
+			// in chronological order. Need a more built out solution when using
+			// multiple types of requests.
+			dispatch(_setResponsesWaitingForTo([]));
 			Socket.sendJSON(toSend);
 			dispatch(_addToResponsesWaitingFor(resid));
 			setTimeout(() => {
