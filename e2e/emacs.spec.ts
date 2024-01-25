@@ -201,12 +201,31 @@ test.describe('Emacs', () => {
 		);
 	});
 
-	// test('should send along expected response ids', async ({
-	// 	context,
-	// 	extensionId,
-	// }) => {
-	// 	// TODO
-	// });
+	test('should send along expected response ids', async ({
+		context,
+		extensionId,
+	}) => {
+		const tabMaster = await context.newPage();
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await storageIsResolved(tabMaster);
+		await setupWebsocketPort({ port }, tabMaster);
+
+		await gotoOptPanel(tabMaster, 'Behavior');
+		await tabMaster.getByLabel(MATCH_QUERY_LABEL).fill(MATCH_QUERY_TAG);
+		await tabMaster.getByLabel(MATCH_QUERY_LABEL).press('Enter');
+		await closeOptions(tabMaster);
+
+		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
+			AGENDA_ITEM_TEXT_TAGGED,
+			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
+		);
+		// Should not have any opacity other than 1 (ie not stale)
+		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).not.toHaveCSS(
+			'opacity',
+			/[^1]/
+		);
+	});
+
 
 	// test('should automatically send updates when agenda item changes', async ({
 	// 	context,

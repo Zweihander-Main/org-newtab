@@ -40,6 +40,7 @@ export const GET_ITEM_COMMAND = 'getItem';
 export const WSS_TEST_TEXT = 'WSS test message';
 export const AGENDA_ITEM_TEXT_TODO = 'Sample todo item';
 export const AGENDA_ITEM_TEXT_NEXT = 'Sample next item';
+export const AGENDA_ITEM_TEXT_TAGGED = 'Sample tagged item';
 export const MATCH_QUERY_NEXT = 'TODO="NEXT"';
 export const MATCH_QUERY_TAG = '1#SAMPLETAG';
 export const TAG_COLOR = '#42A5F5';
