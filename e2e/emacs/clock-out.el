@@ -5,4 +5,6 @@
     (goto-char (point-min))
     (search-forward "Sample clocked item")
     (beginning-of-line)
-    (org-clock-in)))
+    (org-clock-in)
+    (sleep-for 5)
+    (org-clock-out)))

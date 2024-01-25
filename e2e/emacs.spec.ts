@@ -237,7 +237,7 @@ test.describe('Emacs', () => {
 		);
 	});
 
-	test('should send effort data for clocked items', async ({
+	test('should send effort data for clocked items and clock out', async ({
 		context,
 		extensionId,
 	}) => {
@@ -258,6 +258,31 @@ test.describe('Emacs', () => {
 
 		await expect(tabMaster.getByTestId(CLOCKED_TIME_LOCATOR)).toContainText(
 			CLOCKED_TIME
+		);
+	});
+
+	test.only('should send match query after clock out', async ({
+		context,
+		extensionId,
+	}) => {
+		const tabMaster = await context.newPage();
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await storageIsResolved(tabMaster);
+		await setupWebsocketPort({ port }, tabMaster);
+
+		await fs.copyFile(
+			`${baseDir}/e2e/emacs/clock-out.el`,
+			testFileName(port)
+		);
+
+		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
+			AGENDA_ITEM_TEXT_CLOCKED,
+			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
+		);
+
+		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
+			AGENDA_ITEM_TEXT_TODO,
+			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
 		);
 	});
 

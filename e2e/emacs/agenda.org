@@ -2,11 +2,4 @@
 * TODO Sample todo item
 * NEXT Sample next item
 * TODO Sample tagged item :1#SAMPLETAG:
-* TODO [#C] Sample clocked item
-:PROPERTIES:
-:Effort:   1:23
-:END:
-:LOGBOOK:
-CLOCK: [2024-01-24 Wed 20:07]--[2024-01-24 Wed 20:08] =>  0:01
-:END:
 
