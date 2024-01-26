@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { spawn } from 'child_process';
 import { promises as fs } from 'fs';
+import * as dns from 'node:dns';
 import { test, expect } from './fixture';
 import {
 	AGENDA_ITEM_TEXT_CLOCKED,
@@ -24,12 +25,14 @@ import {
 	TAG_COLOR,
 	closeOptions,
 	gotoOptPanel,
+	isPortInUse,
 	pickARandomPort,
 	roleIs,
 	setupWebsocketPort,
 	storageIsResolved,
 	toRGB,
 } from './common';
+import WebSocket from 'ws';
 
 const baseDir = process.cwd();
 const extraTestCodeFile = `${baseDir}/e2e/emacs/extra-testing-code-`;
@@ -138,6 +141,7 @@ test.describe('Emacs', () => {
 		);
 	});
 
+	// TODO: Flakiness here
 	test('should only open a single connection to emacs', async ({
 		context,
 		extensionId,
@@ -322,5 +326,89 @@ test.describe('Emacs', () => {
 			AGENDA_ITEM_TEXT_TAGGED,
 			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
 		);
+	});
+
+	test('should degrade gracefully for future compatibility', async () => {
+		let passed = false;
+		while (!(await isPortInUse(port))) {
+			await new Promise((resolve) => setTimeout(resolve, 100));
+		}
+		// Otherwise attempts to connect to ipv6 address
+		dns.setDefaultResultOrder('ipv4first');
+		const ws = new WebSocket(`ws://localhost:${port}/`, {
+			perMessageDeflate: false,
+		});
+		ws.on('close', () => {
+			console.log('Client disconnected');
+		});
+		ws.on('error', (e) => {
+			console.error(e);
+			test.fail();
+		});
+		ws.on('open', () => {
+			ws.send(
+				JSON.stringify({ command: 'getItem', data: 'test', resid: 1 })
+			);
+		});
+		function sendNewMsg(id: number) {
+			switch (id) {
+				case 1:
+					ws.send(
+						JSON.stringify({
+							command: 'newCommand',
+							data: 'test',
+							resid: 1,
+						})
+					);
+					break;
+				case 2:
+					ws.send(
+						JSON.stringify({ command: 'getItem', data: 'test' })
+					);
+					break;
+				case 3:
+					ws.send(
+						JSON.stringify({
+							command: 'getItem',
+							data: 'test',
+							extraProp: 'anything',
+						})
+					);
+					break;
+				case 4:
+					ws.send(
+						JSON.stringify({
+							command: 'getItem',
+						})
+					);
+					break;
+				case 5:
+					ws.send(
+						JSON.stringify({
+							command: 'getItem',
+							data: 'TODO="TODO"',
+							resid: 1,
+						})
+					);
+					break;
+			}
+		}
+		let id = 0;
+		ws.on('message', (data: string) => {
+			console.log('Received message from server: %s', data);
+			sendNewMsg(++id);
+			const json = JSON.parse(data) as Record<string, unknown>;
+			if (
+				json.type !== 'TAGS' &&
+				(json?.data as Record<string, unknown>)?.ITEM ===
+					AGENDA_ITEM_TEXT_TODO
+			) {
+				passed = true;
+			}
+		});
+
+		while (!passed) {
+			await new Promise((resolve) => setTimeout(resolve, 100));
+		}
 	});
 });

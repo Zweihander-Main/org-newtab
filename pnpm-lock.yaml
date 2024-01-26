@@ -112,7 +112,7 @@ devDependencies:
     version: 7.0.1(react@18.2.0)
   axe-playwright:
     specifier: ^1.2.3
-    version: 1.2.3(playwright@1.36.2)
+    version: 1.2.3(playwright@1.41.1)
   eslint:
     specifier: ^8.49.0
     version: 8.49.0
@@ -5329,15 +5329,15 @@ packages:
       rimraf: 3.0.2
     dev: true
 
-  /axe-playwright@1.2.3(playwright@1.36.2):
+  /axe-playwright@1.2.3(playwright@1.41.1):
     resolution: {integrity: sha512-bTxCTNp3kx6sQRMjmuLv8pG3+v+kOCvFXATim1+XUXzW6ykulbbuJdQfgB+vQPNAF9uvYbW2qrv9pg81ZSFV/A==}
     peerDependencies:
-      playwright: '>1.0.0'
+      playwright: ^1.37.1
     dependencies:
       axe-core: 4.7.2
       axe-html-reporter: 2.2.3(axe-core@4.7.2)
       picocolors: 1.0.0
-      playwright: 1.36.2
+      playwright: 1.41.1
     dev: true
 
   /axobject-query@3.2.1:
@@ -11653,13 +11653,14 @@ packages:
     hasBin: true
     dev: true
 
-  /playwright@1.36.2:
-    resolution: {integrity: sha512-4Fmlq3KWsl85Bl4InJw1NC21aeQV0iSZuFvTDcy1F8zVmXmgQRe89GxF8zMSRt/KIS+2tUolak7EXVl9aC+JdA==}
+  /playwright@1.41.1:
+    resolution: {integrity: sha512-gdZAWG97oUnbBdRL3GuBvX3nDDmUOuqzV/D24dytqlKt+eI5KbwusluZRGljx1YoJKZ2NRPaeWiFTeGZO7SosQ==}
     engines: {node: '>=16'}
     hasBin: true
-    requiresBuild: true
     dependencies:
       playwright-core: 1.37.1
+    optionalDependencies:
+      fsevents: 2.3.2
     dev: true
 
   /postcss-load-config@4.0.1(postcss@8.4.27):
