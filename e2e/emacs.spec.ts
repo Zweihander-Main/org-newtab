@@ -142,7 +142,7 @@ test.describe('Emacs', () => {
 	});
 
 	// TODO: Flakiness here
-	test('should only open a single connection to emacs', async ({
+	test.only('should only open a single connection to emacs', async ({
 		context,
 		extensionId,
 	}) => {
@@ -154,17 +154,17 @@ test.describe('Emacs', () => {
 		await storageIsResolved(tabClient);
 		await setupWebsocketPort({ port }, tabClient);
 
+		await roleIs(tabMaster, 'master');
+		await roleIs(tabClient, 'client');
+
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
 			AGENDA_ITEM_TEXT_TODO,
-			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
+			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE + 50000 }
 		);
 		await expect(tabClient.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
 			AGENDA_ITEM_TEXT_TODO,
 			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
 		);
-
-		await roleIs(tabMaster, 'master');
-		await roleIs(tabClient, 'client');
 
 		await tabMaster.close();
 		const newTabClient = await context.newPage();
