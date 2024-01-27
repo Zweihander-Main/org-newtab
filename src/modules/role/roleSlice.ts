@@ -134,24 +134,6 @@ listenerMiddleware.startListening({
 });
 
 /**
- * As master, send updates in readyState to other tabs
- * (not persisted in storage)
- */
-listenerMiddleware.startListening({
-	actionCreator: _setReadyStateTo,
-	effect: (_action, listenerApi) => {
-		const getState = listenerApi.getState.bind(this);
-		const {
-			ws: { readyState },
-			role: { amMasterRole },
-		} = getState();
-		if (amMasterRole) {
-			sendUpdateInWSState({ readyState });
-		}
-	},
-});
-
-/**
  * As master, send updates in responsesWaitingFor to other tabs
  * (not persisted in storage)
  */
@@ -169,6 +151,24 @@ listenerMiddleware.startListening({
 		} = getState();
 		if (amMasterRole) {
 			sendUpdateInWSState({ responsesWaitingFor });
+		}
+	},
+});
+
+/**
+ * As master, send updates in readyState to other tabs
+ * (not persisted in storage)
+ */
+listenerMiddleware.startListening({
+	actionCreator: _setReadyStateTo,
+	effect: (_action, listenerApi) => {
+		const getState = listenerApi.getState.bind(this);
+		const {
+			ws: { readyState },
+			role: { amMasterRole },
+		} = getState();
+		if (amMasterRole) {
+			sendUpdateInWSState({ readyState });
 		}
 	},
 });
