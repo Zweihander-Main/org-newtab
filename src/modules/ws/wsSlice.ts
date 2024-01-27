@@ -142,9 +142,11 @@ listenerMiddleware.startListening({
 	actionCreator: _closeWS,
 	effect: (_action, listenerApi) => {
 		const { dispatch } = listenerApi;
-		const currentReadyState = listenerApi.getState().ws.readyState;
+		const {
+			ws: { readyState },
+		} = listenerApi.getState();
 		// Don't assume it isn't already closed
-		if (currentReadyState !== WSReadyState.CLOSED) {
+		if (readyState !== WSReadyState.CLOSED) {
 			dispatch(_setReadyStateTo(WSReadyState.CLOSING));
 		}
 		dispatch(_setResponsesWaitingForTo([]));
