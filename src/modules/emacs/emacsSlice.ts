@@ -63,7 +63,7 @@ const emacsSlice = createSlice({
 			state.matchQuery = action.payload;
 		},
 		setTagsDataTo: (state, action: PayloadAction<TagFaces>) => {
-			state.tagFaces = action.payload;
+			return { ...state, tagFaces: action.payload };
 		},
 		getItem: () => {},
 		_sendMsgToEmacs: (_state, _action: PayloadAction<EmacsSendMsg>) => {},
@@ -72,22 +72,30 @@ const emacsSlice = createSlice({
 			if (payload === null) return;
 			switch (payload.type) {
 				case 'ITEM':
-					state.itemText = payload?.data?.ITEM || null;
-					state.itemTags = extractTagsFromItemAllTags(
-						payload?.data?.ALLTAGS
-					);
-					state.itemClockStartTime =
-						payload?.data?.CURRENT_CLOCK_START_TIMESTAMP || null;
-					state.itemPreviouslyClockedMinutes =
-						payload?.data?.PREVIOUSLY_CLOCKED_MINUTES || 0;
-					state.itemEffortMinutes =
-						payload?.data?.EFFORT_MINUTES || null;
+					return {
+						...state,
+						itemText: payload?.data?.ITEM || null,
+						itemTags: extractTagsFromItemAllTags(
+							payload?.data?.ALLTAGS
+						),
+						itemClockStartTime:
+							payload?.data?.CURRENT_CLOCK_START_TIMESTAMP ||
+							null,
+						itemPreviouslyClockedMinutes:
+							payload?.data?.PREVIOUSLY_CLOCKED_MINUTES || 0,
+						itemEffortMinutes:
+							payload?.data?.EFFORT_MINUTES || null,
+					};
 					break;
 				case 'TAGS':
-					state.tagFaces = payload?.data || {};
+					return {
+						...state,
+						tagFaces: payload?.data || {},
+					};
 					break;
 				default:
 					console.error('[NewTab] Unknown message: ', payload);
+					return;
 					break;
 			}
 		},

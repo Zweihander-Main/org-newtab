@@ -51,15 +51,22 @@ export const wsSlice = createSlice({
 			state,
 			action: PayloadAction<number>
 		) => {
-			state.responsesWaitingFor = state.responsesWaitingFor.filter(
+			const newResponsesWaitingFor = state.responsesWaitingFor.filter(
 				(id) => id !== action.payload
 			);
+			return {
+				...state,
+				responsesWaitingFor: newResponsesWaitingFor,
+			};
 		},
 		_setResponsesWaitingForTo: (
 			state,
 			action: PayloadAction<Array<number>>
 		) => {
-			state.responsesWaitingFor = action.payload;
+			return {
+				...state,
+				responsesWaitingFor: action.payload,
+			};
 		},
 		_openWS: () => {},
 		_closeWS: () => {},
