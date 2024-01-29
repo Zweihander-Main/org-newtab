@@ -2,7 +2,6 @@ import { AnyAction, combineReducers } from '@reduxjs/toolkit';
 import { localStorage } from 'redux-persist-webextension-storage';
 import { persistReducer } from '@plasmohq/redux-persist';
 import type { Storage as StorageType } from '@plasmohq/redux-persist/lib/types';
-import autoMergeLevel2 from '@plasmohq/redux-persist/lib/stateReconciler/autoMergeLevel2';
 import wsReducer, {
 	WSState,
 	name as wsSliceName,
@@ -43,7 +42,6 @@ export const emacsPersistConfig = {
 	version: 1,
 	storage: localStorage as StorageType,
 	blacklist: emacsSlicePersistenceBlacklist,
-	stateReconciler: autoMergeLevel2,
 };
 
 const persistedEmacsReducer = persistReducer<EmacsState, AnyAction>(
@@ -56,7 +54,6 @@ export const layoutPersistConfig = {
 	version: 1,
 	storage: localStorage as StorageType,
 	blacklist: layoutSlicePersistenceBlacklist,
-	stateReconciler: autoMergeLevel2,
 };
 
 const persistedLayoutReducer = persistReducer<LayoutState, AnyAction>(
@@ -69,7 +66,6 @@ export const uiPersistConfig = {
 	version: 1,
 	storage: localStorage as StorageType,
 	blacklist: uiSlicePersistenceBlacklist,
-	stateReconciler: autoMergeLevel2,
 };
 
 const persistedUiReducer = persistReducer<UIState, AnyAction>(
