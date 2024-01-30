@@ -141,8 +141,7 @@ test.describe('Emacs', () => {
 		);
 	});
 
-	// TODO: Flakiness here
-	test.only('should only open a single connection to emacs', async ({
+	test('should only open a single connection to emacs', async ({
 		context,
 		extensionId,
 	}) => {
