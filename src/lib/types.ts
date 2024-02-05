@@ -72,9 +72,14 @@ export enum WSReadyState {
 	CLOSED = 3,
 }
 
+export interface ResponseData {
+	id: number;
+	type: EmacsMsgTypes;
+}
+
 export type WSStateMsg = {
 	readyState?: WSReadyState;
-	responsesWaitingFor?: Array<number>;
+	responsesWaitingFor?: Array<ResponseData>;
 };
 
 export type WSPortMsg = {
@@ -87,8 +92,9 @@ export type WSPortMsg = {
 
 export type AllTagsRecv = string | Array<string | number>;
 
+export type EmacsItemType = 'ITEM';
 export type EmacsItemMsg = {
-	type: 'ITEM';
+	type: EmacsItemType;
 	data: {
 		ITEM: string;
 		ALLTAGS?: AllTagsRecv;
@@ -105,15 +111,18 @@ export type EmacsItemMsg = {
 		PREVIOUSLY_CLOCKED_MINUTES?: number;
 		CURRENT_CLOCK_START_TIMESTAMP?: number;
 	};
-	resid?: number;
+	resid?: number; // Clocked in won't have one
 };
 
+export type EmacsTagsType = 'TAGS';
 export type EmacsTagsMsg = {
-	type: 'TAGS';
+	type: EmacsTagsType;
 	data: {
 		[key: string]: string | null;
 	} | null;
 };
+
+export type EmacsMsgTypes = EmacsItemType | EmacsTagsType;
 
 export type EmacsRecvMsg = EmacsItemMsg | EmacsTagsMsg | null;
 

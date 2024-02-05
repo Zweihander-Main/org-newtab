@@ -1,8 +1,10 @@
 import {
+	ResponseData,
 	EmacsRecvMsg,
 	EmacsSendMsgWithResid,
 	MsgToTabType,
 	WSReadyState,
+	EmacsItemMsg,
 } from 'lib/types';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { RootState } from 'app/store';
@@ -15,9 +17,10 @@ import {
 	MAXIMUM_TIME_TO_WAIT_FOR_RESPONSE,
 } from 'lib/constants';
 import { resetData } from 'app/actions';
+
 export interface WSState {
 	readyState: WSReadyState;
-	responsesWaitingFor: Array<number>;
+	responsesWaitingFor: Array<ResponseData>;
 	wsPort: number;
 }
 
@@ -44,16 +47,25 @@ export const wsSlice = createSlice({
 		_setReadyStateTo: (state, action: PayloadAction<WSReadyState>) => {
 			state.readyState = action.payload;
 		},
-		_addToResponsesWaitingFor: (state, action: PayloadAction<number>) => {
-			state.responsesWaitingFor.push(action.payload);
+		_addToResponsesWaitingFor: (
+			state,
+			action: PayloadAction<ResponseData>
+		) => {
+			const newResponsesWaitingFor = state.responsesWaitingFor
+				.filter((res) => res.type !== action.payload.type)
+				.concat(action.payload);
+			return {
+				...state,
+				responsesWaitingFor: newResponsesWaitingFor,
+			};
 		},
 		_removeFromResponsesWaitingFor: (
 			state,
-			action: PayloadAction<number>
+			action: PayloadAction<ResponseData>
 		) => {
-			const newResponsesWaitingFor = state.responsesWaitingFor.filter(
-				(id) => id !== action.payload
-			);
+			const newResponsesWaitingFor = state.responsesWaitingFor
+				.filter((res) => res.id !== action.payload.id)
+				.filter((res) => res.type !== action.payload.type);
 			return {
 				...state,
 				responsesWaitingFor: newResponsesWaitingFor,
@@ -61,7 +73,7 @@ export const wsSlice = createSlice({
 		},
 		_setResponsesWaitingForTo: (
 			state,
-			action: PayloadAction<Array<number>>
+			action: PayloadAction<Array<ResponseData>>
 		) => {
 			return {
 				...state,
@@ -88,8 +100,6 @@ export const {
 export const selectedReadyState = (state: RootState) => state.ws.readyState;
 export const selectedIsWaitingForResponse = (state: RootState) =>
 	state.ws.responsesWaitingFor.length > 0;
-export const selectedResponsesWaitingFor = (state: RootState) =>
-	state.ws.responsesWaitingFor;
 export const selectedWSPort = (state: RootState) => state.ws.wsPort;
 export const selectedIsInSync = (state: RootState) =>
 	state.ws.readyState === WSReadyState.OPEN &&
@@ -126,21 +136,19 @@ listenerMiddleware.startListening({
 				const parsed = JSON.parse(message) as EmacsRecvMsg;
 				if (parsed === null) return;
 				dispatch(_recvMsgFromEmacs(parsed));
-				if ('resid' in parsed) {
-					dispatch(
-						_removeFromResponsesWaitingFor(parsed?.resid || -1)
-					);
-				}
-				// TODO: Hack to stop quick changes in match query or slow responses
-				// Will occur when a getItem has been sent and overriden by a clock in
-				// in Emacs.
-				if (parsed.data?.CURRENT_CLOCK_START_TIMESTAMP) {
-					dispatch(_setResponsesWaitingForTo([]));
-				}
+				dispatch(
+					_removeFromResponsesWaitingFor({
+						id: (parsed as EmacsItemMsg)?.resid || -1,
+						type: parsed?.type || 'ITEM', // TODO: refactor
+					})
+				);
 			});
 		}
 	},
 });
+
+// TODO: test previous problems (look at git history)
+// TODO: fix problem with switching ports causing hard responses stop
 
 /**
  * Close the websocket
@@ -193,15 +201,13 @@ listenerMiddleware.startListening({
 		if (amMasterRole && readyState === WSReadyState.OPEN) {
 			const resid = Math.floor(Math.random() * 1000000000);
 			const toSend: EmacsSendMsgWithResid = { ...data, resid };
-			// TODO: Hack to stop quick changes in match query or slow responses
-			// from emacs causing dropped responses (as they override each other)
-			// in chronological order. Need a more built out solution when using
-			// multiple types of requests.
-			dispatch(_setResponsesWaitingForTo([]));
 			Socket.sendJSON(toSend);
-			dispatch(_addToResponsesWaitingFor(resid));
+			// TODO: unify getItem and ITEM or allow for more commands
+			dispatch(_addToResponsesWaitingFor({ id: resid, type: 'ITEM' }));
 			setTimeout(() => {
-				dispatch(_removeFromResponsesWaitingFor(resid));
+				dispatch(
+					_removeFromResponsesWaitingFor({ id: resid, type: 'ITEM' })
+				);
 			}, MAXIMUM_TIME_TO_WAIT_FOR_RESPONSE);
 		} else {
 			sendToMasterTab(MsgToTabType.PASS_TO_EMACS, data);
