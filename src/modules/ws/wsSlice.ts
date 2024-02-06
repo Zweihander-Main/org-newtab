@@ -147,7 +147,6 @@ listenerMiddleware.startListening({
 	},
 });
 
-// TODO: test previous problems (look at git history)
 // TODO: fix problem with switching ports causing hard responses stop
 
 /**
@@ -202,12 +201,11 @@ listenerMiddleware.startListening({
 			const resid = Math.floor(Math.random() * 1000000000);
 			const toSend: EmacsSendMsgWithResid = { ...data, resid };
 			Socket.sendJSON(toSend);
+			const response: ResponseData = { id: resid, type: 'ITEM' };
 			// TODO: unify getItem and ITEM or allow for more commands
-			dispatch(_addToResponsesWaitingFor({ id: resid, type: 'ITEM' }));
+			dispatch(_addToResponsesWaitingFor(response));
 			setTimeout(() => {
-				dispatch(
-					_removeFromResponsesWaitingFor({ id: resid, type: 'ITEM' })
-				);
+				dispatch(_removeFromResponsesWaitingFor(response));
 			}, MAXIMUM_TIME_TO_WAIT_FOR_RESPONSE);
 		} else {
 			sendToMasterTab(MsgToTabType.PASS_TO_EMACS, data);
