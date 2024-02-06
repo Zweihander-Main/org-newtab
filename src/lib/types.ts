@@ -129,10 +129,18 @@ export type EmacsRecvMsg = EmacsItemMsg | EmacsTagsMsg | null;
 /**
  * Messages to Emacs
  */
-export type EmacsSendMsgCommand = 'getItem';
+export type EmacsGetItemCommand = 'getItem';
+export type EmacsCommands = EmacsGetItemCommand;
+
+export const commandToTypeMapping: Record<EmacsCommands, EmacsMsgTypes> = {
+	getItem: 'ITEM',
+};
+export const getTypeFromCommand = (command: EmacsCommands): EmacsMsgTypes => {
+	return commandToTypeMapping[command];
+};
 
 export type EmacsSendMsg = {
-	command: EmacsSendMsgCommand;
+	command: EmacsCommands;
 	data: string;
 };
 

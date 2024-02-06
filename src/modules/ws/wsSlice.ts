@@ -5,6 +5,7 @@ import {
 	MsgToTabType,
 	WSReadyState,
 	EmacsItemMsg,
+	getTypeFromCommand,
 } from 'lib/types';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { RootState } from 'app/store';
@@ -201,8 +202,10 @@ listenerMiddleware.startListening({
 			const resid = Math.floor(Math.random() * 1000000000);
 			const toSend: EmacsSendMsgWithResid = { ...data, resid };
 			Socket.sendJSON(toSend);
-			const response: ResponseData = { id: resid, type: 'ITEM' };
-			// TODO: unify getItem and ITEM or allow for more commands
+			const response: ResponseData = {
+				id: resid,
+				type: getTypeFromCommand(data.command),
+			};
 			dispatch(_addToResponsesWaitingFor(response));
 			setTimeout(() => {
 				dispatch(_removeFromResponsesWaitingFor(response));
