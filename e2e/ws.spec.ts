@@ -278,7 +278,6 @@ test.describe('WebSocket', () => {
 		);
 	});
 
-	// TODO: flakiness here
 	test('should add and remove waiting responses', async ({
 		extensionId,
 		context,

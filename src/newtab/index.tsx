@@ -31,7 +31,7 @@ const IndexNewtab: React.FC = () => {
 
 	return (
 		<main className="app">
-			<LoadingBar animationDuration={200} />
+			<LoadingBar />
 			<OptionsMenu />
 			<WidgetArea loc={Area.Top} />
 			<WidgetArea loc={Area.Mid} />

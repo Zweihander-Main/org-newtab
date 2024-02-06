@@ -2,14 +2,15 @@ import * as styles from './style.module.css';
 import { useNProgress } from '@tanem/react-nprogress';
 import { useAppSelector } from '../../app/hooks';
 import { selectedIsWaitingForResponse } from 'modules/ws/wsSlice';
+import { useEffect, useState } from 'react';
 
-const LoadingBar: React.FC<{
+const Progress: React.FC<{
 	animationDuration: number;
-}> = ({ animationDuration }) => {
-	const isWaitingForResponse = useAppSelector(selectedIsWaitingForResponse);
-
+	isAnimating: boolean;
+}> = ({ animationDuration, isAnimating }) => {
 	const { progress, isFinished } = useNProgress({
-		isAnimating: isWaitingForResponse,
+		isAnimating,
+		animationDuration,
 	});
 
 	return (
@@ -24,6 +25,32 @@ const LoadingBar: React.FC<{
 		>
 			<div className={styles.inner} />
 		</div>
+	);
+};
+
+const LoadingBar: React.FC = () => {
+	const isWaitingForResponse = useAppSelector(selectedIsWaitingForResponse);
+	const [loadingKey, setLoadingKey] = useState<number | null>(null);
+
+	// Key needed to force re-render between very fast requests
+	useEffect(() => {
+		setLoadingKey((prev) => {
+			if (!isWaitingForResponse) {
+				return null;
+			} else if (!prev) {
+				return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+			} else {
+				return prev;
+			}
+		});
+	}, [isWaitingForResponse]);
+
+	return (
+		<Progress
+			key={loadingKey}
+			animationDuration={200}
+			isAnimating={isWaitingForResponse}
+		/>
 	);
 };
 
