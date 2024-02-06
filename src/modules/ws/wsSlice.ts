@@ -139,7 +139,7 @@ listenerMiddleware.startListening({
 				dispatch(
 					_removeFromResponsesWaitingFor({
 						id: (parsed as EmacsItemMsg)?.resid || -1,
-						type: parsed?.type || 'ITEM', // TODO: refactor
+						type: parsed?.type || '',
 					})
 				);
 			});
