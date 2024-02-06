@@ -126,8 +126,8 @@ listenerMiddleware.startListening({
 				dispatch(_setReadyStateTo(WSReadyState.OPEN));
 			});
 			Socket.on('close', () => {
-				dispatch(_setReadyStateTo(WSReadyState.CLOSED));
 				dispatch(_setResponsesWaitingForTo([]));
+				dispatch(_setReadyStateTo(WSReadyState.CLOSED));
 			});
 			Socket.on('error', (event) => {
 				console.error('Websocket error', event);
@@ -164,7 +164,6 @@ listenerMiddleware.startListening({
 		if (readyState !== WSReadyState.CLOSED) {
 			dispatch(_setReadyStateTo(WSReadyState.CLOSING));
 		}
-		dispatch(_setResponsesWaitingForTo([]));
 		Socket.disconnect();
 	},
 });
