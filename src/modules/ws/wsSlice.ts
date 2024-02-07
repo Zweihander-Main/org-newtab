@@ -148,8 +148,6 @@ listenerMiddleware.startListening({
 	},
 });
 
-// TODO: fix problem with switching ports causing hard responses stop
-
 /**
  * Close the websocket
  */

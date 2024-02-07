@@ -252,6 +252,4 @@ const LayoutPanel: React.FC = () => {
 	);
 };
 
-// TODO: fix panel on short screen height, likely DRY panel css between all panels
-
 export default LayoutPanel;
