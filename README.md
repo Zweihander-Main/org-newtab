@@ -149,16 +149,17 @@ The background color of the item that shows up is controlled by the `org-tag-fac
 
 ### Technologies used:
 
--   Emacs:
+-   Emacs side:
     -   [Eldev](https://github.com/emacs-eldev/eldev) for project management
     -   [Buttercup](https://github.com/jorgenschaefer/emacs-buttercup/) for testing
     -   [websocket](https://github.com/ahyatt/emacs-websocket) and [async](https://github.com/jwiegley/emacs-async) libs
--   [Plasmo](https://www.plasmo.com/) Browser Extension framework
-    -   React
+-   Extension side:
+    -   [Plasmo](https://www.plasmo.com/) Browser Extension framework
+    -   React + Redux Toolkit
     -   TypeScript
     -   Playwright for E2E integration testing
     -   Jest+Runners, Husky+Lint-staged
--   pnpm, eslint, prettier, stylelint
+    -   pnpm, eslint, prettier, stylelint
 
 ### Possible Future Additions
 
