@@ -1,8 +1,21 @@
 /* eslint-disable no-console */
-import { spawn } from 'child_process';
 import { promises as fs } from 'fs';
 import * as dns from 'node:dns';
 import { test, expect } from './fixture';
+import {
+	baseDir,
+	changeTagsFileName,
+	closeOptions,
+	gotoOptPanel,
+	isPortInUse,
+	pickARandomPort,
+	roleIs,
+	setupWebsocketPort,
+	startEmacsProcess,
+	storageIsResolved,
+	testFileName,
+	toRGB,
+} from './common';
 import {
 	AGENDA_ITEM_TEXT_CLOCKED,
 	AGENDA_ITEM_TEXT_NEXT,
@@ -20,62 +33,10 @@ import {
 	MATCH_QUERY_LABEL,
 	MATCH_QUERY_NEXT,
 	MATCH_QUERY_TAG,
-	MAX_RETRIES_FOR_EMACS_CONNECTION,
 	RETRIES_FOR_EMACS,
 	TAG_COLOR,
-	closeOptions,
-	gotoOptPanel,
-	isPortInUse,
-	pickARandomPort,
-	roleIs,
-	setupWebsocketPort,
-	storageIsResolved,
-	toRGB,
-} from './common';
+} from './constants';
 import WebSocket from 'ws';
-
-const baseDir = process.cwd();
-const extraTestCodeFile = `${baseDir}/e2e/emacs/extra-testing-code-`;
-
-const testFileName = (port: number) =>
-	`${extraTestCodeFile}${port.toString()}.el`;
-
-const changeTagsFileName = (port: number) =>
-	`${baseDir}/e2e/emacs/change-tags-${port.toString()}.org`;
-
-function emacsProcess(port: number, retries = 0) {
-	let emacs = spawn('emacs', [
-		'--batch',
-		'--quick',
-		'--eval',
-		`(setq org-newtab-ws-port ${port})`,
-		'-l',
-		`${baseDir}/e2e/emacs/init.el`,
-		'-l',
-		`${baseDir}/e2e/emacs/setup-mode.el`,
-	]);
-
-	/* prin1, princ, print to stdout
-	    	message and error both to stderr :| */
-	emacs.stdout.on('data', (data) => {
-		console.log(`stdout: ${data}`);
-	});
-
-	emacs.stderr.on('data', (data) => {
-		console.log(`stderr: ${data}`);
-	});
-
-	emacs.on('close', (code) => {
-		console.log(`emacs running on port ${port} exited with code ${code}`);
-		// 255 may occur due to file locks
-		if (code === 255 && retries < MAX_RETRIES_FOR_EMACS_CONNECTION) {
-			console.log('emacs exited with code 255, retrying');
-			emacs = emacsProcess(port, retries + 1);
-		}
-	});
-
-	return emacs;
-}
 
 test.describe('Emacs', () => {
 	test.describe.configure({
@@ -87,13 +48,13 @@ test.describe('Emacs', () => {
 	});
 
 	let port: number;
-	let emacs: ReturnType<typeof emacsProcess>;
+	let emacs: ReturnType<typeof startEmacsProcess>;
 
 	test.beforeEach(async () => {
 		port = await pickARandomPort();
 		fs.unlink(testFileName(port)).catch(() => {});
 		fs.unlink(changeTagsFileName(port)).catch(() => {});
-		emacs = emacsProcess(port);
+		emacs = startEmacsProcess(port);
 	});
 
 	test.afterEach(() => {

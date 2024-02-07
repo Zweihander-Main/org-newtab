@@ -1,69 +1,35 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-base-to-string */
+import { spawn } from 'child_process';
 import { Page } from '@playwright/test';
 import { test, expect } from './fixture';
-import fs from 'fs';
 import { OptionCategories } from 'modules/ui/uiSlice';
 import WebSocket from 'ws';
 import net from 'net';
 import { DEFAULT_WEBSOCKET_PORT } from 'lib/constants';
+import {
+	CLIENT_MESSAGE,
+	HOW_LONG_TO_WAIT_FOR_STORAGE,
+	INITIAL_STATE_LOCATOR,
+	INITIAL_STATE_RESOLVED,
+	MASTER_MESSAGE,
+	MAX_RETRIES_FOR_EMACS_CONNECTION,
+	OPTIONS_CLOSE_BUTTON_LOCATOR,
+	OPTIONS_OPEN_BUTTON_LOCATOR,
+	ROLE_LOCATOR,
+	WSS_TEST_TEXT,
+	WS_PORT_LABEL,
+} from './constants';
 
-function loadMessagesJson(locale: string): Record<string, Message> {
-	const filePath = `locales/${locale}/messages.json`;
-	const jsonData = fs.readFileSync(filePath, 'utf8');
-	return JSON.parse(jsonData) as Record<string, Message>;
-}
+/**
+ * Variables
+ */
 
-const getMessage = (id: string): string => {
-	const messages = loadMessagesJson(LOCALE);
-	return (messages[id] && messages[id]?.message) || '';
-};
+export const baseDir = process.cwd();
 
-export const HOW_LONG_TO_WAIT_FOR_STORAGE = 20000;
-export const HOW_LONG_TO_WAIT_FOR_WEBSOCKET = 15000;
-export const HOW_LONG_TO_WAIT_FOR_RESPONSE = 20000;
-export const HOW_LONG_TO_TEST_CONNECTION_FOR = 5000;
-export const RETRIES_FOR_WEBSOCKET = 0;
-export const RETRIES_FOR_EMACS = 0;
-export const MAX_RETRIES_FOR_EMACS_CONNECTION = 3;
-
-export const LOCALE = 'en';
-
-export const MASTER_MESSAGE = getMessage('masterRole');
-export const CLIENT_MESSAGE = getMessage('clientRole');
-export const MATCH_QUERY_LABEL = getMessage('matchQuery');
-export const WS_PORT_LABEL = getMessage('wsPort');
-export const INITIAL_STATE_RESOLVED = getMessage('storageResolved');
-export const CONNECTION_STATUS_OPEN = getMessage('connectionStatusOpen');
-
-export const GET_ITEM_COMMAND = 'getItem';
-export const WSS_TEST_TEXT = 'WSS test message';
-export const AGENDA_ITEM_TEXT_TODO = 'Sample todo item';
-export const AGENDA_ITEM_TEXT_NEXT = 'Sample next item';
-export const AGENDA_ITEM_TEXT_TAGGED = 'Sample tagged item';
-export const AGENDA_ITEM_TEXT_CLOCKED = 'Sample clocked item';
-export const CLOCKED_TIME = '0:01 / 1:23';
-export const MATCH_QUERY_NEXT = 'TODO="NEXT"';
-export const MATCH_QUERY_TAG = '1#SAMPLETAG';
-export const TAG_COLOR = '#42A5F5';
-
-export const ROLE_LOCATOR = 'websocket-role';
-export const ITEM_TEXT_LOCATOR = 'item-text';
-export const INITIAL_STATE_LOCATOR = 'initial-state';
-export const CONNECTION_STATUS_LOCATOR = 'connection-status';
-export const LOADING_BAR_LOCATOR = 'loading-bar';
-export const OPTIONS_OPEN_BUTTON_LOCATOR = 'options-open-button';
-export const OPTIONS_CLOSE_BUTTON_LOCATOR = 'options-close-button';
-export const BEHAVIOR_BUTTON_LOCATOR = 'behavior-button';
-export const LAYOUT_BUTTON_LOCATOR = 'layout-button';
-export const THEMING_BUTTON_LOCATOR = 'theming-button';
-export const DEBUG_BUTTON_LOCATOR = 'debug-button';
-export const CLOCKED_TIME_LOCATOR = 'clocked-time';
-
-type Message = {
-	message: string;
-	description: string;
-};
+/**
+ * Navigation
+ */
 
 export const openOptions = async (page: Page) => {
 	await test.step('Open menu', async () => {
@@ -88,6 +54,10 @@ export const gotoOptPanel = async (page: Page, panel: OptionCategories) => {
 	});
 };
 
+/**
+ * State assertions
+ */
+
 export const roleIs = async (page: Page, role: 'master' | 'client') => {
 	await test.step(`Check if the websocket role is ${role}`, async () => {
 		await gotoOptPanel(page, 'Debug');
@@ -110,6 +80,55 @@ export const storageIsResolved = async (page: Page) => {
 		await closeOptions(page);
 	});
 };
+
+/**
+ * Network handling
+ */
+
+export async function isPortInUse(port: number) {
+	return new Promise((resolve) => {
+		const server = net.createServer();
+		server.once('error', (err: Error & { code: string }) => {
+			if (err.code === 'EADDRINUSE') {
+				resolve(true);
+			} else {
+				resolve(false);
+			}
+		});
+		server.once('listening', () => {
+			server.close();
+			resolve(false);
+		});
+		server.listen(port);
+	});
+}
+
+export async function pickARandomPort() {
+	const port = Math.floor(Math.random() * (55000 - 10000 + 1)) + 10000;
+	if (!(await isPortInUse(port)) && port !== DEFAULT_WEBSOCKET_PORT) {
+		return port;
+	} else {
+		return pickARandomPort();
+	}
+}
+
+export async function setupWebsocketPort(
+	conn: Awaited<ReturnType<typeof openSocketConnection>> | { port: number },
+	tab: Page
+) {
+	await test.step('Setup websocket port', async () => {
+		await gotoOptPanel(tab, 'Behavior');
+		const portInput = tab.getByLabel(WS_PORT_LABEL);
+		await portInput.fill(conn.port.toString());
+		await portInput.press('Enter');
+		await expect(portInput).toHaveValue(conn.port.toString());
+		await closeOptions(tab);
+	});
+}
+
+/**
+ * Mock websocket server
+ */
 
 export function startTestWebSocketServer(port: number) {
 	const wss = new WebSocket.Server({ port: port });
@@ -148,51 +167,10 @@ export function startTestWebSocketServer(port: number) {
 	return wss;
 }
 
-export async function isPortInUse(port: number) {
-	return new Promise((resolve) => {
-		const server = net.createServer();
-		server.once('error', (err: Error & { code: string }) => {
-			if (err.code === 'EADDRINUSE') {
-				resolve(true);
-			} else {
-				resolve(false);
-			}
-		});
-		server.once('listening', () => {
-			server.close();
-			resolve(false);
-		});
-		server.listen(port);
-	});
-}
-
-export async function pickARandomPort() {
-	const port = Math.floor(Math.random() * (55000 - 10000 + 1)) + 10000;
-	if (!(await isPortInUse(port)) && port !== DEFAULT_WEBSOCKET_PORT) {
-		return port;
-	} else {
-		return pickARandomPort();
-	}
-}
-
 export async function openSocketConnection() {
 	const port = await pickARandomPort();
 	const wss = startTestWebSocketServer(port);
 	return { port, wss };
-}
-
-export async function setupWebsocketPort(
-	conn: Awaited<ReturnType<typeof openSocketConnection>> | { port: number },
-	tab: Page
-) {
-	await test.step('Setup websocket port', async () => {
-		await gotoOptPanel(tab, 'Behavior');
-		const portInput = tab.getByLabel(WS_PORT_LABEL);
-		await portInput.fill(conn.port.toString());
-		await portInput.press('Enter');
-		await expect(portInput).toHaveValue(conn.port.toString());
-		await closeOptions(tab);
-	});
 }
 
 export function webSocketURL(
@@ -200,6 +178,56 @@ export function webSocketURL(
 ) {
 	return `ws://localhost:${conn.port}/`;
 }
+
+/**
+ *  Running Emacs Process
+ */
+
+export const startEmacsProcess = (port: number, retries = 0) => {
+	let emacs = spawn('emacs', [
+		'--batch',
+		'--quick',
+		'--eval',
+		`(setq org-newtab-ws-port ${port})`,
+		'-l',
+		`${baseDir}/e2e/emacs/init.el`,
+		'-l',
+		`${baseDir}/e2e/emacs/setup-mode.el`,
+	]);
+
+	/* prin1, princ, print to stdout
+	    	message and error both to stderr :| */
+	emacs.stdout.on('data', (data) => {
+		console.log(`stdout: ${data}`);
+	});
+
+	emacs.stderr.on('data', (data) => {
+		console.log(`stderr: ${data}`);
+	});
+
+	emacs.on('close', (code) => {
+		console.log(`emacs running on port ${port} exited with code ${code}`);
+		// 255 may occur due to file locks
+		if (code === 255 && retries < MAX_RETRIES_FOR_EMACS_CONNECTION) {
+			console.log('emacs exited with code 255, retrying');
+			emacs = startEmacsProcess(port, retries + 1);
+		}
+	});
+
+	return emacs;
+};
+
+export const extraTestCodeFile = `${baseDir}/e2e/emacs/extra-testing-code-`;
+
+export const testFileName = (port: number) =>
+	`${extraTestCodeFile}${port.toString()}.el`;
+
+export const changeTagsFileName = (port: number) =>
+	`${baseDir}/e2e/emacs/change-tags-${port.toString()}.org`;
+
+/**
+ * Misc
+ */
 
 export const toRGB = (color: string) => {
 	const colorArray = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);

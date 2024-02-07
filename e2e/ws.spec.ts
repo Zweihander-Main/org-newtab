@@ -1,5 +1,13 @@
 /* eslint-disable no-console */
 import {
+	storageIsResolved,
+	closeOptions,
+	gotoOptPanel,
+	openSocketConnection,
+	webSocketURL,
+	setupWebsocketPort,
+} from './common';
+import {
 	CONNECTION_STATUS_LOCATOR,
 	CONNECTION_STATUS_OPEN,
 	GET_ITEM_COMMAND,
@@ -11,14 +19,8 @@ import {
 	WS_PORT_LABEL,
 	HOW_LONG_TO_WAIT_FOR_STORAGE,
 	LOADING_BAR_LOCATOR,
-	storageIsResolved,
 	RETRIES_FOR_WEBSOCKET,
-	closeOptions,
-	gotoOptPanel,
-	openSocketConnection,
-	webSocketURL,
-	setupWebsocketPort,
-} from './common';
+} from './constants';
 import { test, expect } from './fixture';
 
 test.describe('WebSocket', () => {
