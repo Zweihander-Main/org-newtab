@@ -137,16 +137,6 @@ To control what shows up when a task isn't clocked in, hit the menu button in th
 
 The background color of the item that shows up is controlled by the `org-tag-faces` variable and which tags apply to the item. For now, the assumption is that only one colored tag will be applied to each item.
 
-### Development setup:
-
-1. Add the lisp files into your Emacs as outlined above.
-2. Clone this repo and run `pnpm run build` for Chrome, `pnpm run build --target=firefox-mv3` for Firefox.
-3. In Chrome, head to `chrome://extensions/`, enable Developer Mode, and `Load unpacked` the `./build/chrome-mv3-prod` directory.
-   In Firefox, head to `about:debugging#/runtime/this-firefox` and `Load Temporary Add-on` the `./build/firefox-mv3-prod` directory. Note that you'll have to do this every time you restart Firefox.
-4. `M-x org-newtab-mode`
-
-Note that you can get hot reloading in Chrome using `pnpm run dev` and using the `./build/chrome-mv3-dev` directory. The same won't work in Firefox due to security limitations.
-
 ## 🖥️ Dev Notes
 
 ### Technologies used:
@@ -190,6 +180,16 @@ Note that you can get hot reloading in Chrome using `pnpm run dev` and using the
 -   [ ] Built-out documentation (separate site)
 -   [ ] Provide sorting beyond what match query provides
 -   [ ] In-app tutorial/getting started
+
+### Development setup:
+
+1. Add the lisp files into your Emacs as outlined above.
+2. Clone this repo and run `pnpm run build` for Chrome, `pnpm run build --target=firefox-mv3` for Firefox.
+3. In Chrome, head to `chrome://extensions/`, enable Developer Mode, and `Load unpacked` the `./build/chrome-mv3-prod` directory.
+   In Firefox, head to `about:debugging#/runtime/this-firefox` and `Load Temporary Add-on` the `./build/firefox-mv3-prod` directory. Note that you'll have to do this every time you restart Firefox.
+4. `M-x org-newtab-mode`
+
+Note that you can get hot reloading in Chrome using `pnpm run dev` and using the `./build/chrome-mv3-dev` directory. The same (`pnpm run dev --target=firefox-mv3`) won't work in Firefox due to security limitations.
 
 ### Misc
 
