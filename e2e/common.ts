@@ -208,7 +208,7 @@ export const toRGB = (color: string) => {
 				r: parseInt(colorArray[1], 16),
 				g: parseInt(colorArray[2], 16),
 				b: parseInt(colorArray[3], 16),
-		  }
+			}
 		: null;
 	return colorObj ? `rgb(${colorObj.r}, ${colorObj.g}, ${colorObj.b})` : '';
 };

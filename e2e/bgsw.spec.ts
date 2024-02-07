@@ -18,11 +18,11 @@ test('Should load multiple tabs with different roles', async ({
 	await roleIs(tab2, 'client');
 });
 
-// TODO: flakiness between 4-24 repeats
 test('Should load multiple tabs and maintain one master role', async ({
 	extensionId,
 	context,
 }) => {
+	test.slow();
 	const tab1 = await context.newPage();
 	const tab2 = await context.newPage();
 	const tab3 = await context.newPage();
