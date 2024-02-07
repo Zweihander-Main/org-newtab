@@ -92,8 +92,6 @@ new Storage({
 	area: 'local',
 }).watch(watchObject);
 
-// TODO: Chang Firefox ID in Package.json
-
 export type RootState = ReturnType<typeof mockStore.getState>;
 
 export type AppDispatch = typeof mockStore.dispatch;
