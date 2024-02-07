@@ -1,4 +1,4 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, StoreEnhancer } from '@reduxjs/toolkit';
 import { devToolsEnhancer } from '@redux-devtools/remote';
 import {
 	FLUSH,
@@ -18,7 +18,7 @@ import persistedRootReducer, {
 	persistKeys,
 } from './rootReducer';
 
-const enhancers = [];
+const enhancers: Array<StoreEnhancer> = [];
 if (process.env.NODE_ENV === 'development') {
 	enhancers.push(devToolsEnhancer({}));
 }
@@ -44,7 +44,7 @@ export const store = configureStore({
 				],
 			},
 		}).prepend(middleware),
-	enhancers,
+	enhancers: (getDefaultEnhancers) => getDefaultEnhancers().concat(enhancers),
 });
 
 export const persistor = persistStore(store);

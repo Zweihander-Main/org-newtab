@@ -2,8 +2,7 @@
 	display: grid;
 	grid-template-columns: 1fr;
 	grid-auto-rows: 1fr 6fr;
-	justify-items: start;
-	align-items: baseline;
+	place-items: baseline start;
 	height: fit-content;
 	position: relative;
 	width: auto;

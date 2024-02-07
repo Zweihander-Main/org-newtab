@@ -82,8 +82,8 @@ listenerMiddleware.startListening({
 	predicate: (action) =>
 		(action.type === REHYDRATE && action.key === 'ui') ||
 		action.type === setUntaggedItemBGColor.type,
-	effect: (action: BGColorMiddlewareAction) => {
-		const { payload } = action;
+	effect: (action) => {
+		const { payload } = action as BGColorMiddlewareAction;
 		let untaggedItemBGColor: string | undefined;
 		if (action.type === REHYDRATE && typeof payload === 'object') {
 			untaggedItemBGColor = payload?.untaggedItemBGColor;

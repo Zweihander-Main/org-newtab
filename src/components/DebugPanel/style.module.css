@@ -36,13 +36,12 @@
 	background: white;
 	font-weight: var(--font-weight-light);
 	width: calc(100% - 3.5rem);
-	align-self: center;
 	padding: 1rem;
 	border-radius: 1rem;
 	margin-top: 5rem;
 	box-shadow: 0.4rem 0.4rem 0 0 var(--color-item-shadow);
 	border: 2px solid var(--color-item-shadow);
-	justify-self: center;
+	place-self: center;
 }
 
 .pitch a {

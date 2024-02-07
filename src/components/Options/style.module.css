@@ -21,8 +21,7 @@
 	display: flex;
 	width: 100%;
 	height: 100%;
-	justify-content: center;
-	align-content: center;
+	place-content: center center;
 	flex-direction: column;
 	transform: translateY(-100%);
 	transition: all var(--animation-duration-options)
