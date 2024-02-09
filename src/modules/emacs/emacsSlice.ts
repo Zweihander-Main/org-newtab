@@ -62,7 +62,10 @@ const extractTagsFromItemAllTags = (allTagsData?: AllTagsRecv): ItemTags => {
 	} else {
 		allTags = allTagsData?.split(':').filter((tag) => tag !== '');
 	}
-	return allTags || [];
+	const cleanedAllTags = allTags?.map((tag) =>
+		tag.replace(/^:(.*):$/i, '$1')
+	);
+	return cleanedAllTags || [];
 };
 
 const emacsSlice = createSlice({
@@ -124,12 +127,9 @@ export const selectedItemTags = (state: RootState) => state.emacs.itemTags;
 export const selectedTagColor = createSelector(
 	[selectedItemTags, selectedTagsData],
 	(itemTags, tagsData) => {
-		const cleanItemTags = itemTags?.map((tag) =>
-			tag.replace(/^:(.*):$/i, '$1')
-		);
 		const tagsDataTags = tagsData.map((tag) => tag.tag);
 		const foundTagIdx = tagsDataTags.findIndex((tag) =>
-			cleanItemTags.includes(tag)
+			itemTags.includes(tag)
 		);
 		return foundTagIdx !== -1 ? tagsData[foundTagIdx].color : null;
 	}
