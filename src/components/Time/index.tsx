@@ -47,25 +47,29 @@ const ClockedTime: React.FC = () => {
 		return () => clearInterval(interval);
 	}, [calculateMinutesClockedIn]);
 
-	let overtimeStrokeColor = undefined;
-	if (
-		itemEffortMinutes &&
-		itemClockStartTime &&
-		minutesClockedIn > itemEffortMinutes * TIME_WARNING_THRESHOLD
-	) {
-		if (minutesClockedIn > itemEffortMinutes) {
-			overtimeStrokeColor = 'rgb(255, 0, 0)';
-		} else {
-			const numberOfWarningMinutes =
-				itemEffortMinutes - itemEffortMinutes * TIME_WARNING_THRESHOLD;
-			const minutesLeft = itemEffortMinutes - minutesClockedIn;
-			const percentageLeft =
-				1 -
-				(numberOfWarningMinutes - minutesLeft) / numberOfWarningMinutes;
-			const color = Math.floor(255 * percentageLeft);
-			overtimeStrokeColor = `rgb(255, ${color}, ${color})`;
+	const determineOvertimeStrokeColor = useCallback(() => {
+		if (
+			itemEffortMinutes &&
+			itemClockStartTime &&
+			minutesClockedIn > itemEffortMinutes * TIME_WARNING_THRESHOLD
+		) {
+			if (minutesClockedIn > itemEffortMinutes) {
+				return 'rgb(255, 0, 0)';
+			} else {
+				const numberOfWarningMinutes =
+					itemEffortMinutes -
+					itemEffortMinutes * TIME_WARNING_THRESHOLD;
+				const minutesLeft = itemEffortMinutes - minutesClockedIn;
+				const percentageLeft =
+					1 -
+					(numberOfWarningMinutes - minutesLeft) /
+						numberOfWarningMinutes;
+				const color = Math.floor(255 * percentageLeft);
+				return `rgb(255, ${color}, ${color})`;
+			}
 		}
-	}
+		return undefined;
+	}, [itemEffortMinutes, itemClockStartTime, minutesClockedIn]);
 
 	if (!isInSync || !isClockedIn) {
 		return null;
@@ -74,7 +78,7 @@ const ClockedTime: React.FC = () => {
 	return (
 		<div
 			className={styles.clock}
-			style={{ WebkitTextStrokeColor: overtimeStrokeColor }}
+			style={{ WebkitTextStrokeColor: determineOvertimeStrokeColor() }}
 			data-testid="clocked-time"
 		>
 			{minutesToTimeString(minutesClockedIn)}
