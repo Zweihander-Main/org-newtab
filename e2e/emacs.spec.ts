@@ -373,7 +373,7 @@ test.describe('Emacs', () => {
 		}
 	});
 
-	test.only('should show clocked in minutes without effort set', async ({
+	test('should show clocked in minutes without effort set', async ({
 		context,
 		extensionId,
 	}) => {
