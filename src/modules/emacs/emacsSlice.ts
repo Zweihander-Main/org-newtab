@@ -4,9 +4,10 @@ import { listenerMiddleware } from 'app/middleware';
 import { resetData } from 'app/actions';
 import { RootState } from 'app/store';
 import { EmacsSendMsg, EmacsRecvMsg, AllTagsRecv } from 'lib/types';
+import type { PersistedState } from '@plasmohq/redux-persist/lib/types';
 
 type MatchQuery = string | undefined;
-type TagFaces = { [key: string]: string | null };
+type TagFaces = Array<{ tag: string; color: string | null }>;
 type ItemText = string | null;
 type ItemTags = Array<string>;
 type ItemClockStartTime = number | null;
@@ -25,10 +26,20 @@ export interface EmacsState {
 
 export const name = 'emacs';
 export const persistenceBlacklist: Array<keyof EmacsState> = [];
+export const persistenceVersion = 2;
+export const persistenceMigrations = {
+	// tagFaces previously a flat object { tag: color }
+	2: (state: PersistedState) => {
+		return {
+			...state,
+			tagFaces: [],
+		} as PersistedState;
+	},
+};
 
 const initialState: EmacsState = {
 	matchQuery: 'TODO="TODO"',
-	tagFaces: {},
+	tagFaces: [],
 	itemText: null,
 	itemTags: [],
 	itemClockStartTime: null,
@@ -90,7 +101,11 @@ const emacsSlice = createSlice({
 				case 'TAGS':
 					return {
 						...state,
-						tagFaces: payload?.data || {},
+						tagFaces: Object.entries(payload?.data || {}).map(
+							([tag, color]) => {
+								return { tag, color };
+							}
+						),
 					};
 					break;
 				default:
@@ -102,8 +117,6 @@ const emacsSlice = createSlice({
 	},
 });
 
-// TODO: change tag structure to use array
-
 export const selectedMatchQuery = (state: RootState) => state.emacs.matchQuery;
 export const selectedTagsData = (state: RootState) => state.emacs.tagFaces;
 export const selectedItemText = (state: RootState) => state.emacs.itemText;
@@ -111,10 +124,14 @@ export const selectedItemTags = (state: RootState) => state.emacs.itemTags;
 export const selectedTagColor = createSelector(
 	[selectedItemTags, selectedTagsData],
 	(itemTags, tagsData) => {
-		const foundTag = itemTags
-			?.map((tag) => tag.replace(/^:(.*):$/i, '$1'))
-			?.find((tag) => Object.keys(tagsData).includes(tag));
-		return foundTag ? tagsData[foundTag] : null;
+		const cleanItemTags = itemTags?.map((tag) =>
+			tag.replace(/^:(.*):$/i, '$1')
+		);
+		const tagsDataTags = tagsData.map((tag) => tag.tag);
+		const foundTagIdx = tagsDataTags.findIndex((tag) =>
+			cleanItemTags.includes(tag)
+		);
+		return foundTagIdx !== -1 ? tagsData[foundTagIdx].color : null;
 	}
 );
 export const selectedItemClockStartTime = (state: RootState) =>

@@ -1,6 +1,6 @@
 import { AnyAction, combineReducers } from '@reduxjs/toolkit';
 import { localStorage } from 'redux-persist-webextension-storage';
-import { persistReducer } from '@plasmohq/redux-persist';
+import { createMigrate, persistReducer } from '@plasmohq/redux-persist';
 import type { Storage as StorageType } from '@plasmohq/redux-persist/lib/types';
 import wsReducer, {
 	WSState,
@@ -11,6 +11,8 @@ import emacsReducer, {
 	EmacsState,
 	name as emacsSliceName,
 	persistenceBlacklist as emacsSlicePersistenceBlacklist,
+	persistenceVersion as emacsPersistenceVersion,
+	persistenceMigrations as emacsPersistenceMigrations,
 } from '../modules/emacs/emacsSlice';
 import uiReducer, {
 	UIState,
@@ -39,9 +41,10 @@ const persistedWSReducer = persistReducer<WSState, AnyAction>(
 
 export const emacsPersistConfig = {
 	key: emacsSliceName,
-	version: 1,
+	version: emacsPersistenceVersion,
 	storage: localStorage as StorageType,
 	blacklist: emacsSlicePersistenceBlacklist,
+	migrate: createMigrate(emacsPersistenceMigrations),
 };
 
 const persistedEmacsReducer = persistReducer<EmacsState, AnyAction>(
