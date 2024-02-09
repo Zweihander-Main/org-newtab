@@ -102,7 +102,7 @@ const emacsSlice = createSlice({
 	},
 });
 
-// TODO: previously clocked minutes not accurate if item clock start time not sent
+// TODO: change tag structure to use array
 
 export const selectedMatchQuery = (state: RootState) => state.emacs.matchQuery;
 export const selectedTagsData = (state: RootState) => state.emacs.tagFaces;

@@ -25,6 +25,7 @@ import {
 	CLOCKED_TIME_LOCATOR,
 	CONNECTION_STATUS_LOCATOR,
 	CONNECTION_STATUS_OPEN,
+	EFFORTLESS_CLOCKED_TIME,
 	HOW_LONG_TO_TEST_CONNECTION_FOR,
 	HOW_LONG_TO_WAIT_FOR_RESPONSE,
 	HOW_LONG_TO_WAIT_FOR_STORAGE,
@@ -370,5 +371,29 @@ test.describe('Emacs', () => {
 		while (!passed) {
 			await new Promise((resolve) => setTimeout(resolve, 100));
 		}
+	});
+
+	test.only('should show clocked in minutes without effort set', async ({
+		context,
+		extensionId,
+	}) => {
+		const tabMaster = await context.newPage();
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await storageIsResolved(tabMaster);
+		await setupWebsocketPort({ port }, tabMaster);
+
+		await fs.copyFile(
+			`${baseDir}/e2e/emacs/clock-broken.el`,
+			testFileName(port)
+		);
+
+		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
+			AGENDA_ITEM_TEXT_CLOCKED,
+			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
+		);
+
+		await expect(tabMaster.getByTestId(CLOCKED_TIME_LOCATOR)).toContainText(
+			EFFORTLESS_CLOCKED_TIME
+		);
 	});
 });
