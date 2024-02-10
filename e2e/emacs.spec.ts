@@ -32,10 +32,12 @@ import {
 	HOW_LONG_TO_WAIT_FOR_WEBSOCKET,
 	ITEM_TEXT_LOCATOR,
 	MATCH_QUERY_LABEL,
+	MATCH_QUERY_NESTED_TAG,
 	MATCH_QUERY_NEXT,
 	MATCH_QUERY_TAG,
 	RETRIES_FOR_EMACS,
 	TAG_COLOR,
+	TAG_COLOR_NESTED_REGEX,
 } from './constants';
 import WebSocket from 'ws';
 
@@ -178,6 +180,31 @@ test.describe('Emacs', () => {
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toHaveCSS(
 			'background-color',
 			toRGB(TAG_COLOR),
+			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
+		);
+	});
+
+	// TODO: flakiness shows switching bug: when already gotten tags, new
+	// tags are sometimes not set
+
+	test('should send multiple tags on nested items', async ({
+		context,
+		extensionId,
+	}) => {
+		const tabMaster = await context.newPage();
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await storageIsResolved(tabMaster);
+		await setupWebsocketPort({ port }, tabMaster);
+
+		await gotoOptPanel(tabMaster, 'Behavior');
+		await tabMaster
+			.getByLabel(MATCH_QUERY_LABEL)
+			.fill(MATCH_QUERY_NESTED_TAG);
+		await tabMaster.getByLabel(MATCH_QUERY_LABEL).press('Enter');
+		await closeOptions(tabMaster);
+		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toHaveCSS(
+			'background',
+			TAG_COLOR_NESTED_REGEX,
 			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
 		);
 	});

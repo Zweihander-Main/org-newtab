@@ -2,4 +2,5 @@
 * TODO Sample todo item
 * NEXT Sample next item
 * TODO Sample tagged item :1#SAMPLETAG:
-
+* TODO [#C] Nested multi-tag test :3#PARENTTAG:
+** TODO [#C] The nested item :2#OTHERTAG:

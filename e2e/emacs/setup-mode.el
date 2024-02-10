@@ -6,7 +6,9 @@
 
 (setq org-agenda-files (list (expand-file-name "e2e/emacs" base-dir)))
 (setq org-todo-keywords '((sequence "TODO" "NEXT" "DONE")))
-(setq org-tag-faces '(("1#SAMPLETAG" . (:foreground "#42A5F5" :weight bold))))
+(setq org-tag-faces '(("1#SAMPLETAG" . (:foreground "#42A5F5" :weight bold))
+                      ("2#OTHERTAG" . (:foreground "#6A3B9F" :weight bold))
+                      ("3#PARENTTAG" . (:foreground "#00FF33" :weight bold))))
 (setq org-clock-persist nil)
 
 (org-newtab-mode)
