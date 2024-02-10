@@ -135,7 +135,7 @@ problems.
 
 To control what shows up when a task isn't clocked in, hit the menu button in the top left and change the `Match Query` under the `Behavior` tab. Instructions for creating match queries [can be found here](https://orgmode.org/manual/Matching-tags-and-properties.html).
 
-The background color of the item that shows up is controlled by the `org-tag-faces` variable and which tags apply to the item. For now, the assumption is that only one colored tag will be applied to each item.
+The background color of the item that shows up is controlled by the `org-tag-faces` variable and which tags apply to the item. When multiple colors apply to an item, they will all show up in a gradient.
 
 ## 🖥️ Dev Notes
 
