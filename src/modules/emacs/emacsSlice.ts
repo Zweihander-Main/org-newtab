@@ -124,14 +124,20 @@ export const selectedMatchQuery = (state: RootState) => state.emacs.matchQuery;
 export const selectedTagsData = (state: RootState) => state.emacs.tagFaces;
 export const selectedItemText = (state: RootState) => state.emacs.itemText;
 export const selectedItemTags = (state: RootState) => state.emacs.itemTags;
-export const selectedTagColor = createSelector(
+export const selectedTagColors = createSelector(
 	[selectedItemTags, selectedTagsData],
 	(itemTags, tagsData) => {
 		const tagsDataTags = tagsData.map((tag) => tag.tag);
-		const foundTagIdx = tagsDataTags.findIndex((tag) =>
-			itemTags.includes(tag)
+		const appliedTags = itemTags.filter((tag) =>
+			tagsDataTags.includes(tag)
 		);
-		return foundTagIdx !== -1 ? tagsData[foundTagIdx].color : null;
+		const colors = appliedTags.map((tag) => {
+			return (
+				tagsData.find((tagObj) => tagObj.tag === tag)?.color ||
+				undefined
+			);
+		});
+		return colors;
 	}
 );
 export const selectedItemClockStartTime = (state: RootState) =>
