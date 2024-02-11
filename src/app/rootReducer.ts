@@ -1,4 +1,4 @@
-import { AnyAction, combineReducers } from '@reduxjs/toolkit';
+import { UnknownAction, combineReducers } from '@reduxjs/toolkit';
 import { localStorage } from 'redux-persist-webextension-storage';
 import { createMigrate, persistReducer } from '@plasmohq/redux-persist';
 import type { Storage as StorageType } from '@plasmohq/redux-persist/lib/types';
@@ -34,7 +34,7 @@ export const wsPersistConfig = {
 	blacklist: wsSlicePersistenceBlacklist,
 };
 
-const persistedWSReducer = persistReducer<WSState, AnyAction>(
+const persistedWSReducer = persistReducer<WSState, UnknownAction>(
 	wsPersistConfig,
 	wsReducer
 );
@@ -47,7 +47,7 @@ export const emacsPersistConfig = {
 	migrate: createMigrate(emacsPersistenceMigrations),
 };
 
-const persistedEmacsReducer = persistReducer<EmacsState, AnyAction>(
+const persistedEmacsReducer = persistReducer<EmacsState, UnknownAction>(
 	emacsPersistConfig,
 	emacsReducer
 );
@@ -59,7 +59,7 @@ export const layoutPersistConfig = {
 	blacklist: layoutSlicePersistenceBlacklist,
 };
 
-const persistedLayoutReducer = persistReducer<LayoutState, AnyAction>(
+const persistedLayoutReducer = persistReducer<LayoutState, UnknownAction>(
 	layoutPersistConfig,
 	layoutReducer
 );
@@ -71,7 +71,7 @@ export const uiPersistConfig = {
 	blacklist: uiSlicePersistenceBlacklist,
 };
 
-const persistedUiReducer = persistReducer<UIState, AnyAction>(
+const persistedUiReducer = persistReducer<UIState, UnknownAction>(
 	uiPersistConfig,
 	uiReducer
 );
