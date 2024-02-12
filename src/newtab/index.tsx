@@ -7,6 +7,7 @@ import './index.css';
 import OptionsMenu from 'components/Options';
 import LoadingBar from 'components/LoadingBar';
 import store, { persistor } from '../app/store';
+import '../app/storage';
 import { useAppDispatch } from '../app/hooks';
 import { setStateAsResolved } from 'modules/role/roleSlice';
 import { initMessaging } from 'modules/msg/msgSlice';
