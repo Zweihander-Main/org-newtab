@@ -13,4 +13,4 @@ export const RECONNECTION_ATTEMPT_GROWTH_FACTOR = 1.5;
 export const TIME_WARNING_THRESHOLD = 0.8;
 
 /** Enable BGSW related logging and direction for logs */
-export const ENABLE_LOGGING: LogLoc = LogLoc.NONE;
+export const ENABLE_BGSW_LOGGING: LogLoc = LogLoc.NONE;
