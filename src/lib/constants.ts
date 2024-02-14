@@ -14,3 +14,9 @@ export const TIME_WARNING_THRESHOLD = 0.8;
 
 /** Enable BGSW related logging and direction for logs */
 export const ENABLE_BGSW_LOGGING: LogLoc = LogLoc.NONE;
+
+/** Enable Redux related logging (ex: action and state changes) */
+export const ENABLE_REDUX_LOGGING = false;
+
+/** Enable Storage related logging (ex: updating storage keys) */
+export const ENABLE_STORAGE_LOGGING = false;

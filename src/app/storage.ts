@@ -1,6 +1,7 @@
 import { Storage, StorageCallbackMap } from '@plasmohq/storage';
 import { persistKeys } from './rootReducer';
 import { persistor } from './store';
+import { ENABLE_STORAGE_LOGGING } from 'lib/constants';
 
 // This is what makes Redux sync properly with multiple pages
 const watchKeys = persistKeys.map((key) => `persist:${key}`);
@@ -35,6 +36,17 @@ const watchObject = watchKeys.reduce((acc, key) => {
 		}
 		if (updatedKeys.length > 0 && persistor) {
 			void persistor.resync();
+			if (ENABLE_STORAGE_LOGGING) {
+				// eslint-disable-next-line no-console
+				console.log(
+					'Storage keys updated:',
+					updatedKeys,
+					'oldValue:',
+					oldValue,
+					'newValue:',
+					newValue
+				);
+			}
 		}
 	};
 	return acc;
