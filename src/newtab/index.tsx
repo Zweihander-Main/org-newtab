@@ -14,6 +14,7 @@ import { initMessaging } from 'modules/msg/msgSlice';
 import { Area } from '../modules/layout/layoutSlice';
 import WidgetArea from 'components/WidgetArea';
 import Time from 'components/Time';
+import { Persistor } from '@plasmohq/redux-persist/lib/types';
 
 const IndexNewtab: React.FC = () => {
 	const dispatch = useAppDispatch();
@@ -59,7 +60,7 @@ const StateResolver: React.FC<{ isInitialStateResolved: boolean }> = ({
 const RootContextWrapper: React.FC = () => {
 	return (
 		<Provider store={store}>
-			<PersistGate persistor={persistor}>
+			<PersistGate persistor={persistor.get() as Persistor}>
 				{(isInitialStateResolved) => {
 					return (
 						<StateResolver

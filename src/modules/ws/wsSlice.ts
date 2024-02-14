@@ -17,7 +17,7 @@ import {
 	DEFAULT_WEBSOCKET_PORT,
 	MAXIMUM_TIME_TO_WAIT_FOR_RESPONSE,
 } from 'lib/constants';
-import { resetData } from 'app/actions';
+import { flushData, resetData } from 'app/actions';
 
 export interface WSState {
 	readyState: WSReadyState;
@@ -210,5 +210,16 @@ listenerMiddleware.startListening({
 		} else {
 			sendToMasterTab(MsgToTabType.PASS_TO_EMACS, data);
 		}
+	},
+});
+
+/**
+ * Flush (write to storage) when a message is received from Emacs
+ */
+listenerMiddleware.startListening({
+	actionCreator: _recvMsgFromEmacs,
+	effect: (_action, listenerApi) => {
+		const { dispatch } = listenerApi;
+		dispatch(flushData());
 	},
 });
