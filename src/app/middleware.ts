@@ -28,27 +28,27 @@ listenerMiddleware.startListening({
 	},
 });
 
-/**
- * Log all actions and the next state when ENABLE_REDUX_LOGGING is true
- */
-const loggerMiddleware: Middleware<undefined, RootState, AppDispatch> =
-	(store) => (next) => (action) => {
-		if (isAction(action)) {
-			// eslint-disable-next-line no-console
-			console.log(
-				'Action:',
-				action.type,
-				(action as UnknownAction)?.payload
-			);
-		}
-		const result = next(action);
-		// eslint-disable-next-line no-console
-		console.log('Next state:', store.getState());
-		return result;
-	};
-
 const getMiddleware = (persistor: PersistorClass) => {
 	const middlewares: Array<Middleware> = [listenerMiddleware.middleware];
+
+	/**
+	 * Log all actions and the next state when ENABLE_REDUX_LOGGING is true
+	 */
+	const loggerMiddleware: Middleware<undefined, RootState, AppDispatch> =
+		(store) => (next) => (action) => {
+			if (isAction(action)) {
+				// eslint-disable-next-line no-console
+				console.log(
+					'Action:',
+					action.type,
+					(action as UnknownAction)?.payload
+				);
+			}
+			const result = next(action);
+			// eslint-disable-next-line no-console
+			console.log('Next state:', store.getState());
+			return result;
+		};
 
 	if (ENABLE_REDUX_LOGGING) {
 		middlewares.push(loggerMiddleware);
