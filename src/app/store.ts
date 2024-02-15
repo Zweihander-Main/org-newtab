@@ -27,10 +27,6 @@ export const mockStore = configureStore({
 export class PersistorClass {
 	#persistedStore: Persistor | undefined = undefined;
 
-	get isDefined() {
-		return this.#persistedStore !== undefined;
-	}
-
 	get() {
 		return this.#persistedStore;
 	}
@@ -48,6 +44,7 @@ export class PersistorClass {
 	}
 }
 
+// Persistor used in middleware but can't be initialized until store is created
 export const persistor = new PersistorClass();
 
 export const store = configureStore({
