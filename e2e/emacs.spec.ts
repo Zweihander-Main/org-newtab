@@ -184,8 +184,7 @@ test.describe('Emacs', () => {
 		);
 	});
 
-	// TODO: flakiness shows switching bug: when already gotten tags, new
-	// tags are sometimes not set
+	// TODO: test for layout sync
 
 	test('should send multiple tags on nested items', async ({
 		context,
