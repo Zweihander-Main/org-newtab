@@ -214,7 +214,8 @@ listenerMiddleware.startListening({
 });
 
 /**
- * Flush (write to storage) when a message is received from Emacs
+ * Flush (write to storage) when a message is received from Emacs. Prevents race
+ * conditions with storage overwriting new data with old data.
  */
 listenerMiddleware.startListening({
 	actionCreator: _recvMsgFromEmacs,
