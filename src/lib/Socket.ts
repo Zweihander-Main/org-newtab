@@ -6,37 +6,37 @@ const WebSocketOptions = {
 	debug: false,
 };
 class Socket {
-	private static _instance: Socket;
-	private _socket: ReconnectingWebSocket | null;
+	static #instance: Socket;
+	#socket: ReconnectingWebSocket | null;
 
 	private constructor() {
-		if (Socket._instance) {
+		if (Socket.#instance) {
 			throw new Error('[NewTab] Use Socket.Instance() instead of new.');
 		}
-		Socket._instance = this;
-		this._socket = null;
+		Socket.#instance = this;
+		this.#socket = null;
 	}
 
 	public static getInstance() {
-		return this._instance || (this._instance = new this());
+		return this.#instance || (this.#instance = new this());
 	}
 
 	public connect(url: string) {
-		if (!this._socket) {
-			this._socket = new ReconnectingWebSocket(url, [], WebSocketOptions);
+		if (!this.#socket) {
+			this.#socket = new ReconnectingWebSocket(url, [], WebSocketOptions);
 		}
 	}
 
 	public disconnect() {
-		if (this._socket) {
-			this._socket.close();
-			this._socket = null;
+		if (this.#socket) {
+			this.#socket.close();
+			this.#socket = null;
 		}
 	}
 
 	public sendJSON(message: Record<string, unknown>) {
-		if (this._socket) {
-			this._socket.send(JSON.stringify(message));
+		if (this.#socket) {
+			this.#socket.send(JSON.stringify(message));
 		}
 	}
 
@@ -46,13 +46,13 @@ class Socket {
 			typeof ReconnectingWebSocket.prototype.addEventListener<T>
 		>[1]
 	) {
-		if (this._socket) {
-			this._socket.addEventListener<T>(eventName, listener);
+		if (this.#socket) {
+			this.#socket.addEventListener<T>(eventName, listener);
 		}
 	}
 
 	public get exists() {
-		return this._socket !== null;
+		return this.#socket !== null;
 	}
 }
 

@@ -7,37 +7,37 @@ import { log } from 'lib/logging';
 type masterWS = number | null;
 
 class MasterWS {
-	private static _instance: MasterWS;
-	private _value: masterWS;
-	private _storage: BaseStorage;
+	static #instance: MasterWS;
+	#value: masterWS;
+	#storage: BaseStorage;
 
 	private constructor(storage: BaseStorage) {
-		if (MasterWS._instance) {
+		if (MasterWS.#instance) {
 			throw new Error(
 				'[BSGW] Use MasterWSTabId.getInstance() instead of new.'
 			);
 		}
-		MasterWS._instance = this;
-		this._value = null;
-		this._storage = storage;
+		MasterWS.#instance = this;
+		this.#value = null;
+		this.#storage = storage;
 	}
 
 	public static getInstance(storage: BaseStorage) {
-		return this._instance || (this._instance = new this(storage));
+		return this.#instance || (this.#instance = new this(storage));
 	}
 
 	public get val() {
-		return this._value;
+		return this.#value;
 	}
 
 	public async set(val: masterWS) {
-		this._value = val;
-		await this._storage.set('masterWSTabId', val);
+		this.#value = val;
+		await this.#storage.set('masterWSTabId', val);
 	}
 
 	public async loadFromStorage() {
 		const loadedMasterWSTabId =
-			await this._storage.get<number>('masterWSTabId');
+			await this.#storage.get<number>('masterWSTabId');
 		if (loadedMasterWSTabId) {
 			const isAlive = await confirmTabIdAlive(loadedMasterWSTabId);
 			if (
@@ -56,7 +56,7 @@ class MasterWS {
 					loadedMasterWSTabId
 				);
 			} else {
-				this._value = null;
+				this.#value = null;
 			}
 		}
 	}

@@ -7,73 +7,73 @@ import { LogLoc } from 'lib/types';
 type connectedTabIds = Set<number>;
 
 class Connections {
-	private static _instance: Connections;
-	private _storage: BaseStorage;
-	private _connectedTabIds: connectedTabIds;
+	static #instance: Connections;
+	#storage: BaseStorage;
+	#connectedTabIds: connectedTabIds;
 
 	private constructor(storage: BaseStorage) {
-		if (Connections._instance) {
+		if (Connections.#instance) {
 			throw new Error(
 				'[BGSW] Use MasterWSTabId.Instance() instead of new.'
 			);
 		}
-		Connections._instance = this;
-		this._storage = storage;
-		this._connectedTabIds = new Set([]);
+		Connections.#instance = this;
+		this.#storage = storage;
+		this.#connectedTabIds = new Set([]);
 	}
 
 	public static getInstance(storage: BaseStorage) {
-		return this._instance || (this._instance = new this(storage));
+		return this.#instance || (this.#instance = new this(storage));
 	}
 
 	public async add(port: chrome.runtime.Port) {
-		this._connectedTabIds.add(port?.sender?.tab?.id as number);
-		await this.saveToStorage();
+		this.#connectedTabIds.add(port?.sender?.tab?.id as number);
+		await this.#saveToStorage();
 	}
 
 	public async remove(port: chrome.runtime.Port) {
-		this._connectedTabIds.delete(port?.sender?.tab?.id as number);
-		await this.saveToStorage();
+		this.#connectedTabIds.delete(port?.sender?.tab?.id as number);
+		await this.#saveToStorage();
 	}
 
 	public has(port: chrome.runtime.Port) {
-		return this._connectedTabIds.has(port?.sender?.tab?.id as number);
+		return this.#connectedTabIds.has(port?.sender?.tab?.id as number);
 	}
 
-	private async saveToStorage() {
-		await this._storage.set(
+	async #saveToStorage() {
+		await this.#storage.set(
 			'connectedTabIds',
-			Array.from(this._connectedTabIds)
+			Array.from(this.#connectedTabIds)
 		);
 	}
 
 	public async loadFromStorage() {
 		const loadedConnectedTabIds =
-			await this._storage.get<Array<number>>('connectedTabIds');
+			await this.#storage.get<Array<number>>('connectedTabIds');
 		if (loadedConnectedTabIds && Array.isArray(loadedConnectedTabIds)) {
 			for (const tabId of loadedConnectedTabIds) {
 				const isAlive = await confirmTabIdAlive(tabId);
 				if (isAlive) {
-					this._connectedTabIds.add(tabId);
+					this.#connectedTabIds.add(tabId);
 					log(
 						LogLoc.BGSW,
 						'Confirmed alive from storage re-add for tab',
 						tabId
 					);
 				} else {
-					this._connectedTabIds.delete(tabId);
+					this.#connectedTabIds.delete(tabId);
 				}
 			}
-			await this.saveToStorage();
+			await this.#saveToStorage();
 		}
 	}
 
 	public get tabIds() {
-		return Array.from(this._connectedTabIds);
+		return Array.from(this.#connectedTabIds);
 	}
 
 	public get size() {
-		return this._connectedTabIds.size;
+		return this.#connectedTabIds.size;
 	}
 }
 
