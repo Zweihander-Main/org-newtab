@@ -20,7 +20,7 @@ interface ReduxChangeObject extends chrome.storage.StorageChange {
  * triggering onChanged events. Firefox triggers it for every setItem call,
  * whereas Chrome/Safari only trigger it when values have changed.
  */
-const watchObject = watchKeys.reduce((acc, key) => {
+const watchObj = watchKeys.reduce((acc, key) => {
 	acc[key] = (change: ReduxChangeObject) => {
 		const { oldValue, newValue } = change;
 		const updatedKeys = [];
@@ -54,4 +54,4 @@ const watchObject = watchKeys.reduce((acc, key) => {
 
 new Storage({
 	area: 'local',
-}).watch(watchObject);
+}).watch(watchObj);
