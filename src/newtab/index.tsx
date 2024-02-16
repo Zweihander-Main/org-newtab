@@ -6,7 +6,7 @@ import './font.css';
 import './index.css';
 import OptionsMenu from 'components/Options';
 import LoadingBar from 'components/LoadingBar';
-import store, { persistor } from '../app/store';
+import store from '../app/store';
 import '../app/storage';
 import { useAppDispatch } from '../app/hooks';
 import { setStateAsResolved } from 'modules/role/roleSlice';
@@ -14,7 +14,8 @@ import { initMessaging } from 'modules/msg/msgSlice';
 import { Area } from '../modules/layout/layoutSlice';
 import WidgetArea from 'components/WidgetArea';
 import Time from 'components/Time';
-import { Persistor } from '@plasmohq/redux-persist/lib/types';
+import { Persistor as PersistorType } from '@plasmohq/redux-persist/lib/types';
+import Persistor from 'lib/Persistor';
 
 const IndexNewtab: React.FC = () => {
 	const dispatch = useAppDispatch();
@@ -58,9 +59,10 @@ const StateResolver: React.FC<{ isInitialStateResolved: boolean }> = ({
 };
 
 const RootContextWrapper: React.FC = () => {
+	// TODO: clean up persistor?
 	return (
 		<Provider store={store}>
-			<PersistGate persistor={persistor.get() as Persistor}>
+			<PersistGate persistor={Persistor.getStore() as PersistorType}>
 				{(isInitialStateResolved) => {
 					return (
 						<StateResolver

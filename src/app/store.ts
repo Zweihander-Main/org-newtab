@@ -10,9 +10,9 @@ import {
 	REHYDRATE,
 	RESYNC,
 } from '@plasmohq/redux-persist';
-import getMiddleware from './middleware';
+import middlewares from './middleware';
 import persistedRootReducer, { mockRootReducer } from './rootReducer';
-import type { Persistor } from '@plasmohq/redux-persist/lib/types';
+import Persistor from 'lib/Persistor';
 
 const enhancers: Array<StoreEnhancer> = [];
 if (process.env.NODE_ENV === 'development') {
@@ -23,29 +23,6 @@ if (process.env.NODE_ENV === 'development') {
 export const mockStore = configureStore({
 	reducer: mockRootReducer,
 });
-
-export class PersistorClass {
-	#persistedStore: Persistor | undefined = undefined;
-
-	get() {
-		return this.#persistedStore;
-	}
-
-	set(p: Persistor) {
-		this.#persistedStore = p;
-	}
-
-	async flush() {
-		await this.#persistedStore?.flush();
-	}
-
-	async resync() {
-		await this.#persistedStore?.resync();
-	}
-}
-
-// Persistor used in middleware but can't be initialized until store is created
-export const persistor = new PersistorClass();
 
 export const store = configureStore({
 	reducer: persistedRootReducer,
@@ -62,11 +39,11 @@ export const store = configureStore({
 					RESYNC,
 				],
 			},
-		}).prepend(getMiddleware(persistor)),
+		}).prepend(middlewares),
 	enhancers: (getDefaultEnhancers) => getDefaultEnhancers().concat(enhancers),
 });
 
-persistor.set(persistStore(store));
+Persistor.setStore(persistStore(store));
 
 export type RootState = ReturnType<typeof mockStore.getState>;
 
