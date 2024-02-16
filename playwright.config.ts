@@ -1,10 +1,12 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig } from '@playwright/test';
 
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
 // require('dotenv').config();
+
+const headless = !process.argv.includes('--headed');
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -34,7 +36,7 @@ export default defineConfig({
 	projects: [
 		{
 			name: 'chromium',
-			use: { ...devices['Desktop Chrome'] },
+			use: { headless, browserName: 'chromium' },
 		},
 		// Waiting on https://github.com/microsoft/playwright/issues/7297
 		// {

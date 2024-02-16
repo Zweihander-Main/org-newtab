@@ -1,22 +1,44 @@
 /* eslint-disable no-empty-pattern */
-import { test as base, chromium, type BrowserContext } from '@playwright/test';
+import {
+	test as base,
+	chromium,
+	// firefox,
+	type BrowserContext,
+} from '@playwright/test';
 import path from 'path';
 
 export const test = base.extend<{
+	headless: boolean;
 	context: BrowserContext;
 	extensionId: string;
 }>({
-	context: async ({}, use) => {
+	context: async ({ headless, browserName }, use) => {
 		const pathToExtension = path.join(__dirname, '../build/chrome-mv3-dev');
-		const context = await chromium.launchPersistentContext('', {
-			headless: false,
-			args: [
-				`--disable-extensions-except=${pathToExtension}`,
-				`--load-extension=${pathToExtension}`,
-			],
-		});
-		await use(context);
-		await context.close();
+		let context: BrowserContext;
+		switch (browserName) {
+			case 'chromium':
+				context = await chromium.launchPersistentContext('', {
+					headless: false,
+					ignoreHTTPSErrors: true,
+					args: [
+						`--disable-extensions-except=${pathToExtension}`,
+						`--load-extension=${pathToExtension}`,
+						headless ? '--headless=new' : '',
+					],
+				});
+				await use(context);
+				await context.close();
+				break;
+			case 'firefox':
+				// context = await firefox.launchPersistentContext('', {
+				// 	headless: false,
+				// 	ignoreHTTPSErrors: true,
+				// 	acceptDownloads: true,
+				// 	viewport: { width: 1920, height: 1080 },
+				// 	args: [`--load-extension=${pathToExtension}`],
+				// });
+				break;
+		}
 	},
 	extensionId: async ({ context }, use) => {
 		// for manifest v3:

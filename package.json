@@ -25,6 +25,7 @@
 		"devtools": "redux-devtools --hostname=localhost --port=8000 --open",
 		"test": "jest --watch --silent=\"false\"",
 		"test:e2e": "playwright test",
+		"test:e2e:ui": "playwright test --ui",
 		"test:e2e:report": "playwright show-report",
 		"lint": "jest --config=\"jest.config.mjs\"",
 		"lint:ts": "tsc -p .",

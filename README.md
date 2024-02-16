@@ -195,7 +195,7 @@ Note that you can get hot reloading in Chrome using `pnpm run dev` and using the
 
 -   `chrome.storage.local.get(console.log)` to get extension storage
 -   Development is done against Chrome -- there is some flaky behavior when using `pnpm run dev --target=firefox-mv3` though a production build is checked against for every release
--   E2E testing is done manually due to the limitations in testing extensions in a headless environment. Run `pnpm run test:e2e` on your machine to check everything works.
+-   E2E testing is done dev-side (not in the CI) due to the limitations in testing extensions in a headless environment. Run `pnpm run test:e2e` on your machine to check everything works.
 -   Designed around the limitations of Manifest V3; `pnpm run build --target=firefox-mv2` is not supported and has flaky behavior around the storage and messaging APIs.
 
 ## 💼 Available for Hire
