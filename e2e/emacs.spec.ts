@@ -184,8 +184,6 @@ test.describe('Emacs', () => {
 		);
 	});
 
-	// TODO: test for layout sync
-
 	test('should send multiple tags on nested items', async ({
 		context,
 		extensionId,
