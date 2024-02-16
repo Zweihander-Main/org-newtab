@@ -21,7 +21,11 @@ class PersistorClass {
 	}
 
 	public getStore() {
-		return this.#persistedStore;
+		if (this.#persistedStore) {
+			return this.#persistedStore;
+		} else {
+			throw new Error('Store not persisted yet.');
+		}
 	}
 
 	public setStore(p: Persistor) {
