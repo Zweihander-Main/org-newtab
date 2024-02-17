@@ -10,13 +10,15 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.41.1-jammy
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v3
         with:
           version: 8
 
@@ -28,11 +30,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install Playwright Browsers
-        run: pnpm exec playwright install --with-deps
-
       - name: Run Playwright tests
-        run: xvfb-run pnpm run test:e2e
+        run: xvfb-run pnpm run test:e2e --max-failures 0
+        env:
+          HOME: /root
 
       - name: Upload e2e run data
         uses: actions/upload-artifact@v4
