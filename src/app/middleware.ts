@@ -8,6 +8,7 @@ import { ENABLE_REDUX_LOGGING } from 'lib/constants';
 import type { RootState, AppDispatch } from './store';
 import { flushData, resetData } from './actions';
 import Persistor from 'lib/Persistor';
+import { REHYDRATE } from '@plasmohq/redux-persist';
 
 const middlewares: Array<Middleware> = [];
 
@@ -63,9 +64,17 @@ if (ENABLE_REDUX_LOGGING) {
  * Flush (write to storage) data.
  */
 const persistorMiddleware: Middleware<undefined, RootState, AppDispatch> =
-	() => (next) => (action) => {
+	(state) => (next) => (action) => {
 		if (flushData.match(action)) {
 			void Persistor.flush();
+		} else if (
+			isAction(action) &&
+			action.type === REHYDRATE &&
+			Persistor.isFlushing
+		) {
+			// Ignore rehydration when flushing to ensure no data loss from Emacs
+			// Rehydration will automatically happen when flushing is complete
+			return state;
 		}
 		return next(action);
 	};
