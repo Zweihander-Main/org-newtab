@@ -6,6 +6,7 @@ import {
 	type BrowserContext,
 } from '@playwright/test';
 import path from 'path';
+import * as fs from 'fs';
 
 export const test = base.extend<{
 	headless: boolean;
@@ -13,7 +14,15 @@ export const test = base.extend<{
 	extensionId: string;
 }>({
 	context: async ({ headless, browserName }, use) => {
-		const pathToExtension = path.join(__dirname, '../build/chrome-mv3-dev');
+		const pathToExtension = path.join(
+			__dirname,
+			`../build/chrome-mv3-${process.env.CI ? 'prod' : 'dev'}`
+		);
+		if (!fs.existsSync(pathToExtension)) {
+			throw new Error(
+				`Path to extension does not exist: ${pathToExtension}`
+			);
+		}
 		let context: BrowserContext;
 		switch (browserName) {
 			case 'chromium':

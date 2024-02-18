@@ -41,6 +41,9 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
+      - name: Build extension for testing
+        run: pnpm run build
+
       - name: Run Playwright tests
         run: xvfb-run pnpm run test:e2e --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
         env:
