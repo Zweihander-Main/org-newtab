@@ -1,5 +1,5 @@
 <div align="center">
-	<img src="./src/assets/icon-300x300-min.png" alt="Org-NewTab Logo" width="300" />
+	<img src="./assets/icon-300x300-min.png" alt="Org-NewTab Logo" width="300" />
 
 # Org-NewTab
 

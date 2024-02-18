@@ -1,5 +1,5 @@
 import * as styles from './style.module.css';
-import logo from 'data-base64:~assets/icon-1024x1024bw.png';
+import logo from 'data-base64:~../assets/icon-1024x1024bw.png';
 import { useAppSelector } from '../../app/hooks';
 import { selectedIsInSync } from 'modules/ws/wsSlice';
 import { selectedItemText, selectedTagColors } from 'modules/emacs/emacsSlice';
