@@ -46,8 +46,6 @@ jobs:
 
       - name: Run Playwright tests
         run: xvfb-run pnpm run test:e2e --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
-        env:
-          PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS: 1
 
       - name: Upload blob e2e report to GitHub Actions Artifacts
         if: always()
