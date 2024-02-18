@@ -100,3 +100,9 @@ jobs:
           name: html-report--attempt-${{ github.run_attempt }}
           path: playwright-report
           retention-days: ${{ env.reportRetentionDays }}
+
+      - name: Merge into Markdown report
+        run: npx playwright merge-reports --reporter markdown ./all-blob-reports
+
+      - name: Output summary to console
+        run: cat report.md >> $GITHUB_STEP_SUMMARY
