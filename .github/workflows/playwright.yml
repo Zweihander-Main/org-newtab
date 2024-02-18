@@ -81,8 +81,8 @@ jobs:
           node-version: ${{ env.nodeVersion }}
           cache: 'pnpm'
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Install playwright
+        run: pnpm install playwright
 
       - name: Download blob reports from GitHub Actions Artifacts
         uses: actions/download-artifact@v4
