@@ -6,6 +6,12 @@ on:
   #     branches: [ main, master ]
   workflow_dispatch:
 
+env:
+  emacsVersion: 27.1 # min specified in Emacs lisp package
+  nodeVersion: 19
+  pnpmVersion: 8
+  reportRetentionDays: 14
+
 jobs:
   playwright-tests:
     timeout-minutes: 60
@@ -19,7 +25,7 @@ jobs:
       - name: Setup Emacs
         uses: jcs090218/setup-emacs@master
         with:
-          version: 27.1 # min specified in Emacs lisp package
+          version: ${{ env.emacsVersion }}
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,11 +34,11 @@ jobs:
 
       - uses: pnpm/action-setup@v3
         with:
-          version: 8
+          version: ${{ env.pnpmVersion }}
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 19
+          node-version: ${{ env.nodeVersion }}
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -68,11 +74,11 @@ jobs:
 
       - uses: pnpm/action-setup@v3
         with:
-          version: 8
+          version: ${{ env.pnpmVersion }}
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 19
+          node-version: ${{ env.nodeVersion }}
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -93,4 +99,4 @@ jobs:
         with:
           name: html-report--attempt-${{ github.run_attempt }}
           path: playwright-report
-          retention-days: 14
+          retention-days: ${{ env.reportRetentionDays }}
