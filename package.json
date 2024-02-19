@@ -199,7 +199,8 @@
 		"overrides": [
 			{
 				"files": [
-					"*.yml"
+					"*.yml",
+					".el"
 				],
 				"options": {
 					"tabWidth": 2,
