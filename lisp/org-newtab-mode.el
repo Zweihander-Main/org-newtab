@@ -40,7 +40,7 @@
 Necessary to allow for async queries to use fresh data."
   (save-some-buffers t (lambda () (org-agenda-file-p))))
 
-(defun org-newtab--send-new-match-query ()
+(defun org-newtab--send-new-match-query (&rest _)
   "Send new item to client using last recorded match query."
   (org-newtab--save-all-agenda-buffers)
   (cond ((org-clocking-p)
@@ -58,7 +58,6 @@ Necessary to allow for async queries to use fresh data."
 
 ;; TODO: DRY send-new-match-query, also possibly rename
 ;; TODO: ping the client on async to let it know data is coming
-;; TODO: Append hook to priority shift functions
 ;; TODO: Append hook to edit effort functions
 ;; TODO: Let client know async function is running (send resid)
 
@@ -75,7 +74,8 @@ Necessary to allow for async queries to use fresh data."
 ;; - Note that using the match query method, it should never change the item
 ;; sent as you can't match on headline
 (defvar org-newtab--advice-assocs
-  '((org-edit-headline . org-newtab--send-new-match-query))
+  '((org-edit-headline . org-newtab--send-new-match-query)
+    (org-priority . org-newtab--send-new-match-query))
   "Association list of functions and advice to append to them.")
 
 ;;;###autoload
