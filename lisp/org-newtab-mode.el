@@ -56,8 +56,8 @@ Necessary to allow for async queries to use fresh data."
       (unless (string-match-p from to)
         (org-newtab--send-new-match-query)))))
 
-;; TODO: DRY send-new-match-query
-;; TODO: Append hook to edit-headline function
+;; TODO: DRY send-new-match-query, also possibly rename
+;; TODO: ping the client on async to let it know data is coming
 ;; TODO: Append hook to priority shift functions
 ;; TODO: Append hook to edit effort functions
 ;; TODO: Let client know async function is running (send resid)
@@ -70,6 +70,13 @@ Necessary to allow for async queries to use fresh data."
     (org-after-tags-change-hook . org-newtab--send-new-match-query)
     (org-after-refile-insert-hook . org-newtab--send-new-match-query))
   "Association list of hooks and functions to append to them.")
+
+;; TODO: can determine if the client todo is the headline being edited
+;; - Note that using the match query method, it should never change the item
+;; sent as you can't match on headline
+(defvar org-newtab--advice-assocs
+  '((org-edit-headline . org-newtab--send-new-match-query))
+  "Association list of functions and advice to append to them.")
 
 ;;;###autoload
 (define-minor-mode
@@ -84,11 +91,15 @@ Start the websocket server and add hooks in."
    (org-newtab-mode
     (org-newtab--start-server)
     (dolist (assoc org-newtab--hook-assocs)
-      (add-hook (car assoc) (cdr assoc))))
+      (add-hook (car assoc) (cdr assoc)))
+    (dolist (assoc org-newtab--advice-assocs)
+      (advice-add (car assoc) :after (cdr assoc))))
    (t
     (org-newtab--close-server)
     (dolist (assoc org-newtab--hook-assocs)
-      (remove-hook (car assoc) (cdr assoc))))))
+      (remove-hook (car assoc) (cdr assoc)))
+    (dolist (assoc org-newtab--advice-assocs)
+      (advice-remove (car assoc) (cdr assoc))))))
 
 (provide 'org-newtab-mode)
 
