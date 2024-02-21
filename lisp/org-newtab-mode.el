@@ -61,7 +61,7 @@ Necessary to allow for async queries to use fresh data."
 ;; TODO: Let client know async function is running (send resid)
 ;; TODO: on clock out, let client know clock out occured if async needed
 
-(defvar org-newtab--hook-assocs
+(defconst org-newtab--hook-assocs
   '((org-clock-in-hook . org-newtab--on-msg-send-clocked-in)
     (org-clock-out-hook . org-newtab--send-new-match-query)
     (org-clock-cancel-hook . org-newtab--send-new-match-query)
@@ -73,7 +73,7 @@ Necessary to allow for async queries to use fresh data."
 ;; TODO: can determine if the client todo is the headline being edited
 ;; - Note that using the match query method, it should never change the item
 ;; sent as you can't match on headline
-(defvar org-newtab--advice-assocs
+(defconst org-newtab--advice-assocs
   '((org-edit-headline . org-newtab--send-new-match-query)
     (org-priority . org-newtab--send-new-match-query)
     (org-set-effort . org-newtab--send-new-match-query))
