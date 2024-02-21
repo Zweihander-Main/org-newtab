@@ -35,6 +35,7 @@
   (cl-pushnew (expand-file-name default-directory) load-path))
 
 (require 'org-newtab)
+(require 'org-newtab-store)
 (require 'org-newtab-agenda)
 (require 'org-clock)
 (require 'async)
@@ -48,9 +49,6 @@
 
 (defvar org-newtab--debug-mode nil
   "Whether or not to turn on every debugging tool.")
-
-(defvar org-newtab--last-match-query nil
-  "The last match query received from the extension.")
 
 (defvar org-newtab--async-priority-task nil
   "Async task which currently has priority.")
@@ -91,19 +89,12 @@
     (org-newtab--log "[Server] Received %S from client" json-data)
     (let ((command (plist-get json-data :command))
           (resid (plist-get json-data :resid))
-          query)
-      ;; Always capture the match query in case it's needed later
-      ;; (for example, being able to send back data after clock out without
-      ;; having to ask the extension for the query again)
-      (when (string= command "getItem")
-        (setq query (plist-get json-data :data))
-        (setq org-newtab--last-match-query query))
-      (cond ((org-clocking-p)
-             (org-newtab--on-msg-send-clocked-in resid))
-            ((string= command "getItem")
-             (org-newtab--on-msg-send-match-query query resid))
-            (t
-             (org-newtab--log "[Server] %s" "Unknown command from client"))))))
+          (query (plist-get json-data :data)))
+      (pcase command
+        ("getItem" (org-newtab--dispatch
+                    (list :type 'ext-get-item
+                          :payload (list :resid resid :query query ))))
+        (_ (org-newtab--log "[Server] %s" "Unknown command from client"))))))
 
 (defun org-newtab--on-opn-send-tag-faces ()
   "Send the tag faces to the client."

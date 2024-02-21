@@ -34,19 +34,28 @@
   (cl-pushnew (expand-file-name default-directory) load-path))
 
 (require 'org-newtab-server)
+(require 'org-newtab-store)
+
+(defun org-newtab--get-item (&optional payload)
+  "Send an item to the extension based on :query and :resid in PAYLOAD.
+If QUERY is nil, use `org-newtab--last-match-query'. If RESID is nil, ignore."
+  (let ((query (or (plist-get payload :query)
+                   (org-newtab--selected-last-match-query)))
+        (resid (plist-get payload :resid)))
+    (cond ((org-clocking-p)
+           (org-newtab--on-msg-send-clocked-in resid))
+          (t
+           (org-newtab--on-msg-send-match-query query resid)))))
 
 (defun org-newtab--save-all-agenda-buffers ()
   "Save all Org agenda buffers without user confirmation.
 Necessary to allow for async queries to use fresh data."
   (save-some-buffers t (lambda () (org-agenda-file-p))))
 
-(defun org-newtab--send-new-match-query (&rest _)
+(defun org-newtab--save-and-get-item (&rest _)
   "Send new item to client using last recorded match query."
   (org-newtab--save-all-agenda-buffers)
-  (cond ((org-clocking-p)
-         (org-newtab--on-msg-send-clocked-in))
-        (t
-         (org-newtab--on-msg-send-match-query org-newtab--last-match-query))))
+  (org-newtab--get-item))
 
 (defun org-newtab--on-state-change (&optional change-data)
   "From `org-trigger-hook', send new query if CHANGE-DATA changed."
@@ -54,29 +63,28 @@ Necessary to allow for async queries to use fresh data."
     (let ((to (substring-no-properties (plist-get change-data :to)))
           (from (substring-no-properties (plist-get change-data :from))))
       (unless (string-match-p from to)
-        (org-newtab--send-new-match-query)))))
+        (org-newtab--save-and-get-item)))))
 
-;; TODO: DRY send-new-match-query, also possibly rename
 ;; TODO: ping the client on async to let it know data is coming
 ;; TODO: Let client know async function is running (send resid)
 ;; TODO: on clock out, let client know clock out occured if async needed
 
 (defconst org-newtab--hook-assocs
   '((org-clock-in-hook . org-newtab--on-msg-send-clocked-in)
-    (org-clock-out-hook . org-newtab--send-new-match-query)
-    (org-clock-cancel-hook . org-newtab--send-new-match-query)
+    (org-clock-out-hook . org-newtab--save-and-get-item)
+    (org-clock-cancel-hook . org-newtab--save-and-get-item)
     (org-trigger-hook . org-newtab--on-state-change)
-    (org-after-tags-change-hook . org-newtab--send-new-match-query)
-    (org-after-refile-insert-hook . org-newtab--send-new-match-query))
+    (org-after-tags-change-hook . org-newtab--save-and-get-item)
+    (org-after-refile-insert-hook . org-newtab--save-and-get-item))
   "Association list of hooks and functions to append to them.")
 
 ;; TODO: can determine if the client todo is the headline being edited
 ;; - Note that using the match query method, it should never change the item
 ;; sent as you can't match on headline
 (defconst org-newtab--advice-assocs
-  '((org-edit-headline . org-newtab--send-new-match-query)
-    (org-priority . org-newtab--send-new-match-query)
-    (org-set-effort . org-newtab--send-new-match-query))
+  '((org-edit-headline . org-newtab--save-and-get-item)
+    (org-priority . org-newtab--save-and-get-item)
+    (org-set-effort . org-newtab--save-and-get-item))
   "Association list of functions and advice to append to them.")
 
 ;;;###autoload
@@ -91,12 +99,14 @@ Start the websocket server and add hooks in."
   (cond
    (org-newtab-mode
     (org-newtab--start-server)
+    (org-newtab--subscribe 'ext-get-item #'org-newtab--get-item)
     (dolist (assoc org-newtab--hook-assocs)
       (add-hook (car assoc) (cdr assoc)))
     (dolist (assoc org-newtab--advice-assocs)
       (advice-add (car assoc) :after (cdr assoc))))
    (t
     (org-newtab--close-server)
+    (org-newtab--clear-subscribers)
     (dolist (assoc org-newtab--hook-assocs)
       (remove-hook (car assoc) (cdr assoc)))
     (dolist (assoc org-newtab--advice-assocs)

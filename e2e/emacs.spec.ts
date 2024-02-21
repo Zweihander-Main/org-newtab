@@ -421,3 +421,5 @@ test.describe('Emacs', () => {
 		);
 	});
 });
+
+// TODO: add integration tests for hooks/advice upon mode start in emacs
