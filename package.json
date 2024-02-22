@@ -1,7 +1,7 @@
 {
 	"name": "org-newtab",
 	"displayName": "__MSG_extensionName__",
-	"version": "0.0.4",
+	"version": "0.1.0",
 	"description": "__MSG_extensionDescription__",
 	"directories": {
 		"test": "test"
@@ -118,10 +118,7 @@
 			},
 			"useJSXTextNode": true
 		},
-		"plugins": [
-			"@typescript-eslint",
-			"react"
-		],
+		"plugins": ["@typescript-eslint", "react"],
 		"extends": [
 			"eslint:recommended",
 			"plugin:@typescript-eslint/eslint-recommended",
@@ -135,16 +132,9 @@
 		],
 		"overrides": [
 			{
-				"files": [
-					"**/__tests__/**"
-				],
-				"plugins": [
-					"jest"
-				],
-				"extends": [
-					"plugin:jest/recommended",
-					"plugin:jest/style"
-				],
+				"files": ["**/__tests__/**"],
+				"plugins": ["jest"],
+				"extends": ["plugin:jest/recommended", "plugin:jest/style"],
 				"rules": {
 					"@typescript-eslint/unbound-method": "off",
 					"jest/unbound-method": "error"
@@ -152,28 +142,15 @@
 			}
 		],
 		"rules": {
-			"quotes": [
-				"error",
-				"single"
-			],
-			"semi": [
-				"error",
-				"always"
-			],
+			"quotes": ["error", "single"],
+			"semi": ["error", "always"],
 			"no-console": [
 				"error",
 				{
-					"allow": [
-						"warn",
-						"error",
-						"debug"
-					]
+					"allow": ["warn", "error", "debug"]
 				}
 			],
-			"no-mixed-spaces-and-tabs": [
-				"error",
-				"smart-tabs"
-			],
+			"no-mixed-spaces-and-tabs": ["error", "smart-tabs"],
 			"react/prop-types": 0,
 			"@typescript-eslint/unbound-method": [
 				"error",
@@ -198,10 +175,7 @@
 		"arrowParens": "always",
 		"overrides": [
 			{
-				"files": [
-					"*.yml",
-					".el"
-				],
+				"files": ["*.yml", ".el"],
 				"options": {
 					"tabWidth": 2,
 					"useTabs": false
@@ -210,39 +184,28 @@
 		]
 	},
 	"stylelint": {
-		"extends": [
-			"stylelint-config-standard"
-		],
+		"extends": ["stylelint-config-standard"],
 		"rules": {
 			"comment-whitespace-inside": null,
 			"declaration-block-no-shorthand-property-overrides": true,
 			"function-no-unknown": [
 				true,
 				{
-					"ignoreFunctions": [
-						"/^linear$/"
-					]
+					"ignoreFunctions": ["/^linear$/"]
 				}
 			],
 			"no-descending-specificity": null,
 			"selector-pseudo-class-no-unknown": [
 				true,
 				{
-					"ignorePseudoClasses": [
-						"global"
-					]
+					"ignorePseudoClasses": ["global"]
 				}
 			],
 			"value-keyword-case": null
 		}
 	},
 	"browserslist": {
-		"production": [
-			"> 0.2%",
-			"Firefox ESR",
-			"not dead",
-			"not op_mini all"
-		],
+		"production": ["> 0.2%", "Firefox ESR", "not dead", "not op_mini all"],
 		"development": [
 			"last 1 chrome version",
 			"last 1 firefox version",
