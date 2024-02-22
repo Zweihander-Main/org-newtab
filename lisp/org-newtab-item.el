@@ -64,7 +64,7 @@
               (progn (org-newtab--send-data (json-encode data-packet))
                      (org-newtab--dispatch 'send-item))
             (org-newtab--log
-             "[Server] %s" "Async task priority changed, older request dropped")))))))
+             "[Item] %s" "Async task priority changed, older request dropped")))))))
 
 (defun org-newtab--send-clkd-item (&optional resid)
   "Send the current clocked-in item to the client -- with RESID if provided."
