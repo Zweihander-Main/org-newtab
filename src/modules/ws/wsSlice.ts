@@ -4,8 +4,10 @@ import {
 	EmacsSendMsgWithResid,
 	MsgToTabType,
 	WSReadyState,
-	EmacsItemMsg,
 	getTypeFromCommand,
+	isItemMsg,
+	isFindingMsg,
+	EmacsItemType,
 } from 'lib/types';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { RootState } from 'app/store';
@@ -137,12 +139,21 @@ listenerMiddleware.startListening({
 				const parsed = JSON.parse(message) as EmacsRecvMsg;
 				if (parsed === null) return;
 				dispatch(_recvMsgFromEmacs(parsed));
-				dispatch(
-					_removeFromResponsesWaitingFor({
-						id: (parsed as EmacsItemMsg)?.resid || -1,
-						type: parsed?.type || '',
-					})
-				);
+				if (isItemMsg(parsed)) {
+					dispatch(
+						_removeFromResponsesWaitingFor({
+							id: parsed?.resid || -1,
+							type: parsed?.type || '',
+						})
+					);
+				} else if (isFindingMsg(parsed)) {
+					dispatch(
+						_addToResponsesWaitingFor({
+							id: parsed?.resid || -1,
+							type: 'ITEM' as EmacsItemType,
+						})
+					);
+				}
 			});
 		}
 	},

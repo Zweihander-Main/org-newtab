@@ -111,6 +111,9 @@ const emacsSlice = createSlice({
 						),
 					};
 					break;
+				case 'FINDING':
+					return state;
+					break;
 				default:
 					console.error('[NewTab] Unknown message: ', payload);
 					return;

@@ -74,7 +74,7 @@ export enum WSReadyState {
 
 export interface ResponseData {
 	id: number;
-	type: EmacsMsgTypes;
+	type: EmacsMsgTypes | '';
 }
 
 export type WSStateMsg = {
@@ -122,9 +122,24 @@ export type EmacsTagsMsg = {
 	} | null;
 };
 
-export type EmacsMsgTypes = EmacsItemType | EmacsTagsType;
+// Async task started based on Emacs hook, start loading bar
+export type EmacsFindingType = 'FINDING';
+export type EmacsFindingMsg = {
+	type: EmacsFindingType;
+	resid: number;
+};
 
-export type EmacsRecvMsg = EmacsItemMsg | EmacsTagsMsg | null;
+export type EmacsMsgTypes = EmacsItemType | EmacsTagsType | EmacsFindingType;
+
+export type EmacsRecvMsg = EmacsItemMsg | EmacsTagsMsg | EmacsFindingMsg | null;
+
+export const isItemMsg = (msg: EmacsRecvMsg): msg is EmacsItemMsg => {
+	return msg?.type === 'ITEM';
+};
+
+export const isFindingMsg = (msg: EmacsRecvMsg): msg is EmacsFindingMsg => {
+	return msg?.type === 'FINDING';
+};
 
 /**
  * Messages to Emacs

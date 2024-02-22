@@ -46,6 +46,8 @@
   "Send the current match for query QUERY to the client -- with RESID if provided."
   (org-newtab--dispatch 'find-match `(:resid ,resid))
   (let ((own-task (org-newtab--selected-async-priority-task)))
+    (unless resid ; Not a response to extension, coming from hook/emacs side
+      (org-newtab--send-data (json-encode `(:type "FINDING" :data ,own-task))))
     (async-start
      `(lambda ()
         ,(async-inject-variables "\\`load-path\\'")
