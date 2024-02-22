@@ -423,3 +423,4 @@ test.describe('Emacs', () => {
 });
 
 // TODO: add integration tests for hooks/advice upon mode start in emacs
+// TODO: add integration tests for FINDING type after clocking out/priority change/ect.

@@ -55,6 +55,8 @@ Avoid side effects and mutations."
     ('find-match   (plist-put state :async-priority-task
                               (or (plist-get payload :resid) (random t))))
     ;; Async task completed and task has priority so it can be cleared
+    ;; Alternatively, clocked in item has been sent and should clear all other
+    ;; async tasks
     ('send-item    (plist-put state :async-priority-task nil))
     ;; Don't save priority tasks between websocket connections
     ('ext-close    (plist-put state :async-priority-task nil))

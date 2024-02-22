@@ -30,10 +30,6 @@
 
 ;;; Code:
 
-;; TODO: ping the client on async to let it know data is coming
-;; TODO: Let client know async function is running (send resid)
-;; TODO: on clock out, let client know clock out occured if async needed
-
 (eval-when-compile
   (cl-pushnew (expand-file-name default-directory) load-path))
 
