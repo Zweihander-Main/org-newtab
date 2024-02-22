@@ -50,9 +50,6 @@
 (defvar org-newtab--debug-mode nil
   "Whether or not to turn on every debugging tool.")
 
-(defvar org-newtab--async-priority-task nil
-  "Async task which currently has priority.")
-
 (defun org-newtab--debug-mode ()
   "Turn on every debug setting."
   (setq org-newtab--debug-mode (not org-newtab--debug-mode))

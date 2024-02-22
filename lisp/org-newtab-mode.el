@@ -57,35 +57,80 @@ Necessary to allow for async queries to use fresh data."
   (org-newtab--save-all-agenda-buffers)
   (org-newtab--get-item))
 
-(defun org-newtab--on-state-change (&optional change-data)
-  "From `org-trigger-hook', send new query if CHANGE-DATA changed."
-  (when change-data
-    (let ((to (substring-no-properties (plist-get change-data :to)))
-          (from (substring-no-properties (plist-get change-data :from))))
-      (unless (string-match-p from to)
-        (org-newtab--save-and-get-item)))))
-
 ;; TODO: ping the client on async to let it know data is coming
 ;; TODO: Let client know async function is running (send resid)
 ;; TODO: on clock out, let client know clock out occured if async needed
 
+(defun org-newtab--on-hook-clock-in (&optional _)
+  "From `org-clock-in-hook', send new item to client."
+  (org-newtab--dispatch 'hk-clk-in))
+
+(defun org-newtab--on-hook-clock-out (&optional _)
+  "From `org-clock-out-hook', send new item to client."
+  (org-newtab--dispatch 'hk-clk-out))
+
+(defun org-newtab--on-hook-clock-cancel (&optional _)
+  "From `org-clock-cancel-hook', send new item to client."
+  (org-newtab--dispatch 'hk-clk-cancel))
+
+(defun org-newtab--on-hook-todo-change (&optional change-data)
+  "From `org-trigger-hook', send new query if CHANGE-DATA changed (todo change)."
+  (when change-data
+    (let ((to (substring-no-properties (plist-get change-data :to)))
+          (from (substring-no-properties (plist-get change-data :from))))
+      (unless (string-match-p from to)
+        (org-newtab--dispatch 'hk-todo-chg)))))
+
+(defun org-newtab--on-hook-after-tags-change (&optional _)
+  "From `org-after-tags-change-hook', send new item to client."
+  (org-newtab--dispatch 'hk-tags-chg))
+
+(defun org-newtab--on-hook-after-refile-insert (&optional _)
+  "From `org-after-refile-insert-hook', send new item to client."
+  (org-newtab--dispatch 'hk-refile))
+
+(defun org-newtab--on-adv-edit-headline (&optional _)
+  "From `org-edit-headline', send new item to client."
+  (org-newtab--dispatch 'adv-edit-hl))
+
+(defun org-newtab--on-adv-priority (&optional _)
+  "From `org-priority', send new item to client."
+  (org-newtab--dispatch 'adv-pri-chg))
+
+(defun org-newtab--on-adv-set-effort (&optional _)
+  "From `org-set-effort', send new item to client."
+  (org-newtab--dispatch 'adv-effort-chg))
+
 (defconst org-newtab--hook-assocs
-  '((org-clock-in-hook . org-newtab--on-msg-send-clocked-in)
-    (org-clock-out-hook . org-newtab--save-and-get-item)
-    (org-clock-cancel-hook . org-newtab--save-and-get-item)
-    (org-trigger-hook . org-newtab--on-state-change)
-    (org-after-tags-change-hook . org-newtab--save-and-get-item)
-    (org-after-refile-insert-hook . org-newtab--save-and-get-item))
+  '((org-clock-in-hook . org-newtab--on-hook-clock-in)
+    (org-clock-out-hook . org-newtab--on-hook-clock-out)
+    (org-clock-cancel-hook . org-newtab--on-hook-clock-cancel)
+    (org-trigger-hook . org-newtab--on-hook-todo-change)
+    (org-after-tags-change-hook . org-newtab--on-hook-after-tags-change)
+    (org-after-refile-insert-hook . org-newtab--on-hook-after-refile-insert))
   "Association list of hooks and functions to append to them.")
 
 ;; TODO: can determine if the client todo is the headline being edited
 ;; - Note that using the match query method, it should never change the item
 ;; sent as you can't match on headline
 (defconst org-newtab--advice-assocs
-  '((org-edit-headline . org-newtab--save-and-get-item)
-    (org-priority . org-newtab--save-and-get-item)
-    (org-set-effort . org-newtab--save-and-get-item))
+  '((org-edit-headline . org-newtab--on-adv-edit-headline)
+    (org-priority . org-newtab--on-adv-priority)
+    (org-set-effort . org-newtab--on-adv-set-effort))
   "Association list of functions and advice to append to them.")
+
+(defconst org-newtab--sub-assocs
+  '((ext-get-item . org-newtab--get-item)
+    (hk-clk-in . org-newtab--on-msg-send-clocked-in)
+    (hk-clk-out . org-newtab--save-and-get-item)
+    (hk-clk-cancel . org-newtab--save-and-get-item)
+    (hk-todo-chg . org-newtab--save-and-get-item)
+    (hk-tags-chg . org-newtab--save-and-get-item)
+    (hk-refile . org-newtab--save-and-get-item)
+    (adv-edit-hl . org-newtab--save-and-get-item)
+    (adv-pri-chg . org-newtab--save-and-get-item)
+    (adv-effort-chg . org-newtab--save-and-get-item))
+  "Association list of action types and subscriber functions to them.")
 
 ;;;###autoload
 (define-minor-mode
@@ -99,7 +144,8 @@ Start the websocket server and add hooks in."
   (cond
    (org-newtab-mode
     (org-newtab--start-server)
-    (org-newtab--subscribe 'ext-get-item #'org-newtab--get-item)
+    (dolist (assoc org-newtab--sub-assocs)
+      (org-newtab--subscribe (car assoc) (cdr assoc)))
     (dolist (assoc org-newtab--hook-assocs)
       (add-hook (car assoc) (cdr assoc)))
     (dolist (assoc org-newtab--advice-assocs)
