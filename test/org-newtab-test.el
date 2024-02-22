@@ -93,6 +93,36 @@
     (let ((org-tag-faces nil))
       (expect (org-newtab--get-tag-faces) :to-equal nil))))
 
+(describe "Subscriptions to the store"
+  (before-each
+    (org-newtab--clear-subscribers))
+
+  (it "allows subscribing one item"
+    (org-newtab--subscribe 'ext-get-item #'org-edit-headline)
+    (org-newtab--subscribe 'ext-get-item #'org-edit-special)
+    (org-newtab--subscribe 'ext-get-item2 #'org-edit-src-code)
+    (org-newtab--subscribe 'ext-get-item2 #'org-edit-headline)
+    (expect org-newtab--action-subscribers
+            :to-have-same-items-as
+            '((ext-get-item org-edit-special org-edit-headline)
+              (ext-get-item2 org-edit-headline org-edit-src-code)
+              nil)))
+
+  (it "avoid duplicates"
+    (org-newtab--subscribe 'ext-get-item #'org-edit-headline)
+    (org-newtab--subscribe 'ext-get-item #'org-edit-headline)
+    (expect org-newtab--action-subscribers
+            :to-equal
+            '((ext-get-item org-edit-headline)
+              nil)))
+
+  (it "allows unsubscribing"
+    (org-newtab--subscribe 'ext-get-item #'org-edit-headline)
+    (org-newtab--subscribe 'ext-get-item #'org-edit-special)
+    (org-newtab--unsubscribe 'ext-get-item #'org-edit-headline)
+    (expect org-newtab--action-subscribers
+            :to-equal '((ext-get-item org-edit-special) nil))))
+
 (provide 'org-newtab-test)
 
 ;; Local Variables:
