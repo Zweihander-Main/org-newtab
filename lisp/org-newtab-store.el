@@ -45,18 +45,20 @@
 (defun org-newtab--reducer (state type &optional payload)
   "Take STATE, apply action TYPE with opt PAYLOAD to state, return state.
 Avoid side effects and mutations."
-  (setq org-newtab--state
-        (pcase type
-          ;; Always capture the match query in case it's needed later
-          ;; (for example, being able to send back data after clock out without
-          ;; having to ask the extension for the query again)
-          ('ext-get-item (plist-put state :last-match-query
-                                    (plist-get payload :query)))
-          ('find-match   (plist-put state :async-priority-task
-                                    (or (plist-get payload :resid) (random t))))
-          ('send-item    (plist-put state :async-priority-task nil))
-          ('ext-close    (plist-put state :async-priority-task nil))
-          (_ state))))
+  (pcase type
+    ;; Always capture the match query in case it's needed later
+    ;; (for example, being able to send back data after clock out without
+    ;; having to ask the extension for the query again)
+    ('ext-get-item (plist-put state :last-match-query (plist-get payload :query)))
+    ;; Set a new priority task that will take precedence over any previous
+    ;; async queries. Use resid if provided, otherwise a random num.
+    ('find-match   (plist-put state :async-priority-task
+                              (or (plist-get payload :resid) (random t))))
+    ;; Async task completed and task has priority so it can be cleared
+    ('send-item    (plist-put state :async-priority-task nil))
+    ;; Don't save priority tasks between websocket connections
+    ('ext-close    (plist-put state :async-priority-task nil))
+    (_ state)))
 
 (defun org-newtab--dispatch (type &optional payload)
   "Run state reducer and subscriptions on action TYPE with optional PAYLOAD."
