@@ -65,7 +65,7 @@ Avoid side effects and mutations."
   (let ((subs (alist-get type org-newtab--action-subscribers)))
     (when subs
       (dolist (func subs)
-        (funcall func payload)))))
+        (if payload (funcall func payload) (funcall func))))))
 
 (defun org-newtab--clear-subscribers ()
   "Clear all subscribers."
