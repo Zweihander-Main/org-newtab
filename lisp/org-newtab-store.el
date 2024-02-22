@@ -42,29 +42,27 @@
   '(())
   "List of actions with corresponding list of subscribers.")
 
-(defun org-newtab--reducer (state action)
-  "Take STATE, apply ACTION to state based on :type, return state.
+(defun org-newtab--reducer (state type &optional payload)
+  "Take STATE, apply action TYPE with opt PAYLOAD to state, return state.
 Avoid side effects and mutations."
-  (let ((type (plist-get action :type))
-        (payload (plist-get action :payload)))
-    (setq org-newtab--state
-          (pcase type
-            ;; Always capture the match query in case it's needed later
-            ;; (for example, being able to send back data after clock out without
-            ;; having to ask the extension for the query again)
-            ('ext-get-item (plist-put state :last-match-query (plist-get payload :query)))
-            (_ state)))))
-
-(defun org-newtab--dispatch (action)
-  "Dispatch ACTION to the reducer and set the new state. Then alert listeners."
-  (org-newtab--log "[Store] Action dispatched: %s" action)
   (setq org-newtab--state
-        (org-newtab--reducer org-newtab--state action))
-  (let ((subs (alist-get (plist-get action :type)
-                         org-newtab--action-subscribers)))
+        (pcase type
+          ;; Always capture the match query in case it's needed later
+          ;; (for example, being able to send back data after clock out without
+          ;; having to ask the extension for the query again)
+          ('ext-get-item (plist-put state :last-match-query
+                                    (plist-get payload :query)))
+          (_ state))))
+
+(defun org-newtab--dispatch (type &optional payload)
+  "Run state reducer and subscriptions on action TYPE with optional PAYLOAD."
+  (org-newtab--log "[Store] Action dispatched: %s | %s" type payload)
+  (setq org-newtab--state
+        (org-newtab--reducer org-newtab--state type payload))
+  (let ((subs (alist-get type org-newtab--action-subscribers)))
     (when subs
       (dolist (func subs)
-        (funcall func (plist-get action :payload))))))
+        (funcall func payload)))))
 
 (defun org-newtab--clear-subscribers ()
   "Clear all subscribers."

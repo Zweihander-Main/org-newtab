@@ -91,9 +91,8 @@
           (resid (plist-get json-data :resid))
           (query (plist-get json-data :data)))
       (pcase command
-        ("getItem" (org-newtab--dispatch
-                    (list :type 'ext-get-item
-                          :payload (list :resid resid :query query ))))
+        ("getItem" (org-newtab--dispatch 'ext-get-item
+                                         `(:resid ,resid :query ,query )))
         (_ (org-newtab--log "[Server] %s" "Unknown command from client"))))))
 
 (defun org-newtab--on-opn-send-tag-faces ()
