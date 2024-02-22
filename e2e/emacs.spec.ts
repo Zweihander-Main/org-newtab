@@ -31,6 +31,7 @@ import {
 	HOW_LONG_TO_WAIT_FOR_STORAGE,
 	HOW_LONG_TO_WAIT_FOR_WEBSOCKET,
 	ITEM_TEXT_LOCATOR,
+	LOADING_BAR_LOCATOR,
 	MATCH_QUERY_LABEL,
 	MATCH_QUERY_NESTED_TAG,
 	MATCH_QUERY_NEXT,
@@ -420,7 +421,33 @@ test.describe('Emacs', () => {
 			EFFORTLESS_CLOCKED_TIME
 		);
 	});
+
+	test.only('should let the extension know when to expect a new item', async ({
+		context,
+		extensionId,
+	}) => {
+		const tabMaster = await context.newPage();
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+
+		await storageIsResolved(tabMaster);
+		await setupWebsocketPort({ port }, tabMaster);
+
+		await fs.copyFile(
+			`${baseDir}/e2e/emacs/clock-out.el`,
+			testFileName(port)
+		);
+
+		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
+			AGENDA_ITEM_TEXT_CLOCKED,
+			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
+		);
+
+		const isLoadingBarVisible = tabMaster.waitForSelector(
+			`div[data-testid="${LOADING_BAR_LOCATOR}"]`,
+			{ state: 'visible' }
+		);
+		expect(await isLoadingBarVisible).toBeTruthy();
+	});
 });
 
 // TODO: add integration tests for hooks/advice upon mode start in emacs
-// TODO: add integration tests for FINDING type after clocking out/priority change/ect.
