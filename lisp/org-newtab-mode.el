@@ -37,68 +37,9 @@
 (eval-when-compile
   (cl-pushnew (expand-file-name default-directory) load-path))
 
-(require 'org-newtab-server)
 (require 'org-newtab-store)
-(require 'org-newtab-agenda)
-(require 'async)
-
-(defun org-newtab--send-tag-faces ()
-  "Send the tag faces to the client."
-  (let* ((tags (org-newtab--get-tag-faces))
-         (data-packet (list :type "TAGS" :data tags)))
-    (org-newtab--send-data (json-encode data-packet))))
-
-(defun org-newtab--send-match (query &optional resid)
-  "Send the current match for query QUERY to the client -- with RESID if provided."
-  (org-newtab--dispatch 'find-match `(:resid ,resid))
-  (let ((own-task (org-newtab--selected-async-priority-task)))
-    (async-start
-     `(lambda ()
-        ,(async-inject-variables "\\`load-path\\'")
-        ,(async-inject-variables "\\`org-agenda-files\\'")
-        ,(async-inject-variables "\\`org-todo-keywords\\'")
-        (let ((inhibit-message t)) ; TODO: freezes if prompted for input -- test further
-          (require 'org-newtab-agenda)
-          (org-newtab--get-one-agenda-item ',query)))
-     `(lambda (result)
-        (let ((data-packet (list :type "ITEM" :data result)))
-          (when ,resid
-            (setq data-packet (plist-put data-packet :resid ,resid)))
-          (if (equal ,own-task (org-newtab--selected-async-priority-task))
-              (progn (org-newtab--send-data (json-encode data-packet))
-                     (org-newtab--dispatch 'send-item))
-            (org-newtab--log
-             "[Server] %s" "Async task priority changed, older request dropped")))))))
-
-(defun org-newtab--send-clkd-item (&optional resid)
-  "Send the current clocked-in item to the client -- with RESID if provided."
-  (org-newtab--dispatch 'send-item)
-  (let* ((item (org-newtab--get-clocked-in-item))
-         (data-packet (list :type "ITEM" :data item)))
-    (when resid
-      (setq data-packet (plist-put data-packet :resid resid)))
-    (org-newtab--send-data (json-encode data-packet))))
-
-(defun org-newtab--get-item (&optional payload)
-  "Send an item to the extension based on :query and :resid in PAYLOAD.
-If QUERY is nil, use `org-newtab--last-match-query'. If RESID is nil, ignore."
-  (let ((query (or (plist-get payload :query)
-                   (org-newtab--selected-last-match-query)))
-        (resid (plist-get payload :resid)))
-    (cond ((org-clocking-p)
-           (org-newtab--send-clkd-item resid))
-          (t
-           (org-newtab--send-match query resid)))))
-
-(defun org-newtab--save-all-agenda-buffers ()
-  "Save all Org agenda buffers without user confirmation.
-Necessary to allow for async queries to use fresh data."
-  (save-some-buffers t (lambda () (org-agenda-file-p))))
-
-(defun org-newtab--save-and-get-item (&rest _)
-  "Send new item to client using last recorded match query."
-  (org-newtab--save-all-agenda-buffers)
-  (org-newtab--get-item))
+(require 'org-newtab-server)
+(require 'org-newtab-item)
 
 (defun org-newtab--on-hook-clock-in (&optional _)
   "From `org-clock-in-hook', send new item to client."

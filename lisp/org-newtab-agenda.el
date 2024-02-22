@@ -103,6 +103,11 @@ from color names to hex will use the terminal color codes eg goldenrod=yellow1."
                            (plist-get foreground-data :foreground)))))))
      org-tag-faces)))
 
+(defun org-newtab--save-all-agenda-buffers ()
+  "Save all Org agenda buffers without user confirmation.
+Necessary to allow for async queries to use fresh data."
+  (save-some-buffers t (lambda () (org-agenda-file-p))))
+
 (provide 'org-newtab-agenda)
 
 ;; Local Variables:
