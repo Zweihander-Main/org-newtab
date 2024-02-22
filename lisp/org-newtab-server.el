@@ -103,7 +103,7 @@
 
 (defun org-newtab--on-msg-send-clocked-in (&optional resid)
   "Send the current clocked-in item to the client -- with RESID if provided."
-  (org-newtab--dispatch 'send-clkd-item)
+  (org-newtab--dispatch 'send-item)
   (let* ((item (org-newtab--get-clocked-in-item))
          (data-packet (list :type "ITEM" :data item)))
     (when resid

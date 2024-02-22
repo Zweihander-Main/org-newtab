@@ -52,7 +52,6 @@ Avoid side effects and mutations."
           ;; having to ask the extension for the query again)
           ('ext-get-item   (plist-put state :last-match-query
                                       (plist-get payload :query)))
-          ('send-clkd-item (plist-put state :async-priority-task nil))
           ('get-item       (plist-put state :async-priority-task
                                       (or (plist-get payload :resid) (random t))))
           ('send-item      (plist-put state :async-priority-task nil))
