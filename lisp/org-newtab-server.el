@@ -103,7 +103,7 @@
 
 (defun org-newtab--on-msg-send-clocked-in (&optional resid)
   "Send the current clocked-in item to the client -- with RESID if provided."
-  (setq org-newtab--async-priority-task nil)
+  (org-newtab--dispatch 'send-clkd-item)
   (let* ((item (org-newtab--get-clocked-in-item))
          (data-packet (list :type "ITEM" :data item)))
     (when resid
@@ -112,8 +112,8 @@
 
 (defun org-newtab--on-msg-send-match-query (query &optional resid)
   "Send the current match for query QUERY to the client -- with RESID if provided."
-  (setq org-newtab--async-priority-task (or resid (random t)))
-  (let ((own-task org-newtab--async-priority-task))
+  (org-newtab--dispatch 'get-item `(:resid ,resid))
+  (let ((own-task (org-newtab--selected-async-priority-task)))
     (async-start
      `(lambda ()
         ,(async-inject-variables "\\`load-path\\'")
@@ -126,9 +126,9 @@
         (let ((data-packet (list :type "ITEM" :data result)))
           (when ,resid
             (setq data-packet (plist-put data-packet :resid ,resid)))
-          (if (equal ,own-task org-newtab--async-priority-task)
+          (if (equal ,own-task (org-newtab--selected-async-priority-task))
               (progn (org-newtab--send-data (json-encode data-packet))
-                     (setq org-newtab--async-priority-task nil))
+                     (org-newtab--dispatch 'send-item))
             (org-newtab--log
              "[Server] %s" "Async task priority changed, older request dropped")))))))
 

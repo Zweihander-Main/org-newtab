@@ -50,13 +50,17 @@ Avoid side effects and mutations."
           ;; Always capture the match query in case it's needed later
           ;; (for example, being able to send back data after clock out without
           ;; having to ask the extension for the query again)
-          ('ext-get-item (plist-put state :last-match-query
-                                    (plist-get payload :query)))
+          ('ext-get-item   (plist-put state :last-match-query
+                                      (plist-get payload :query)))
+          ('send-clkd-item (plist-put state :async-priority-task nil))
+          ('get-item       (plist-put state :async-priority-task
+                                      (or (plist-get payload :resid) (random t))))
+          ('send-item      (plist-put state :async-priority-task nil))
           (_ state))))
 
 (defun org-newtab--dispatch (type &optional payload)
   "Run state reducer and subscriptions on action TYPE with optional PAYLOAD."
-  (org-newtab--log "[Store] Action dispatched: %s | %s" type payload)
+  (org-newtab--log "[Store] Action dispatched: %s >> %s" type payload)
   (setq org-newtab--state
         (org-newtab--reducer org-newtab--state type payload))
   (let ((subs (alist-get type org-newtab--action-subscribers)))
@@ -89,6 +93,10 @@ Avoid side effects and mutations."
 (defun org-newtab--selected-last-match-query ()
   "Return the last match query."
   (plist-get org-newtab--state :last-match-query))
+
+(defun org-newtab--selected-async-priority-task ()
+  "Return async task which currently has priority."
+  (plist-get org-newtab--state :async-priority-task))
 
 (provide 'org-newtab-store)
 
