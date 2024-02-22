@@ -30,11 +30,54 @@
 
 ;;; Code:
 
+;; TODO: ping the client on async to let it know data is coming
+;; TODO: Let client know async function is running (send resid)
+;; TODO: on clock out, let client know clock out occured if async needed
+
 (eval-when-compile
   (cl-pushnew (expand-file-name default-directory) load-path))
 
 (require 'org-newtab-server)
 (require 'org-newtab-store)
+(require 'org-newtab-agenda)
+(require 'async)
+
+(defun org-newtab--send-tag-faces ()
+  "Send the tag faces to the client."
+  (let* ((tags (org-newtab--get-tag-faces))
+         (data-packet (list :type "TAGS" :data tags)))
+    (org-newtab--send-data (json-encode data-packet))))
+
+(defun org-newtab--send-match (query &optional resid)
+  "Send the current match for query QUERY to the client -- with RESID if provided."
+  (org-newtab--dispatch 'find-match `(:resid ,resid))
+  (let ((own-task (org-newtab--selected-async-priority-task)))
+    (async-start
+     `(lambda ()
+        ,(async-inject-variables "\\`load-path\\'")
+        ,(async-inject-variables "\\`org-agenda-files\\'")
+        ,(async-inject-variables "\\`org-todo-keywords\\'")
+        (let ((inhibit-message t)) ; TODO: freezes if prompted for input -- test further
+          (require 'org-newtab-agenda)
+          (org-newtab--get-one-agenda-item ',query)))
+     `(lambda (result)
+        (let ((data-packet (list :type "ITEM" :data result)))
+          (when ,resid
+            (setq data-packet (plist-put data-packet :resid ,resid)))
+          (if (equal ,own-task (org-newtab--selected-async-priority-task))
+              (progn (org-newtab--send-data (json-encode data-packet))
+                     (org-newtab--dispatch 'send-item))
+            (org-newtab--log
+             "[Server] %s" "Async task priority changed, older request dropped")))))))
+
+(defun org-newtab--send-clkd-item (&optional resid)
+  "Send the current clocked-in item to the client -- with RESID if provided."
+  (org-newtab--dispatch 'send-item)
+  (let* ((item (org-newtab--get-clocked-in-item))
+         (data-packet (list :type "ITEM" :data item)))
+    (when resid
+      (setq data-packet (plist-put data-packet :resid resid)))
+    (org-newtab--send-data (json-encode data-packet))))
 
 (defun org-newtab--get-item (&optional payload)
   "Send an item to the extension based on :query and :resid in PAYLOAD.
@@ -43,9 +86,9 @@ If QUERY is nil, use `org-newtab--last-match-query'. If RESID is nil, ignore."
                    (org-newtab--selected-last-match-query)))
         (resid (plist-get payload :resid)))
     (cond ((org-clocking-p)
-           (org-newtab--on-msg-send-clocked-in resid))
+           (org-newtab--send-clkd-item resid))
           (t
-           (org-newtab--on-msg-send-match-query query resid)))))
+           (org-newtab--send-match query resid)))))
 
 (defun org-newtab--save-all-agenda-buffers ()
   "Save all Org agenda buffers without user confirmation.
@@ -56,10 +99,6 @@ Necessary to allow for async queries to use fresh data."
   "Send new item to client using last recorded match query."
   (org-newtab--save-all-agenda-buffers)
   (org-newtab--get-item))
-
-;; TODO: ping the client on async to let it know data is coming
-;; TODO: Let client know async function is running (send resid)
-;; TODO: on clock out, let client know clock out occured if async needed
 
 (defun org-newtab--on-hook-clock-in (&optional _)
   "From `org-clock-in-hook', send new item to client."
@@ -121,7 +160,8 @@ Necessary to allow for async queries to use fresh data."
 
 (defconst org-newtab--sub-assocs
   '((ext-get-item . org-newtab--get-item)
-    (hk-clk-in . org-newtab--on-msg-send-clocked-in)
+    (ext-open . org-newtab--send-tag-faces)
+    (hk-clk-in . org-newtab--send-clkd-item)
     (hk-clk-out . org-newtab--save-and-get-item)
     (hk-clk-cancel . org-newtab--save-and-get-item)
     (hk-todo-chg . org-newtab--save-and-get-item)

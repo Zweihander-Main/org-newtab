@@ -50,11 +50,12 @@ Avoid side effects and mutations."
           ;; Always capture the match query in case it's needed later
           ;; (for example, being able to send back data after clock out without
           ;; having to ask the extension for the query again)
-          ('ext-get-item   (plist-put state :last-match-query
-                                      (plist-get payload :query)))
-          ('get-item       (plist-put state :async-priority-task
-                                      (or (plist-get payload :resid) (random t))))
-          ('send-item      (plist-put state :async-priority-task nil))
+          ('ext-get-item (plist-put state :last-match-query
+                                    (plist-get payload :query)))
+          ('find-match   (plist-put state :async-priority-task
+                                    (or (plist-get payload :resid) (random t))))
+          ('send-item    (plist-put state :async-priority-task nil))
+          ('ext-close    (plist-put state :async-priority-task nil))
           (_ state))))
 
 (defun org-newtab--dispatch (type &optional payload)
