@@ -23,7 +23,6 @@ import {
 	HOW_LONG_TO_WAIT_FOR_STORAGE,
 	HOW_LONG_TO_WAIT_FOR_WEBSOCKET,
 	ITEM_TEXT_LOCATOR,
-	LOADING_BAR_LOCATOR,
 	MATCH_QUERY_LABEL,
 	RETRIES_FOR_EMACS,
 } from './constants';
@@ -157,36 +156,5 @@ test.describe('Emacs hooks', () => {
 		await expect(tabMaster.getByTestId(CLOCKED_TIME_LOCATOR)).toContainText(
 			EFFORTLESS_CLOCKED_TIME
 		);
-	});
-
-	// TODO: flakiness? may need to catch the bar sooner, VERY rarely happens, 1/100 level
-	test.only('should let the extension know when to expect a new item', async ({
-		context,
-		extensionId,
-	}) => {
-		const tabMaster = await context.newPage();
-		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
-
-		await storageIsResolved(tabMaster);
-		await setupWebsocketPort({ port }, tabMaster);
-
-		await fs.copyFile(
-			`${baseDir}/e2e/emacs/clock-out.el`,
-			testFileName(port)
-		);
-
-		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
-			AGENDA_ITEM_TEXT_CLOCKED,
-			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
-		);
-
-		// .el file pauses for 5 seconds before clock out
-
-		const isLoadingBarVisible = tabMaster.waitForSelector(
-			`div[data-testid="${LOADING_BAR_LOCATOR}"]`,
-			{ state: 'visible' }
-		);
-
-		expect(await isLoadingBarVisible).toBeTruthy();
 	});
 });

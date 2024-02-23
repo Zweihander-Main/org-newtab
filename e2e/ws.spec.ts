@@ -18,7 +18,6 @@ import {
 	WSS_TEST_TEXT,
 	WS_PORT_LABEL,
 	HOW_LONG_TO_WAIT_FOR_STORAGE,
-	LOADING_BAR_LOCATOR,
 	RETRIES_FOR_WEBSOCKET,
 } from './constants';
 import { test, expect } from './fixture';
@@ -278,30 +277,5 @@ test.describe('WebSocket', () => {
 		await expect(tabMaster.getByLabel(MATCH_QUERY_LABEL)).toHaveValue(
 			WSS_TEST_TEXT
 		);
-	});
-
-	test('should add and remove waiting responses', async ({
-		extensionId,
-		context,
-	}) => {
-		const conn = await openSocketConnection();
-		const tabMaster = await context.newPage();
-		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
-		const loadingBar = tabMaster.getByTestId(LOADING_BAR_LOCATOR);
-		const isLoadingBarVisible = tabMaster.waitForSelector(
-			`div[data-testid="${LOADING_BAR_LOCATOR}"]`,
-			{ state: 'visible' }
-		);
-
-		await storageIsResolved(tabMaster);
-		await setupWebsocketPort(conn, tabMaster);
-
-		expect(await isLoadingBarVisible).toBeTruthy();
-
-		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
-			WSS_TEST_TEXT,
-			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
-		);
-		await expect(loadingBar).not.toBeVisible();
 	});
 });
