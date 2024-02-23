@@ -101,7 +101,34 @@ test.describe('Emacs hooks', () => {
 		);
 	});
 
-	test('should automatically send updates when agenda item changes', async ({
+	test('should show clocked in minutes without effort set', async ({
+		context,
+		extensionId,
+	}) => {
+		const tabMaster = await context.newPage();
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await storageIsResolved(tabMaster);
+		await setupWebsocketPort({ port }, tabMaster);
+
+		await fs.copyFile(
+			`${baseDir}/e2e/emacs/clock-broken.el`,
+			testFileName(port)
+		);
+
+		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
+			AGENDA_ITEM_TEXT_CLOCKED,
+			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
+		);
+
+		await expect(tabMaster.getByTestId(CLOCKED_TIME_LOCATOR)).toContainText(
+			EFFORTLESS_CLOCKED_TIME
+		);
+	});
+
+	// TODO: Add test for clock cancel
+	// TODO: Add test for effort change
+
+	test('should automatically send updates when tags change', async ({
 		context,
 		extensionId,
 	}) => {
@@ -134,27 +161,8 @@ test.describe('Emacs hooks', () => {
 		);
 	});
 
-	test('should show clocked in minutes without effort set', async ({
-		context,
-		extensionId,
-	}) => {
-		const tabMaster = await context.newPage();
-		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
-		await storageIsResolved(tabMaster);
-		await setupWebsocketPort({ port }, tabMaster);
-
-		await fs.copyFile(
-			`${baseDir}/e2e/emacs/clock-broken.el`,
-			testFileName(port)
-		);
-
-		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
-			AGENDA_ITEM_TEXT_CLOCKED,
-			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
-		);
-
-		await expect(tabMaster.getByTestId(CLOCKED_TIME_LOCATOR)).toContainText(
-			EFFORTLESS_CLOCKED_TIME
-		);
-	});
+	// TODO: Add test for state change
+	// TODO: Add test for refile change
+	// TODO: Add test for headline edit
+	// TODO: Add test for priority change
 });
