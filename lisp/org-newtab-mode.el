@@ -37,15 +37,15 @@
 (require 'org-newtab-server)
 (require 'org-newtab-item)
 
-(defun org-newtab--on-hook-clock-in (&optional _)
+(defun org-newtab--on-hook-clock-in (&rest _)
   "From `org-clock-in-hook', send new item to client."
   (org-newtab--dispatch 'hk-clk-in))
 
-(defun org-newtab--on-hook-clock-out (&optional _)
+(defun org-newtab--on-hook-clock-out (&rest _)
   "From `org-clock-out-hook', send new item to client."
   (org-newtab--dispatch 'hk-clk-out))
 
-(defun org-newtab--on-hook-clock-cancel (&optional _)
+(defun org-newtab--on-hook-clock-cancel (&rest _)
   "From `org-clock-cancel-hook', send new item to client."
   (org-newtab--dispatch 'hk-clk-cancel))
 
@@ -57,23 +57,23 @@
       (unless (string-match-p from to)
         (org-newtab--dispatch 'hk-todo-chg)))))
 
-(defun org-newtab--on-hook-after-tags-change (&optional _)
+(defun org-newtab--on-hook-after-tags-change (&rest _)
   "From `org-after-tags-change-hook', send new item to client."
   (org-newtab--dispatch 'hk-tags-chg))
 
-(defun org-newtab--on-hook-after-refile-insert (&optional _)
+(defun org-newtab--on-hook-after-refile-insert (&rest _)
   "From `org-after-refile-insert-hook', send new item to client."
   (org-newtab--dispatch 'hk-refile))
 
-(defun org-newtab--on-adv-edit-headline (&optional _)
+(defun org-newtab--on-adv-edit-headline (&rest _)
   "From `org-edit-headline', send new item to client."
   (org-newtab--dispatch 'adv-edit-hl))
 
-(defun org-newtab--on-adv-priority (&optional _)
+(defun org-newtab--on-adv-priority (&rest _)
   "From `org-priority', send new item to client."
   (org-newtab--dispatch 'adv-pri-chg))
 
-(defun org-newtab--on-adv-set-effort (&optional _)
+(defun org-newtab--on-adv-set-effort (&rest _)
   "From `org-set-effort', send new item to client."
   (org-newtab--dispatch 'adv-effort-chg))
 
