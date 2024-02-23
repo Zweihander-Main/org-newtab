@@ -53,7 +53,7 @@ Avoid side effects and mutations."
     ;; Set a new priority task that will take precedence over any previous
     ;; async queries. Use resid if provided, otherwise a random num.
     ('find-match   (plist-put state :async-priority-task
-                              (or (plist-get payload :resid) (random t))))
+                              (or (plist-get payload :resid) (abs (random t)))))
     ;; Async task completed and task has priority so it can be cleared
     ;; Alternatively, clocked in item has been sent and should clear all other
     ;; async tasks
