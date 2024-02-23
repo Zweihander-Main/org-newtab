@@ -101,6 +101,31 @@ test.describe('Emacs hooks', () => {
 		);
 	});
 
+	test('should send match query after clock cancel', async ({
+		context,
+		extensionId,
+	}) => {
+		const tabMaster = await context.newPage();
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await storageIsResolved(tabMaster);
+		await setupWebsocketPort({ port }, tabMaster);
+
+		await fs.copyFile(
+			`${baseDir}/e2e/emacs/clock-cancel.el`,
+			testFileName(port)
+		);
+
+		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
+			AGENDA_ITEM_TEXT_CLOCKED,
+			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
+		);
+
+		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
+			AGENDA_ITEM_TEXT_TODO,
+			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
+		);
+	});
+
 	test('should show clocked in minutes without effort set', async ({
 		context,
 		extensionId,
@@ -125,7 +150,6 @@ test.describe('Emacs hooks', () => {
 		);
 	});
 
-	// TODO: Add test for clock cancel
 	// TODO: Add test for effort change
 
 	test('should automatically send updates when tags change', async ({
