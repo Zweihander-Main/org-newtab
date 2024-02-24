@@ -57,3 +57,6 @@ class Socket {
 }
 
 export default Socket.getInstance();
+
+// TODO switch to  https://docs.partykit.io/reference/partysocket-api fork
+// TODO: implement heartbeat, see https://github.com/pladaria/reconnecting-websocket/issues/170
