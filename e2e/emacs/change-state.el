@@ -1,5 +1,5 @@
 (let ((main-file (expand-file-name "e2e/emacs/change-state.org" base-dir))
-      (temp-file (expand-file-name (concat "e2e/emacs/change-state-"
+      (temp-file (expand-file-name (concat "e2e/emacs/change-file-"
                                            (int-to-string org-newtab-ws-port)
                                            ".org") base-dir)))
   (setq make-backup-files nil)

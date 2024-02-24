@@ -3,7 +3,7 @@ import { promises as fs } from 'fs';
 import * as dns from 'node:dns';
 import { test, expect } from './fixture';
 import {
-	changeTagsFileName,
+	changeFileFileName,
 	closeOptions,
 	gotoOptPanel,
 	isPortInUse,
@@ -51,14 +51,14 @@ test.describe('Emacs', () => {
 	test.beforeEach(async () => {
 		port = await pickARandomPort();
 		fs.unlink(testFileName(port)).catch(() => {});
-		fs.unlink(changeTagsFileName(port)).catch(() => {});
+		fs.unlink(changeFileFileName(port)).catch(() => {});
 		emacs = startEmacsProcess(port);
 	});
 
 	test.afterEach(() => {
 		emacs.kill();
 		fs.unlink(testFileName(port)).catch(() => {});
-		fs.unlink(changeTagsFileName(port)).catch(() => {});
+		fs.unlink(changeFileFileName(port)).catch(() => {});
 	});
 
 	test('should connect to emacs', async ({ context, extensionId }) => {

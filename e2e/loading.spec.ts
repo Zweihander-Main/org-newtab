@@ -3,7 +3,7 @@ import { promises as fs } from 'fs';
 import { test, expect } from './fixture';
 import {
 	baseDir,
-	changeTagsFileName,
+	changeFileFileName,
 	pickARandomPort,
 	setupWebsocketPort,
 	startEmacsProcess,
@@ -36,14 +36,14 @@ test.describe('Loading bars', () => {
 	test.beforeEach(async () => {
 		port = await pickARandomPort();
 		fs.unlink(testFileName(port)).catch(() => {});
-		fs.unlink(changeTagsFileName(port)).catch(() => {});
+		fs.unlink(changeFileFileName(port)).catch(() => {});
 		emacs = startEmacsProcess(port);
 	});
 
 	test.afterEach(() => {
 		emacs.kill();
 		fs.unlink(testFileName(port)).catch(() => {});
-		fs.unlink(changeTagsFileName(port)).catch(() => {});
+		fs.unlink(changeFileFileName(port)).catch(() => {});
 	});
 
 	test('should correspond to adding and removing waiting responses', async ({

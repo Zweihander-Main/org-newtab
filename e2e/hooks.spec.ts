@@ -3,8 +3,7 @@ import { promises as fs } from 'fs';
 import { test, expect } from './fixture';
 import {
 	baseDir,
-	changeStateFileName,
-	changeTagsFileName,
+	changeFileFileName,
 	closeOptions,
 	gotoOptPanel,
 	pickARandomPort,
@@ -43,16 +42,14 @@ test.describe('Emacs hooks', () => {
 	test.beforeEach(async () => {
 		port = await pickARandomPort();
 		fs.unlink(testFileName(port)).catch(() => {});
-		fs.unlink(changeTagsFileName(port)).catch(() => {});
-		fs.unlink(changeStateFileName(port)).catch(() => {});
+		fs.unlink(changeFileFileName(port)).catch(() => {});
 		emacs = startEmacsProcess(port);
 	});
 
 	test.afterEach(() => {
 		emacs.kill();
 		fs.unlink(testFileName(port)).catch(() => {});
-		fs.unlink(changeTagsFileName(port)).catch(() => {});
-		fs.unlink(changeStateFileName(port)).catch(() => {});
+		fs.unlink(changeFileFileName(port)).catch(() => {});
 	});
 
 	test('should send effort data for clocked in items', async ({
@@ -211,7 +208,7 @@ test.describe('Emacs hooks', () => {
 		);
 	});
 
-	test.only('should send updates when todo state changes', async ({
+	test('should send updates when todo state changes', async ({
 		context,
 		extensionId,
 	}) => {

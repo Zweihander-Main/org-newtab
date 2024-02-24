@@ -1,6 +1,6 @@
 import {
 	baseDir,
-	changeTagsFileName,
+	changeFileFileName,
 	closeOptions,
 	gotoOptPanel,
 	pickARandomPort,
@@ -71,7 +71,7 @@ test('check accessibility on clocked and non-clocked item', async ({
 }) => {
 	const port = await pickARandomPort();
 	fs.unlink(testFileName(port)).catch(() => {});
-	fs.unlink(changeTagsFileName(port)).catch(() => {});
+	fs.unlink(changeFileFileName(port)).catch(() => {});
 	const emacs = startEmacsProcess(port);
 
 	const tabMaster = await context.newPage();
@@ -96,5 +96,5 @@ test('check accessibility on clocked and non-clocked item', async ({
 
 	emacs.kill();
 	fs.unlink(testFileName(port)).catch(() => {});
-	fs.unlink(changeTagsFileName(port)).catch(() => {});
+	fs.unlink(changeFileFileName(port)).catch(() => {});
 });

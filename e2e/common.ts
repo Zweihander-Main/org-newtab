@@ -222,11 +222,8 @@ export const extraTestCodeFile = `${baseDir}/e2e/emacs/extra-testing-code-`;
 export const testFileName = (port: number) =>
 	`${extraTestCodeFile}${port.toString()}.el`;
 
-export const changeTagsFileName = (port: number) =>
-	`${baseDir}/e2e/emacs/change-tags-${port.toString()}.org`;
-
-export const changeStateFileName = (port: number) =>
-	`${baseDir}/e2e/emacs/change-state-${port.toString()}.org`;
+export const changeFileFileName = (port: number) =>
+	`${baseDir}/e2e/emacs/change-file-${port.toString()}.org`;
 
 /**
  * Misc
