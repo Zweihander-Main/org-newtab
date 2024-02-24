@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-base-to-string */
+import { promises as fs } from 'fs';
 import { spawn } from 'child_process';
 import { Page } from '@playwright/test';
 import { test, expect } from './fixture';
@@ -215,6 +216,23 @@ export const startEmacsProcess = (port: number, retries = 0) => {
 	});
 
 	return emacs;
+};
+
+export const setupEmacs = async () => {
+	const port = await pickARandomPort();
+	fs.unlink(testFileName(port)).catch(() => {});
+	fs.unlink(changeFileFileName(port)).catch(() => {});
+	const emacs = startEmacsProcess(port);
+	return { port, emacs };
+};
+
+export const teardownEmacs = (
+	port: number,
+	emacs: ReturnType<typeof startEmacsProcess>
+) => {
+	emacs.kill();
+	fs.unlink(testFileName(port)).catch(() => {});
+	fs.unlink(changeFileFileName(port)).catch(() => {});
 };
 
 export const extraTestCodeFile = `${baseDir}/e2e/emacs/extra-testing-code-`;

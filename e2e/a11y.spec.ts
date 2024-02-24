@@ -1,12 +1,11 @@
 import {
 	baseDir,
-	changeFileFileName,
 	closeOptions,
 	gotoOptPanel,
-	pickARandomPort,
+	setupEmacs,
 	setupWebsocketPort,
-	startEmacsProcess,
 	storageIsResolved,
+	teardownEmacs,
 	testFileName,
 } from './common';
 import {
@@ -69,10 +68,7 @@ test('check accessibility on clocked and non-clocked item', async ({
 	context,
 	extensionId,
 }) => {
-	const port = await pickARandomPort();
-	fs.unlink(testFileName(port)).catch(() => {});
-	fs.unlink(changeFileFileName(port)).catch(() => {});
-	const emacs = startEmacsProcess(port);
+	const { port, emacs } = await setupEmacs();
 
 	const tabMaster = await context.newPage();
 	await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
@@ -94,7 +90,5 @@ test('check accessibility on clocked and non-clocked item', async ({
 
 	await checkA11y(tabMaster, undefined, a11yOptionsFront);
 
-	emacs.kill();
-	fs.unlink(testFileName(port)).catch(() => {});
-	fs.unlink(changeFileFileName(port)).catch(() => {});
+	teardownEmacs(port, emacs);
 });

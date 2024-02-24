@@ -3,11 +3,11 @@ import { promises as fs } from 'fs';
 import { test, expect } from './fixture';
 import {
 	baseDir,
-	changeFileFileName,
-	pickARandomPort,
+	setupEmacs,
 	setupWebsocketPort,
 	startEmacsProcess,
 	storageIsResolved,
+	teardownEmacs,
 	testFileName,
 } from './common';
 import {
@@ -34,16 +34,11 @@ test.describe('Loading bars', () => {
 	let emacs: ReturnType<typeof startEmacsProcess>;
 
 	test.beforeEach(async () => {
-		port = await pickARandomPort();
-		fs.unlink(testFileName(port)).catch(() => {});
-		fs.unlink(changeFileFileName(port)).catch(() => {});
-		emacs = startEmacsProcess(port);
+		({ port, emacs } = await setupEmacs());
 	});
 
 	test.afterEach(() => {
-		emacs.kill();
-		fs.unlink(testFileName(port)).catch(() => {});
-		fs.unlink(changeFileFileName(port)).catch(() => {});
+		teardownEmacs(port, emacs);
 	});
 
 	test('should correspond to adding and removing waiting responses', async ({

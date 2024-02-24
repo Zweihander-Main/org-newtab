@@ -3,13 +3,13 @@ import { promises as fs } from 'fs';
 import { test, expect } from './fixture';
 import {
 	baseDir,
-	changeFileFileName,
 	closeOptions,
 	gotoOptPanel,
-	pickARandomPort,
+	setupEmacs,
 	setupWebsocketPort,
 	startEmacsProcess,
 	storageIsResolved,
+	teardownEmacs,
 	testFileName,
 } from './common';
 import {
@@ -40,16 +40,11 @@ test.describe('Emacs hooks', () => {
 	let emacs: ReturnType<typeof startEmacsProcess>;
 
 	test.beforeEach(async () => {
-		port = await pickARandomPort();
-		fs.unlink(testFileName(port)).catch(() => {});
-		fs.unlink(changeFileFileName(port)).catch(() => {});
-		emacs = startEmacsProcess(port);
+		({ port, emacs } = await setupEmacs());
 	});
 
 	test.afterEach(() => {
-		emacs.kill();
-		fs.unlink(testFileName(port)).catch(() => {});
-		fs.unlink(changeFileFileName(port)).catch(() => {});
+		teardownEmacs(port, emacs);
 	});
 
 	test('should send effort data for clocked in items', async ({

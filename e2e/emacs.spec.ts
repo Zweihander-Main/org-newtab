@@ -1,18 +1,16 @@
 /* eslint-disable no-console */
-import { promises as fs } from 'fs';
 import * as dns from 'node:dns';
 import { test, expect } from './fixture';
 import {
-	changeFileFileName,
 	closeOptions,
 	gotoOptPanel,
 	isPortInUse,
-	pickARandomPort,
 	roleIs,
+	setupEmacs,
 	setupWebsocketPort,
 	startEmacsProcess,
 	storageIsResolved,
-	testFileName,
+	teardownEmacs,
 	toRGB,
 } from './common';
 import {
@@ -49,16 +47,11 @@ test.describe('Emacs', () => {
 	let emacs: ReturnType<typeof startEmacsProcess>;
 
 	test.beforeEach(async () => {
-		port = await pickARandomPort();
-		fs.unlink(testFileName(port)).catch(() => {});
-		fs.unlink(changeFileFileName(port)).catch(() => {});
-		emacs = startEmacsProcess(port);
+		({ port, emacs } = await setupEmacs());
 	});
 
 	test.afterEach(() => {
-		emacs.kill();
-		fs.unlink(testFileName(port)).catch(() => {});
-		fs.unlink(changeFileFileName(port)).catch(() => {});
+		teardownEmacs(port, emacs);
 	});
 
 	test('should connect to emacs', async ({ context, extensionId }) => {
