@@ -3,6 +3,7 @@ import { promises as fs } from 'fs';
 import { test, expect } from './fixture';
 import {
 	baseDir,
+	changeStateFileName,
 	changeTagsFileName,
 	closeOptions,
 	gotoOptPanel,
@@ -43,6 +44,7 @@ test.describe('Emacs hooks', () => {
 		port = await pickARandomPort();
 		fs.unlink(testFileName(port)).catch(() => {});
 		fs.unlink(changeTagsFileName(port)).catch(() => {});
+		fs.unlink(changeStateFileName(port)).catch(() => {});
 		emacs = startEmacsProcess(port);
 	});
 
@@ -50,6 +52,7 @@ test.describe('Emacs hooks', () => {
 		emacs.kill();
 		fs.unlink(testFileName(port)).catch(() => {});
 		fs.unlink(changeTagsFileName(port)).catch(() => {});
+		fs.unlink(changeStateFileName(port)).catch(() => {});
 	});
 
 	test('should send effort data for clocked in items', async ({
@@ -150,7 +153,7 @@ test.describe('Emacs hooks', () => {
 		);
 	});
 
-	test.only('should update effort data', async ({ context, extensionId }) => {
+	test('should update effort data', async ({ context, extensionId }) => {
 		const tabMaster = await context.newPage();
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
 		await storageIsResolved(tabMaster);
@@ -171,7 +174,7 @@ test.describe('Emacs hooks', () => {
 		);
 
 		await expect(tabMaster.getByTestId(CLOCKED_TIME_LOCATOR)).toContainText(
-			'0:01 / 2:34'
+			'0:01 / 2:34' // TODO const
 		);
 	});
 
@@ -208,7 +211,41 @@ test.describe('Emacs hooks', () => {
 		);
 	});
 
-	// TODO: Add test for state change
+	test.only('should send updates when todo state changes', async ({
+		context,
+		extensionId,
+	}) => {
+		const tabMaster = await context.newPage();
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await storageIsResolved(tabMaster);
+		await setupWebsocketPort({ port }, tabMaster);
+
+		const todoPromise = expect(
+			tabMaster.getByTestId(ITEM_TEXT_LOCATOR)
+		).toContainText(AGENDA_ITEM_TEXT_TODO, {
+			timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE,
+		});
+
+		await fs.copyFile(
+			`${baseDir}/e2e/emacs/change-state.el`,
+			testFileName(port)
+		);
+
+		await gotoOptPanel(tabMaster, 'Behavior');
+		await tabMaster
+			.getByLabel(MATCH_QUERY_LABEL)
+			.fill('STATECHANGE+TODO="TODO"'); // TODO: const
+		await tabMaster.getByLabel(MATCH_QUERY_LABEL).press('Enter');
+		await closeOptions(tabMaster);
+
+		await todoPromise;
+
+		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
+			AGENDA_ITEM_TEXT_TAGGED,
+			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
+		);
+	});
+
 	// TODO: Add test for refile change
 	// TODO: Add test for headline edit
 	// TODO: Add test for priority change
