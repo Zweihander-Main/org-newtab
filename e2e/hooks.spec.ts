@@ -272,11 +272,44 @@ test.describe('Emacs hooks', () => {
 		);
 
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
-			'Sample todo edited',
+			'Sample todo edited', // TODO: const
+			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
+		);
+	});
+
+	test('should send updates as priority is changed', async ({
+		context,
+		extensionId,
+	}) => {
+		const tabMaster = await context.newPage();
+		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
+		await storageIsResolved(tabMaster);
+		await setupWebsocketPort({ port }, tabMaster);
+
+		await fs.copyFile(
+			`${baseDir}/e2e/emacs/change-priority.el`,
+			testFileName(port)
+		);
+
+		await gotoOptPanel(tabMaster, 'Behavior');
+		await tabMaster
+			.getByLabel(MATCH_QUERY_LABEL)
+			.fill('STATECHANGE+TODO="TODO"+PRIORITY="A"'); // TODO: const
+		await tabMaster.getByLabel(MATCH_QUERY_LABEL).press('Enter');
+		await closeOptions(tabMaster);
+
+		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
+			AGENDA_ITEM_TEXT_TODO,
+			{
+				timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE,
+			}
+		);
+
+		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
+			AGENDA_ITEM_TEXT_TAGGED,
 			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
 		);
 	});
 
 	// TODO: Add test for refile change
-	// TODO: Add test for priority change
 });
