@@ -6,20 +6,20 @@ on:
       - 'README.md'
       - 'LICENSE'
       - 'docs'
-      - '.vscode'
+      - '.vscode/**'
       - 'org-newtab.code-workspace'
       - '.gitignore'
-      - '.github'
+      - '.github/**'
   pull_request:
     branches: [master]
     paths-ignore:
       - 'README.md'
       - 'LICENSE'
       - 'docs'
-      - '.vscode'
+      - '.vscode/**'
       - 'org-newtab.code-workspace'
       - '.gitignore'
-      - '.github'
+      - '.github/**'
   workflow_dispatch:
 
 env:
