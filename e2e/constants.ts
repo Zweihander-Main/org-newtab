@@ -47,11 +47,15 @@ export const AGENDA_ITEM_TEXT_TODO = 'Sample todo item';
 export const AGENDA_ITEM_TEXT_NEXT = 'Sample next item';
 export const AGENDA_ITEM_TEXT_TAGGED = 'Sample tagged item';
 export const AGENDA_ITEM_TEXT_CLOCKED = 'Sample clocked item';
+export const AGENDA_ITEM_TEXT_EDITED = 'Sample todo edited';
 export const CLOCKED_TIME = '0:01 / 1:23';
+export const CLOCKED_TIME_CHANGED = '0:01 / 2:34';
 export const EFFORTLESS_CLOCKED_TIME = '0:00';
 export const MATCH_QUERY_NEXT = 'TODO="NEXT"';
 export const MATCH_QUERY_TAG = '1#SAMPLETAG';
 export const MATCH_QUERY_NESTED_TAG = '2#OTHERTAG';
+export const MATCH_QUERY_CHANGED_TAG = 'NEWTAG';
+export const MATCH_QUERY_PRIORITY_B = 'PRIORITY="B"';
 export const TAG_COLOR = '#42A5F5';
 export const TAG_COLOR_NESTED_REGEX =
 	/linear-gradient\(.*, rgb\(0, 255, 51\), rgb\(106, 59, 159\)\)/;

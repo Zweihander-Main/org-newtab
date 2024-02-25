@@ -13,15 +13,20 @@ import {
 } from './common';
 import {
 	AGENDA_ITEM_TEXT_CLOCKED,
+	AGENDA_ITEM_TEXT_EDITED,
 	AGENDA_ITEM_TEXT_TAGGED,
 	AGENDA_ITEM_TEXT_TODO,
 	CLOCKED_TIME,
+	CLOCKED_TIME_CHANGED,
 	CLOCKED_TIME_LOCATOR,
 	EFFORTLESS_CLOCKED_TIME,
 	HOW_LONG_TO_WAIT_FOR_RESPONSE,
 	HOW_LONG_TO_WAIT_FOR_STORAGE,
 	HOW_LONG_TO_WAIT_FOR_WEBSOCKET,
 	ITEM_TEXT_LOCATOR,
+	MATCH_QUERY_CHANGED_TAG,
+	MATCH_QUERY_NEXT,
+	MATCH_QUERY_PRIORITY_B,
 	RETRIES_FOR_EMACS,
 } from './constants';
 
@@ -165,7 +170,7 @@ test.describe('Emacs hooks', () => {
 		);
 
 		await expect(tabMaster.getByTestId(CLOCKED_TIME_LOCATOR)).toContainText(
-			'0:01 / 2:34', // TODO const
+			CLOCKED_TIME_CHANGED,
 			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
 		);
 	});
@@ -185,7 +190,7 @@ test.describe('Emacs hooks', () => {
 			timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE,
 		});
 
-		await changeMatchQuery(tabMaster, 'NEWTAG');
+		await changeMatchQuery(tabMaster, MATCH_QUERY_CHANGED_TAG);
 
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).not.toBeVisible({
 			timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE,
@@ -210,7 +215,7 @@ test.describe('Emacs hooks', () => {
 		await storageIsResolved(tabMaster);
 		await setupWebsocketPort({ port }, tabMaster);
 
-		await changeMatchQuery(tabMaster, 'TODO="NEXT"');
+		await changeMatchQuery(tabMaster, MATCH_QUERY_NEXT);
 
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).not.toBeVisible({
 			timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE,
@@ -245,7 +250,7 @@ test.describe('Emacs hooks', () => {
 		await setupChangeLisp('change-headline.el', tmpDir);
 
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
-			'Sample todo edited', // TODO: const
+			AGENDA_ITEM_TEXT_EDITED,
 			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
 		);
 	});
@@ -261,7 +266,7 @@ test.describe('Emacs hooks', () => {
 		await storageIsResolved(tabMaster);
 		await setupWebsocketPort({ port }, tabMaster);
 
-		await changeMatchQuery(tabMaster, 'PRIORITY="B"');
+		await changeMatchQuery(tabMaster, MATCH_QUERY_PRIORITY_B);
 
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).not.toBeVisible({
 			timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE,
