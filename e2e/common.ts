@@ -15,6 +15,7 @@ import {
 	INITIAL_STATE_LOCATOR,
 	INITIAL_STATE_RESOLVED,
 	MASTER_MESSAGE,
+	MATCH_QUERY_LABEL,
 	MAX_RETRIES_FOR_EMACS_CONNECTION,
 	OPTIONS_CLOSE_BUTTON_LOCATOR,
 	OPTIONS_OPEN_BUTTON_LOCATOR,
@@ -53,6 +54,15 @@ export const gotoOptPanel = async (page: Page, panel: OptionCategories) => {
 		await openOptions(page);
 		const button = page.getByTestId(`${panel.toLowerCase()}-button`);
 		await button.click({ force: true });
+	});
+};
+
+export const changeMatchQuery = async (page: Page, query: string) => {
+	await test.step(`Change match query to ${query}`, async () => {
+		await gotoOptPanel(page, 'Behavior');
+		await page.getByLabel(MATCH_QUERY_LABEL).fill(query);
+		await page.getByLabel(MATCH_QUERY_LABEL).press('Enter');
+		await closeOptions(page);
 	});
 };
 

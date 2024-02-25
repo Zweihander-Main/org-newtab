@@ -4,4 +4,4 @@
   (goto-char (point-min))
   (search-forward "Sample tagged item")
   (beginning-of-line)
-  (org-set-tags "2#NEWTAG"))
+  (org-set-tags "NEWTAG"))

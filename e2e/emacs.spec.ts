@@ -2,8 +2,7 @@
 import * as dns from 'node:dns';
 import { test, expect } from './fixture';
 import {
-	closeOptions,
-	gotoOptPanel,
+	changeMatchQuery,
 	isPortInUse,
 	roleIs,
 	setupEmacs,
@@ -25,7 +24,6 @@ import {
 	HOW_LONG_TO_WAIT_FOR_STORAGE,
 	HOW_LONG_TO_WAIT_FOR_WEBSOCKET,
 	ITEM_TEXT_LOCATOR,
-	MATCH_QUERY_LABEL,
 	MATCH_QUERY_NESTED_TAG,
 	MATCH_QUERY_NEXT,
 	MATCH_QUERY_TAG,
@@ -147,10 +145,7 @@ test.describe('Emacs', () => {
 		await storageIsResolved(tabMaster);
 		await setupWebsocketPort({ port }, tabMaster);
 
-		await gotoOptPanel(tabMaster, 'Behavior');
-		await tabMaster.getByLabel(MATCH_QUERY_LABEL).fill(MATCH_QUERY_NEXT);
-		await tabMaster.getByLabel(MATCH_QUERY_LABEL).press('Enter');
-		await closeOptions(tabMaster);
+		await changeMatchQuery(tabMaster, MATCH_QUERY_NEXT);
 
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
 			AGENDA_ITEM_TEXT_NEXT,
@@ -164,10 +159,8 @@ test.describe('Emacs', () => {
 		await storageIsResolved(tabMaster);
 		await setupWebsocketPort({ port }, tabMaster);
 
-		await gotoOptPanel(tabMaster, 'Behavior');
-		await tabMaster.getByLabel(MATCH_QUERY_LABEL).fill(MATCH_QUERY_TAG);
-		await tabMaster.getByLabel(MATCH_QUERY_LABEL).press('Enter');
-		await closeOptions(tabMaster);
+		await changeMatchQuery(tabMaster, MATCH_QUERY_TAG);
+
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toHaveCSS(
 			'background-color',
 			toRGB(TAG_COLOR),
@@ -184,12 +177,8 @@ test.describe('Emacs', () => {
 		await storageIsResolved(tabMaster);
 		await setupWebsocketPort({ port }, tabMaster);
 
-		await gotoOptPanel(tabMaster, 'Behavior');
-		await tabMaster
-			.getByLabel(MATCH_QUERY_LABEL)
-			.fill(MATCH_QUERY_NESTED_TAG);
-		await tabMaster.getByLabel(MATCH_QUERY_LABEL).press('Enter');
-		await closeOptions(tabMaster);
+		await changeMatchQuery(tabMaster, MATCH_QUERY_NESTED_TAG);
+
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toHaveCSS(
 			'background',
 			TAG_COLOR_NESTED_REGEX,
@@ -206,10 +195,7 @@ test.describe('Emacs', () => {
 		await storageIsResolved(tabMaster);
 		await setupWebsocketPort({ port }, tabMaster);
 
-		await gotoOptPanel(tabMaster, 'Behavior');
-		await tabMaster.getByLabel(MATCH_QUERY_LABEL).fill(MATCH_QUERY_TAG);
-		await tabMaster.getByLabel(MATCH_QUERY_LABEL).press('Enter');
-		await closeOptions(tabMaster);
+		await changeMatchQuery(tabMaster, MATCH_QUERY_TAG);
 
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
 			AGENDA_ITEM_TEXT_TAGGED,

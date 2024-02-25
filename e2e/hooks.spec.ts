@@ -1,8 +1,6 @@
 /* eslint-disable no-console */
 import { test, expect } from './fixture';
 import {
-	closeOptions,
-	gotoOptPanel,
 	setupEmacs,
 	setupClockLisp,
 	setupOrgFile,
@@ -11,6 +9,7 @@ import {
 	storageIsResolved,
 	teardownEmacs,
 	setupChangeLisp,
+	changeMatchQuery,
 } from './common';
 import {
 	AGENDA_ITEM_TEXT_CLOCKED,
@@ -23,7 +22,6 @@ import {
 	HOW_LONG_TO_WAIT_FOR_STORAGE,
 	HOW_LONG_TO_WAIT_FOR_WEBSOCKET,
 	ITEM_TEXT_LOCATOR,
-	MATCH_QUERY_LABEL,
 	RETRIES_FOR_EMACS,
 } from './constants';
 
@@ -187,10 +185,7 @@ test.describe('Emacs hooks', () => {
 			timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE,
 		});
 
-		await gotoOptPanel(tabMaster, 'Behavior');
-		await tabMaster.getByLabel(MATCH_QUERY_LABEL).fill('2#NEWTAG');
-		await tabMaster.getByLabel(MATCH_QUERY_LABEL).press('Enter');
-		await closeOptions(tabMaster); // TODO: make into common func
+		await changeMatchQuery(tabMaster, 'NEWTAG');
 
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).not.toBeVisible({
 			timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE,
@@ -215,10 +210,7 @@ test.describe('Emacs hooks', () => {
 		await storageIsResolved(tabMaster);
 		await setupWebsocketPort({ port }, tabMaster);
 
-		await gotoOptPanel(tabMaster, 'Behavior');
-		await tabMaster.getByLabel(MATCH_QUERY_LABEL).fill('TODO="NEXT"'); // TODO: const
-		await tabMaster.getByLabel(MATCH_QUERY_LABEL).press('Enter');
-		await closeOptions(tabMaster);
+		await changeMatchQuery(tabMaster, 'TODO="NEXT"');
 
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).not.toBeVisible({
 			timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE,
@@ -269,12 +261,7 @@ test.describe('Emacs hooks', () => {
 		await storageIsResolved(tabMaster);
 		await setupWebsocketPort({ port }, tabMaster);
 
-		await gotoOptPanel(tabMaster, 'Behavior');
-		await tabMaster
-			.getByLabel(MATCH_QUERY_LABEL)
-			.fill('TODO="TODO"+PRIORITY="B"'); // TODO: const
-		await tabMaster.getByLabel(MATCH_QUERY_LABEL).press('Enter');
-		await closeOptions(tabMaster);
+		await changeMatchQuery(tabMaster, 'PRIORITY="B"');
 
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).not.toBeVisible({
 			timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE,

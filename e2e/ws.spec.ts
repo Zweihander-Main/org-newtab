@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
 import {
 	storageIsResolved,
-	closeOptions,
 	gotoOptPanel,
 	openSocketConnection,
 	webSocketURL,
 	setupWebsocketPort,
+	changeMatchQuery,
 } from './common';
 import {
 	CONNECTION_STATUS_LOCATOR,
@@ -223,9 +223,9 @@ test.describe('WebSocket', () => {
 		const masterSocketUpdate = masterWebSocketUpdatesQuery();
 		const clientSocketUpdate = clientWebsocketOpened();
 		await setupWebsocketPort(conn, tabClient);
-		await gotoOptPanel(tabClient, 'Behavior');
-		await tabClient.getByLabel(MATCH_QUERY_LABEL).fill(WSS_TEST_TEXT);
-		await tabClient.getByLabel(MATCH_QUERY_LABEL).press('Enter');
+
+		await changeMatchQuery(tabClient, WSS_TEST_TEXT);
+
 		expect(await clientSocketUpdate).toBeFalsy();
 		expect(await masterSocketUpdate).toBeTruthy();
 	});
@@ -267,10 +267,9 @@ test.describe('WebSocket', () => {
 		await expect(
 			tabMaster.getByTestId(CONNECTION_STATUS_LOCATOR)
 		).toContainText(CONNECTION_STATUS_OPEN);
-		await gotoOptPanel(tabClient, 'Behavior');
-		await tabClient.getByLabel(MATCH_QUERY_LABEL).fill(WSS_TEST_TEXT);
-		await tabClient.getByLabel(MATCH_QUERY_LABEL).press('Enter');
-		await closeOptions(tabClient);
+
+		await changeMatchQuery(tabClient, WSS_TEST_TEXT);
+
 		await expect(tabClient.getByLabel(MATCH_QUERY_LABEL)).toHaveValue(
 			WSS_TEST_TEXT
 		);
