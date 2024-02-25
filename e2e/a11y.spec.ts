@@ -1,12 +1,12 @@
 import {
-	baseDir,
 	closeOptions,
 	gotoOptPanel,
 	setupEmacs,
+	setupClockLisp,
+	setupOrgFile,
 	setupWebsocketPort,
 	storageIsResolved,
 	teardownEmacs,
-	testFileName,
 } from './common';
 import {
 	AGENDA_ITEM_TEXT_CLOCKED,
@@ -16,7 +16,6 @@ import {
 } from './constants';
 import { test, expect } from './fixture';
 import { checkA11y, injectAxe } from 'axe-playwright';
-import { promises as fs } from 'fs';
 
 const a11yOptionsFront = {
 	detailedReport: true,
@@ -68,7 +67,9 @@ test('check accessibility on clocked and non-clocked item', async ({
 	context,
 	extensionId,
 }) => {
-	const { port, emacs } = await setupEmacs();
+	const { port, emacs, tmpDir } = await setupEmacs();
+	await setupOrgFile('agenda.org', tmpDir);
+	await setupOrgFile('clock.org', tmpDir);
 
 	const tabMaster = await context.newPage();
 	await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
@@ -82,7 +83,8 @@ test('check accessibility on clocked and non-clocked item', async ({
 
 	await checkA11y(tabMaster, undefined, a11yOptionsFront);
 
-	await fs.copyFile(`${baseDir}/e2e/emacs/clock-in.el`, testFileName(port));
+	await setupClockLisp('clock-in.el', tmpDir);
+
 	await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
 		AGENDA_ITEM_TEXT_CLOCKED,
 		{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
@@ -90,5 +92,5 @@ test('check accessibility on clocked and non-clocked item', async ({
 
 	await checkA11y(tabMaster, undefined, a11yOptionsFront);
 
-	teardownEmacs(port, emacs);
+	teardownEmacs(emacs);
 });

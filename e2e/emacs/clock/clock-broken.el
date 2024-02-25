@@ -1,0 +1,7 @@
+(let ((main-file (expand-file-name "org/clock-broken.org" tmp-dir)))
+  (find-file main-file)
+  (org-mode)
+  (goto-char (point-min))
+  (search-forward "Sample clocked item")
+  (beginning-of-line)
+  (org-clock-in))

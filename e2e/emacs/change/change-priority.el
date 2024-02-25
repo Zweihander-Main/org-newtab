@@ -1,0 +1,7 @@
+(let ((main-file (expand-file-name "org/change.org" tmp-dir)))
+  (find-file main-file)
+  (org-mode)
+  (goto-char (point-min))
+  (search-forward "Sample todo item")
+  (beginning-of-line)
+  (org-priority 'down))

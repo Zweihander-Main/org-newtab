@@ -7,6 +7,7 @@ import {
 	isPortInUse,
 	roleIs,
 	setupEmacs,
+	setupOrgFile,
 	setupWebsocketPort,
 	startEmacsProcess,
 	storageIsResolved,
@@ -45,13 +46,15 @@ test.describe('Emacs', () => {
 
 	let port: number;
 	let emacs: ReturnType<typeof startEmacsProcess>;
+	let tmpDir: string;
 
 	test.beforeEach(async () => {
-		({ port, emacs } = await setupEmacs());
+		({ port, emacs, tmpDir } = await setupEmacs());
+		await setupOrgFile('agenda.org', tmpDir);
 	});
 
 	test.afterEach(() => {
-		teardownEmacs(port, emacs);
+		teardownEmacs(emacs);
 	});
 
 	test('should connect to emacs', async ({ context, extensionId }) => {

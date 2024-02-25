@@ -98,6 +98,9 @@ devDependencies:
   '@types/redux-persist-webextension-storage':
     specifier: ^1.0.3
     version: 1.0.3
+  '@types/tmp':
+    specifier: ^0.2.6
+    version: 0.2.6
   '@types/ws':
     specifier: ^8.5.10
     version: 8.5.10
@@ -170,6 +173,9 @@ devDependencies:
   stylelint-config-standard:
     specifier: ^36.0.0
     version: 36.0.0(stylelint@16.2.1)
+  tmp:
+    specifier: ^0.2.1
+    version: 0.2.1
   ts-jest:
     specifier: ^29.1.2
     version: 29.1.2(@babel/core@7.23.9)(esbuild@0.18.17)(jest@29.7.0)(typescript@5.3.3)
@@ -5143,6 +5149,10 @@ packages:
     resolution: {integrity: sha512-JAUw1iXGO1qaWwEOzxTKJZ/5JxVeON9kvGZ/osgZaJImBnyjyn0cjovPsf6FNLmyGY8Vw9DoXZCMlfMkMwHRWg==}
     dependencies:
       '@types/estree': 1.0.1
+    dev: true
+
+  /@types/tmp@0.2.6:
+    resolution: {integrity: sha512-chhaNf2oKHlRkDGt+tiKE2Z5aJ6qalm7Z9rlLdBwmOiAAf09YQvvoLXjWK4HWPF1xU/fqvMgfNfpVoBscA/tKA==}
     dev: true
 
   /@types/tough-cookie@4.0.2:
@@ -14209,6 +14219,13 @@ packages:
     dependencies:
       os-tmpdir: 1.0.2
     dev: false
+
+  /tmp@0.2.1:
+    resolution: {integrity: sha512-76SUhtfqR2Ijn+xllcI5P1oyannHNHByD80W1q447gU3mp9G9PSpGdWmjUOHRDPiHYacIk66W7ubDTuPF3BEtQ==}
+    engines: {node: '>=8.17.0'}
+    dependencies:
+      rimraf: 3.0.2
+    dev: true
 
   /tmpl@1.0.5:
     resolution: {integrity: sha512-3f0uOEAQwIqGuWW2MVzYg8fV/QNnc/IpuJNG837rLuczAaLVHslWHZQj4IGiEl5Hs3kkbhwL9Ab7Hrsmuj+Smw==}

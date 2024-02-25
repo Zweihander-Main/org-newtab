@@ -7,6 +7,7 @@ import { test, expect } from './fixture';
 import { OptionCategories } from 'modules/ui/uiSlice';
 import WebSocket from 'ws';
 import net from 'net';
+import tmp from 'tmp';
 import { DEFAULT_WEBSOCKET_PORT } from 'lib/constants';
 import {
 	CLIENT_MESSAGE,
@@ -184,16 +185,16 @@ export function webSocketURL(
  *  Running Emacs Process
  */
 
-export const startEmacsProcess = (port: number, retries = 0) => {
+export const startEmacsProcess = (port: number, dir: string, retries = 0) => {
 	let emacs = spawn('emacs', [
 		'--batch',
 		'--quick',
 		'--eval',
 		`(setq org-newtab-ws-port ${port})`,
 		'-l',
-		`${baseDir}/e2e/emacs/init.el`,
+		`${dir}/init.el`,
 		'-l',
-		`${baseDir}/e2e/emacs/setup-mode.el`,
+		`${dir}/setup-mode.el`,
 	]);
 
 	/* prin1, princ, print to stdout
@@ -211,7 +212,7 @@ export const startEmacsProcess = (port: number, retries = 0) => {
 		// 255 may occur due to file locks
 		if (code === 255 && retries < MAX_RETRIES_FOR_EMACS_CONNECTION) {
 			console.log('emacs exited with code 255, retrying');
-			emacs = startEmacsProcess(port, retries + 1);
+			emacs = startEmacsProcess(port, dir, retries + 1);
 		}
 	});
 
@@ -220,28 +221,55 @@ export const startEmacsProcess = (port: number, retries = 0) => {
 
 export const setupEmacs = async () => {
 	const port = await pickARandomPort();
-	fs.unlink(testFileName(port)).catch(() => {});
-	fs.unlink(changeFileFileName(port)).catch(() => {});
-	const emacs = startEmacsProcess(port);
-	return { port, emacs };
+	tmp.setGracefulCleanup();
+	const tmpDir = tmp.dirSync({ unsafeCleanup: true }).name;
+	await fs.mkdir(`${tmpDir}/org`);
+	await fs.copyFile(
+		`${baseDir}/e2e/emacs/setup/init.el`,
+		`${tmpDir}/init.el`
+	);
+	await fs.copyFile(
+		`${baseDir}/e2e/emacs/setup/setup-mode.el`,
+		`${tmpDir}/setup-mode.el`
+	);
+	const emacs = startEmacsProcess(port, tmpDir);
+	return { port, emacs, tmpDir };
 };
 
-export const teardownEmacs = (
-	port: number,
-	emacs: ReturnType<typeof startEmacsProcess>
-) => {
+export const teardownEmacs = (emacs: ReturnType<typeof startEmacsProcess>) => {
 	emacs.kill();
-	fs.unlink(testFileName(port)).catch(() => {});
-	fs.unlink(changeFileFileName(port)).catch(() => {});
 };
 
-export const extraTestCodeFile = `${baseDir}/e2e/emacs/extra-testing-code-`;
+export const setupClockLisp = async (file: string, tmpDir: string) => {
+	await fs.copyFile(
+		`${baseDir}/e2e/emacs/clock/${file}`,
+		`${tmpDir}/extra-testing-code.el`
+	);
+};
 
-export const testFileName = (port: number) =>
-	`${extraTestCodeFile}${port.toString()}.el`;
+export const setupChangeLisp = async (file: string, tmpDir: string) => {
+	await fs.copyFile(
+		`${baseDir}/e2e/emacs/change/${file}`,
+		`${tmpDir}/extra-testing-code.el`
+	);
+};
 
-export const changeFileFileName = (port: number) =>
-	`${baseDir}/e2e/emacs/change-file-${port.toString()}.org`;
+export const setupOrgFile = async (
+	file: string,
+	tmpDir: string,
+	tag?: string
+) => {
+	const origFileContents = await fs.readFile(
+		`${baseDir}/e2e/emacs/org/${file}`,
+		'utf8'
+	);
+
+	const newFileContents = tag
+		? origFileContents.replace(/:TOCHANGE/g, tag)
+		: origFileContents;
+
+	await fs.writeFile(`${tmpDir}/org/${file}`, newFileContents);
+};
 
 /**
  * Misc

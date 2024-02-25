@@ -1,3 +1,0 @@
-#+TITLE: Change state
-* NEXT [#A] Sample todo item :STATECHANGE:
-* NEXT [#A] Sample tagged item :STATECHANGE:

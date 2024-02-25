@@ -1,16 +1,16 @@
 /* eslint-disable no-console */
-import { promises as fs } from 'fs';
 import { test, expect } from './fixture';
 import {
-	baseDir,
 	closeOptions,
 	gotoOptPanel,
 	setupEmacs,
+	setupClockLisp,
+	setupOrgFile,
 	setupWebsocketPort,
 	startEmacsProcess,
 	storageIsResolved,
 	teardownEmacs,
-	testFileName,
+	setupChangeLisp,
 } from './common';
 import {
 	AGENDA_ITEM_TEXT_CLOCKED,
@@ -38,28 +38,29 @@ test.describe('Emacs hooks', () => {
 
 	let port: number;
 	let emacs: ReturnType<typeof startEmacsProcess>;
+	let tmpDir: string;
 
 	test.beforeEach(async () => {
-		({ port, emacs } = await setupEmacs());
+		({ port, emacs, tmpDir } = await setupEmacs());
 	});
 
 	test.afterEach(() => {
-		teardownEmacs(port, emacs);
+		teardownEmacs(emacs);
 	});
 
 	test('should send effort data for clocked in items', async ({
 		context,
 		extensionId,
 	}) => {
+		await setupOrgFile('agenda.org', tmpDir);
+		await setupOrgFile('clock.org', tmpDir);
+
 		const tabMaster = await context.newPage();
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
 		await storageIsResolved(tabMaster);
 		await setupWebsocketPort({ port }, tabMaster);
 
-		await fs.copyFile(
-			`${baseDir}/e2e/emacs/clock-in.el`,
-			testFileName(port)
-		);
+		await setupClockLisp('clock-in.el', tmpDir);
 
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
 			AGENDA_ITEM_TEXT_CLOCKED,
@@ -75,15 +76,15 @@ test.describe('Emacs hooks', () => {
 		context,
 		extensionId,
 	}) => {
+		await setupOrgFile('agenda.org', tmpDir);
+		await setupOrgFile('clock.org', tmpDir);
+
 		const tabMaster = await context.newPage();
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
 		await storageIsResolved(tabMaster);
 		await setupWebsocketPort({ port }, tabMaster);
 
-		await fs.copyFile(
-			`${baseDir}/e2e/emacs/clock-out.el`,
-			testFileName(port)
-		);
+		await setupClockLisp('clock-out.el', tmpDir);
 
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
 			AGENDA_ITEM_TEXT_CLOCKED,
@@ -100,15 +101,15 @@ test.describe('Emacs hooks', () => {
 		context,
 		extensionId,
 	}) => {
+		await setupOrgFile('agenda.org', tmpDir);
+		await setupOrgFile('clock.org', tmpDir);
+
 		const tabMaster = await context.newPage();
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
 		await storageIsResolved(tabMaster);
 		await setupWebsocketPort({ port }, tabMaster);
 
-		await fs.copyFile(
-			`${baseDir}/e2e/emacs/clock-cancel.el`,
-			testFileName(port)
-		);
+		await setupClockLisp('clock-cancel.el', tmpDir);
 
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
 			AGENDA_ITEM_TEXT_CLOCKED,
@@ -125,15 +126,15 @@ test.describe('Emacs hooks', () => {
 		context,
 		extensionId,
 	}) => {
+		await setupOrgFile('agenda.org', tmpDir);
+		await setupOrgFile('clock-broken.org', tmpDir);
+
 		const tabMaster = await context.newPage();
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
 		await storageIsResolved(tabMaster);
 		await setupWebsocketPort({ port }, tabMaster);
 
-		await fs.copyFile(
-			`${baseDir}/e2e/emacs/clock-broken.el`,
-			testFileName(port)
-		);
+		await setupClockLisp('clock-broken.el', tmpDir);
 
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
 			AGENDA_ITEM_TEXT_CLOCKED,
@@ -146,15 +147,15 @@ test.describe('Emacs hooks', () => {
 	});
 
 	test('should update effort data', async ({ context, extensionId }) => {
+		await setupOrgFile('agenda.org', tmpDir);
+		await setupOrgFile('clock.org', tmpDir);
+
 		const tabMaster = await context.newPage();
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
 		await storageIsResolved(tabMaster);
 		await setupWebsocketPort({ port }, tabMaster);
 
-		await fs.copyFile(
-			`${baseDir}/e2e/emacs/effort-change.el`,
-			testFileName(port)
-		);
+		await setupClockLisp('clock-effort.el', tmpDir);
 
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
 			AGENDA_ITEM_TEXT_CLOCKED,
@@ -166,7 +167,8 @@ test.describe('Emacs hooks', () => {
 		);
 
 		await expect(tabMaster.getByTestId(CLOCKED_TIME_LOCATOR)).toContainText(
-			'0:01 / 2:34' // TODO const
+			'0:01 / 2:34', // TODO const
+			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
 		);
 	});
 
@@ -174,6 +176,8 @@ test.describe('Emacs hooks', () => {
 		context,
 		extensionId,
 	}) => {
+		await setupOrgFile('change.org', tmpDir, 'TAGSCHANGE');
+
 		const tabMaster = await context.newPage();
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
 		await storageIsResolved(tabMaster);
@@ -186,16 +190,13 @@ test.describe('Emacs hooks', () => {
 		await gotoOptPanel(tabMaster, 'Behavior');
 		await tabMaster.getByLabel(MATCH_QUERY_LABEL).fill('2#NEWTAG');
 		await tabMaster.getByLabel(MATCH_QUERY_LABEL).press('Enter');
-		await closeOptions(tabMaster);
+		await closeOptions(tabMaster); // TODO: make into common func
 
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).not.toBeVisible({
 			timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE,
 		});
 
-		await fs.copyFile(
-			`${baseDir}/e2e/emacs/change-tags.el`,
-			testFileName(port)
-		);
+		await setupChangeLisp('change-tags.el', tmpDir);
 
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
 			AGENDA_ITEM_TEXT_TAGGED,
@@ -207,30 +208,23 @@ test.describe('Emacs hooks', () => {
 		context,
 		extensionId,
 	}) => {
+		await setupOrgFile('change.org', tmpDir);
+
 		const tabMaster = await context.newPage();
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
 		await storageIsResolved(tabMaster);
 		await setupWebsocketPort({ port }, tabMaster);
 
-		const todoPromise = expect(
-			tabMaster.getByTestId(ITEM_TEXT_LOCATOR)
-		).toContainText(AGENDA_ITEM_TEXT_TODO, {
-			timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE,
-		});
-
-		await fs.copyFile(
-			`${baseDir}/e2e/emacs/change-state.el`,
-			testFileName(port)
-		);
-
 		await gotoOptPanel(tabMaster, 'Behavior');
-		await tabMaster
-			.getByLabel(MATCH_QUERY_LABEL)
-			.fill('STATECHANGE+TODO="TODO"'); // TODO: const
+		await tabMaster.getByLabel(MATCH_QUERY_LABEL).fill('TODO="NEXT"'); // TODO: const
 		await tabMaster.getByLabel(MATCH_QUERY_LABEL).press('Enter');
 		await closeOptions(tabMaster);
 
-		await todoPromise;
+		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).not.toBeVisible({
+			timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE,
+		});
+
+		await setupChangeLisp('change-state.el', tmpDir);
 
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
 			AGENDA_ITEM_TEXT_TAGGED,
@@ -242,22 +236,12 @@ test.describe('Emacs hooks', () => {
 		context,
 		extensionId,
 	}) => {
+		await setupOrgFile('change.org', tmpDir);
+
 		const tabMaster = await context.newPage();
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
 		await storageIsResolved(tabMaster);
 		await setupWebsocketPort({ port }, tabMaster);
-
-		await fs.copyFile(
-			`${baseDir}/e2e/emacs/edit-headline.el`,
-			testFileName(port)
-		);
-
-		await gotoOptPanel(tabMaster, 'Behavior');
-		await tabMaster
-			.getByLabel(MATCH_QUERY_LABEL)
-			.fill('STATECHANGE+TODO="TODO"'); // TODO: const
-		await tabMaster.getByLabel(MATCH_QUERY_LABEL).press('Enter');
-		await closeOptions(tabMaster);
 
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
 			AGENDA_ITEM_TEXT_TODO,
@@ -265,6 +249,8 @@ test.describe('Emacs hooks', () => {
 				timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE,
 			}
 		);
+
+		await setupChangeLisp('change-headline.el', tmpDir);
 
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
 			'Sample todo edited', // TODO: const
@@ -276,33 +262,31 @@ test.describe('Emacs hooks', () => {
 		context,
 		extensionId,
 	}) => {
+		await setupOrgFile('change.org', tmpDir);
+
 		const tabMaster = await context.newPage();
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
 		await storageIsResolved(tabMaster);
 		await setupWebsocketPort({ port }, tabMaster);
 
-		await fs.copyFile(
-			`${baseDir}/e2e/emacs/change-priority.el`,
-			testFileName(port)
-		);
-
 		await gotoOptPanel(tabMaster, 'Behavior');
 		await tabMaster
 			.getByLabel(MATCH_QUERY_LABEL)
-			.fill('STATECHANGE+TODO="TODO"+PRIORITY="A"'); // TODO: const
+			.fill('TODO="TODO"+PRIORITY="B"'); // TODO: const
 		await tabMaster.getByLabel(MATCH_QUERY_LABEL).press('Enter');
 		await closeOptions(tabMaster);
+
+		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).not.toBeVisible({
+			timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE,
+		});
+
+		await setupChangeLisp('change-priority.el', tmpDir);
 
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
 			AGENDA_ITEM_TEXT_TODO,
 			{
 				timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE,
 			}
-		);
-
-		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
-			AGENDA_ITEM_TEXT_TAGGED,
-			{ timeout: HOW_LONG_TO_WAIT_FOR_RESPONSE }
 		);
 	});
 

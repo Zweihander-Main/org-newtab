@@ -1,6 +1,7 @@
 (setq base-dir default-directory)
 (setq default-directory (expand-file-name "lisp" base-dir))
 (add-to-list 'load-path default-directory)
+(setq tmp-dir (file-name-directory (cadr command-line-args-left)))
 
 (setq exec-recurse-count 0)
 (defun exec-when-file-isnt-locked (file fn)

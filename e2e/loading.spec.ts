@@ -1,14 +1,13 @@
 /* eslint-disable no-console */
-import { promises as fs } from 'fs';
 import { test, expect } from './fixture';
 import {
-	baseDir,
 	setupEmacs,
+	setupClockLisp,
+	setupOrgFile,
 	setupWebsocketPort,
 	startEmacsProcess,
 	storageIsResolved,
 	teardownEmacs,
-	testFileName,
 } from './common';
 import {
 	AGENDA_ITEM_TEXT_CLOCKED,
@@ -23,7 +22,7 @@ import {
 
 test.describe('Loading bars', () => {
 	test.describe.configure({
-		retries: RETRIES_FOR_EMACS + 1, // not a bug -- can miss loading bar due to fast speed
+		retries: RETRIES_FOR_EMACS + 2, // not a bug -- can miss loading bar due to fast speed
 		timeout:
 			HOW_LONG_TO_WAIT_FOR_STORAGE +
 			HOW_LONG_TO_WAIT_FOR_WEBSOCKET +
@@ -32,19 +31,22 @@ test.describe('Loading bars', () => {
 
 	let port: number;
 	let emacs: ReturnType<typeof startEmacsProcess>;
+	let tmpDir: string;
 
 	test.beforeEach(async () => {
-		({ port, emacs } = await setupEmacs());
+		({ port, emacs, tmpDir } = await setupEmacs());
 	});
 
 	test.afterEach(() => {
-		teardownEmacs(port, emacs);
+		teardownEmacs(emacs);
 	});
 
 	test('should correspond to adding and removing waiting responses', async ({
 		extensionId,
 		context,
 	}) => {
+		await setupOrgFile('agenda.org', tmpDir);
+
 		const tabMaster = await context.newPage();
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
 
@@ -71,16 +73,15 @@ test.describe('Loading bars', () => {
 		context,
 		extensionId,
 	}) => {
+		await setupOrgFile('clock.org', tmpDir);
+
 		const tabMaster = await context.newPage();
 		await tabMaster.goto(`chrome-extension://${extensionId}/newtab.html`);
 
 		await storageIsResolved(tabMaster);
 		await setupWebsocketPort({ port }, tabMaster);
 
-		await fs.copyFile(
-			`${baseDir}/e2e/emacs/clock-out.el`,
-			testFileName(port)
-		);
+		await setupClockLisp('clock-out.el', tmpDir);
 
 		await expect(tabMaster.getByTestId(ITEM_TEXT_LOCATOR)).toContainText(
 			AGENDA_ITEM_TEXT_CLOCKED,

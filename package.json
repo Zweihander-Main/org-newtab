@@ -63,6 +63,7 @@
 		"@types/react-dom": "18.2.18",
 		"@types/react-transition-group": "^4.4.10",
 		"@types/redux-persist-webextension-storage": "^1.0.3",
+		"@types/tmp": "^0.2.6",
 		"@types/ws": "^8.5.10",
 		"@typescript-eslint/eslint-plugin": "^6.21.0",
 		"@typescript-eslint/parser": "^6.21.0",
@@ -87,6 +88,7 @@
 		"prettier": "3.2.5",
 		"stylelint": "^16.2.1",
 		"stylelint-config-standard": "^36.0.0",
+		"tmp": "^0.2.1",
 		"ts-jest": "^29.1.2",
 		"typed-css-modules": "^0.9.1",
 		"typescript": "5.3.3",
@@ -118,7 +120,10 @@
 			},
 			"useJSXTextNode": true
 		},
-		"plugins": ["@typescript-eslint", "react"],
+		"plugins": [
+			"@typescript-eslint",
+			"react"
+		],
 		"extends": [
 			"eslint:recommended",
 			"plugin:@typescript-eslint/eslint-recommended",
@@ -132,9 +137,16 @@
 		],
 		"overrides": [
 			{
-				"files": ["**/__tests__/**"],
-				"plugins": ["jest"],
-				"extends": ["plugin:jest/recommended", "plugin:jest/style"],
+				"files": [
+					"**/__tests__/**"
+				],
+				"plugins": [
+					"jest"
+				],
+				"extends": [
+					"plugin:jest/recommended",
+					"plugin:jest/style"
+				],
 				"rules": {
 					"@typescript-eslint/unbound-method": "off",
 					"jest/unbound-method": "error"
@@ -142,15 +154,28 @@
 			}
 		],
 		"rules": {
-			"quotes": ["error", "single"],
-			"semi": ["error", "always"],
+			"quotes": [
+				"error",
+				"single"
+			],
+			"semi": [
+				"error",
+				"always"
+			],
 			"no-console": [
 				"error",
 				{
-					"allow": ["warn", "error", "debug"]
+					"allow": [
+						"warn",
+						"error",
+						"debug"
+					]
 				}
 			],
-			"no-mixed-spaces-and-tabs": ["error", "smart-tabs"],
+			"no-mixed-spaces-and-tabs": [
+				"error",
+				"smart-tabs"
+			],
 			"react/prop-types": 0,
 			"@typescript-eslint/unbound-method": [
 				"error",
@@ -175,7 +200,10 @@
 		"arrowParens": "always",
 		"overrides": [
 			{
-				"files": ["*.yml", ".el"],
+				"files": [
+					"*.yml",
+					".el"
+				],
 				"options": {
 					"tabWidth": 2,
 					"useTabs": false
@@ -184,28 +212,39 @@
 		]
 	},
 	"stylelint": {
-		"extends": ["stylelint-config-standard"],
+		"extends": [
+			"stylelint-config-standard"
+		],
 		"rules": {
 			"comment-whitespace-inside": null,
 			"declaration-block-no-shorthand-property-overrides": true,
 			"function-no-unknown": [
 				true,
 				{
-					"ignoreFunctions": ["/^linear$/"]
+					"ignoreFunctions": [
+						"/^linear$/"
+					]
 				}
 			],
 			"no-descending-specificity": null,
 			"selector-pseudo-class-no-unknown": [
 				true,
 				{
-					"ignorePseudoClasses": ["global"]
+					"ignorePseudoClasses": [
+						"global"
+					]
 				}
 			],
 			"value-keyword-case": null
 		}
 	},
 	"browserslist": {
-		"production": ["> 0.2%", "Firefox ESR", "not dead", "not op_mini all"],
+		"production": [
+			"> 0.2%",
+			"Firefox ESR",
+			"not dead",
+			"not op_mini all"
+		],
 		"development": [
 			"last 1 chrome version",
 			"last 1 firefox version",
