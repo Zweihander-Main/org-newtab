@@ -1,6 +1,6 @@
-name: 'Submit to Web Store'
+name: 'Build extension'
 on:
-  workflow_dispatch:
+  workflow_call:
 
 env:
   nodeVersion: 19
@@ -53,33 +53,3 @@ jobs:
           name: firefox-mv3-prod.zip
           path: build/firefox-mv3-prod.zip
           retention-days: ${{ env.retentionDays }}
-
-  firefox:
-    runs-on: ubuntu-latest
-    needs: [build]
-    steps:
-      - name: Download Firefox artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: firefox-mv3-prod.zip
-
-      - name: Browser Platform Publish for Firefox
-        uses: PlasmoHQ/bpp@v3
-        with:
-          keys: ${{ secrets.SUBMIT_KEYS_FIREFOX }}
-          artifact: firefox-mv3-prod.zip
-
-  chrome:
-    runs-on: ubuntu-latest
-    needs: [build]
-    steps:
-      - name: Download Firefox artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: chrome-mv3-prod.zip
-
-      - name: Browser Platform Publish for Chrome
-        uses: PlasmoHQ/bpp@v3
-        with:
-          keys: ${{ secrets.SUBMIT_KEYS_CHROME }}
-          artifact: chrome-mv3-prod.zip

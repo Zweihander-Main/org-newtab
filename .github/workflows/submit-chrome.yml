@@ -1,0 +1,20 @@
+name: 'Submit to Chrome'
+on:
+  workflow_dispatch:
+
+jobs:
+  call-build:
+    uses: ./.github/workflows/build.yml
+  submit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Chrome artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: chrome-mv3-prod.zip
+
+      - name: Browser Platform Publish for Chrome
+        uses: PlasmoHQ/bpp@v3
+        with:
+          keys: ${{ secrets.SUBMIT_KEYS_CHROME }}
+          artifact: chrome-mv3-prod.zip
