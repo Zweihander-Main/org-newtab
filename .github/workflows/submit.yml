@@ -5,6 +5,7 @@ on:
 env:
   nodeVersion: 19
   pnpmVersion: 8
+  retentionDays: 14
 
 jobs:
   build:
@@ -36,17 +37,49 @@ jobs:
       - name: Package the extension for chrome
         run: pnpm run package
 
+      - name: Add Chrome extension to artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: chrome-mv3-prod.zip
+          path: build/chrome-mv3-prod.zip
+          retention-days: ${{ env.retentionDays }}
+
       - name: Package the extension for firefox
         run: pnpm run package --target=firefox-mv3
 
-      - name: Browser Platform Publish for Chrome
-        uses: PlasmoHQ/bpp@v3
+      - name: Add Firefox extension to artifacts
+        uses: actions/upload-artifact@v4
         with:
-          keys: ${{ secrets.SUBMIT_KEYS_CHROME }}
-          artifact: build/chrome-mv3-prod.zip
+          name: firefox-mv3-prod.zip
+          path: build/firefox-mv3-prod.zip
+          retention-days: ${{ env.retentionDays }}
+
+  firefox:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: Download Firefox artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: firefox-mv3-prod.zip
 
       - name: Browser Platform Publish for Firefox
         uses: PlasmoHQ/bpp@v3
         with:
           keys: ${{ secrets.SUBMIT_KEYS_FIREFOX }}
-          artifact: build/firefox-mv3-prod.zip
+          artifact: firefox-mv3-prod.zip
+
+  chrome:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: Download Firefox artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: chrome-mv3-prod.zip
+
+      - name: Browser Platform Publish for Chrome
+        uses: PlasmoHQ/bpp@v3
+        with:
+          keys: ${{ secrets.SUBMIT_KEYS_CHROME }}
+          artifact: chrome-mv3-prod.zip
