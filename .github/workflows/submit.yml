@@ -42,11 +42,11 @@ jobs:
       - name: Browser Platform Publish for Chrome
         uses: PlasmoHQ/bpp@v3
         with:
-          keys: ${{ secrets.SUBMIT_KEYS }}
+          keys: ${{ secrets.SUBMIT_KEYS_CHROME }}
           artifact: build/chrome-mv3-prod.zip
 
-      - name: Browser Platform Publish for Chrome
+      - name: Browser Platform Publish for Firefox
         uses: PlasmoHQ/bpp@v3
         with:
-          keys: ${{ secrets.SUBMIT_KEYS }}
+          keys: ${{ secrets.SUBMIT_KEYS_FIREFOX }}
           artifact: build/firefox-mv3-prod.zip
