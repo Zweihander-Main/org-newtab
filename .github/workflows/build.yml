@@ -1,6 +1,12 @@
 name: 'Build extension'
 on:
   workflow_call:
+    inputs:
+      browser:
+        required: false
+        type: string
+        description: 'The browser to build the extension for'
+        default: 'all'
 
 env:
   nodeVersion: 19
@@ -29,25 +35,31 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build the extension for chrome
+        if: ${{ inputs.browser == 'all' || inputs.browser == 'chrome' }}
         run: pnpm run build
 
-      - name: Build the extension for firefox
-        run: pnpm run build --target=firefox-mv3
-
       - name: Package the extension for chrome
+        if: ${{ inputs.browser == 'all' || inputs.browser == 'chrome' }}
         run: pnpm run package
 
       - name: Add Chrome extension to artifacts
+        if: ${{ inputs.browser == 'all' || inputs.browser == 'chrome' }}
         uses: actions/upload-artifact@v4
         with:
           name: chrome-mv3-prod.zip
           path: build/chrome-mv3-prod.zip
           retention-days: ${{ env.retentionDays }}
 
+      - name: Build the extension for firefox
+        if: ${{ inputs.browser == 'all' || inputs.browser == 'firefox' }}
+        run: pnpm run build --target=firefox-mv3
+
       - name: Package the extension for firefox
+        if: ${{ inputs.browser == 'all' || inputs.browser == 'firefox' }}
         run: pnpm run package --target=firefox-mv3
 
       - name: Add Firefox extension to artifacts
+        if: ${{ inputs.browser == 'all' || inputs.browser == 'firefox' }}
         uses: actions/upload-artifact@v4
         with:
           name: firefox-mv3-prod.zip

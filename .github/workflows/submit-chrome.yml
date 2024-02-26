@@ -5,6 +5,9 @@ on:
 jobs:
   call-build:
     uses: ./.github/workflows/build.yml
+    with:
+      browser: chrome
+
   submit:
     runs-on: ubuntu-latest
     needs: [call-build]
@@ -18,4 +21,5 @@ jobs:
         uses: PlasmoHQ/bpp@v3
         with:
           keys: ${{ secrets.SUBMIT_KEYS_CHROME }}
-          artifact: chrome-mv3-prod.zip
+          chrome-file: chrome-mv3-prod.zip
+          verbose: true
