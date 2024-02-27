@@ -16,7 +16,8 @@ jobs:
       - name: Get ver tag
         id: get_tag
         run: |
-          TAG_NUM="${GITHUB_REF#v}"
+          TAG="${GITHUB_REF#refs/tags/}"
+          TAG_NUM="${TAG#v}"
           echo "Tag_num=$TAG_NUM" >> "$GITHUB_ENV"
 
       - name: Download Chrome artifact
