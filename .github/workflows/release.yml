@@ -6,7 +6,7 @@ jobs:
   build-for-release:
     uses: ./.github/workflows/build.yml
     with:
-      browser: all
+      platform: all
 
   create-gh-release:
     runs-on: ubuntu-latest

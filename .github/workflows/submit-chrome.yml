@@ -6,7 +6,7 @@ jobs:
   build-chrome:
     uses: ./.github/workflows/build.yml
     with:
-      browser: chrome
+      platform: chrome
 
   submit-chrome:
     runs-on: ubuntu-latest

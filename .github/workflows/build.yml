@@ -2,10 +2,10 @@ name: 'Build extension and plugin'
 on:
   workflow_call:
     inputs:
-      browser:
+      platform:
         required: false
         type: string
-        description: 'The browser to build the extension for'
+        description: 'The platform to build the extension for; chrome, firefox, emacs, or all. Default is all.'
         default: 'all'
 
 env:
@@ -36,15 +36,15 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build the extension for chrome
-        if: ${{ inputs.browser == 'all' || inputs.browser == 'chrome' }}
+        if: ${{ inputs.platform == 'all' || inputs.platform == 'chrome' }}
         run: pnpm run build
 
       - name: Package the extension for chrome
-        if: ${{ inputs.browser == 'all' || inputs.browser == 'chrome' }}
+        if: ${{ inputs.platform == 'all' || inputs.platform == 'chrome' }}
         run: pnpm run package
 
       - name: Add Chrome extension to artifacts
-        if: ${{ inputs.browser == 'all' || inputs.browser == 'chrome' }}
+        if: ${{ inputs.platform == 'all' || inputs.platform == 'chrome' }}
         uses: actions/upload-artifact@v4
         with:
           name: chrome-mv3-prod.zip
@@ -52,15 +52,15 @@ jobs:
           retention-days: ${{ env.retentionDays }}
 
       - name: Build the extension for firefox
-        if: ${{ inputs.browser == 'all' || inputs.browser == 'firefox' }}
+        if: ${{ inputs.platform == 'all' || inputs.platform == 'firefox' }}
         run: pnpm run build --target=firefox-mv3
 
       - name: Package the extension for firefox
-        if: ${{ inputs.browser == 'all' || inputs.browser == 'firefox' }}
+        if: ${{ inputs.platform == 'all' || inputs.platform == 'firefox' }}
         run: pnpm run package --target=firefox-mv3
 
       - name: Add Firefox extension to artifacts
-        if: ${{ inputs.browser == 'all' || inputs.browser == 'firefox' }}
+        if: ${{ inputs.platform == 'all' || inputs.platform == 'firefox' }}
         uses: actions/upload-artifact@v4
         with:
           name: firefox-mv3-prod.zip
@@ -68,29 +68,29 @@ jobs:
           retention-days: ${{ env.retentionDays }}
 
       - name: Set up Emacs
-        if: ${{ inputs.browser == 'all' || inputs.browser == 'emacs' }}
+        if: ${{ inputs.platform == 'all' || inputs.platform == 'emacs' }}
         uses: jcs090218/setup-emacs@master
         with:
           version: ${{ env.emacsVersion }}
 
       - name: Install Eldev
-        if: ${{ inputs.browser == 'all' || inputs.browser == 'emacs' }}
+        if: ${{ inputs.platform == 'all' || inputs.platform == 'emacs' }}
         uses: emacs-eldev/setup-eldev@v1
 
       - name: Build the emacs plugin
-        if: ${{ inputs.browser == 'all' || inputs.browser == 'emacs' }}
+        if: ${{ inputs.platform == 'all' || inputs.platform == 'emacs' }}
         run: |
           BUILD_OUTPUT_PATH=`eldev package --print-filename | sed -n 'x;$p'`
           echo "Build_output_path=$BUILD_OUTPUT_PATH" >> "$GITHUB_ENV"
 
       - name: Get basename
-        if: ${{ inputs.browser == 'all' || inputs.browser == 'emacs' }}
+        if: ${{ inputs.platform == 'all' || inputs.platform == 'emacs' }}
         run: |
           BUILD_BASENAME=`basename ${{ env.Build_output_path }}`
           echo "Build_basename=$BUILD_BASENAME" >> "$GITHUB_ENV"
 
       - name: Add Emacs plugin to artifacts
-        if: ${{ inputs.browser == 'all' || inputs.browser == 'emacs' }}
+        if: ${{ inputs.platform == 'all' || inputs.platform == 'emacs' }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.Build_basename }}

@@ -6,7 +6,7 @@ jobs:
   build-firefox:
     uses: ./.github/workflows/build.yml
     with:
-      browser: firefox
+      platform: firefox
 
   submit-firefox:
     runs-on: ubuntu-latest
