@@ -1,0 +1,46 @@
+name: 'Create new release'
+on:
+  workflow_dispatch:
+
+jobs:
+  build-for-release:
+    uses: ./.github/workflows/build.yml
+    with:
+      browser: all
+
+  create-gh-release:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Get ver tag
+        id: get_tag
+        run: |
+          TAG="${GITHUB_REF#v}"
+          echo "::set-output name=tag::${TAG}"
+
+      - name: Download Firefox artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: firefox-mv3-prod.zip
+
+      - name: Download Chrome artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: chrome-mv3-prod.zip
+
+      - name: Download Emacs artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist/org-newtab-${{ steps.get_tag.outputs.tag }}.tar
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            firefox-mv3-prod.zip
+            chrome-mv3-prod.zip
+            dist/org-newtab-${{ steps.get_tag.outputs.tag }}.tar
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          generate_release_notes: true
+          draft: true

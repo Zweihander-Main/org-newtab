@@ -12,9 +12,10 @@ env:
   nodeVersion: 19
   pnpmVersion: 8
   retentionDays: 14
+  emacsVersion: 27.1 # min specified in emacs file
 
 jobs:
-  build:
+  build-packages:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -64,4 +65,36 @@ jobs:
         with:
           name: firefox-mv3-prod.zip
           path: build/firefox-mv3-prod.zip
+          retention-days: ${{ env.retentionDays }}
+
+      - name: Set up Emacs
+        if: ${{ inputs.browser == 'all' || inputs.browser == 'emacs' }}
+        uses: jcs090218/setup-emacs@master
+        with:
+          version: ${{ env.emacsVersion }}
+
+      - name: Install Eldev
+        if: ${{ inputs.browser == 'all' || inputs.browser == 'emacs' }}
+        uses: emacs-eldev/setup-eldev@v1
+
+      - name: Build the emacs plugin
+        if: ${{ inputs.browser == 'all' || inputs.browser == 'emacs' }}
+        id: eldev_build
+        run: |
+          PATH=`eldev package --print-filename | sed -n 'x;$p'`
+          echo "::set-output name=path::${PATH}"
+
+      - name: Get basename
+        if: ${{ inputs.browser == 'all' || inputs.browser == 'emacs' }}
+        id: get_basename
+        run: |
+          BASENAME=`basename ${{ steps.eldev_build.outputs.path }}`
+          echo "::set-output name=basename::${BASENAME}"
+
+      - name: Add Emacs plugin to artifacts
+        if: ${{ inputs.browser == 'all' || inputs.browser == 'emacs' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.get_basename.outputs.basename }}
+          path: dist/${{ steps.get_basename.outputs.basename }}
           retention-days: ${{ env.retentionDays }}

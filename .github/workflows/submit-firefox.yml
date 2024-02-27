@@ -3,14 +3,14 @@ on:
   workflow_dispatch:
 
 jobs:
-  call-build:
+  build-firefox:
     uses: ./.github/workflows/build.yml
     with:
       browser: firefox
 
-  submit:
+  submit-firefox:
     runs-on: ubuntu-latest
-    needs: [call-build]
+    needs: [build-firefox]
     steps:
       - name: Download Firefox artifact
         uses: actions/download-artifact@v4
