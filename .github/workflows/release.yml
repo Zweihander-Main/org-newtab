@@ -1,4 +1,4 @@
-name: 'Create new release'
+name: 'Create new GH release'
 on:
   workflow_dispatch:
 

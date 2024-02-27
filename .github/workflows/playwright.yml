@@ -1,4 +1,4 @@
-name: Playwright Tests
+name: 'Run E2E tests using Playwright'
 on:
   push:
     branches: [master]

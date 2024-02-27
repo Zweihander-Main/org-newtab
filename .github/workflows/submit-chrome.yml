@@ -1,4 +1,4 @@
-name: 'Submit to Chrome'
+name: 'Submit to Chrome Store'
 on:
   workflow_dispatch:
 

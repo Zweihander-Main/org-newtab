@@ -1,4 +1,4 @@
-name: 'Submit to Firefox'
+name: 'Submit to Firefox Add-ons'
 on:
   workflow_dispatch:
 
