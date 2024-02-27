@@ -79,22 +79,20 @@ jobs:
 
       - name: Build the emacs plugin
         if: ${{ inputs.browser == 'all' || inputs.browser == 'emacs' }}
-        id: eldev_build
         run: |
-          PATH=`eldev package --print-filename | sed -n 'x;$p'`
-          echo "::set-output name=path::${PATH}"
+          BUILD_OUTPUT_PATH=`eldev package --print-filename | sed -n 'x;$p'`
+          echo "Build_output_path=$BUILD_OUTPUT_PATH" >> "$GITHUB_ENV"
 
       - name: Get basename
         if: ${{ inputs.browser == 'all' || inputs.browser == 'emacs' }}
-        id: get_basename
         run: |
-          BASENAME=`basename ${{ steps.eldev_build.outputs.path }}`
-          echo "::set-output name=basename::${BASENAME}"
+          BUILD_BASENAME=`basename ${{ env.Build_output_path }}`
+          echo "Build_basename=$BUILD_BASENAME" >> "$GITHUB_ENV"
 
       - name: Add Emacs plugin to artifacts
         if: ${{ inputs.browser == 'all' || inputs.browser == 'emacs' }}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.get_basename.outputs.basename }}
-          path: dist/${{ steps.get_basename.outputs.basename }}
+          name: ${{ env.Build_basename }}
+          path: dist/${{ env.Build_basename }}
           retention-days: ${{ env.retentionDays }}
