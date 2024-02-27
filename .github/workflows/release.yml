@@ -17,6 +17,7 @@ jobs:
         id: get_tag
         run: |
           TAG="${GITHUB_REF#refs/tags/}"
+          echo "Tag=$TAG" >> "$GITHUB_ENV"
           TAG_NUM="${TAG#v}"
           echo "Tag_num=$TAG_NUM" >> "$GITHUB_ENV"
 
@@ -42,7 +43,7 @@ jobs:
             firefox-mv3-prod.zip
             chrome-mv3-prod.zip
             org-newtab-${{ env.Tag_num }}.tar
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
+          tag_name: ${{ env.Tag }}
+          release_name: ${{ env.Tag }}
           generate_release_notes: true
           draft: true
