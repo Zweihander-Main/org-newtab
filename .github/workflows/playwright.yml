@@ -2,6 +2,8 @@ name: 'Run E2E tests using Playwright'
 on:
   push:
     branches: [master]
+    tags:
+      - '**'
     paths-ignore:
       - 'README.md'
       - 'LICENSE'
