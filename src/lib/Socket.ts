@@ -1,4 +1,4 @@
-import ReconnectingWebSocket from 'reconnecting-websocket';
+import { WebSocket } from 'partysocket';
 import { RECONNECTION_ATTEMPT_GROWTH_FACTOR } from './constants';
 
 const WebSocketOptions = {
@@ -7,7 +7,7 @@ const WebSocketOptions = {
 };
 class Socket {
 	static #instance: Socket;
-	#socket: ReconnectingWebSocket | null;
+	#socket: WebSocket | null;
 
 	private constructor() {
 		if (Socket.#instance) {
@@ -23,7 +23,7 @@ class Socket {
 
 	public connect(url: string) {
 		if (!this.#socket) {
-			this.#socket = new ReconnectingWebSocket(url, [], WebSocketOptions);
+			this.#socket = new WebSocket(url, [], WebSocketOptions);
 		}
 	}
 
@@ -42,9 +42,7 @@ class Socket {
 
 	public on<T extends keyof WebSocketEventMap>(
 		eventName: T,
-		listener: Parameters<
-			typeof ReconnectingWebSocket.prototype.addEventListener<T>
-		>[1]
+		listener: Parameters<typeof WebSocket.prototype.addEventListener<T>>[1]
 	) {
 		if (this.#socket) {
 			this.#socket.addEventListener<T>(eventName, listener);
@@ -58,5 +56,4 @@ class Socket {
 
 export default Socket.getInstance();
 
-// TODO switch to  https://docs.partykit.io/reference/partysocket-api fork
 // TODO: implement heartbeat, see https://github.com/pladaria/reconnecting-websocket/issues/170

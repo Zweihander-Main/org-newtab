@@ -27,6 +27,9 @@ dependencies:
   classnames:
     specifier: ^2.5.1
     version: 2.5.1
+  partysocket:
+    specifier: ^1.0.0
+    version: 1.0.0
   plasmo:
     specifier: 0.84.2
     version: 0.84.2(postcss@8.4.27)(react-dom@18.2.0)(react@18.2.0)
@@ -48,9 +51,6 @@ dependencies:
   react-transition-group:
     specifier: ^4.4.5
     version: 4.4.5(react-dom@18.2.0)(react@18.2.0)
-  reconnecting-websocket:
-    specifier: ^4.4.0
-    version: 4.4.0
   redux-persist-webextension-storage:
     specifier: ^1.0.2
     version: 1.0.2
@@ -8150,6 +8150,11 @@ packages:
     engines: {node: '>= 0.6'}
     dev: true
 
+  /event-target-shim@6.0.2:
+    resolution: {integrity: sha512-8q3LsZjRezbFZ2PN+uP+Q7pnHUMmAOziU2vA2OwoFaKIXxlxl38IylhSSgUorWu/rf4er67w0ikBqjBFk/pomA==}
+    engines: {node: '>=10.13.0'}
+    dev: false
+
   /eventemitter3@5.0.1:
     resolution: {integrity: sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA==}
     dev: true
@@ -12152,6 +12157,12 @@ packages:
     engines: {node: '>= 0.8'}
     dev: true
 
+  /partysocket@1.0.0:
+    resolution: {integrity: sha512-qn6w+u51+bNsSIxMLYPME5GUm7R7uk5V831KZd/1iRFrZXT8jF19VfRk/nIgM1QkbhrRx20wDQGWsBygleIcyQ==}
+    dependencies:
+      event-target-shim: 6.0.2
+    dev: false
+
   /path-browserify@1.0.1:
     resolution: {integrity: sha512-b7uo2UCUOYZcnF/3ID0lulOJi/bafxa1xPe7ZPsammBSpjSWQkjNxlt635YGS2MiR9GjvuXCtz2emr3jbsz98g==}
     dev: true
@@ -12925,10 +12936,6 @@ packages:
     dependencies:
       resolve: 1.22.2
     dev: true
-
-  /reconnecting-websocket@4.4.0:
-    resolution: {integrity: sha512-D2E33ceRPga0NvTDhJmphEgJ7FUYF0v4lr1ki0csq06OdlxKfugGzN0dSkxM/NfqCxYELK4KcaTOUOjTV6Dcng==}
-    dev: false
 
   /redent@3.0.0:
     resolution: {integrity: sha512-6tDA8g98We0zd0GvVeMT9arEOnTw9qM03L9cJXaCjrip1OO764RDBLBfrB4cwzNGDj5OA5ioymC9GkizgWJDUg==}
